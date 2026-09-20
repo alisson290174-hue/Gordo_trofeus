@@ -75,5 +75,6 @@ publish:
   provider: github
   owner: alisson290174-hue
   repo: Gordo_trofeus
+  releaseType: release
 electronDownload:
   mirror: https://npmmirror.com/mirrors/electron/

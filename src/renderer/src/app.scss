@@ -1,5 +1,11 @@
 @use "./scss/globals.scss";
 
+// Default accent for the theming hooks (--color-primary etc.) that a custom theme
+// would otherwise set — without this, checkboxes/radios/focus rings had no color at all.
+:root {
+  --color-primary: #{globals.$brand-blue};
+}
+
 * {
   box-sizing: border-box;
 }
@@ -152,7 +158,7 @@ progress[value] {
   }
 
   &__cloud-text {
-    background: linear-gradient(270deg, #16b195 50%, #3e62c0 100%);
+    background: linear-gradient(270deg, #a3b06a 50%, #7c6b9c 100%);
     background-clip: text;
     color: transparent;
   }

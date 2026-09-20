@@ -58,20 +58,29 @@ const recentGamesStatement = db.prepare(`
   LIMIT ?
 `);
 
-const searchGamesStatement = db.prepare(`
-  SELECT DISTINCT sg.*
+/** A shuffled sample of the catalogue — different from "hot" so the home tabs don't all show the
+ * same handful of games (the pool is randomized per request, not per-user). */
+const shuffledGamesStatement = db.prepare(`
+  SELECT sg.*
   FROM steam_games sg
   JOIN game_repacks gr ON gr.appid = sg.appid
-  WHERE sg.title LIKE ?
-  ORDER BY sg.title ASC
-  LIMIT ? OFFSET ?
+  GROUP BY sg.appid
+  ORDER BY RANDOM()
+  LIMIT ?
 `);
-const countSearchGamesStatement = db.prepare(`
-  SELECT COUNT(DISTINCT sg.appid) as total
+
+/** Games ranked by how many achievements we have cataloged for them, falling back to recency for
+ * games that tie (most commonly 0, before their achievement list has ever been fetched). */
+const mostAchievementsGamesStatement = db.prepare(`
+  SELECT sg.*, COUNT(DISTINCT ac.name) as achievement_count, MAX(gr.created_at) as latest_repack_at
   FROM steam_games sg
   JOIN game_repacks gr ON gr.appid = sg.appid
-  WHERE sg.title LIKE ?
+  LEFT JOIN achievement_catalogue ac ON ac.shop = 'steam' AND ac.object_id = CAST(sg.appid AS TEXT)
+  GROUP BY sg.appid
+  ORDER BY achievement_count DESC, latest_repack_at DESC
+  LIMIT ?
 `);
+
 
 const distinctFieldStatement = (column: "genres" | "developers" | "publishers") =>
   db.prepare(`SELECT ${column} FROM steam_games WHERE ${column} IS NOT NULL`);
@@ -141,6 +150,31 @@ export function registerCatalogueRoutes(app: FastifyInstance) {
   });
 
   app.get<{ Params: { shop: string; objectId: string } }>(
+    "/games/:shop/:objectId/stats",
+    async (request, reply) => {
+      const { shop, objectId } = request.params;
+      const { total: downloadCount } = db
+        .prepare("SELECT COUNT(*) as total FROM profile_games WHERE shop = ? AND object_id = ?")
+        .get(shop, objectId) as { total: number };
+      const { total: playerCount } = db
+        .prepare(
+          "SELECT COUNT(*) as total FROM profile_games WHERE shop = ? AND object_id = ? AND play_time_ms > 0"
+        )
+        .get(shop, objectId) as { total: number };
+
+      reply.send({ downloadCount, playerCount, averageScore: null, reviewCount: 0 });
+    }
+  );
+
+  app.post<{ Params: { shop: string; objectId: string } }>(
+    "/games/:shop/:objectId/download",
+    async (_request, reply) => {
+      // Analytics-only signal from the client after a download starts — nothing to persist yet.
+      reply.send({ ok: true });
+    }
+  );
+
+  app.get<{ Params: { shop: string; objectId: string } }>(
     "/games/:shop/:objectId/assets",
     async (request, reply) => {
       const { shop, objectId } = request.params;
@@ -155,16 +189,66 @@ export function registerCatalogueRoutes(app: FastifyInstance) {
   );
 
   app.post<{
-    Body: { data?: { title?: string; query?: string; take?: number; skip?: number } };
+    Body: {
+      title?: string;
+      query?: string;
+      take?: number;
+      skip?: number;
+      shops?: string[];
+      genres?: string[];
+      publishers?: string[];
+      developers?: string[];
+      // Kept for backwards compatibility with an earlier client contract that nested
+      // these same fields under `data` — the real client sends them at the top level.
+      data?: {
+        title?: string;
+        query?: string;
+        take?: number;
+        skip?: number;
+        shops?: string[];
+        genres?: string[];
+        publishers?: string[];
+        developers?: string[];
+      };
+    };
   }>("/catalogue/search", async (request, reply) => {
-    const data = request.body?.data ?? {};
-    const term = data.title ?? data.query ?? "";
-    const take = data.take ?? 20;
-    const skip = data.skip ?? 0;
+    const body = { ...request.body, ...request.body?.data };
+    const term = body.title ?? body.query ?? "";
+    const take = body.take ?? 20;
+    const skip = body.skip ?? 0;
     const likeTerm = `%${term}%`;
 
-    const games = searchGamesStatement.all(likeTerm, take, skip) as unknown as SteamGameRow[];
-    const { total } = countSearchGamesStatement.get(likeTerm) as { total: number };
+    // This catalogue only has Steam games matched — a "classics" (launchbox) search has nothing to return.
+    if (body.shops && body.shops.length > 0 && !body.shops.includes("steam")) {
+      return reply.send({ edges: [], count: 0 });
+    }
+
+    const conditions = ["sg.title LIKE ?"];
+    const params: string[] = [likeTerm];
+    for (const [column, values] of [
+      ["genres", body.genres],
+      ["publishers", body.publishers],
+      ["developers", body.developers],
+    ] as const) {
+      for (const value of values ?? []) {
+        conditions.push(`sg.${column} LIKE ?`);
+        params.push(`%${JSON.stringify(value.trim()).slice(1, -1)}%`);
+      }
+    }
+    const whereClause = conditions.join(" AND ");
+
+    const games = db
+      .prepare(
+        `SELECT DISTINCT sg.* FROM steam_games sg JOIN game_repacks gr ON gr.appid = sg.appid
+         WHERE ${whereClause} ORDER BY sg.title ASC LIMIT ? OFFSET ?`
+      )
+      .all(...params, take, skip) as unknown as SteamGameRow[];
+    const { total } = db
+      .prepare(
+        `SELECT COUNT(DISTINCT sg.appid) as total FROM steam_games sg JOIN game_repacks gr ON gr.appid = sg.appid
+         WHERE ${whereClause}`
+      )
+      .get(...params) as { total: number };
 
     reply.send({
       edges: games.map((g) => toCatalogueSearchResult(g, downloadSourceIdsForGame(g.appid))),
@@ -172,17 +256,23 @@ export function registerCatalogueRoutes(app: FastifyInstance) {
     });
   });
 
-  app.get<{ Querystring: { take?: string } }>(
+  app.get<{ Params: { category: string }; Querystring: { take?: string } }>(
     "/catalogue/:category(hot|weekly|achievements)",
     async (request, reply) => {
       const take = Number(request.query.take ?? 12);
-      const games = recentGamesStatement.all(take) as unknown as SteamGameRow[];
+      const statement =
+        request.params.category === "achievements"
+          ? mostAchievementsGamesStatement
+          : request.params.category === "weekly"
+            ? shuffledGamesStatement
+            : recentGamesStatement;
+      const games = statement.all(take) as unknown as SteamGameRow[];
       reply.send(games.map((g) => toCatalogueSearchResult(g, downloadSourceIdsForGame(g.appid))));
     }
   );
 
   app.get("/catalogue/featured", async (_request, reply) => {
-    const games = recentGamesStatement.all(10) as unknown as SteamGameRow[];
+    const games = shuffledGamesStatement.all(10) as unknown as SteamGameRow[];
     reply.send(
       games.map((g) => ({
         ...toShopAssets(g, downloadSourceIdsForGame(g.appid)),
@@ -224,4 +314,11 @@ export function registerCatalogueRoutes(app: FastifyInstance) {
   );
 
   app.get("/catalogue/filters", async (_request, reply) => reply.send({}));
+
+  // The automatic "scan my Steam folders" feature needs a huge, crowd-sourced
+  // executable-name -> appid database we don't have and can't build here. Returning an
+  // empty catalog (instead of 404) just stops the client's retry loop from erroring —
+  // it doesn't make auto-detection work. Linking an installed copy from a game's own
+  // page (which already knows its appid) is the path that actually works.
+  app.get("/catalogue/steam/executables", async (_request, reply) => reply.send({}));
 }

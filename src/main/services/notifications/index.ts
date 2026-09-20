@@ -1,4 +1,4 @@
-import { Notification } from "electron";
+import { dialog, Notification } from "electron";
 import { t } from "i18next";
 import trayIcon from "@resources/tray-icon.png?asset";
 import fs from "node:fs";
@@ -195,8 +195,24 @@ export const publishNotificationUpdateReadyToInstall = async (
     body,
     icon: trayIcon,
   })
-    .on("click", () => {
-      restartAndInstallUpdate();
+    .on("click", async () => {
+      // A single accidental click on the OS toast used to close and reinstall the app
+      // instantly, with no way back — confirm first, same as clicking it should always have done.
+      const { response } = await dialog.showMessageBox({
+        type: "question",
+        buttons: [
+          t("restart_now", { ns: "notifications", defaultValue: "Restart now" }),
+          t("cancel", { ns: "notifications", defaultValue: "Cancel" }),
+        ],
+        defaultId: 0,
+        cancelId: 1,
+        title,
+        message: body,
+      });
+
+      if (response === 0) {
+        restartAndInstallUpdate();
+      }
     })
     .show();
 

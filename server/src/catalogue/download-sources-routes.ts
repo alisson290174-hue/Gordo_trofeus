@@ -79,20 +79,26 @@ async function processDownloadSource(sourceId: string, url: string) {
 
     let matchedCount = 0;
     for (const entry of feed.downloads) {
-      const appid = await matchRepackTitleToSteamGame(entry.title);
-      if (!appid) continue;
+      // A single bad entry (network hiccup, malformed Steam response) must not abort the whole
+      // feed — sources can have thousands of titles, and one failure used to mark all of them lost.
+      try {
+        const appid = await matchRepackTitleToSteamGame(entry.title);
+        if (!appid) continue;
 
-      insertRepackStatement.run({
-        id: crypto.randomUUID(),
-        appid,
-        title: entry.title,
-        fileSize: entry.fileSize ?? null,
-        uris: JSON.stringify(entry.uris),
-        uploadDate: entry.uploadDate ?? null,
-        downloadSourceId: sourceId,
-        createdAt: new Date().toISOString(),
-      });
-      matchedCount++;
+        insertRepackStatement.run({
+          id: crypto.randomUUID(),
+          appid,
+          title: entry.title,
+          fileSize: entry.fileSize ?? null,
+          uris: JSON.stringify(entry.uris),
+          uploadDate: entry.uploadDate ?? null,
+          downloadSourceId: sourceId,
+          createdAt: new Date().toISOString(),
+        });
+        matchedCount++;
+      } catch {
+        continue;
+      }
     }
 
     setStatusStatement.run(matchedCount > 0 ? "MATCHED" : "FAILED", sourceId);

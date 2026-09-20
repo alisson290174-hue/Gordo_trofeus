@@ -28,8 +28,8 @@ async function searchStoreByTitle(title: string): Promise<SteamSearchItem[]> {
   const response = await fetch(url).catch(() => null);
   if (!response?.ok) return [];
 
-  const data = (await response.json()) as { items?: SteamSearchItem[] };
-  return (data.items ?? []).filter((item) => item.type === "app");
+  const data = (await response.json().catch(() => null)) as { items?: SteamSearchItem[] } | null;
+  return (data?.items ?? []).filter((item) => item.type === "app");
 }
 
 interface SteamAppDetails {
@@ -47,11 +47,11 @@ async function fetchAppDetails(appid: number): Promise<SteamAppDetails | null> {
   const response = await fetch(url).catch(() => null);
   if (!response?.ok) return null;
 
-  const data = (await response.json()) as Record<
+  const data = (await response.json().catch(() => null)) as Record<
     string,
     { success: boolean; data?: SteamAppDetails }
-  >;
-  return data[String(appid)]?.data ?? null;
+  > | null;
+  return data?.[String(appid)]?.data ?? null;
 }
 
 function coverUrlsFor(appid: number) {
