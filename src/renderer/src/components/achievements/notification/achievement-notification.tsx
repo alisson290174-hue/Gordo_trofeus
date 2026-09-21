@@ -3,10 +3,22 @@ import {
   AchievementNotificationInfo,
 } from "@types";
 import cn from "classnames";
+import { getAchievementTier } from "@shared";
 import HydraIcon from "@renderer/assets/icons/hydra.svg?react";
 import { EyeClosedIcon } from "@primer/octicons-react";
 import Ellipses from "@renderer/assets/icons/ellipses.png";
+import TierBadgePlatinum from "@renderer/assets/achievements/tier-badge-platinum.png";
+import TierBadgeGold from "@renderer/assets/achievements/tier-badge-gold.png";
+import TierBadgeSilver from "@renderer/assets/achievements/tier-badge-silver.png";
+import TierBadgeBronze from "@renderer/assets/achievements/tier-badge-bronze.png";
 import "./achievement-notification.scss";
+
+const TIER_BADGES = {
+  platinum: TierBadgePlatinum,
+  gold: TierBadgeGold,
+  silver: TierBadgeSilver,
+  bronze: TierBadgeBronze,
+};
 
 interface AchievementNotificationProps {
   position: AchievementCustomNotificationPosition;
@@ -22,6 +34,10 @@ export function AchievementNotificationItem({
   isPaused = false,
 }: Readonly<AchievementNotificationProps>) {
   const baseClassName = "achievement-notification";
+  const tier = getAchievementTier({
+    isPlatinum: achievement.isPlatinum,
+    globalUnlockPercent: achievement.globalUnlockPercent,
+  });
 
   return (
     <div
@@ -32,6 +48,7 @@ export function AchievementNotificationItem({
         [`${baseClassName}--hidden`]: achievement.isHidden,
         [`${baseClassName}--rare`]: achievement.isRare,
         [`${baseClassName}--platinum`]: achievement.isPlatinum,
+        [`${baseClassName}--silver`]: tier === "silver",
       })}
     >
       {achievement.points !== undefined && (
@@ -46,11 +63,18 @@ export function AchievementNotificationItem({
       <div className="achievement-notification__outer-container">
         <div className="achievement-notification__container">
           <div className="achievement-notification__content">
-            <img
-              src={achievement.iconUrl}
-              alt={achievement.title}
-              className="achievement-notification__icon"
-            />
+            <div className="achievement-notification__icon-wrapper">
+              <img
+                src={achievement.iconUrl}
+                alt={achievement.title}
+                className="achievement-notification__icon"
+              />
+              <img
+                src={TIER_BADGES[tier]}
+                alt=""
+                className="achievement-notification__tier-badge"
+              />
+            </div>
             <div className="achievement-notification__text-container">
               <p className="achievement-notification__title">
                 {achievement.isHidden && (

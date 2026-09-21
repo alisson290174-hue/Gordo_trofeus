@@ -116,6 +116,7 @@ export function registerAchievementRoutes(app: FastifyInstance) {
           icongray: a.icongray,
           hidden: Boolean(a.hidden),
           points: a.points,
+          globalUnlockPercent: a.global_unlock_percent,
         }))
       );
     }
@@ -240,6 +241,7 @@ export function registerAchievementRoutes(app: FastifyInstance) {
           icongray: a.icongray,
           hidden: Boolean(a.hidden),
           points: a.points,
+          globalUnlockPercent: a.global_unlock_percent,
           unlocked: Boolean(unlock),
           unlockTime: unlock?.unlock_time ?? null,
           hardcoreUnlockTime: unlock?.hardcore_unlock_time ?? null,

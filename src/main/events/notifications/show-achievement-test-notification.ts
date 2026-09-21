@@ -19,9 +19,14 @@ const showAchievementTestNotification = async (
   const position =
     userPreferences.achievementCustomNotificationPosition ?? "top-left";
   const testAchievements = [
-    generateAchievementCustomNotificationTest(t, language),
     generateAchievementCustomNotificationTest(t, language, {
-      isRare: true,
+      globalUnlockPercent: 65,
+    }),
+    generateAchievementCustomNotificationTest(t, language, {
+      globalUnlockPercent: 25,
+    }),
+    generateAchievementCustomNotificationTest(t, language, {
+      globalUnlockPercent: 5,
       isHidden: true,
     }),
     generateAchievementCustomNotificationTest(t, language, {

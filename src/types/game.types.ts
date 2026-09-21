@@ -17,6 +17,8 @@ export interface SteamAchievement {
   icongray: string;
   hidden: boolean;
   points?: number;
+  /** % of players who unlocked this globally (Steam's own rarity signal); null if unknown. */
+  globalUnlockPercent?: number | null;
 }
 
 export interface UserAchievement extends SteamAchievement {

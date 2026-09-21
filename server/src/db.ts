@@ -124,6 +124,14 @@ CREATE TABLE IF NOT EXISTS blocks (
 );
 `);
 
+// Migração leve, idempotente — coluna adicionada após o deploy inicial. ALTER TABLE ADD COLUMN
+// falha se a coluna já existir, então o catch cobre o caso "já migrado" sem checar antes.
+try {
+  db.exec("ALTER TABLE achievement_catalogue ADD COLUMN global_unlock_percent REAL");
+} catch {
+  // coluna já existe
+}
+
 // Seed da allowlist a partir do .env — idempotente, roda a cada boot.
 const seedAllowedSteamId = db.prepare(
   `INSERT INTO allowed_steam_ids (steam_id, note, added_at)

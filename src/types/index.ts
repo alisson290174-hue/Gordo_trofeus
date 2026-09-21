@@ -488,6 +488,7 @@ export interface AchievementNotificationInfo {
   isRare: boolean;
   isPlatinum: boolean;
   points?: number;
+  globalUnlockPercent?: number | null;
 }
 
 export type AchievementNotificationRequest = {

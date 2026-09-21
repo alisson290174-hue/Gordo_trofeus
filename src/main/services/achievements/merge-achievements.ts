@@ -8,7 +8,7 @@ import type {
   User,
   UserPreferences,
 } from "@types";
-import { isAchievementSouvenirsEnabled } from "@shared";
+import { getAchievementTier, isAchievementSouvenirsEnabled } from "@shared";
 import { randomUUID } from "node:crypto";
 import { WindowManager } from "../window-manager";
 import { HydraApi } from "../hydra-api";
@@ -31,12 +31,6 @@ import {
   getGroupedSouvenirErrorCode,
   SOUVENIR_LIMIT_ERROR_CODE,
 } from "./grouped-souvenir-retry-policy";
-
-const isRareAchievement = (points: number) => {
-  const rawPercentage = (50 - Math.sqrt(points)) * 2;
-
-  return rawPercentage < 10;
-};
 
 const captureAchievementSouvenirs = async (
   game: Game,
@@ -209,18 +203,23 @@ const publishAchievementUnlockNotifications = ({
 
   const achievementsInfo: AchievementNotificationInfo[] =
     filteredAchievements.map((achievement, index) => {
+      const isPlatinum =
+        index === filteredAchievements.length - 1 &&
+        newAchievements.length + unlockedAchievements.length ===
+          achievementsData.length;
+
       return {
         title: achievement.displayName,
         description: achievement.description,
         points: achievement.points,
         isHidden: achievement.hidden,
-        isRare: achievement.points
-          ? isRareAchievement(achievement.points)
-          : false,
-        isPlatinum:
-          index === filteredAchievements.length - 1 &&
-          newAchievements.length + unlockedAchievements.length ===
-            achievementsData.length,
+        isRare:
+          getAchievementTier({
+            isPlatinum: false,
+            globalUnlockPercent: achievement.globalUnlockPercent ?? null,
+          }) === "gold",
+        isPlatinum,
+        globalUnlockPercent: achievement.globalUnlockPercent ?? null,
         iconUrl: achievement.icon,
       };
     });

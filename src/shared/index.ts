@@ -22,6 +22,7 @@ import { charMap } from "./char-map";
 import { Downloader } from "./constants";
 import { format } from "date-fns";
 import { AchievementNotificationInfo, GameRepack } from "@types";
+import { getAchievementTier } from "./achievement-tier";
 
 export * from "./archive-org";
 export * from "./constants";
@@ -48,6 +49,7 @@ export * from "./retroarch-platform";
 export * from "./tracker-list";
 export * from "./souvenirs";
 export * from "./souvenir-sync";
+export * from "./achievement-tier";
 
 export class UserNotLoggedInError extends Error {
   constructor() {
@@ -330,8 +332,15 @@ export const formatDate = (
 export const generateAchievementCustomNotificationTest = (
   t: any,
   language?: string,
-  options: { isHidden?: boolean; isRare?: boolean; isPlatinum?: boolean } = {}
+  options: {
+    isHidden?: boolean;
+    isPlatinum?: boolean;
+    globalUnlockPercent?: number | null;
+  } = {}
 ): AchievementNotificationInfo => {
+  const globalUnlockPercent = options.globalUnlockPercent ?? null;
+  const isPlatinum = options.isPlatinum ?? false;
+
   return {
     title: t("test_achievement_notification_title", {
       ns: "notifications",
@@ -344,8 +353,10 @@ export const generateAchievementCustomNotificationTest = (
     iconUrl: "https://cdn.losbroxas.org/favicon.svg",
     points: 2440,
     isHidden: options.isHidden ?? false,
-    isRare: options.isRare ?? false,
-    isPlatinum: options.isPlatinum ?? false,
+    isRare:
+      getAchievementTier({ isPlatinum: false, globalUnlockPercent }) === "gold",
+    isPlatinum,
+    globalUnlockPercent,
   };
 };
 export * from "./emulator-systems";
