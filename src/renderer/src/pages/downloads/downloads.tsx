@@ -20,7 +20,7 @@ import {
   type SeedingStatus,
 } from "../../../../types";
 import { orderBy } from "lodash-es";
-import { ArrowDownIcon } from "@primer/octicons-react";
+import EmptyDownloadsIllustration from "@renderer/assets/empty-states/empty-downloads.png";
 
 export default function Downloads() {
   const { library, updateLibrary } = useLibrary();
@@ -203,9 +203,11 @@ export default function Downloads() {
         </section>
       ) : (
         <div className="downloads__no-downloads">
-          <div className="downloads__arrow-icon">
-            <ArrowDownIcon size={24} />
-          </div>
+          <img
+            src={EmptyDownloadsIllustration}
+            alt=""
+            className="downloads__empty-illustration"
+          />
           <h2>{t("no_downloads_title")}</h2>
           <p>{t("no_downloads_description")}</p>
         </div>

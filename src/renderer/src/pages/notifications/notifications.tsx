@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { BellIcon } from "@primer/octicons-react";
+import EmptyNotificationsIllustration from "@renderer/assets/empty-states/empty-notifications.png";
 import { useTranslation } from "react-i18next";
 import { AnimatePresence, motion } from "framer-motion";
 import { Button } from "@renderer/components";
@@ -534,9 +534,11 @@ export default function Notifications() {
           >
             {hasNoNotifications && !isClearing ? (
               <div className="notifications__empty">
-                <div className="notifications__icon-container">
-                  <BellIcon size={24} />
-                </div>
+                <img
+                  src={EmptyNotificationsIllustration}
+                  alt=""
+                  className="notifications__empty-illustration"
+                />
                 <h2>{t("empty_title")}</h2>
                 <p>
                   {filter === "unread"

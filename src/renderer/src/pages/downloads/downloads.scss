@@ -13,14 +13,9 @@
     flex-direction: column;
   }
 
-  &__arrow-icon {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.06);
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  &__empty-illustration {
+    width: 160px;
+    height: 160px;
     margin-bottom: calc(globals.$spacing-unit * 2);
   }
 

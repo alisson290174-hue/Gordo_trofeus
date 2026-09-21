@@ -77,6 +77,37 @@
     line-height: 1.4;
   }
 
+  &__karma-ring {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    flex-shrink: 0;
+
+    &__bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    &__progress {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    &__level {
+      position: relative;
+      font-size: 9px;
+      font-weight: 700;
+      color: #fff;
+    }
+  }
+
   &__wrapped-link {
     background: none;
     border: none;

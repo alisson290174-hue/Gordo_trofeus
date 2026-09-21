@@ -18,11 +18,11 @@ import {
 import { setHeaderTitle } from "@renderer/features";
 import {
   HeartIcon,
-  TelescopeIcon,
   FileDirectoryIcon,
-  SearchIcon,
   SyncIcon,
 } from "@primer/octicons-react";
+import EmptyLibraryIllustration from "@renderer/assets/empty-states/empty-library.png";
+import EmptySearchIllustration from "@renderer/assets/empty-states/empty-search.png";
 import { useTranslation } from "react-i18next";
 import { AuthPage, removeDiacritics } from "@shared";
 import { GameCollection, LibraryGame } from "@types";
@@ -606,9 +606,11 @@ export default function Library() {
 
       {!hasGames && !shouldShowClassicsImporting && (
         <div className="library__no-games">
-          <div className="library__telescope-icon">
-            <TelescopeIcon size={24} />
-          </div>
+          <img
+            src={EmptyLibraryIllustration}
+            alt=""
+            className="library__empty-illustration"
+          />
           <h2>{t("no_games_title")}</h2>
           <p>{t("no_games_description")}</p>
         </div>
@@ -646,9 +648,11 @@ export default function Library() {
 
       {shouldShowNoResultsEmptyState && (
         <div className="library__empty">
-          <div className="library__icon-container">
-            <SearchIcon size={24} />
-          </div>
+          <img
+            src={EmptySearchIllustration}
+            alt=""
+            className="library__empty-illustration"
+          />
           <h2>{t("no_results")}</h2>
           <p>{t("no_results_description")}</p>
         </div>
