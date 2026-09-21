@@ -5,7 +5,6 @@ export const levelKeys = {
   game: (shop: GameShop, objectId: string) => `${shop}:${objectId}`,
   user: "user",
   auth: "auth",
-  themes: "themes",
   gameShopAssets: "gameShopAssets",
   artworkSelection: "artworkSelection",
   gameStatsCache: "gameStatsAssets",
