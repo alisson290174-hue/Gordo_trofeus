@@ -101,6 +101,17 @@ CREATE TABLE IF NOT EXISTS souvenir_reports (
   created_at TEXT NOT NULL
 );
 
+-- Coleções de jogos (pastas que o usuário cria pra organizar a biblioteca)
+CREATE TABLE IF NOT EXISTS game_collections (
+  id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id),
+  name TEXT NOT NULL, created_at TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS game_collection_items (
+  collection_id TEXT NOT NULL REFERENCES game_collections(id),
+  profile_game_id TEXT NOT NULL REFERENCES profile_games(id),
+  PRIMARY KEY (collection_id, profile_game_id)
+);
+
 -- Amigos / bloqueio
 CREATE TABLE IF NOT EXISTS relations (
   a_id TEXT NOT NULL REFERENCES users(id), b_id TEXT NOT NULL REFERENCES users(id),

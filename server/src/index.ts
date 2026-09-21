@@ -12,6 +12,8 @@ import { registerAchievementRoutes } from "./achievements/routes.js";
 import { registerSouvenirRoutes } from "./souvenirs/routes.js";
 import { registerFriendRoutes } from "./friends/routes.js";
 import { registerPublicProfileRoutes } from "./profile/public-routes.js";
+import { registerCollectionRoutes } from "./collections/routes.js";
+import { registerMiscRoutes } from "./misc-routes.js";
 
 const app = Fastify({ logger: true });
 
@@ -21,6 +23,10 @@ app.addContentTypeParser(
   { parseAs: "buffer" },
   (_request, payload, done) => done(null, payload)
 );
+
+// Some client calls (e.g. HydraApi.post(url, null)) send no body and no Content-Type at all —
+// Fastify has no parser for that by default and rejects with 415. Treat it as an empty body.
+app.addContentTypeParser("*", (_request, _payload, done) => done(null, undefined));
 
 await app.register(fastifyStatic, {
   root: uploadsDir,
@@ -37,6 +43,8 @@ registerAchievementRoutes(app);
 registerSouvenirRoutes(app);
 registerFriendRoutes(app);
 registerPublicProfileRoutes(app);
+registerCollectionRoutes(app);
+registerMiscRoutes(app);
 
 app.get("/health", async () => ({ ok: true }));
 
