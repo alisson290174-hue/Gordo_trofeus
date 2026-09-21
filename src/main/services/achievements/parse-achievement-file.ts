@@ -70,6 +70,11 @@ const ACHIEVEMENT_PARSERS: Partial<
   [Cracker.razor1911]: processRazor1911,
   [Cracker.Steam]: (filePath) =>
     processSteamCacheAchievement(jsonParse(filePath)),
+  // Both use the same "Achieved"/"UnlockTime" INI convention as CODEX/RUNE above — these two
+  // crackers were only ever wired up to be found (find-achievement-files.ts), never parsed, so
+  // any game using them silently synced nothing.
+  [Cracker.smartSteamEmu]: (filePath) => processDefault(iniParse(filePath)),
+  [Cracker.rle]: (filePath) => processDefault(iniParse(filePath)),
 };
 
 export const parseAchievementFile = (

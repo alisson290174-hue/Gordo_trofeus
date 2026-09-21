@@ -94,6 +94,18 @@ const findSteamSettingsFiles = async (steamSettingsDirectories: string[]) => {
 
   await Promise.all(
     steamSettingsDirectories.map(async (steamSettingsDirectory) => {
+      // Single-game repacks commonly keep the Goldberg emulator state flat, directly in
+      // "steam_settings/achievements.json" — there's only one game, so nothing needs the
+      // "<appid>/achievements.json" disambiguation that multi-game "cold client" setups use.
+      const flatFilePath = path.join(
+        steamSettingsDirectory,
+        ACHIEVEMENTS_FILE_NAME
+      );
+
+      if (await isFile(flatFilePath)) {
+        achievementFiles.push({ type: Cracker.goldberg, filePath: flatFilePath });
+      }
+
       const entries = await readDirectorySafe(steamSettingsDirectory);
 
       for (const entry of entries ?? []) {
