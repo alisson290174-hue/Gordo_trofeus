@@ -2,6 +2,8 @@ import { DownloadIcon, PeopleIcon } from "@primer/octicons-react";
 import type { GameStats, ShopAssets } from "@types";
 
 import SteamLogo from "@renderer/assets/steam-logo.svg?react";
+import CoverPlaceholder from "@renderer/assets/library-catalogue/cover-placeholder.png";
+import GameCardFrame from "@renderer/assets/library-catalogue/gamecard-frame.png";
 
 import "./game-card.scss";
 
@@ -47,9 +49,16 @@ export function GameCard({ game, ...props }: GameCardProps) {
     >
       <div className="game-card__backdrop">
         <img
-          src={game.libraryImageUrl ?? undefined}
+          src={game.libraryImageUrl ?? CoverPlaceholder}
           alt={game.title}
           className="game-card__cover"
+          loading="lazy"
+        />
+
+        <img
+          src={GameCardFrame}
+          alt=""
+          className="game-card__hover-frame"
           loading="lazy"
         />
 

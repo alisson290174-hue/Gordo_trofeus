@@ -4,6 +4,7 @@ import type { TrendingGame } from "@types";
 import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 import { ensureArray } from "@renderer/helpers";
+import HeroPlaceholder from "@renderer/assets/library-catalogue/hero-placeholder.jpg";
 import "./hero.scss";
 
 export function Hero() {
@@ -53,7 +54,7 @@ export function Hero() {
       >
         <div className="hero__backdrop">
           <img
-            src={game.libraryHeroImageUrl ?? undefined}
+            src={game.libraryHeroImageUrl ?? HeroPlaceholder}
             alt={game.description ?? ""}
             className="hero__media"
           />

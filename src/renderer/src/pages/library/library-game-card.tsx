@@ -20,13 +20,13 @@ import { useTranslation } from "react-i18next";
 import {
   ClockIcon,
   AlertFillIcon,
-  ImageIcon,
   CheckCircleFillIcon,
 } from "@primer/octicons-react";
 import {
   EMULATOR_ICONS,
   RETROARCH_EMULATOR_ICON,
 } from "@renderer/pages/settings/emulation/emulator-icons";
+import CoverPlaceholder from "@renderer/assets/library-catalogue/cover-placeholder.png";
 import "./library-game-card.scss";
 import { logger } from "@renderer/logger";
 
@@ -174,7 +174,11 @@ export const LibraryGameCard = memo(function LibraryGameCard({
     if (imageError || !activeImageSource) {
       return (
         <div className="library-game-card__cover-placeholder">
-          <ImageIcon size={48} />
+          <img
+            src={CoverPlaceholder}
+            alt=""
+            className="library-game-card__cover-placeholder-image"
+          />
         </div>
       );
     }

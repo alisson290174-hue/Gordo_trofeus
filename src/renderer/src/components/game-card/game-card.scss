@@ -35,6 +35,21 @@
     transition: all ease 0.2s;
   }
 
+  &__hover-frame {
+    width: 100%;
+    height: 100%;
+    object-fit: fill;
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity ease 0.2s;
+    pointer-events: none;
+  }
+
+  &:hover &__hover-frame {
+    opacity: 1;
+  }
+
   &__content {
     color: #dadbe1;
     padding: globals.$spacing-unit calc(globals.$spacing-unit * 2);
