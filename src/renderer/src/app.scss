@@ -157,12 +157,6 @@ progress[value] {
     );
   }
 
-  &__cloud-text {
-    background: linear-gradient(270deg, #a3b06a 50%, #7c6b9c 100%);
-    background-clip: text;
-    color: transparent;
-  }
-
   &__big-picture {
     display: flex;
     align-items: center;
