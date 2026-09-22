@@ -8,9 +8,11 @@ import { db, levelKeys } from "@main/level";
 import { generateAchievementCustomNotificationTest } from "@shared";
 import type { UserPreferences } from "@types";
 import { t } from "i18next";
-import appIconPath from "@resources/icon.png?asset";
+import achievementPlaceholderIconPath from "@resources/achievement-icon-placeholder.png?asset";
 
-const testIconUrl = nativeImage.createFromPath(appIconPath).toDataURL();
+const testIconUrl = nativeImage
+  .createFromPath(achievementPlaceholderIconPath)
+  .toDataURL();
 
 const showAchievementTestNotification = async (
   _event: Electron.IpcMainInvokeEvent

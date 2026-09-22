@@ -15,7 +15,7 @@ import {
   getAchievementSoundVolume,
 } from "@renderer/helpers";
 import { AchievementNotificationItem } from "@renderer/components/achievements/notification/achievement-notification";
-import FallbackIconUrl from "@renderer/assets/icons/app-icon-refresh.png";
+import FallbackIconUrl from "@renderer/assets/icons/achievement-icon-placeholder.png";
 import app from "../../../app.scss?inline";
 import styles from "../../../components/achievements/notification/achievement-notification.scss?inline";
 import root from "react-shadow";
