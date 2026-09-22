@@ -22,8 +22,10 @@ const listFriendsPreviewStatement = db.prepare(
 const listGamesStatement = db.prepare(
   "SELECT * FROM profile_games WHERE user_id = ? ORDER BY last_time_played DESC LIMIT ?"
 );
-const downloadSourceIdsForGameStatement = db.prepare(
-  "SELECT DISTINCT download_source_id FROM game_repacks WHERE appid = ?"
+const downloadSourceNamesForGameStatement = db.prepare(
+  `SELECT DISTINCT ds.name as name FROM game_repacks gr
+   JOIN download_sources ds ON ds.id = gr.download_source_id
+   WHERE gr.appid = ?`
 );
 const achievementCountStatement = db.prepare(
   "SELECT COUNT(*) as total FROM achievement_catalogue WHERE shop = ? AND object_id = ?"
@@ -48,9 +50,9 @@ async function toUserGame(row: ProfileGameRow) {
   const game = row.shop === "steam" ? await getOrCacheSteamGame(appid) : null;
   const downloadSourceIds =
     row.shop === "steam"
-      ? (downloadSourceIdsForGameStatement.all(appid) as { download_source_id: string }[]).map(
-          (r) => r.download_source_id
-        )
+      ? (downloadSourceNamesForGameStatement.all(appid) as { name: string | null }[])
+          .map((r) => r.name)
+          .filter((name): name is string => Boolean(name))
       : [];
 
   const { total: achievementCount } = achievementCountStatement.get(

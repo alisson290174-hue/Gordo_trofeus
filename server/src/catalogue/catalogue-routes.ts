@@ -40,12 +40,14 @@ function toCatalogueSearchResult(game: SteamGameRow, downloadSourceIds: string[]
   };
 }
 
-const downloadSourceIdsForGameStatement = db.prepare(
-  "SELECT DISTINCT download_source_id FROM game_repacks WHERE appid = ?"
+const downloadSourceNamesForGameStatement = db.prepare(
+  `SELECT DISTINCT ds.name as name FROM game_repacks gr
+   JOIN download_sources ds ON ds.id = gr.download_source_id
+   WHERE gr.appid = ?`
 );
 function downloadSourceIdsForGame(appid: number): string[] {
-  const rows = downloadSourceIdsForGameStatement.all(appid) as { download_source_id: string }[];
-  return rows.map((r) => r.download_source_id);
+  const rows = downloadSourceNamesForGameStatement.all(appid) as { name: string | null }[];
+  return rows.map((r) => r.name).filter((name): name is string => Boolean(name));
 }
 
 /** Games that have at least one matched repack, most recently added first. */
