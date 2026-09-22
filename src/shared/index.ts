@@ -331,7 +331,8 @@ export const formatDate = (
 
 export const generateAchievementCustomNotificationTest = (
   t: any,
-  language?: string,
+  language: string | undefined,
+  iconUrl: string,
   options: {
     isHidden?: boolean;
     isPlatinum?: boolean;
@@ -350,7 +351,7 @@ export const generateAchievementCustomNotificationTest = (
       ns: "notifications",
       lng: language ?? "en",
     }),
-    iconUrl: "https://cdn.losbroxas.org/favicon.svg",
+    iconUrl,
     points: 2440,
     isHidden: options.isHidden ?? false,
     isRare:

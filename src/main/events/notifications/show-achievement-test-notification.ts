@@ -1,3 +1,4 @@
+import { nativeImage } from "electron";
 import { registerEvent } from "../register-event";
 import {
   achievementNotificationPresenter,
@@ -7,6 +8,9 @@ import { db, levelKeys } from "@main/level";
 import { generateAchievementCustomNotificationTest } from "@shared";
 import type { UserPreferences } from "@types";
 import { t } from "i18next";
+import appIconPath from "@resources/icon.png?asset";
+
+const testIconUrl = nativeImage.createFromPath(appIconPath).toDataURL();
 
 const showAchievementTestNotification = async (
   _event: Electron.IpcMainInvokeEvent
@@ -19,17 +23,17 @@ const showAchievementTestNotification = async (
   const position =
     userPreferences.achievementCustomNotificationPosition ?? "top-left";
   const testAchievements = [
-    generateAchievementCustomNotificationTest(t, language, {
+    generateAchievementCustomNotificationTest(t, language, testIconUrl, {
       globalUnlockPercent: 65,
     }),
-    generateAchievementCustomNotificationTest(t, language, {
+    generateAchievementCustomNotificationTest(t, language, testIconUrl, {
       globalUnlockPercent: 25,
     }),
-    generateAchievementCustomNotificationTest(t, language, {
+    generateAchievementCustomNotificationTest(t, language, testIconUrl, {
       globalUnlockPercent: 5,
       isHidden: true,
     }),
-    generateAchievementCustomNotificationTest(t, language, {
+    generateAchievementCustomNotificationTest(t, language, testIconUrl, {
       isPlatinum: true,
     }),
   ];
