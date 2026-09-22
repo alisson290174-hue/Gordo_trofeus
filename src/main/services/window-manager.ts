@@ -1067,7 +1067,7 @@ export class WindowManager {
       tray.popUpContextMenu(contextMenu);
     };
 
-    tray.setToolTip("Hydra Launcher");
+    tray.setToolTip("Balói Launcher");
 
     if (process.platform === "win32") {
       await updateSystemTray();
