@@ -26,6 +26,7 @@ $disc-menu-transition-duration: 0.15s;
     align-items: center;
     gap: globals.$spacing-unit;
     border: 0;
+    border-left: 3px solid transparent;
     background: transparent;
     color: globals.$muted-color;
     text-align: left;
@@ -37,14 +38,17 @@ $disc-menu-transition-duration: 0.15s;
     line-height: 1.2;
     transition:
       color 0.2s ease,
-      background-color 0.1s ease;
+      background-color 0.1s ease,
+      border-color 0.1s ease;
 
     &:hover {
       background: rgba(255, 255, 255, 0.15);
     }
 
     &--active {
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(244, 165, 16, 0.1);
+      color: globals.$brand-orange;
+      border-left-color: globals.$brand-orange;
     }
 
     &-icon {

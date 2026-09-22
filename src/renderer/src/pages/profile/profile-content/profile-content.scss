@@ -131,7 +131,7 @@
     gap: calc(globals.$spacing-unit * 0.5);
 
     &--active {
-      color: white;
+      color: globals.$brand-orange;
     }
   }
 
@@ -156,7 +156,7 @@
     left: 0;
     right: 0;
     height: 2px;
-    background: white;
+    background: globals.$brand-orange;
   }
 
   &__game-skeleton {
