@@ -209,7 +209,7 @@ export function CloudSyncPanel({
             <div className="cloud-sync-panel__automatic-sync-label">
               {t("enable_automatic_cloud_sync")}
               <span className="cloud-sync-panel__automatic-sync-badge">
-                Hydra Cloud
+                Balói Cloud
               </span>
             </div>
           }

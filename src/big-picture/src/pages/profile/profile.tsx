@@ -200,7 +200,7 @@ type ProfileHeroAction = {
   onClick: () => void;
 };
 
-const hydraIconUrl = new URL("../../assets/hydra-icon.svg", import.meta.url)
+const appIconUrl = new URL("../../assets/app-icon.svg", import.meta.url)
   .href;
 const WEEKLY_BAR_PLACEHOLDER = [
   { day: "monday", label: "M", height: 0.62 },
@@ -577,7 +577,7 @@ function getExternalProfileActions(
   const giftActions: ProfileHeroAction[] = profile.canReceiveCloudGift
     ? [
         {
-          label: "Gift Hydra Cloud",
+          label: "Gift Balói Cloud",
           variant: "secondary",
           icon: <GiftIcon size={20} />,
           onClick: () => {
@@ -1001,7 +1001,7 @@ function ProfileStats({
           leftLabel="Achievements"
           rightIcon={
             <img
-              src={hydraIconUrl}
+              src={appIconUrl}
               alt=""
               className="profile-page__stat-hydra-icon"
               draggable={false}
@@ -1505,8 +1505,8 @@ function LockedAchievements({
         <SparkleIcon size={24} weight="fill" />
         <p>
           {isOwnProfile
-            ? "You need Hydra Cloud in order to display achievements in your own profile."
-            : "This user is required to have Hydra Cloud in order to display achievements in his profile."}
+            ? "You need Balói Cloud in order to display achievements in your own profile."
+            : "This user is required to have Balói Cloud in order to display achievements in his profile."}
         </p>
       </div>
     </div>

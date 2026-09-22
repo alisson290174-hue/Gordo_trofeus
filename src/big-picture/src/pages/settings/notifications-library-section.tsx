@@ -159,7 +159,7 @@ export function NotificationsLibrarySection({
   return (
     <SettingsSection
       title="Library"
-      description="Choose which library activity notifications Hydra should show."
+      description="Choose which library activity notifications Balói should show."
       className={className}
     >
       <VerticalFocusGroup

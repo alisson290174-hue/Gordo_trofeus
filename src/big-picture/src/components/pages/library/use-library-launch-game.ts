@@ -58,7 +58,7 @@ export function useLibraryLaunchGame(
           const code = getClassicsLaunchErrorCode(error);
           const toast = (code && CLASSICS_LAUNCH_ERROR_TOASTS[code]) || {
             title: "Launch failed",
-            message: "Hydra could not launch this Classics game.",
+            message: "Balói could not launch this Classics game.",
           };
           showErrorToast(toast.title, { message: toast.message });
         }

@@ -27,7 +27,6 @@ import {
   readStoredSouvenirSort,
   type SouvenirGrouping,
 } from "@renderer/helpers";
-import HydraIcon from "@renderer/assets/icons/hydra.svg?react";
 import { useSubscription } from "@renderer/hooks/use-subscription";
 import { LockedProfile } from "./locked-profile";
 import { SouvenirSyncCleanupModal } from "./souvenir-sync-cleanup-modal";
@@ -403,7 +402,7 @@ function SouvenirsEmptyState({
           className="profile-content__souvenirs-empty-action"
           onClick={() => showHydraCloudModal("achievements")}
         >
-          <HydraIcon className="profile-content__souvenirs-empty-hydra-icon" />
+          <Icon name="gift" size={18} />
           <span>{tHydraCloud("learn_more")}</span>
         </Button>
       </div>

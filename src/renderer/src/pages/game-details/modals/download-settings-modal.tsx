@@ -1372,7 +1372,7 @@ export function DownloadSettingsModal({
                     return (
                       <div className="download-settings-modal__recommendation-badge">
                         <span className="download-settings-modal__hydra-cloud-badge">
-                          Hydra Cloud
+                          Balói Cloud
                         </span>
                       </div>
                     );

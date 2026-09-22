@@ -22,7 +22,6 @@ import type {
 
 import ConsoleBackside from "@renderer/assets/emulation/console-backside.svg?react";
 import baloiClassicsCard from "@renderer/assets/emulation/icons/baloi-classics-card.png";
-import HydraIcon from "@renderer/assets/icons/hydra.svg?react";
 
 import { RenameModal, RestoreModal, formatDate } from "./emulation-save-modals";
 
@@ -141,7 +140,7 @@ export function CloudSavesSection({ config, refreshKey }: Readonly<Props>) {
               theme="outline"
               onClick={() => showHydraCloudModal("backup")}
             >
-              <HydraIcon className="emulator-detail__cloud-locked-hydra" />
+              <Icon name="gift" size={16} />
               <span>{tHydraCloud("learn_more")}</span>
             </Button>
           </div>
