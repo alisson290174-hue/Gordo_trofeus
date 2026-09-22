@@ -172,11 +172,12 @@ $margin-bottom: 28px;
     width: calc(360px - $margin-horizontal);
     overflow: clip;
     border: 1px solid #ffffff1a;
+    border-radius: 10px;
     animation:
       content-in 450ms ease-in-out,
       content-wait 450ms ease-in-out 450ms,
       content-expand 450ms ease-in-out 900ms;
-    box-shadow: 0px 2px 16px 0px rgba(0, 0, 0, 0.25);
+    box-shadow: 0px 4px 20px 0px rgba(0, 0, 0, 0.35);
   }
 
   &--top-left &__outer-container {
@@ -213,14 +214,31 @@ $margin-bottom: 28px;
     display: flex;
     padding: 8px 16px 8px 8px;
     background: globals.$background-color;
+    border-left: 3px solid #cd7f32;
   }
 
-  &--platinum &__container {
-    background: linear-gradient(94deg, #1c1c1c -25%, #044838 100%);
+  &--gold &__container {
+    border-left-color: globals.$brand-orange;
+    background: linear-gradient(
+      100deg,
+      globals.$background-color 0%,
+      rgba(244, 165, 16, 0.16) 220%
+    );
   }
 
   &--silver &__container {
+    border-left-color: #c0c5ce;
     background: linear-gradient(94deg, #1c1c1c -25%, #2e3542 100%);
+  }
+
+  &--platinum &__container {
+    border-left-color: globals.$brand-orange;
+    background: linear-gradient(
+      100deg,
+      globals.$brand-navy -30%,
+      #12172a 45%,
+      rgba(244, 165, 16, 0.22) 220%
+    );
   }
 
   &--rare &__container {
@@ -259,8 +277,10 @@ $margin-bottom: 28px;
     min-height: 64px;
     width: 64px;
     height: 64px;
-    border-radius: 2px;
+    border-radius: 8px;
     flex: 1;
+    outline: 1px solid #cd7f32;
+    box-shadow: 0px 0px 10px 0px rgba(205, 127, 50, 0.2);
   }
 
   &--rare &__icon {
@@ -268,9 +288,14 @@ $margin-bottom: 28px;
     box-shadow: 0px 0px 12px 0px rgba(244, 165, 16, 0.25);
   }
 
+  &--gold &__icon {
+    outline: 1px solid #f4a510;
+    box-shadow: 0px 0px 12px 0px rgba(244, 165, 16, 0.3);
+  }
+
   &--platinum &__icon {
-    outline: 1px solid #d9a85c;
-    box-shadow: 0px 0px 12px 0px rgba(217, 168, 92, 0.25);
+    outline: 1px solid #f4a510;
+    box-shadow: 0px 0px 14px 0px rgba(244, 165, 16, 0.35);
   }
 
   &--silver &__icon {
@@ -300,8 +325,8 @@ $margin-bottom: 28px;
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 140px;
-    height: 140px;
+    width: 170px;
+    height: 170px;
     opacity: 0;
     z-index: 0;
     mix-blend-mode: screen;
@@ -359,20 +384,12 @@ $margin-bottom: 28px;
   &--platinum &__trophy-overlay {
     background: linear-gradient(
       118deg,
-      #15e8d6 18.96%,
-      #0fd5a7 26.41%,
-      #15e8b7 29.99%,
-      #15e4b4 38.89%,
-      #0eca7f 42.43%,
-      #0eca9e 46.59%,
-      #1aecbb 50.08%,
-      #1aecb0 53.48%,
-      #0db392 57.39%,
-      #0a6648 75.64%,
-      #13a38b 78.2%,
-      #129862 79.28%,
-      #085042 83.6%,
-      #083e31 85.77%
+      #ffe1a3 12%,
+      #f4a510 32%,
+      #d68a06 46%,
+      #6b4a1f 58%,
+      globals.$brand-navy 75%,
+      #0a0f1f 92%
     );
   }
 
@@ -430,8 +447,12 @@ $margin-bottom: 28px;
   }
 
   &__hidden-icon {
+    display: inline-flex;
+    align-items: center;
     margin-right: 4px;
-    opacity: 0.5;
+    color: globals.$warning-color;
+    opacity: 0.9;
+    vertical-align: -3px;
   }
 
   &__description {
