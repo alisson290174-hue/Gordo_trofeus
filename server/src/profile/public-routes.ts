@@ -257,6 +257,7 @@ export function registerPublicProfileRoutes(app: FastifyInstance) {
         libraryCount: 0,
         friendsCount: 0,
         totalPlayTimeInSeconds: { value: 0, topPercentile: 0 },
+        platinumCount: 0,
       });
     }
 
@@ -287,11 +288,28 @@ export function registerPublicProfileRoutes(app: FastifyInstance) {
         ? Math.round(((ownerRankIndex + 1) / playtimeRanking.length) * 100)
         : 100;
 
+    // Same "platinum" definition as /users/:id/games/platinum: every catalogued
+    // achievement for the game is unlocked, and the game actually has achievements.
+    const ownedGameRows = db
+      .prepare("SELECT id, shop, object_id FROM profile_games WHERE user_id = ?")
+      .all(owner.id) as { id: string; shop: string; object_id: string }[];
+    const platinumCount = ownedGameRows.filter((row) => {
+      const { total } = achievementCountStatement.get(row.shop, row.object_id) as {
+        total: number;
+      };
+      if (total === 0) return false;
+      const { total: unlocked } = unlockedAchievementCountStatement.get(row.id) as {
+        total: number;
+      };
+      return unlocked === total;
+    }).length;
+
     reply.send({
       libraryCount,
       friendsCount,
       totalPlayTimeInSeconds: { value: Math.trunc(totalPlayTimeMs / 1000), topPercentile },
       unlockedAchievementSum,
+      platinumCount,
       // Steam achievements carry no point value in this design (Steam itself has none natively) —
       // always present (not omitted) so the client never renders the Hydra Cloud upsell button here.
       achievementsPointsEarnedSum: { value: 0, topPercentile: 0 },

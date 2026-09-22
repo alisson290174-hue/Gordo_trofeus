@@ -52,6 +52,12 @@
     gap: globals.$spacing-unit;
   }
 
+  &__platinum-icon {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+  }
+
   &__stats-row {
     display: flex;
     justify-content: space-between;

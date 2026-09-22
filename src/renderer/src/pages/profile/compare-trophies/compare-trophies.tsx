@@ -55,25 +55,30 @@ function PlatinumColumn({
         <p className="compare-trophies__empty">{t("compare_trophies_empty")}</p>
       ) : (
         <div className="compare-trophies__grid">
-          {games.map((game) => (
-            <VerticalCoverCard
-              key={`${game.shop}-${game.objectId}`}
-              gameTitle={game.title}
-              coverImageUrls={[game.libraryImageUrl, game.coverImageUrl]}
-              className={
-                sharedObjectIds.has(`${game.shop}-${game.objectId}`)
-                  ? "compare-trophies__card--shared"
-                  : undefined
-              }
-              onClick={() => navigate(buildGameDetailsPath(game))}
-            >
-              <img
-                src={TierBadgePlatinum}
-                alt=""
-                className="compare-trophies__card-badge"
-              />
-            </VerticalCoverCard>
-          ))}
+          {games.map((game) => {
+            const isShared = sharedObjectIds.has(`${game.shop}-${game.objectId}`);
+
+            return (
+              <VerticalCoverCard
+                key={`${game.shop}-${game.objectId}`}
+                gameTitle={game.title}
+                coverImageUrls={[game.libraryImageUrl, game.coverImageUrl]}
+                className={isShared ? "compare-trophies__card--shared" : undefined}
+                title={
+                  isShared
+                    ? `${game.title} — ${t("compare_trophies_both_platinumed")}`
+                    : undefined
+                }
+                onClick={() => navigate(buildGameDetailsPath(game))}
+              >
+                <img
+                  src={TierBadgePlatinum}
+                  alt=""
+                  className="compare-trophies__card-badge"
+                />
+              </VerticalCoverCard>
+            );
+          })}
         </div>
       )}
     </div>

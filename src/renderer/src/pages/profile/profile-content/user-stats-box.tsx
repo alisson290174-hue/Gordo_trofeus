@@ -7,6 +7,7 @@ import { MAX_MINUTES_TO_SHOW_IN_PLAYTIME } from "@renderer/constants";
 import { useSubscription } from "@renderer/hooks/use-subscription";
 
 import KarmaLevelRingBg from "@renderer/assets/profile/karma-level-ring-bg.png";
+import TierBadgePlatinum from "@renderer/assets/achievements/tier-badge-platinum.png";
 import "./user-stats-box.scss";
 
 const KARMA_PER_LEVEL = 100;
@@ -97,6 +98,22 @@ export function UserStatsBox() {
                 </small>
               </button>
             )}
+          </li>
+        )}
+
+        {userStats.platinumCount !== undefined && userStats.platinumCount > 0 && (
+          <li className="user-stats__list-item">
+            <h3 className="user-stats__list-title">{t("platinums_earned")}</h3>
+            <div className="user-stats__stats-row">
+              <p className="user-stats__list-description">
+                <img
+                  src={TierBadgePlatinum}
+                  alt=""
+                  className="user-stats__platinum-icon"
+                />{" "}
+                {userStats.platinumCount} {t("platinums")}
+              </p>
+            </div>
           </li>
         )}
 

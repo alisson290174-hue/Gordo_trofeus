@@ -439,6 +439,7 @@ export interface UserStats {
   totalPlayTimeInSeconds: UserStatsPercentile;
   achievementsPointsEarnedSum?: UserStatsPercentile;
   unlockedAchievementSum?: number;
+  platinumCount?: number;
 }
 
 export interface UpdatedUnlockedAchievements {
