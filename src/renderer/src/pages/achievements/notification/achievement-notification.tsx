@@ -15,7 +15,11 @@ import {
   getAchievementSoundVolume,
 } from "@renderer/helpers";
 import { AchievementNotificationItem } from "@renderer/components/achievements/notification/achievement-notification";
-import FallbackIconUrl from "@renderer/assets/icons/achievement-icon-placeholder.png";
+import { getAchievementTier } from "@shared";
+import BronzeFallbackIconUrl from "@renderer/assets/icons/achievement-icon-placeholder-bronze.png";
+import SilverFallbackIconUrl from "@renderer/assets/icons/achievement-icon-placeholder-silver.png";
+import GoldFallbackIconUrl from "@renderer/assets/icons/achievement-icon-placeholder-gold.png";
+import PlatinumFallbackIconUrl from "@renderer/assets/icons/achievement-icon-placeholder-platinum.png";
 import app from "../../../app.scss?inline";
 import styles from "../../../components/achievements/notification/achievement-notification.scss?inline";
 import root from "react-shadow";
@@ -24,6 +28,21 @@ const NOTIFICATION_TIMEOUT = 4_000;
 const CLOSING_TIMEOUT = 450;
 const IMAGE_PREPARATION_TIMEOUT = 2_000;
 const VISIBILITY_TIMEOUT = 1_000;
+
+const TIER_FALLBACK_ICON_URLS = {
+  bronze: BronzeFallbackIconUrl,
+  silver: SilverFallbackIconUrl,
+  gold: GoldFallbackIconUrl,
+  platinum: PlatinumFallbackIconUrl,
+};
+
+const getTierFallbackIconUrl = (
+  isPlatinum: boolean,
+  globalUnlockPercent: number | null | undefined
+) =>
+  TIER_FALLBACK_ICON_URLS[
+    getAchievementTier({ isPlatinum, globalUnlockPercent: globalUnlockPercent ?? null })
+  ];
 
 type NotificationPhase = "idle" | "prepared" | "playing" | "closing";
 
@@ -81,7 +100,10 @@ const waitForVisibleFrame = (): Promise<void> => {
   });
 };
 
-const resolveImageUrl = (source: string): Promise<string> => {
+const resolveImageUrl = (
+  source: string,
+  fallbackUrl: string
+): Promise<string> => {
   return new Promise((resolve) => {
     const image = new Image();
     let settled = false;
@@ -96,12 +118,12 @@ const resolveImageUrl = (source: string): Promise<string> => {
     };
 
     const timeout = window.setTimeout(
-      () => finish(FallbackIconUrl),
+      () => finish(fallbackUrl),
       IMAGE_PREPARATION_TIMEOUT
     );
 
     image.onload = () => finish(source);
-    image.onerror = () => finish(FallbackIconUrl);
+    image.onerror = () => finish(fallbackUrl);
     image.src = source;
   });
 };
@@ -177,12 +199,20 @@ export function AchievementNotification() {
         setAchievement(null);
         setPhase("idle");
 
+        const fallbackIconUrl =
+          nextRequest.type === "achievement"
+            ? getTierFallbackIconUrl(
+                nextRequest.achievement.isPlatinum,
+                nextRequest.achievement.globalUnlockPercent
+              )
+            : GoldFallbackIconUrl;
+
         const sourceIcon =
           nextRequest.type === "achievement"
             ? nextRequest.achievement.iconUrl
-            : FallbackIconUrl;
+            : fallbackIconUrl;
 
-        void resolveImageUrl(sourceIcon)
+        void resolveImageUrl(sourceIcon, fallbackIconUrl)
           .then((resolvedIcon) => {
             if (preparationSequence.current !== sequence) return;
 
