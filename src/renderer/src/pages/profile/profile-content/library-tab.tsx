@@ -178,7 +178,7 @@ export function LibraryTab({
     {
       value: "playtime",
       label: t("playtime"),
-      icon: <Icon name="hourglass" size={14} />,
+      icon: <Icon name="clock" size={14} />,
     },
   ];
 

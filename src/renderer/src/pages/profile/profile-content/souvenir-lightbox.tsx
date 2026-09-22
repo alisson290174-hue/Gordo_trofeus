@@ -11,9 +11,6 @@ import {
 import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import {
-  ImageIcon,
-} from "@primer/octicons-react";
 import { TrashIcon } from "lucide-react";
 import { Tooltip } from "react-tooltip";
 
@@ -129,7 +126,7 @@ function SouvenirImage({
     <div className={imageFrameClassName} style={imageSize ?? undefined}>
       {showImagePlaceholder ? (
         <span className="profile-souvenir-lightbox__image-placeholder">
-          <ImageIcon size={56} />
+          <Icon name="image" size={56} />
         </span>
       ) : null}
 
@@ -264,7 +261,7 @@ function SouvenirSummary({
                     onError={() => setFailedGameIconUrl(souvenir.gameIconUrl)}
                   />
                 ) : (
-                  <ImageIcon size={14} />
+                  <Icon name="image" size={14} />
                 )}
               </span>
               <span className="profile-souvenir-lightbox__game-name">

@@ -193,7 +193,7 @@ export function ReviewItem({
                     review.playTimeInSeconds && review.playTimeInSeconds > 0
                   ) && (
                     <div className="game-details__review-playtime">
-                      <Icon name="hourglass" size={12} />
+                      <Icon name="clock" size={12} />
                       <span>
                         {formatPlayTime(review.playTimeInSeconds || 0)}
                       </span>

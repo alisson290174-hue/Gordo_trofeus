@@ -40,9 +40,6 @@ import { RemoveGameFromLibraryModal } from "./remove-from-library-modal";
 import { ResetAchievementsModal } from "./reset-achievements-modal";
 import { ChangeGamePlaytimeModal } from "./change-game-playtime-modal";
 import { ResetPlaytimeModal } from "./reset-playtime-modal";
-import {
-  ImageIcon,
-} from "@primer/octicons-react";
 import { Wrench } from "lucide-react";
 import { GameAssetsSettings } from "./game-assets-settings";
 import { debounce } from "lodash-es";
@@ -856,7 +853,7 @@ export function GameOptionsModal({
       {
         id: "assets" as const,
         label: t("settings_category_customization"),
-        icon: <ImageIcon size={16} />,
+        icon: <Icon name="image" size={16} />,
       },
       ...(showCloudSaveV2Settings && cloudSaveAccessAction !== "sign-in"
         ? [

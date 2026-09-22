@@ -3,9 +3,6 @@ import { Icon } from "@renderer/components/icon/icon";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { AuthPage } from "@shared";
-import {
-  ImageIcon,
-} from "@primer/octicons-react";
 import SteamLogo from "@renderer/assets/steam-logo.svg?react";
 import {
   ContextMenu,
@@ -316,7 +313,7 @@ export function GameContextMenu({
         {
           id: "customize",
           label: t("customize_game"),
-          icon: <ImageIcon size={16} />,
+          icon: <Icon name="image" size={16} />,
           onClick: () => handleOpenGameOptions("assets"),
           disabled: isDeleting,
         },

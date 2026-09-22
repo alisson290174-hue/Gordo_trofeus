@@ -2,7 +2,7 @@ import { useEffect, useId, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Tooltip } from "react-tooltip";
 import { Button, CheckboxField, Modal } from "@renderer/components";
-import { DotIcon } from "@primer/octicons-react";
+import { Icon } from "@renderer/components/icon/icon";
 import {
   getSkuRegion,
   getSkuRegionFlag,
@@ -103,7 +103,8 @@ export function DiscSelectionModal({
               className={`disc-selection-modal__option ${isActive ? "disc-selection-modal__option--active" : ""}`}
               onClick={() => setSelected(disc.path)}
             >
-              <DotIcon
+              <Icon
+                name="dot"
                 size={20}
                 className="disc-selection-modal__option-icon"
               />

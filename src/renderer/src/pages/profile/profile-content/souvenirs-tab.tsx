@@ -2,9 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Icon } from "@renderer/components/icon/icon";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
-import {
-  ImageIcon,
-} from "@primer/octicons-react";
 import { FilterDropdown, type FilterDropdownOption } from "./filter-dropdown";
 import type {
   AchievementSouvenirSyncItem,
@@ -130,7 +127,7 @@ function SouvenirCard({
       >
         {!hasThumbnail ? (
           <span className="profile-content__souvenir-image-placeholder">
-            <ImageIcon size={32} />
+            <Icon name="image" size={32} />
           </span>
         ) : null}
 
@@ -241,7 +238,7 @@ function SouvenirCard({
                       }
                     />
                   ) : (
-                    <ImageIcon size={12} />
+                    <Icon name="image" size={12} />
                   )}
                 </span>
 
@@ -313,7 +310,7 @@ function SouvenirGameGroup({
                 onError={() => setFailedGameIconUrl(gameIconUrl)}
               />
             ) : (
-              <ImageIcon size={14} />
+              <Icon name="image" size={14} />
             )}
           </span>
 

@@ -2,9 +2,6 @@ import { useCallback, useEffect, useState } from "react";
 import { Icon } from "@renderer/components/icon/icon";
 import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import {
-  ImageIcon,
-} from "@primer/octicons-react";
 import AppIcon from "@renderer/assets/icons/app-icon-refresh.png";
 import { MAX_MINUTES_TO_SHOW_IN_PLAYTIME } from "@renderer/constants";
 import { darkenColor } from "@renderer/helpers";
@@ -362,13 +359,13 @@ export default function GameLauncher() {
       <div className="game-launcher__content">
         {imageError || !coverImage ? (
           <div className="game-launcher__cover-placeholder">
-            <ImageIcon size={32} />
+            <Icon name="image" size={32} />
           </div>
         ) : (
           <>
             {!isReady && (
               <div className="game-launcher__cover-placeholder">
-                <ImageIcon size={32} />
+                <Icon name="image" size={32} />
               </div>
             )}
             <img

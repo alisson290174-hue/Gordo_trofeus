@@ -1,4 +1,3 @@
-import { ImageIcon } from "@primer/octicons-react";
 import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 
@@ -8,6 +7,7 @@ import {
   useAppSelector,
   useCoverPoster,
 } from "@renderer/hooks";
+import { Icon } from "@renderer/components/icon/icon";
 import { getVerticalCoverCardImageSources } from "./vertical-cover-card-image-sources";
 
 import "./vertical-cover-card.scss";
@@ -78,7 +78,7 @@ export function VerticalCoverCard({
     if (!displayCoverUrl) {
       return (
         <div className="vertical-cover-card__placeholder">
-          <ImageIcon size={48} />
+          <Icon name="image" size={48} />
         </div>
       );
     }

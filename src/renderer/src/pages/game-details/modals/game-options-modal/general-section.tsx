@@ -15,9 +15,6 @@ import {
 import { Button, CheckboxField, TextField } from "@renderer/components";
 import SteamLogo from "@renderer/assets/steam-logo.svg?react";
 import type { ClassicsDisc, LibraryGame, ShortcutLocation } from "@types";
-import {
-  DotIcon,
-} from "@primer/octicons-react";
 import { HardDrive, X, FolderOpen, ChevronDown } from "lucide-react";
 import { gameDetailsContext } from "@renderer/context";
 import {
@@ -48,7 +45,7 @@ function ClassicsDiscSection({ game }: Readonly<ClassicsDiscSectionProps>) {
   const renderDiscIcon = (disc: ClassicsDisc | null) => {
     const region = disc?.sku ? getSkuRegion(disc.sku) : null;
 
-    if (!region) return <DotIcon size={18} className="disc-field__icon" />;
+    if (!region) return <Icon name="dot" size={18} className="disc-field__icon" />;
 
     return (
       <img

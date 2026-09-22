@@ -9,9 +9,6 @@ import {
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import {
-  ImageIcon,
-} from "@primer/octicons-react";
 import { Button, ImageCropModal } from "@renderer/components";
 import { useToast, useAppSelector, useUserDetails } from "@renderer/hooks";
 import { useSubscription } from "@renderer/hooks/use-subscription";
@@ -1085,7 +1082,7 @@ export function GameAssetsSettings({
               </>
             ) : (
               <div className="game-assets-settings__drop-zone-content">
-                <ImageIcon />
+                <Icon name="image" />
                 <span>{t(`edit_game_modal_drop_${assetType}_image_here`)}</span>
               </div>
             )}
