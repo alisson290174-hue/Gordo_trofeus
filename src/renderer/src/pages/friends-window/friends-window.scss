@@ -82,6 +82,14 @@
     }
   }
 
+  &__title-icon {
+    width: 16px;
+    height: 16px;
+    margin-right: globals.$spacing-unit;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
   &__window-controls {
     display: flex;
     align-items: center;

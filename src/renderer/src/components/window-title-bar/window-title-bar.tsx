@@ -8,6 +8,7 @@ import {
   WINDOW_TITLE_BAR_CONTROL_WIDTH,
   WINDOW_TITLE_BAR_TRANSITION_DURATION_MS,
 } from "@shared";
+import AppIcon from "@renderer/assets/icons/app-icon-refresh.png";
 import "./window-title-bar.scss";
 
 const titleBarStyle = {
@@ -29,6 +30,7 @@ export function WindowTitleBar({
 
   return (
     <header className="window-title-bar" style={titleBarStyle}>
+      <img src={AppIcon} alt="" className="window-title-bar__icon" />
       <h4>Balói</h4>
       <div className="window-title-bar__controls">
         <button

@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { Avatar } from "@renderer/components";
 import { useAppSelector, useUserDetails } from "@renderer/hooks";
 import SteamLogo from "@renderer/assets/steam-logo.svg?react";
+import AppIcon from "@renderer/assets/icons/app-icon-refresh.png";
 import type { ProfileFriends, UserFriend } from "@types";
 
 import "./friends-window.scss";
@@ -481,6 +482,7 @@ export default function FriendsWindow() {
         )}
 
         <header className="friends-window__title-bar">
+          <img src={AppIcon} alt="" className="friends-window__title-icon" />
           <h4>{t("title")}</h4>
           <div className="friends-window__window-controls">
             <button
