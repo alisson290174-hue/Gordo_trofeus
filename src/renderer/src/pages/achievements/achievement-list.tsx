@@ -2,10 +2,22 @@ import { useDate } from "@renderer/hooks";
 import { Icon } from "@renderer/components/icon/icon";
 import type { UserAchievement } from "@types";
 import { useTranslation } from "react-i18next";
+import { getAchievementTier } from "@shared";
+import TierBadgePlatinum from "@renderer/assets/achievements/tier-badge-platinum.png";
+import TierBadgeGold from "@renderer/assets/achievements/tier-badge-gold.png";
+import TierBadgeSilver from "@renderer/assets/achievements/tier-badge-silver.png";
+import TierBadgeBronze from "@renderer/assets/achievements/tier-badge-bronze.png";
 import "./achievements.scss";
 
 import { useState } from "react";
 import { FullscreenMediaModal } from "@renderer/components";
+
+const TIER_BADGES = {
+  platinum: TierBadgePlatinum,
+  gold: TierBadgeGold,
+  silver: TierBadgeSilver,
+  bronze: TierBadgeBronze,
+};
 
 interface AchievementListProps {
   achievements: UserAchievement[];
@@ -26,12 +38,29 @@ export function AchievementList({
     <ul className="achievements__list">
       {achievements.map((achievement) => (
         <li key={achievement.name} className="achievements__item">
-          <img
-            className={`achievements__item-image ${!achievement.unlocked ? "achievements__item-image--locked" : ""}`}
-            src={achievement.icon}
-            alt={achievement.displayName}
-            loading="lazy"
-          />
+          <div className="achievements__item-icon-wrapper">
+            <img
+              className={`achievements__item-image ${!achievement.unlocked ? "achievements__item-image--locked" : ""}`}
+              src={achievement.icon}
+              alt={achievement.displayName}
+              loading="lazy"
+            />
+
+            {achievement.unlocked && (
+              <img
+                className="achievements__item-tier-badge"
+                src={
+                  TIER_BADGES[
+                    getAchievementTier({
+                      isPlatinum: false,
+                      globalUnlockPercent: achievement.globalUnlockPercent,
+                    })
+                  ]
+                }
+                alt=""
+              />
+            )}
+          </div>
 
           <div className="achievements__item-content">
             <h4 className="achievements__item-title">
