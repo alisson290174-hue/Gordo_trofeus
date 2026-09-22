@@ -255,12 +255,17 @@ const publishAchievementUnlockNotifications = ({
       publishOsNotification();
     }
   } else if (customEnabled) {
-    // No OS fallback: the user opted into the custom notification, so a failure
-    // must not surface as a duplicate system toast.
+    // Always also fire the native OS toast: exclusive-fullscreen games (common on
+    // Windows) block every other window from painting over them, including this
+    // one at max always-on-top priority — Electron gets no error in that case, so
+    // there's no signal to react to. The OS notification is a second chance to
+    // notice the unlock while playing, at the cost of a duplicate toast on games
+    // where the custom popup does render fine.
     achievementNotificationPresenter.enqueueAchievements(
       position,
       achievementsInfo
     );
+    publishOsNotification();
   } else {
     publishOsNotification();
   }
