@@ -211,6 +211,37 @@ export function registerPublicProfileRoutes(app: FastifyInstance) {
     reply.send({ library, pinnedGames });
   });
 
+  app.get<{ Params: { id: string } }>("/users/:id/games/platinum", async (request, reply) => {
+    const owner = getUserById(request.params.id);
+    if (!owner) return reply.code(404).send({ message: "User not found" });
+
+    const viewer = tryGetViewer(request);
+    const isSelf = viewer?.id === owner.id;
+    const viewerIsFriend = viewer ? isFriend(viewer.id, owner.id) : false;
+    const canSeeDetails =
+      isSelf || owner.profile_visibility === "PUBLIC" || (owner.profile_visibility === "FRIENDS" && viewerIsFriend);
+
+    if (!canSeeDetails) return reply.send({ games: [], total: 0 });
+
+    const rows = db
+      .prepare("SELECT * FROM profile_games WHERE user_id = ?")
+      .all(owner.id) as unknown as ProfileGameRow[];
+
+    const withCounts = rows.map((row) => {
+      const { total } = achievementCountStatement.get(row.shop, row.object_id) as { total: number };
+      const { total: unlocked } = unlockedAchievementCountStatement.get(row.id) as { total: number };
+      return { row, total, unlocked };
+    });
+
+    const platinumRows = withCounts
+      .filter(({ total, unlocked }) => total > 0 && unlocked === total)
+      .map(({ row }) => row);
+
+    const games = await Promise.all(platinumRows.map(toUserGame));
+
+    reply.send({ games, total: games.length });
+  });
+
   app.get<{ Params: { id: string } }>("/users/:id/stats", async (request, reply) => {
     const owner = getUserById(request.params.id);
     if (!owner) return reply.code(404).send({ message: "User not found" });

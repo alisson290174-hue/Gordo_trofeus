@@ -8,6 +8,7 @@ import {
   PencilIcon,
   PersonAddIcon,
   SignOutIcon,
+  TrophyIcon,
   XCircleFillIcon,
   XCircleIcon,
 } from "@primer/octicons-react";
@@ -455,7 +456,19 @@ export function ProfileHero() {
             background: !backgroundImage ? heroBackground : undefined,
           }}
         >
-          <div className="profile-hero__actions">{profileActions}</div>
+          <div className="profile-hero__actions">
+            {profileActions}
+            {!isMe && userProfile && (
+              <Button
+                theme="outline"
+                className="profile-hero__button--outline"
+                onClick={() => navigate(`/profile/${userProfile.id}/compare`)}
+              >
+                <TrophyIcon />
+                {t("compare_trophies")}
+              </Button>
+            )}
+          </div>
         </div>
       </section>
     </>
