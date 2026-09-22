@@ -15,7 +15,7 @@ import {
   getAchievementSoundVolume,
 } from "@renderer/helpers";
 import { AchievementNotificationItem } from "@renderer/components/achievements/notification/achievement-notification";
-import HydraIconUrl from "@renderer/assets/icons/hydra.svg?url";
+import FallbackIconUrl from "@renderer/assets/icons/app-icon-refresh.png";
 import app from "../../../app.scss?inline";
 import styles from "../../../components/achievements/notification/achievement-notification.scss?inline";
 import root from "react-shadow";
@@ -96,12 +96,12 @@ const resolveImageUrl = (source: string): Promise<string> => {
     };
 
     const timeout = window.setTimeout(
-      () => finish(HydraIconUrl),
+      () => finish(FallbackIconUrl),
       IMAGE_PREPARATION_TIMEOUT
     );
 
     image.onload = () => finish(source);
-    image.onerror = () => finish(HydraIconUrl);
+    image.onerror = () => finish(FallbackIconUrl);
     image.src = source;
   });
 };
@@ -180,7 +180,7 @@ export function AchievementNotification() {
         const sourceIcon =
           nextRequest.type === "achievement"
             ? nextRequest.achievement.iconUrl
-            : HydraIconUrl;
+            : FallbackIconUrl;
 
         void resolveImageUrl(sourceIcon)
           .then((resolvedIcon) => {

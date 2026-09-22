@@ -4,7 +4,6 @@ import {
 } from "@types";
 import cn from "classnames";
 import { getAchievementTier } from "@shared";
-import HydraIcon from "@renderer/assets/icons/hydra.svg?react";
 import { EyeClosedIcon } from "@primer/octicons-react";
 import Ellipses from "@renderer/assets/icons/ellipses.png";
 import TierBadgePlatinum from "@renderer/assets/achievements/tier-badge-platinum.png";
@@ -51,15 +50,6 @@ export function AchievementNotificationItem({
         [`${baseClassName}--silver`]: tier === "silver",
       })}
     >
-      {achievement.points !== undefined && (
-        <div className="achievement-notification__chip">
-          <HydraIcon className="achievement-notification__chip__icon" />
-          <span className="achievement-notification__chip__label">
-            +{achievement.points}
-          </span>
-        </div>
-      )}
-
       <div className="achievement-notification__outer-container">
         <div className="achievement-notification__container">
           <div className="achievement-notification__content">

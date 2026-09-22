@@ -1,5 +1,4 @@
 import { UserGame } from "@types";
-import HydraIcon from "@renderer/assets/icons/hydra.svg?react";
 import { useAppSelector, useFormat } from "@renderer/hooks";
 import { useNavigate } from "react-router-dom";
 import { useCallback, useContext, useState } from "react";
@@ -78,14 +77,6 @@ export function UserLibraryGameCard({
     },
     [userProfile]
   );
-
-  const formatAchievementPoints = (number: number) => {
-    if (number < 100_000) return numberFormatter.format(number);
-
-    if (number < 1_000_000) return `${(number / 1000).toFixed(1)}K`;
-
-    return `${(number / 1_000_000).toFixed(1)}M`;
-  };
 
   const formatPlayTime = useCallback(
     (playTimeInSeconds = 0, isShort = false) => {
@@ -187,19 +178,6 @@ export function UserLibraryGameCard({
                       </span>
                     </div>
 
-                    {game.achievementsPointsEarnedSum > 0 && (
-                      <div
-                        className="user-library-game__stats-item"
-                        style={{
-                          transform: `translateY(${-100 * (statIndex % getStatsItemCount())}%)`,
-                        }}
-                      >
-                        <HydraIcon width={16} height={16} />
-                        {formatAchievementPoints(
-                          game.achievementsPointsEarnedSum
-                        )}
-                      </div>
-                    )}
                   </div>
 
                   <span

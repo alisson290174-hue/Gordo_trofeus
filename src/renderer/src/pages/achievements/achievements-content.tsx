@@ -13,8 +13,6 @@ import type { ComparedAchievements } from "@types";
 import { Link, ProgressBar } from "@renderer/components";
 import { ComparedAchievementList } from "./compared-achievement-list";
 import { AchievementList } from "./achievement-list";
-import { AchievementPanel } from "./achievement-panel";
-import { ComparedAchievementPanel } from "./compared-achievement-panel";
 import { useSubscription } from "@renderer/hooks/use-subscription";
 import { RetroAchievementsConnectBanner } from "@renderer/components/retro-achievements-connect-banner/retro-achievements-connect-banner";
 import "./achievements-content.scss";
@@ -276,15 +274,9 @@ export function AchievementsContent({
         <RetroAchievementsConnectBanner />
 
         {otherUser ? (
-          <>
-            <ComparedAchievementPanel achievements={comparedAchievements!} />
-            <ComparedAchievementList achievements={comparedAchievements!} />
-          </>
+          <ComparedAchievementList achievements={comparedAchievements!} />
         ) : (
-          <>
-            <AchievementPanel achievements={achievements!} />
-            <AchievementList achievements={achievements!} />
-          </>
+          <AchievementList achievements={achievements!} />
         )}
       </section>
     </div>
