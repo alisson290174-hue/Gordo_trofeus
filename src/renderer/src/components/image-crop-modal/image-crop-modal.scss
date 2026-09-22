@@ -58,10 +58,10 @@
 
     &:focus-visible {
       outline: none;
-      border-color: globals.$brand-teal;
+      border-color: globals.$brand-orange;
       box-shadow:
         0 12px 32px rgba(0, 0, 0, 0.45),
-        0 0 0 3px rgba(globals.$brand-teal, 0.35),
+        0 0 0 3px rgba(globals.$brand-orange, 0.35),
         inset 0 0 0 1px rgba(255, 255, 255, 0.02);
     }
 
@@ -181,11 +181,11 @@
     }
 
     &--active {
-      background-color: rgba(globals.$brand-teal, 0.18);
-      color: globals.$brand-teal;
+      background-color: rgba(globals.$brand-orange, 0.18);
+      color: globals.$brand-orange;
 
       &:hover:not(:disabled) {
-        background-color: rgba(globals.$brand-teal, 0.26);
+        background-color: rgba(globals.$brand-orange, 0.26);
       }
     }
   }
@@ -261,13 +261,13 @@
     &:focus-visible::-webkit-slider-thumb {
       box-shadow:
         0 2px 6px rgba(0, 0, 0, 0.45),
-        0 0 0 4px rgba(globals.$brand-teal, 0.4);
+        0 0 0 4px rgba(globals.$brand-orange, 0.4);
     }
 
     &:focus-visible::-moz-range-thumb {
       box-shadow:
         0 2px 6px rgba(0, 0, 0, 0.45),
-        0 0 0 4px rgba(globals.$brand-teal, 0.4);
+        0 0 0 4px rgba(globals.$brand-orange, 0.4);
     }
   }
 

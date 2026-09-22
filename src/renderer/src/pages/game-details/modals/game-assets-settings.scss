@@ -145,7 +145,7 @@
   }
 
   &__drop-zone--active {
-    border-color: globals.$brand-teal !important;
+    border-color: globals.$brand-orange !important;
     background-color: rgba(163, 176, 106, 0.1) !important;
     transform: scale(1.02);
     box-shadow: 0 4px 12px rgba(163, 176, 106, 0.3);

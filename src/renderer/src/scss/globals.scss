@@ -10,8 +10,8 @@ $danger-color: #801d1e;
 $error-color: #e11d48;
 $warning-color: #ffc107;
 
-$brand-teal: #a3b06a;
-$brand-blue: #7c6b9c;
+$brand-orange: #f4a510;
+$brand-navy: #1d2b4f;
 
 $classics-rainbow: conic-gradient(
   from 0deg,
@@ -47,7 +47,7 @@ $classics-washed: #f6746b;
       120deg,
       transparent 0%,
       $platinum-cyan 30%,
-      $brand-teal 100%
+      $brand-orange 100%
     );
 }
 

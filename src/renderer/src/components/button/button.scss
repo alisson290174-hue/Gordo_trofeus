@@ -1,3 +1,4 @@
+@use "sass:color";
 @use "../../scss/globals.scss";
 
 .button {
@@ -23,11 +24,11 @@
   }
 
   &--primary {
-    background-color: globals.$brand-blue;
+    background-color: globals.$brand-navy;
     color: #fff;
 
     &:hover {
-      background-color: #927fb8;
+      background-color: color.scale(globals.$brand-navy, $lightness: 25%);
     }
 
     &:disabled {

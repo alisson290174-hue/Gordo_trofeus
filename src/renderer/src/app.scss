@@ -3,7 +3,7 @@
 // Default accent for the theming hooks (--color-primary etc.) that a custom theme
 // would otherwise set — without this, checkboxes/radios/focus rings had no color at all.
 :root {
-  --color-primary: #{globals.$brand-blue};
+  --color-primary: #{globals.$brand-navy};
 }
 
 * {
