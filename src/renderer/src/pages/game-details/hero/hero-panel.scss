@@ -74,7 +74,7 @@
     }
 
     &::-webkit-progress-value {
-      background-color: globals.$muted-color;
+      background-color: globals.$brand-orange;
     }
 
     &--disabled {
@@ -83,7 +83,7 @@
 
     &--extraction {
       &::-webkit-progress-value {
-        background-color: #fff;
+        background-color: globals.$muted-color;
       }
     }
   }
