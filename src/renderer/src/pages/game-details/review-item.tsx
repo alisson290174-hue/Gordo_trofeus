@@ -1,5 +1,5 @@
-import { TrashIcon, ClockIcon } from "@primer/octicons-react";
 import { ThumbsUp, ThumbsDown, Star, Languages } from "lucide-react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTranslation } from "react-i18next";
@@ -193,7 +193,7 @@ export function ReviewItem({
                     review.playTimeInSeconds && review.playTimeInSeconds > 0
                   ) && (
                     <div className="game-details__review-playtime">
-                      <ClockIcon size={12} />
+                      <Icon name="hourglass" size={12} />
                       <span>
                         {formatPlayTime(review.playTimeInSeconds || 0)}
                       </span>
@@ -357,7 +357,7 @@ export function ReviewItem({
             onClick={() => onDelete(review.id)}
             title={t("delete_review")}
           >
-            <TrashIcon size={16} />
+            <Icon name="trash" size={16} />
             <span>{t("remove_review")}</span>
           </button>
         )}

@@ -319,7 +319,8 @@
   color: globals.$warning-color;
   cursor: pointer;
 
-  > svg {
+  > svg,
+  > .icon {
     flex-shrink: 0;
     transform: translateY(1px);
   }

@@ -4,7 +4,7 @@ import {
 } from "@types";
 import cn from "classnames";
 import { getAchievementTier } from "@shared";
-import { EyeClosedIcon } from "@primer/octicons-react";
+import { Icon } from "@renderer/components/icon/icon";
 import Ellipses from "@renderer/assets/icons/ellipses.png";
 import TierBadgePlatinum from "@renderer/assets/achievements/tier-badge-platinum.png";
 import TierBadgeGold from "@renderer/assets/achievements/tier-badge-gold.png";
@@ -69,7 +69,7 @@ export function AchievementNotificationItem({
               <p className="achievement-notification__title">
                 {achievement.isHidden && (
                   <span className="achievement-notification__hidden-icon">
-                    <EyeClosedIcon size={16} />
+                    <Icon name="eye-closed" size={16} />
                   </span>
                 )}
                 {achievement.title}
