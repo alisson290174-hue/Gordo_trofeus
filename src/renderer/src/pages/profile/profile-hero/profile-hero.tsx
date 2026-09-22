@@ -333,7 +333,9 @@ export function ProfileHero() {
       />
 
       <section
-        className="profile-hero__content-box"
+        className={`profile-hero__content-box ${
+          !backgroundImage ? "profile-hero__content-box--default-banner" : ""
+        }`}
         style={{ background: !backgroundImage ? heroBackground : undefined }}
       >
         {giftAction && (

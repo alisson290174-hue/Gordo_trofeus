@@ -42,7 +42,7 @@ import { EmulationCloudRestoreModal } from "./emulation-cloud-restore-modal";
 import { useCloudConnector } from "@renderer/hooks/use-cloud-connector";
 
 import ConsoleBackside from "@renderer/assets/emulation/console-backside.svg?react";
-import hydraSaveCard from "@renderer/assets/emulation/icons/hydra-save-card.png";
+import baloiClassicsCard from "@renderer/assets/emulation/icons/baloi-classics-card.png";
 
 interface CloudSavesSectionProps {
   config: EmulatorConfig;
@@ -376,7 +376,7 @@ export function CloudSavesSection({
                   <div className="emulator-detail__cloud-card-top">
                     <img
                       className="emulator-detail__cloud-card-art"
-                      src={hydraSaveCard}
+                      src={baloiClassicsCard}
                       alt=""
                     />
 

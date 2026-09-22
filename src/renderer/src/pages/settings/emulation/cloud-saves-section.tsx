@@ -21,7 +21,7 @@ import type {
 } from "@types";
 
 import ConsoleBackside from "@renderer/assets/emulation/console-backside.svg?react";
-import hydraSaveCard from "@renderer/assets/emulation/icons/hydra-save-card.png";
+import baloiClassicsCard from "@renderer/assets/emulation/icons/baloi-classics-card.png";
 import HydraIcon from "@renderer/assets/icons/hydra.svg?react";
 
 import { RenameModal, RestoreModal, formatDate } from "./emulation-save-modals";
@@ -112,7 +112,7 @@ export function CloudSavesSection({ config, refreshKey }: Readonly<Props>) {
                   <div className="emulator-detail__cloud-card-top">
                     <img
                       className="emulator-detail__cloud-card-art"
-                      src={hydraSaveCard}
+                      src={baloiClassicsCard}
                       alt=""
                     />
                   </div>
@@ -221,7 +221,7 @@ export function CloudSavesSection({ config, refreshKey }: Readonly<Props>) {
                   <div className="emulator-detail__cloud-card-top">
                     <img
                       className="emulator-detail__cloud-card-art"
-                      src={hydraSaveCard}
+                      src={baloiClassicsCard}
                       alt=""
                     />
                     <DropdownMenu

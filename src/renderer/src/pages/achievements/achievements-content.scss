@@ -154,11 +154,23 @@ $logo-max-width: 200px;
       &__container {
         display: flex;
         flex-direction: column;
-        background: linear-gradient(
-          0deg,
-          globals.$background-color 0%,
-          globals.$background-color 100%
-        );
+        position: relative;
+        background-color: globals.$background-color;
+        background-image: url("../../assets/backgrounds/bg-vignette-navy.png");
+        background-size: 100% auto;
+        background-position: top center;
+        background-repeat: no-repeat;
+
+        &::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          z-index: 0;
+          background-image: url("../../assets/backgrounds/bg-noise-overlay.png");
+          background-repeat: repeat;
+          opacity: 0.05;
+          pointer-events: none;
+        }
 
         &__banner {
           position: relative;
