@@ -1,3 +1,5 @@
+@use "../../../scss/globals.scss";
+
 .emu-save-modal {
   &__restore {
     display: flex;
@@ -31,12 +33,12 @@
 
     &:focus-visible {
       outline: none;
-      border-color: var(--primary);
-      box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 25%, transparent);
+      border-color: globals.$brand-orange;
+      box-shadow: 0 0 0 2px rgba(globals.$brand-orange, 0.25);
     }
 
     &--selected {
-      border-color: #fafafa;
+      border-color: globals.$brand-orange;
     }
   }
 
