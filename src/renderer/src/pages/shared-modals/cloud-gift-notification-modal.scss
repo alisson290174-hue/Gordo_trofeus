@@ -101,8 +101,8 @@
         90deg,
         rgba(217, 168, 92, 0.15),
         #d9a85c 22%,
-        #7c6b9c 78%,
-        rgba(124, 107, 156, 0.15)
+        globals.$brand-navy 78%,
+        rgba(globals.$brand-navy, 0.15)
       );
       box-shadow: 0 0 6px rgba(217, 168, 92, 0.65);
       content: "";
@@ -225,7 +225,7 @@
     color: #fff;
     background:
       linear-gradient(90deg, rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
-      linear-gradient(91deg, #d9a85c 0.13%, #7c6b9c 99.87%);
+      linear-gradient(91deg, #d9a85c 0.13%, globals.$brand-navy 99.87%);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 8px;
     font-size: 13px;
@@ -284,13 +284,13 @@
       background: linear-gradient(
         90deg,
         transparent 0%,
-        rgba(124, 107, 156, 0.06) 15%,
-        rgba(124, 107, 156, 0.22) 30%,
+        rgba(globals.$brand-navy, 0.06) 15%,
+        rgba(globals.$brand-navy, 0.22) 30%,
         rgba(210, 255, 250, 0.58) 43%,
         rgba(255, 255, 255, 0.72) 50%,
         rgba(210, 255, 250, 0.58) 57%,
-        rgba(124, 107, 156, 0.22) 70%,
-        rgba(124, 107, 156, 0.06) 85%,
+        rgba(globals.$brand-navy, 0.22) 70%,
+        rgba(globals.$brand-navy, 0.06) 85%,
         transparent 100%
       );
       filter: blur(5px);

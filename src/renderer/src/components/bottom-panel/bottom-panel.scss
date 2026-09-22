@@ -53,14 +53,12 @@
     }
   }
 
-  &__gradient-defs {
-    position: absolute;
-    width: 0;
-    height: 0;
-  }
-
   &__help-icon {
-    fill: url(#hydra-cloud-gradient);
+    background: linear-gradient(
+      135deg,
+      globals.$brand-orange 0%,
+      globals.$brand-navy 100%
+    );
   }
 
   &__downloads-button {

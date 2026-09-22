@@ -15,9 +15,6 @@ import "./bottom-panel.scss";
 
 import { useNavigate } from "react-router-dom";
 
-const HYDRA_CLOUD_GRADIENT_START_COLOR = "#a3b06a";
-const HYDRA_CLOUD_GRADIENT_END_COLOR = "#7c6b9c";
-
 export function BottomPanel() {
   const { t } = useTranslation(["bottom_panel", "sidebar"]);
 
@@ -175,31 +172,6 @@ export function BottomPanel() {
             className="bottom-panel__help-button"
             data-open-support-chat
           >
-            <svg
-              width="0"
-              height="0"
-              aria-hidden="true"
-              className="bottom-panel__gradient-defs"
-            >
-              <defs>
-                <linearGradient
-                  id="hydra-cloud-gradient"
-                  x1="0%"
-                  y1="100%"
-                  x2="100%"
-                  y2="0%"
-                >
-                  <stop
-                    offset="0%"
-                    stopColor={HYDRA_CLOUD_GRADIENT_START_COLOR}
-                  />
-                  <stop
-                    offset="100%"
-                    stopColor={HYDRA_CLOUD_GRADIENT_END_COLOR}
-                  />
-                </linearGradient>
-              </defs>
-            </svg>
             <Icon name="comment-discussion"
               size={14}
               className="bottom-panel__help-icon" />
