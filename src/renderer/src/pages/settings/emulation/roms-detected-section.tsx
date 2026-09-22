@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeftIcon, ChevronRightIcon } from "@primer/octicons-react";
+
 
 import { TextField } from "@renderer/components";
 import {
@@ -157,7 +158,7 @@ export function RomsSection<T extends DetectedRom>({
                     disabled={safePage === 0}
                     aria-label={t("pagination_previous")}
                   >
-                    <ChevronLeftIcon size={16} />
+                    <Icon name="chevron-left" size={16} />
                   </button>
                   <span className="emulator-detail__page-indicator">
                     {t("pagination_page_of", {
@@ -174,7 +175,7 @@ export function RomsSection<T extends DetectedRom>({
                     disabled={safePage >= pageCount - 1}
                     aria-label={t("pagination_next")}
                   >
-                    <ChevronRightIcon size={16} />
+                    <Icon name="chevron-right" size={16} />
                   </button>
                 </div>
               )}

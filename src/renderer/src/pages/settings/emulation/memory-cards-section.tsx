@@ -1,16 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
-import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  DownloadIcon,
-  FileDirectoryIcon,
-  KebabHorizontalIcon,
-  QuestionIcon,
-  SyncIcon,
-  TrashIcon,
-  UploadIcon,
-} from "@primer/octicons-react";
+
 
 import { Button, ConfirmationModal, TextField } from "@renderer/components";
 import { DropdownMenu } from "@renderer/components/dropdown-menu/dropdown-menu";
@@ -304,7 +295,7 @@ export function MemoryCardsSection({ config, onUploaded }: Readonly<Props>) {
           </div>
           <div className="emulator-detail__section-actions">
             <Button theme="outline" onClick={handlePickFile}>
-              <FileDirectoryIcon size={14} />
+              <Icon name="file-directory" size={14} />
               <span>
                 {t(
                   isPs1 ? "pick_memory_card_file_ps1" : "pick_memory_card_file"
@@ -315,7 +306,7 @@ export function MemoryCardsSection({ config, onUploaded }: Readonly<Props>) {
               theme="outline"
               onClick={() => setScanInput({ autoDetect: true })}
             >
-              <SyncIcon size={13} />
+              <Icon name="sync" size={13} />
               <span>
                 {saves.length > 0
                   ? t("redetect_memory_cards")
@@ -394,7 +385,7 @@ export function MemoryCardsSection({ config, onUploaded }: Readonly<Props>) {
                                 : ""
                             }`}
                           >
-                            <ChevronRightIcon size={16} />
+                            <Icon name="chevron-right" size={16} />
                           </span>
                           <span className="emulator-detail__memcard-group-title">
                             {cardLabel}
@@ -417,7 +408,7 @@ export function MemoryCardsSection({ config, onUploaded }: Readonly<Props>) {
                             }
                             disabled={isBackingUp}
                           >
-                            <UploadIcon size={13} />
+                            <Icon name="upload" size={13} />
                             <span>
                               {isBackingUp
                                 ? `${t("cloud_backing_up")} ${t(
@@ -439,7 +430,7 @@ export function MemoryCardsSection({ config, onUploaded }: Readonly<Props>) {
                           }
                           aria-label={t("remove_memory_card")}
                         >
-                          <TrashIcon size={16} />
+                          <Icon name="trash" size={16} />
                         </button>
                       </div>
                       {isBackingUp && (
@@ -485,7 +476,7 @@ export function MemoryCardsSection({ config, onUploaded }: Readonly<Props>) {
                                       />
                                     ) : (
                                       <div className="emulator-detail__memcard-cover-placeholder">
-                                        <QuestionIcon size={20} />
+                                        <Icon name="question" size={20} />
                                       </div>
                                     )}
                                   </div>
@@ -518,7 +509,7 @@ export function MemoryCardsSection({ config, onUploaded }: Readonly<Props>) {
                                     align="end"
                                     items={[
                                       {
-                                        icon: <DownloadIcon size={16} />,
+                                        icon: <Icon name="download" size={16} />,
                                         label: exporting
                                           ? t("memcard_exporting")
                                           : t(
@@ -530,7 +521,7 @@ export function MemoryCardsSection({ config, onUploaded }: Readonly<Props>) {
                                         onClick: () => handleExport(save),
                                       },
                                       {
-                                        icon: <UploadIcon size={16} />,
+                                        icon: <Icon name="upload" size={16} />,
                                         label:
                                           backingUpKey === saveKey(save)
                                             ? t("cloud_backing_up")
@@ -547,10 +538,9 @@ export function MemoryCardsSection({ config, onUploaded }: Readonly<Props>) {
                                       className="emulator-detail__memcard-menu"
                                       aria-label={title}
                                     >
-                                      <KebabHorizontalIcon
+                                      <Icon name="kebab-horizontal"
                                         size={16}
-                                        className="emulator-detail__cloud-menu-icon"
-                                      />
+                                        className="emulator-detail__cloud-menu-icon" />
                                     </button>
                                   </DropdownMenu>
                                 </div>
@@ -571,7 +561,7 @@ export function MemoryCardsSection({ config, onUploaded }: Readonly<Props>) {
                                 disabled={cardPage === 0}
                                 aria-label={t("pagination_previous")}
                               >
-                                <ChevronLeftIcon size={16} />
+                                <Icon name="chevron-left" size={16} />
                               </button>
                               <span className="emulator-detail__page-indicator">
                                 {t("pagination_page_of", {
@@ -591,7 +581,7 @@ export function MemoryCardsSection({ config, onUploaded }: Readonly<Props>) {
                                 disabled={cardPage >= cardPageCount - 1}
                                 aria-label={t("pagination_next")}
                               >
-                                <ChevronRightIcon size={16} />
+                                <Icon name="chevron-right" size={16} />
                               </button>
                             </div>
                           )}

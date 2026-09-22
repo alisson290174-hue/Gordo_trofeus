@@ -1,3 +1,4 @@
+import { Icon } from "@renderer/components/icon/icon";
 import {
   useCallback,
   useContext,
@@ -40,12 +41,6 @@ import { ResetAchievementsModal } from "./reset-achievements-modal";
 import { ChangeGamePlaytimeModal } from "./change-game-playtime-modal";
 import { ResetPlaytimeModal } from "./reset-playtime-modal";
 import {
-  AlertIcon,
-  CloudIcon,
-  DownloadIcon,
-  FileDirectoryIcon,
-  GearIcon,
-  HistoryIcon,
   ImageIcon,
 } from "@primer/octicons-react";
 import { Wrench } from "lucide-react";
@@ -847,7 +842,7 @@ export function GameOptionsModal({
       {
         id: "general" as const,
         label: t("settings_category_general"),
-        icon: <GearIcon size={16} />,
+        icon: <Icon name="settings" size={16} />,
       },
       ...(isLaunchbox
         ? []
@@ -855,7 +850,7 @@ export function GameOptionsModal({
             {
               id: "locations" as const,
               label: t("settings_category_locations"),
-              icon: <FileDirectoryIcon size={16} />,
+              icon: <Icon name="file-directory" size={16} />,
             },
           ]),
       {
@@ -868,7 +863,7 @@ export function GameOptionsModal({
             {
               id: "hydra_cloud" as const,
               label: t("settings_category_hydra_cloud"),
-              icon: <CloudIcon size={16} />,
+              icon: <Icon name="cloud" size={16} />,
             },
           ]
         : []),
@@ -882,9 +877,9 @@ export function GameOptionsModal({
                   : t("settings_category_legacy_saves"),
               icon:
                 legacyPurpose === "active" ? (
-                  <CloudIcon size={16} />
+                  <Icon name="cloud" size={16} />
                 ) : (
-                  <HistoryIcon size={16} />
+                  <Icon name="history" size={16} />
                 ),
             },
           ]
@@ -903,14 +898,14 @@ export function GameOptionsModal({
             {
               id: "downloads" as const,
               label: t("settings_category_downloads"),
-              icon: <DownloadIcon size={16} />,
+              icon: <Icon name="download" size={16} />,
             },
           ]
         : []),
       {
         id: "danger_zone" as const,
         label: t("settings_category_danger_zone"),
-        icon: <AlertIcon size={16} />,
+        icon: <Icon name="alert" size={16} />,
       },
     ],
     [

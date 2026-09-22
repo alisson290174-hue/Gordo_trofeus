@@ -1,4 +1,5 @@
 import { useContext, useEffect, useMemo, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 import { formatDownloadProgress } from "@renderer/helpers";
 import {
@@ -11,7 +12,7 @@ import { Link } from "@renderer/components";
 import { gameDetailsContext } from "@renderer/context";
 import { MAX_MINUTES_TO_SHOW_IN_PLAYTIME } from "@renderer/constants";
 import { getDisplayedPlayTimeInMilliseconds } from "@shared";
-import { AlertFillIcon } from "@primer/octicons-react";
+
 import { Tooltip } from "react-tooltip";
 import "./hero-panel-playtime.scss";
 
@@ -137,10 +138,9 @@ export function HeroPanelPlaytime() {
         }
       >
         {game.hasManuallyUpdatedPlaytime && (
-          <AlertFillIcon
+          <Icon name="alert-fill"
             size={16}
-            className="hero-panel-playtime__manual-warning"
-          />
+            className="hero-panel-playtime__manual-warning" />
         )}
         {t("play_time", {
           amount: formattedPlayTime,

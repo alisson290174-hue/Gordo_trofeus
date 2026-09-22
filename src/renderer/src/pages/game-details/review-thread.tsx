@@ -1,5 +1,6 @@
 import { useId, useState } from "react";
-import { ReplyIcon } from "@primer/octicons-react";
+import { Icon } from "@renderer/components/icon/icon";
+
 import { Tooltip } from "react-tooltip";
 import { useTranslation } from "react-i18next";
 import type { GameReview, GameReviewAnswer, GameShop } from "@types";
@@ -356,7 +357,7 @@ export function ReviewThread({
                   count: REPLY_MIN_PLAYTIME_IN_HOURS,
                 })}
               >
-                <ReplyIcon size={14} />
+                <Icon name="reply" size={14} />
                 <span>{t("reply")}</span>
               </button>
 

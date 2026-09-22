@@ -1,5 +1,6 @@
 import cn from "classnames";
-import { LinkExternalIcon, StarIcon } from "@primer/octicons-react";
+import { Icon } from "@renderer/components/icon/icon";
+
 import { Link } from "@renderer/components/link/link";
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 import { useTranslation } from "react-i18next";
@@ -98,7 +99,7 @@ export function ProtonDBSection({
 
                 <div className="protondb__category">
                   <p className="protondb__category-title">
-                    <StarIcon size={18} aria-hidden="true" />
+                    <Icon name="star" size={18} aria-hidden="true" />
                     {t("protondb_score")}
                   </p>
                   <p className="protondb__value">{scoreLabel}</p>
@@ -110,7 +111,7 @@ export function ProtonDBSection({
                 className="protondb__view-link"
               >
                 {t("view_on_protondb")}
-                <LinkExternalIcon size={12} aria-hidden="true" />
+                <Icon name="link-external" size={12} aria-hidden="true" />
               </Link>
             </>
           ) : (

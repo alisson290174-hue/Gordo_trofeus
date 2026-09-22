@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { Icon } from "@renderer/components/icon/icon";
 
 import {
   Button,
@@ -8,7 +9,7 @@ import {
   TextField,
 } from "@renderer/components";
 import type { LibraryGame, ProtonVersion } from "@types";
-import { FileDirectoryIcon, LinkExternalIcon } from "@primer/octicons-react";
+
 import { Tooltip } from "react-tooltip";
 
 interface CompatibilitySettingsSectionProps {
@@ -118,7 +119,7 @@ export function CompatibilitySettingsSection({
                 theme="outline"
                 onClick={onChangeWinePrefixPath}
               >
-                <FileDirectoryIcon />
+                <Icon name="file-directory"  />
                 {t("select_executable")}
               </Button>
               {game.winePrefixPath && (
@@ -194,7 +195,7 @@ export function CompatibilitySettingsSection({
                   className="game-options-modal__gamemode-link"
                 >
                   GameMode
-                  <LinkExternalIcon />
+                  <Icon name="link-external"  />
                 </Link>
               </span>
             }
@@ -241,7 +242,7 @@ export function CompatibilitySettingsSection({
                   className="game-options-modal__mangohud-link"
                 >
                   MangoHud
-                  <LinkExternalIcon />
+                  <Icon name="link-external"  />
                 </Link>
               </span>
             }

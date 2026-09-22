@@ -1,9 +1,10 @@
 import { useContext, useEffect, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { Trans, useTranslation } from "react-i18next";
 import { Button, CheckboxField, Link, TextField } from "@renderer/components";
 import { useAppSelector, useToast } from "@renderer/hooks";
 import { settingsContext } from "@renderer/context";
-import { LinkExternalIcon } from "@primer/octicons-react";
+
 import "./settings-premiumize.scss";
 
 const PREMIUMIZE_URL = "https://www.premiumize.me";
@@ -90,7 +91,7 @@ export function SettingsPremiumize() {
           to={PREMIUMIZE_URL}
           className="settings-premiumize__create-account"
         >
-          <LinkExternalIcon />
+          <Icon name="link-external"  />
           {t("create_premiumize_account")}
         </Link>
       </div>

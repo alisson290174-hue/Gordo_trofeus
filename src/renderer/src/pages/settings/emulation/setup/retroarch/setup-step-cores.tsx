@@ -1,12 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
-import {
-  CheckCircleFillIcon,
-  DownloadIcon,
-  FileDirectoryIcon,
-  SyncIcon,
-  AlertIcon,
-} from "@primer/octicons-react";
+
 
 import { Button } from "@renderer/components";
 import type {
@@ -87,10 +82,10 @@ export function SetupStepCores({ config, onConfigChange }: Readonly<Props>) {
     const current = progress[core];
     const busy =
       current?.phase === "downloading" || current?.phase === "extracting";
-    if (busy) return <SyncIcon size={18} className="setup-modal__spin" />;
-    if (current?.phase === "error") return <AlertIcon size={18} />;
-    if (config.cores[core]?.installed) return <CheckCircleFillIcon size={20} />;
-    return <DownloadIcon size={18} />;
+    if (busy) return <Icon name="sync" size={18} className="setup-modal__spin" />;
+    if (current?.phase === "error") return <Icon name="alert" size={18} />;
+    if (config.cores[core]?.installed) return <Icon name="check-circle-fill" size={20} />;
+    return <Icon name="download" size={18} />;
   };
 
   return (
@@ -108,7 +103,7 @@ export function SetupStepCores({ config, onConfigChange }: Readonly<Props>) {
       <div className="setup-modal__folder-list">
         <div className="setup-modal__row-card">
           <div className="setup-modal__row-icon setup-modal__row-icon--found">
-            <FileDirectoryIcon size={18} />
+            <Icon name="file-directory" size={18} />
           </div>
           <div className="setup-modal__row-text">
             <div className="setup-modal__row-heading">
@@ -172,7 +167,7 @@ export function SetupStepCores({ config, onConfigChange }: Readonly<Props>) {
       <div className="setup-modal__hint">
         {allInstalled ? (
           <div className="setup-modal__hint-group">
-            <CheckCircleFillIcon size={14} />
+            <Icon name="check-circle-fill" size={14} />
             <span>{t("retroarch_cores_ready")}</span>
           </div>
         ) : (
@@ -181,7 +176,7 @@ export function SetupStepCores({ config, onConfigChange }: Readonly<Props>) {
             onClick={handleInstallAll}
             disabled={installingAll}
           >
-            <DownloadIcon size={14} />
+            <Icon name="download" size={14} />
             <span>
               {installingAll
                 ? t("retroarch_downloading_cores")

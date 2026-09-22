@@ -1,3 +1,4 @@
+import { Icon } from "@renderer/components/icon/icon";
 import {
   createContext,
   useCallback,
@@ -16,7 +17,7 @@ import {
   Modal,
   TextField,
 } from "@renderer/components";
-import { PencilIcon, TrashIcon } from "@primer/octicons-react";
+
 
 import "./collection-context-menu.context.scss";
 
@@ -252,14 +253,14 @@ export function CollectionContextMenuProvider({
       {
         id: "rename-collection",
         label: t("rename_collection"),
-        icon: <PencilIcon size={16} />,
+        icon: <Icon name="pencil" size={16} />,
         onClick: handleOpenRenameCollectionModal,
         disabled: isCollectionActionBusy,
       },
       {
         id: "delete-collection",
         label: t("delete_collection"),
-        icon: <TrashIcon size={16} />,
+        icon: <Icon name="trash" size={16} />,
         onClick: handleOpenDeleteCollectionModal,
         danger: true,
         disabled: isCollectionActionBusy,

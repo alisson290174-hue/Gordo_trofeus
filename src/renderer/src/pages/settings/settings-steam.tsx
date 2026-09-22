@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 
 import { Button, Modal } from "@renderer/components";
 import { useDate, useToast, useUserDetails } from "@renderer/hooks";
-import { LinkExternalIcon, PersonIcon, SyncIcon } from "@primer/octicons-react";
+
 import {
   AuthPage,
   isSteamReconnectRequired,
@@ -412,7 +413,7 @@ export function SettingsSteam() {
                   onError={() => setAvatarError(true)}
                 />
               ) : (
-                <PersonIcon size={AVATAR_FALLBACK_ICON_SIZE} />
+                <Icon name="person" size={AVATAR_FALLBACK_ICON_SIZE} />
               )}
             </div>
 
@@ -501,7 +502,7 @@ export function SettingsSteam() {
     if (!steamAccount) {
       return (
         <Button onClick={handleConnect} disabled={isSubmitting}>
-          <LinkExternalIcon size={STATUS_ICON_SIZE} />
+          <Icon name="link-external" size={STATUS_ICON_SIZE} />
           {t("integration_connect")}
         </Button>
       );
@@ -511,7 +512,7 @@ export function SettingsSteam() {
       return (
         <>
           <Button onClick={handleConnect} disabled={isSubmitting || isSyncing}>
-            <LinkExternalIcon size={STATUS_ICON_SIZE} />
+            <Icon name="link-external" size={STATUS_ICON_SIZE} />
             {t("integration_reconnect")}
           </Button>
           <Button
@@ -529,7 +530,7 @@ export function SettingsSteam() {
       <>
         {needsReconnect ? (
           <Button onClick={handleConnect} disabled={isSubmitting}>
-            <LinkExternalIcon size={STATUS_ICON_SIZE} />
+            <Icon name="link-external" size={STATUS_ICON_SIZE} />
             {t("integration_reconnect")}
           </Button>
         ) : isSyncing ? (
@@ -542,7 +543,7 @@ export function SettingsSteam() {
           </Button>
         ) : (
           <Button theme="outline" onClick={handleSync} disabled={isSubmitting}>
-            <SyncIcon size={STATUS_ICON_SIZE} />
+            <Icon name="sync" size={STATUS_ICON_SIZE} />
             {t("integration_sync")}
           </Button>
         )}

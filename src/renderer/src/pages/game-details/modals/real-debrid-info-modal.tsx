@@ -1,7 +1,8 @@
 import { useTranslation } from "react-i18next";
+import { Icon } from "@renderer/components/icon/icon";
 import { useNavigate } from "react-router-dom";
 import { Button, Link, Modal } from "@renderer/components";
-import { LinkExternalIcon } from "@primer/octicons-react";
+
 import "./real-debrid-info-modal.scss";
 
 const realDebridReferralId = import.meta.env
@@ -39,7 +40,7 @@ export function RealDebridInfoModal({
             to={REAL_DEBRID_URL}
             className="real-debrid-info-modal__create-account"
           >
-            <LinkExternalIcon />
+            <Icon name="link-external"  />
             {tSettings("create_real_debrid_account")}
           </Link>
         </div>

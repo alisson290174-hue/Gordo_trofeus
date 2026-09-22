@@ -1,5 +1,6 @@
-import { DownloadIcon, PeopleIcon } from "@primer/octicons-react";
+
 import type { GameStats, ShopAssets } from "@types";
+import { Icon } from "@renderer/components/icon/icon";
 
 import SteamLogo from "@renderer/assets/steam-logo.svg?react";
 import CoverPlaceholder from "@renderer/assets/library-catalogue/cover-placeholder.png";
@@ -92,13 +93,13 @@ export function GameCard({ game, ...props }: GameCardProps) {
 
           <div className="game-card__specifics">
             <div className="game-card__specifics-item">
-              <DownloadIcon />
+              <Icon name="download"  />
               <span>
                 {stats ? numberFormatter.format(stats.downloadCount) : "…"}
               </span>
             </div>
             <div className="game-card__specifics-item">
-              <PeopleIcon />
+              <Icon name="people"  />
               <span>
                 {stats ? numberFormatter.format(stats.playerCount) : "…"}
               </span>

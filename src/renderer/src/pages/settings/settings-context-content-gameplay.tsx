@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -11,7 +12,7 @@ import {
 import { settingsContext } from "@renderer/context";
 import { useAppSelector, useUserDetails } from "@renderer/hooks";
 import { useSubscription } from "@renderer/hooks/use-subscription";
-import { FileDirectoryIcon, HistoryIcon } from "@primer/octicons-react";
+
 import { useLocation } from "react-router-dom";
 import { isAchievementSouvenirsEnabled } from "@shared";
 import type { UserPreferences } from "@types";
@@ -255,7 +256,7 @@ export function SettingsContextContentGameplay() {
                   disabled={!canManageScreenshots}
                   onClick={handleChooseScreenshotsPath}
                 >
-                  <FileDirectoryIcon size={14} />
+                  <Icon name="file-directory" size={14} />
                   {t("change_screenshots_directory")}
                 </Button>
                 {hasCustomScreenshotsPath && (
@@ -267,7 +268,7 @@ export function SettingsContextContentGameplay() {
                     aria-label={t("reset_screenshots_directory")}
                     onClick={handleResetScreenshotsPath}
                   >
-                    <HistoryIcon size={14} />
+                    <Icon name="history" size={14} />
                   </Button>
                 )}
               </>
@@ -280,7 +281,7 @@ export function SettingsContextContentGameplay() {
             disabled={!canManageScreenshots}
             onClick={handleOpenScreenshotsPath}
           >
-            <FileDirectoryIcon size={14} />
+            <Icon name="file-directory" size={14} />
             {t("open_screenshots_directory")}
           </Button>
         </div>

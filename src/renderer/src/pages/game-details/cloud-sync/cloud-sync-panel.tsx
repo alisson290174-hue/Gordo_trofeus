@@ -1,21 +1,11 @@
 import { Button, CheckboxField } from "@renderer/components";
+import { Icon } from "@renderer/components/icon/icon";
 import { useContext, useEffect, useMemo, useState } from "react";
 import type { ChangeEvent } from "react";
 import { cloudSyncContext, gameDetailsContext } from "@renderer/context";
 import "./cloud-sync-panel.scss";
 import { formatBytes } from "@shared";
-import {
-  ClockIcon,
-  DeviceDesktopIcon,
-  HistoryIcon,
-  InfoIcon,
-  PencilIcon,
-  PinIcon,
-  PinSlashIcon,
-  SyncIcon,
-  TrashIcon,
-  UploadIcon,
-} from "@primer/octicons-react";
+
 import {
   useAppSelector,
   useDate,
@@ -140,7 +130,7 @@ export function CloudSyncPanel({
     if (uploadingBackup) {
       return (
         <span className="cloud-sync-panel__backup-state-label">
-          <SyncIcon className="cloud-sync-panel__sync-icon" />
+          <Icon name="sync" className="cloud-sync-panel__sync-icon" />
           {t("uploading_backup")}
         </span>
       );
@@ -148,7 +138,7 @@ export function CloudSyncPanel({
     if (restoringBackup) {
       return (
         <span className="cloud-sync-panel__backup-state-label">
-          <SyncIcon className="cloud-sync-panel__sync-icon" />
+          <Icon name="sync" className="cloud-sync-panel__sync-icon" />
           {t("restoring_backup", {
             progress: formatDownloadProgress(
               backupDownloadProgress?.progress ?? 0
@@ -160,7 +150,7 @@ export function CloudSyncPanel({
     if (loadingPreview) {
       return (
         <span className="cloud-sync-panel__backup-state-label">
-          <SyncIcon className="cloud-sync-panel__sync-icon" />
+          <Icon name="sync" className="cloud-sync-panel__sync-icon" />
           {t("loading_save_preview")}
         </span>
       );
@@ -252,9 +242,9 @@ export function CloudSyncPanel({
           }
         >
           {uploadingBackup ? (
-            <SyncIcon className="cloud-sync-panel__sync-icon" />
+            <Icon name="sync" className="cloud-sync-panel__sync-icon" />
           ) : (
-            <UploadIcon />
+            <Icon name="upload"  />
           )}
           {t("create_backup")}
         </Button>
@@ -290,24 +280,24 @@ export function CloudSyncPanel({
                       <span className="cloud-sync-panel__artifact-label-text">
                         {artifactName}
                       </span>
-                      <PencilIcon />
+                      <Icon name="pencil"  />
                     </button>
                     <small>{formatBytes(artifact.artifactLengthInBytes)}</small>
                   </div>
 
                   <span className="cloud-sync-panel__artifact-meta">
-                    <DeviceDesktopIcon size={14} />
+                    <Icon name="device-desktop" size={14} />
                     {artifact.hostname}
                   </span>
 
                   <span className="cloud-sync-panel__artifact-meta">
-                    <InfoIcon size={14} />
+                    <Icon name="info" size={14} />
                     {artifact.downloadOptionTitle ??
                       t("no_download_option_info")}
                   </span>
 
                   <span className="cloud-sync-panel__artifact-meta">
-                    <ClockIcon size={14} />
+                    <Icon name="hourglass" size={14} />
                     {formatDateTime(artifact.createdAt)}
                   </span>
                 </div>
@@ -320,9 +310,9 @@ export function CloudSyncPanel({
                     theme="outline"
                   >
                     {restoringBackup ? (
-                      <SyncIcon className="cloud-sync-panel__sync-icon" />
+                      <Icon name="sync" className="cloud-sync-panel__sync-icon" />
                     ) : (
-                      <HistoryIcon />
+                      <Icon name="history"  />
                     )}
                     {t("install_backup")}
                   </Button>
@@ -334,9 +324,9 @@ export function CloudSyncPanel({
                           ? t("unfreeze_backup")
                           : t("freeze_backup"),
                         icon: artifact.isFrozen ? (
-                          <PinSlashIcon />
+                          <Icon name="pin-slash"  />
                         ) : (
-                          <PinIcon />
+                          <Icon name="pin"  />
                         ),
                         onClick: () =>
                           handleFreezeArtifactClick(
@@ -347,7 +337,7 @@ export function CloudSyncPanel({
                       },
                       {
                         label: t("delete_backup"),
-                        icon: <TrashIcon />,
+                        icon: <Icon name="trash"  />,
                         onClick: () => handleDeleteArtifactClick(artifact.id),
                         disabled: disableActions || artifact.isFrozen,
                       },

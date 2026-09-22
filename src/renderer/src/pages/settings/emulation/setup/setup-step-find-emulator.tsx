@@ -1,10 +1,6 @@
 import { useTranslation } from "react-i18next";
-import {
-  CheckCircleFillIcon,
-  AlertIcon,
-  DownloadIcon,
-  SyncIcon,
-} from "@primer/octicons-react";
+import { Icon } from "@renderer/components/icon/icon";
+
 
 interface Props {
   name: string;
@@ -46,11 +42,11 @@ export function SetupStepFindEmulator({
           }`}
         >
           {detecting ? (
-            <SyncIcon size={18} />
+            <Icon name="sync" size={18} />
           ) : found ? (
-            <CheckCircleFillIcon size={20} />
+            <Icon name="check-circle-fill" size={20} />
           ) : (
-            <AlertIcon size={18} />
+            <Icon name="alert" size={18} />
           )}
         </div>
         <div className="setup-modal__row-text">
@@ -90,7 +86,7 @@ export function SetupStepFindEmulator({
           className="setup-modal__link-button"
           onClick={onShowDownloadHelp}
         >
-          <DownloadIcon size={13} />
+          <Icon name="download" size={13} />
           <span>{t("setup_no_emulator_q", { name })}</span>
         </button>
       </div>

@@ -1,6 +1,7 @@
 import { useId } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { createPortal } from "react-dom";
-import { CheckCircleFillIcon, CheckCircleIcon } from "@primer/octicons-react";
+
 import { useTranslation } from "react-i18next";
 import { Tooltip } from "react-tooltip";
 import "./installed-filter.scss";
@@ -31,9 +32,9 @@ export function InstalledFilter({
         data-tooltip-place="bottom"
       >
         {showInstalledOnly ? (
-          <CheckCircleFillIcon size={16} />
+          <Icon name="check-circle-fill" size={16} />
         ) : (
-          <CheckCircleIcon size={16} />
+          <Icon name="check-circle" size={16} />
         )}
       </button>
 

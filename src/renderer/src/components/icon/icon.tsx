@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import "./icon.scss";
 
 const iconModules = import.meta.glob("../../assets/icons/system/*.png", {
@@ -15,6 +16,7 @@ export interface IconProps {
   name: string;
   size?: number;
   className?: string;
+  style?: CSSProperties;
 }
 
 /**
@@ -22,7 +24,12 @@ export interface IconProps {
  * as a CSS-maskable glyph so it inherits color from `currentColor`, the same way
  * the achievement notification's trophy overlay already does.
  */
-export function Icon({ name, size = 24, className }: Readonly<IconProps>) {
+export function Icon({
+  name,
+  size = 24,
+  className,
+  style,
+}: Readonly<IconProps>) {
   const url = ICON_URLS[name];
 
   if (!url) {
@@ -41,6 +48,7 @@ export function Icon({ name, size = 24, className }: Readonly<IconProps>) {
         height: size,
         WebkitMaskImage: `url(${url})`,
         maskImage: `url(${url})`,
+        ...style,
       }}
     />
   );

@@ -1,16 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
-import {
-  ClockIcon,
-  CpuIcon,
-  DeviceDesktopIcon,
-  HistoryIcon,
-  KebabHorizontalIcon,
-  LockIcon,
-  PencilIcon,
-  SyncIcon,
-  TrashIcon,
-} from "@primer/octicons-react";
+
 
 import { Button, ConfirmationModal } from "@renderer/components";
 import { DropdownMenu } from "@renderer/components/dropdown-menu/dropdown-menu";
@@ -128,10 +119,10 @@ export function CloudSavesSection({ config, refreshKey }: Readonly<Props>) {
                   <span className="emulator-detail__cloud-card-title">—</span>
                   <div className="emulator-detail__cloud-card-info">
                     <span>
-                      <DeviceDesktopIcon size={16} />—
+                      <Icon name="device-desktop" size={16} />—
                     </span>
                     <span>
-                      <ClockIcon size={16} />—
+                      <Icon name="hourglass" size={16} />—
                     </span>
                   </div>
                 </div>
@@ -141,7 +132,7 @@ export function CloudSavesSection({ config, refreshKey }: Readonly<Props>) {
 
           <div className="emulator-detail__cloud-locked-overlay">
             <span className="emulator-detail__cloud-locked-icon">
-              <LockIcon size={24} />
+              <Icon name="lock" size={24} />
             </span>
             <p className="emulator-detail__cloud-locked-title">
               {tHydraCloud("hydra_cloud_feature_found")}
@@ -171,12 +162,11 @@ export function CloudSavesSection({ config, refreshKey }: Readonly<Props>) {
           </div>
           <div className="emulator-detail__section-actions">
             <Button theme="outline" onClick={load} disabled={refreshing}>
-              <SyncIcon
+              <Icon name="sync"
                 size={13}
                 className={
                   refreshing ? "emulator-detail__redetect-icon--spinning" : ""
-                }
-              />
+                } />
               <span>{t("cloud_refresh")}</span>
             </Button>
           </div>
@@ -238,17 +228,17 @@ export function CloudSavesSection({ config, refreshKey }: Readonly<Props>) {
                       align="end"
                       items={[
                         {
-                          icon: <HistoryIcon size={16} />,
+                          icon: <Icon name="history" size={16} />,
                           label: t("cloud_restore"),
                           onClick: () => setRestoreFor(save),
                         },
                         {
-                          icon: <PencilIcon size={16} />,
+                          icon: <Icon name="pencil" size={16} />,
                           label: t("cloud_rename_title"),
                           onClick: () => setRenameFor(save),
                         },
                         {
-                          icon: <TrashIcon size={16} />,
+                          icon: <Icon name="trash" size={16} />,
                           label: t("cloud_delete"),
                           onClick: () => setDeleteFor(save),
                         },
@@ -259,10 +249,9 @@ export function CloudSavesSection({ config, refreshKey }: Readonly<Props>) {
                         className="emulator-detail__cloud-menu"
                         aria-label={name}
                       >
-                        <KebabHorizontalIcon
+                        <Icon name="kebab-horizontal"
                           size={16}
-                          className="emulator-detail__cloud-menu-icon"
-                        />
+                          className="emulator-detail__cloud-menu-icon" />
                       </button>
                     </DropdownMenu>
                   </div>
@@ -286,17 +275,17 @@ export function CloudSavesSection({ config, refreshKey }: Readonly<Props>) {
 
                   <div className="emulator-detail__cloud-card-info">
                     <span title={save.hostname ?? undefined}>
-                      <DeviceDesktopIcon size={16} />
+                      <Icon name="device-desktop" size={16} />
                       {save.hostname ?? "—"}
                     </span>
                     {platformLabel && (
                       <span>
-                        <CpuIcon size={16} />
+                        <Icon name="cpu" size={16} />
                         {platformLabel}
                       </span>
                     )}
                     <span>
-                      <ClockIcon size={16} />
+                      <Icon name="hourglass" size={16} />
                       {formatDate(save.localLastModifiedAt)}
                     </span>
                   </div>

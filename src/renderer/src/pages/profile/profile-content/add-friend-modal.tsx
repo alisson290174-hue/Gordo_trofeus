@@ -1,9 +1,10 @@
 import { Avatar, Button, Modal, TextField } from "@renderer/components";
+import { Icon } from "@renderer/components/icon/icon";
 import { useToast, useUserDetails } from "@renderer/hooks";
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { CopyIcon } from "@primer/octicons-react";
+
 import { AuthPage } from "@shared";
 import "./add-friend-modal.scss";
 
@@ -125,7 +126,7 @@ export function AddFriendModal({ visible, onClose }: AddFriendModalProps) {
               className="add-friend-modal__copy-icon-button"
               title={t("copy_friend_code")}
             >
-              <CopyIcon size={16} />
+              <Icon name="copy" size={16} />
             </button>
           </div>
         )}

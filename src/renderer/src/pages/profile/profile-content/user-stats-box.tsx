@@ -1,10 +1,11 @@
 import { useCallback, useContext } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { userProfileContext } from "@renderer/context";
 import { useTranslation } from "react-i18next";
 import { useFormat, useUserDetails } from "@renderer/hooks";
 import { MAX_MINUTES_TO_SHOW_IN_PLAYTIME } from "@renderer/constants";
 import { useSubscription } from "@renderer/hooks/use-subscription";
-import { ClockIcon, TrophyIcon } from "@primer/octicons-react";
+
 import KarmaLevelRingBg from "@renderer/assets/profile/karma-level-ring-bg.png";
 import "./user-stats-box.scss";
 
@@ -81,7 +82,7 @@ export function UserStatsBox() {
             {userStats.unlockedAchievementSum !== undefined ? (
               <div className="user-stats__stats-row">
                 <p className="user-stats__list-description">
-                  <TrophyIcon /> {userStats.unlockedAchievementSum}{" "}
+                  <Icon name="trophy"  /> {userStats.unlockedAchievementSum}{" "}
                   {t("achievements")}
                 </p>
               </div>
@@ -103,7 +104,7 @@ export function UserStatsBox() {
           <h3 className="user-stats__list-title">{t("total_play_time")}</h3>
           <div className="user-stats__stats-row">
             <p className="user-stats__list-description">
-              <ClockIcon />
+              <Icon name="hourglass"  />
               {formatPlayTime(userStats.totalPlayTimeInSeconds.value)}
             </p>
             <p title={t("ranking_updated_weekly")}>

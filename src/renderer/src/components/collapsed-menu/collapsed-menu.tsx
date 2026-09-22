@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { ChevronDownIcon } from "@primer/octicons-react";
+import { Icon } from "@renderer/components/icon/icon";
+
 import "./collapsed-menu.scss";
 
 export interface CollapsedMenuProps {
@@ -30,11 +31,10 @@ export function CollapsedMenu({
         onClick={() => setIsOpen(!isOpen)}
         className="collapsed-menu__button"
       >
-        <ChevronDownIcon
+        <Icon name="chevron-down"
           className={`collapsed-menu__chevron ${
             isOpen ? "collapsed-menu__chevron--open" : ""
-          }`}
-        />
+          }`} />
         <span>{title}</span>
       </button>
 

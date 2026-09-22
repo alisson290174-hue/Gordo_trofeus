@@ -1,5 +1,6 @@
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
-import { CheckIcon, ChevronDownIcon } from "@primer/octicons-react";
+import { Icon } from "@renderer/components/icon/icon";
+
 import { useCloseOnLibraryScroll } from "./use-close-on-library-scroll";
 import {
   LIBRARY_DROPDOWN_CHEVRON_SIZE,
@@ -67,10 +68,9 @@ export function LibraryMultiSelect({
           <span className="library-multi-select__trigger-label">
             {triggerLabel}
           </span>
-          <ChevronDownIcon
+          <Icon name="chevron-down"
             size={LIBRARY_DROPDOWN_CHEVRON_SIZE}
-            className="library-multi-select__chevron"
-          />
+            className="library-multi-select__chevron" />
         </button>
       </DropdownMenuPrimitive.Trigger>
 
@@ -94,7 +94,7 @@ export function LibraryMultiSelect({
               forceMount
               className="library-multi-select__item-indicator"
             >
-              <CheckIcon size={ITEM_INDICATOR_ICON_SIZE} />
+              <Icon name="check" size={ITEM_INDICATOR_ICON_SIZE} />
             </DropdownMenuPrimitive.ItemIndicator>
           </DropdownMenuPrimitive.CheckboxItem>
 
@@ -115,7 +115,7 @@ export function LibraryMultiSelect({
                 forceMount
                 className="library-multi-select__item-indicator"
               >
-                <CheckIcon size={ITEM_INDICATOR_ICON_SIZE} />
+                <Icon name="check" size={ITEM_INDICATOR_ICON_SIZE} />
               </DropdownMenuPrimitive.ItemIndicator>
             </DropdownMenuPrimitive.CheckboxItem>
           ))}

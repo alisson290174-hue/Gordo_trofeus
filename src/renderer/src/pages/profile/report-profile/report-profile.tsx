@@ -1,6 +1,7 @@
-import { ReportIcon } from "@primer/octicons-react";
+
 
 import { Button, Modal, SelectField, TextField } from "@renderer/components";
+import { Icon } from "@renderer/components/icon/icon";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -148,7 +149,7 @@ export function ReportProfile() {
         onClick={handleReportClick}
         disabled={isSubmitting}
       >
-        <ReportIcon size={13} />
+        <Icon name="report" size={13} />
         {t("report_profile")}
       </button>
     </>

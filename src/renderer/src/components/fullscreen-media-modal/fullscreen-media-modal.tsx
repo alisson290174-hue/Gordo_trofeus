@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { createPortal } from "react-dom";
-import { XIcon } from "@primer/octicons-react";
+
 import { useTranslation } from "react-i18next";
 
 import "./fullscreen-media-modal.scss";
@@ -133,7 +134,7 @@ export function FullscreenMediaModal({
         className="fullscreen-media-modal__close-button"
         aria-label={t("close")}
       >
-        <XIcon size={24} />
+        <Icon name="x" size={24} />
       </button>
 
       <dialog className="fullscreen-media-modal" open aria-label={alt}>

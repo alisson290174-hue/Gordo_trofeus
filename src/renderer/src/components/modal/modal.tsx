@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { createPortal } from "react-dom";
-import { XIcon } from "@primer/octicons-react";
+
 
 import "./modal.scss";
 
@@ -152,7 +153,7 @@ export function Modal({
             className="modal__close-button"
             aria-label={t("close")}
           >
-            <XIcon className="modal__close-button-icon" size={24} />
+            <Icon name="x" className="modal__close-button-icon" size={24} />
           </button>
         </div>
         <div

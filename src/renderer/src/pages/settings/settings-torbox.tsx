@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { Trans, useTranslation } from "react-i18next";
 
 import { Button, CheckboxField, Link, TextField } from "@renderer/components";
@@ -7,7 +8,7 @@ import "./settings-torbox.scss";
 import { useAppSelector, useToast } from "@renderer/hooks";
 
 import { settingsContext } from "@renderer/context";
-import { LinkExternalIcon } from "@primer/octicons-react";
+
 
 const torBoxReferralCode = import.meta.env.RENDERER_VITE_TORBOX_REFERRAL_CODE;
 
@@ -97,7 +98,7 @@ export function SettingsTorBox() {
           {t("torbox_description")}
         </p>
         <Link to={TORBOX_URL} className="settings-torbox__create-account">
-          <LinkExternalIcon />
+          <Icon name="link-external"  />
           {t("create_torbox_account")}
         </Link>
       </div>

@@ -1,3 +1,4 @@
+import { Icon } from "@renderer/components/icon/icon";
 import {
   useContext,
   useEffect,
@@ -20,7 +21,7 @@ import languageResources from "@locales";
 import { orderBy } from "lodash-es";
 import { settingsContext } from "@renderer/context";
 import "./settings-general.scss";
-import { DesktopDownloadIcon, UnmuteIcon } from "@primer/octicons-react";
+
 import { logger } from "@renderer/logger";
 import { AchievementCustomNotificationPosition } from "@types";
 import {
@@ -411,7 +412,7 @@ export function SettingsGeneral() {
             {t("achievement_sound_volume")}
           </label>
           <div className="settings-general__volume-slider-wrapper">
-            <UnmuteIcon size={16} className="settings-general__volume-icon" />
+            <Icon name="unmute" size={16} className="settings-general__volume-icon" />
             <input
               id="achievement-volume"
               type="range"
@@ -449,7 +450,7 @@ export function SettingsGeneral() {
         className="settings-general__common-redist-button"
         disabled={!canInstallCommonRedist || installingCommonRedist}
       >
-        <DesktopDownloadIcon />
+        <Icon name="desktop-download"  />
         {installingCommonRedist
           ? t("installing_common_redist")
           : t("install_common_redist")}

@@ -1,4 +1,5 @@
 import { UserGame } from "@types";
+import { Icon } from "@renderer/components/icon/icon";
 import { useAppSelector, useFormat } from "@renderer/hooks";
 import { useNavigate } from "react-router-dom";
 import { useCallback, useContext, useState } from "react";
@@ -10,7 +11,7 @@ import {
   shouldShowProfileSteamLibraryBadge,
 } from "@renderer/helpers";
 import { userProfileContext } from "@renderer/context";
-import { ClockIcon, TrophyIcon, AlertFillIcon } from "@primer/octicons-react";
+
 import { MAX_MINUTES_TO_SHOW_IN_PLAYTIME } from "@renderer/constants";
 import { Tooltip } from "react-tooltip";
 import { useTranslation } from "react-i18next";
@@ -139,12 +140,11 @@ export function UserLibraryGameCard({
                 data-tooltip-id={game.objectId}
               >
                 {game.hasManuallyUpdatedPlaytime ? (
-                  <AlertFillIcon
+                  <Icon name="alert-fill"
                     size={11}
-                    className="user-library-game__manual-playtime"
-                  />
+                    className="user-library-game__manual-playtime" />
                 ) : (
-                  <ClockIcon size={11} />
+                  <Icon name="hourglass" size={11} />
                 )}
                 <span className="user-library-game__playtime-long">
                   {formatPlayTime(game.playTimeInSeconds)}
@@ -171,7 +171,7 @@ export function UserLibraryGameCard({
                         transform: `translateY(${-100 * (statIndex % getStatsItemCount())}%)`,
                       }}
                     >
-                      {!isCompleted && <TrophyIcon size={13} />}
+                      {!isCompleted && <Icon name="trophy" size={13} />}
                       <span>
                         {game.unlockedAchievementCount} /{" "}
                         {game.achievementCount}
@@ -184,7 +184,7 @@ export function UserLibraryGameCard({
                     className={`user-library-game__stats-percentage${isCompleted ? " user-library-game__stats-percentage--completed" : ""}`}
                   >
                     {isCompleted ? (
-                      <TrophyIcon size={13} />
+                      <Icon name="trophy" size={13} />
                     ) : (
                       formatDownloadProgress(
                         game.unlockedAchievementCount / game.achievementCount,

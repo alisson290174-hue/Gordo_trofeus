@@ -1,13 +1,5 @@
-import {
-  CheckCircleFillIcon,
-  CheckIcon,
-  ChevronDownIcon,
-  DownloadIcon,
-  FileDirectoryIcon,
-  FileIcon,
-  PlusIcon,
-  SyncIcon,
-} from "@primer/octicons-react";
+import { Icon } from "@renderer/components/icon/icon";
+
 import {
   Badge,
   Button,
@@ -979,7 +971,7 @@ export function DownloadSettingsModal({
     if (downloadStarting) {
       return (
         <>
-          <SyncIcon className="download-settings-modal__loading-spinner" />
+          <Icon name="sync" className="download-settings-modal__loading-spinner" />
           {t("loading")}
         </>
       );
@@ -988,7 +980,7 @@ export function DownloadSettingsModal({
     if (hasActiveDownload) {
       return (
         <>
-          <PlusIcon />
+          <Icon name="plus"  />
           {t("add_to_queue")}
         </>
       );
@@ -996,7 +988,7 @@ export function DownloadSettingsModal({
 
     return (
       <>
-        <DownloadIcon />
+        <Icon name="download"  />
         {t("download_now")}
       </>
     );
@@ -1125,7 +1117,7 @@ export function DownloadSettingsModal({
                     : ""
                 }`}
               >
-                <ChevronDownIcon size={14} />
+                <Icon name="chevron-down" size={14} />
               </span>
             </button>
             <button
@@ -1144,13 +1136,12 @@ export function DownloadSettingsModal({
                   isChecked && !isIndeterminate ? "checked" : ""
                 }`}
               >
-                <CheckIcon />
+                <Icon name="check"  />
               </span>
             </button>
-            <FileDirectoryIcon
+            <Icon name="file-directory"
               size={14}
-              className="download-settings-modal__torrent-node-icon"
-            />
+              className="download-settings-modal__torrent-node-icon" />
             <button
               type="button"
               className="download-settings-modal__torrent-row-trigger download-settings-modal__torrent-row-trigger--label"
@@ -1193,13 +1184,12 @@ export function DownloadSettingsModal({
             <span
               className={`checkbox-field__icon ${row.selected ? "checked" : ""}`}
             >
-              <CheckIcon />
+              <Icon name="check"  />
             </span>
           </button>
-          <FileIcon
+          <Icon name="file"
             size={14}
-            className="download-settings-modal__torrent-node-icon"
-          />
+            className="download-settings-modal__torrent-node-icon" />
           <button
             type="button"
             className="download-settings-modal__torrent-row-trigger download-settings-modal__torrent-row-trigger--label"
@@ -1360,10 +1350,9 @@ export function DownloadSettingsModal({
                           damping: 20,
                         }}
                       >
-                        <CheckCircleFillIcon
+                        <Icon name="check-circle-fill"
                           size={16}
-                          className="download-settings-modal__check-icon"
-                        />
+                          className="download-settings-modal__check-icon" />
                       </motion.div>
                     );
                   }
@@ -1451,7 +1440,7 @@ export function DownloadSettingsModal({
               onClick={() => setShowTorrentStepModal(true)}
               disabled={downloadStarting}
             >
-              <FileIcon size={12} />
+              <Icon name="file" size={12} />
               <span className="download-settings-modal__select-files-link-text">
                 {t("select_files_to_download")}
               </span>
@@ -1592,7 +1581,7 @@ export function DownloadSettingsModal({
                       allTorrentFilesSelected ? "checked" : ""
                     }`}
                   >
-                    <CheckIcon />
+                    <Icon name="check"  />
                   </span>
                 </div>
                 <span className="download-settings-modal__torrent-file-path download-settings-modal__torrent-file-path--bold">

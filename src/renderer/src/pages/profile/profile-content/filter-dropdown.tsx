@@ -1,14 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
-import { ChevronDownIcon, CheckIcon } from "@primer/octicons-react";
-import "./filter-dropdown.scss";
+import { Icon } from "@renderer/components/icon/icon";
 
-type FilterIcon = (props: { size?: number; className?: string }) => ReactNode;
+import "./filter-dropdown.scss";
 
 export interface FilterDropdownOption<T extends string> {
   value: T;
   label: string;
-  icon: FilterIcon;
+  icon: ReactNode;
 }
 
 interface FilterDropdownProps<T extends string> {
@@ -53,8 +52,6 @@ export function FilterDropdown<T extends string>({
     };
   }, [open]);
 
-  const SelectedIcon = selected?.icon;
-
   return (
     <div className="filter-dropdown" ref={containerRef}>
       <button
@@ -67,17 +64,16 @@ export function FilterDropdown<T extends string>({
         <span className="filter-dropdown__placeholder">{placeholder}</span>
         {selected && (
           <span className="filter-dropdown__value">
-            {SelectedIcon && <SelectedIcon size={14} />}
+            {selected.icon}
             <span>{selected.label}</span>
           </span>
         )}
-        <ChevronDownIcon size={14} className="filter-dropdown__chevron" />
+        <Icon name="chevron-down" size={14} className="filter-dropdown__chevron" />
       </button>
 
       {open && (
         <div className="filter-dropdown__menu" role="listbox">
           {options.map((option) => {
-            const OptionIcon = option.icon;
             const isActive = option.value === value;
             return (
               <button
@@ -91,15 +87,14 @@ export function FilterDropdown<T extends string>({
                   setOpen(false);
                 }}
               >
-                <OptionIcon
-                  size={14}
-                  className="filter-dropdown__option-icon"
-                />
+                <span className="filter-dropdown__option-icon">
+                  {option.icon}
+                </span>
                 <span className="filter-dropdown__option-label">
                   {option.label}
                 </span>
                 {isActive && (
-                  <CheckIcon size={14} className="filter-dropdown__check" />
+                  <Icon name="check" size={14} className="filter-dropdown__check" />
                 )}
               </button>
             );

@@ -1,12 +1,8 @@
 import { useEffect, useId, useRef, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { createPortal } from "react-dom";
 import { Tooltip } from "react-tooltip";
-import {
-  ClockIcon,
-  DeviceDesktopIcon,
-  SearchIcon,
-  XIcon,
-} from "@primer/octicons-react";
+
 import cn from "classnames";
 import { useTranslation } from "react-i18next";
 import type { SearchHistoryEntry } from "@renderer/hooks/use-search-history";
@@ -163,10 +159,9 @@ export function SearchDropdown({
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => onSelectHistory(item.query)}
                   >
-                    <ClockIcon
+                    <Icon name="hourglass"
                       size={16}
-                      className="search-dropdown__item-icon"
-                    />
+                      className="search-dropdown__item-icon" />
                     <span className="search-dropdown__item-text">
                       {item.query}
                     </span>
@@ -181,7 +176,7 @@ export function SearchDropdown({
                     }}
                     title={t("remove_from_history")}
                   >
-                    <XIcon size={12} />
+                    <Icon name="x" size={12} />
                   </button>
                 </li>
               ))}
@@ -209,7 +204,7 @@ export function SearchDropdown({
                     data-tooltip-id={shopTooltipId}
                     data-tooltip-content="PC"
                   >
-                    <DeviceDesktopIcon size={14} />
+                    <Icon name="device-desktop" size={14} />
                   </button>
                   <button
                     type="button"
@@ -248,10 +243,9 @@ export function SearchDropdown({
                           className="search-dropdown__item-icon search-dropdown__item-icon--image"
                         />
                       ) : (
-                        <SearchIcon
+                        <Icon name="search"
                           size={16}
-                          className="search-dropdown__item-icon"
-                        />
+                          className="search-dropdown__item-icon" />
                       )}
                       <span className="search-dropdown__item-text">
                         <HighlightText text={item.title} query={currentQuery} />

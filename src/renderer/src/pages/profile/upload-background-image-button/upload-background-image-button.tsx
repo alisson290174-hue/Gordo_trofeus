@@ -1,5 +1,6 @@
-import { TrashIcon, UploadIcon } from "@primer/octicons-react";
+
 import { MoreVertical } from "lucide-react";
+import { Icon } from "@renderer/components/icon/icon";
 import { Button, ConfirmationModal } from "@renderer/components";
 import { createPortal } from "react-dom";
 import { useContext, useEffect, useRef, useState } from "react";
@@ -158,7 +159,7 @@ export function UploadBackgroundImageButton() {
           className="upload-background-image-button"
           onClick={() => showHydraCloudModal("customization")}
         >
-          <UploadIcon />
+          <Icon name="upload"  />
           {t("upload_banner")}
         </Button>
       </div>
@@ -191,7 +192,7 @@ export function UploadBackgroundImageButton() {
             onClick={handleReplaceBanner}
             disabled={isUploadingBackgroundImage}
           >
-            <UploadIcon />
+            <Icon name="upload"  />
             {isUploadingBackgroundImage
               ? t("uploading_banner")
               : t("upload_banner")}
@@ -231,7 +232,7 @@ export function UploadBackgroundImageButton() {
         onClick={handleReplaceBanner}
         disabled={isUploadingBackgroundImage}
       >
-        <UploadIcon size={16} />
+        <Icon name="upload" size={16} />
         {t("replace_banner")}
       </button>
       <button
@@ -240,7 +241,7 @@ export function UploadBackgroundImageButton() {
         onClick={handleRemoveBannerClick}
         disabled={isUploadingBackgroundImage}
       >
-        <TrashIcon size={16} />
+        <Icon name="trash" size={16} />
         {t("remove_banner")}
       </button>
     </div>

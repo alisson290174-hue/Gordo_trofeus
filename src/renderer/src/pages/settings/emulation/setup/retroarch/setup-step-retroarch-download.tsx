@@ -1,11 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
-import {
-  GlobeIcon,
-  LinkExternalIcon,
-  DownloadIcon,
-  BookIcon,
-} from "@primer/octicons-react";
+
 
 import type { RetroArchInstallOption, RetroArchInstallProgress } from "@types";
 
@@ -88,7 +84,7 @@ export function SetupStepRetroArchDownload() {
   const externalLinkIcon = (option: RetroArchInstallOption) => {
     if (option.linkKind === "aur") return <ArchIcon size={20} />;
     if (option.linkKind === "flatpak") return <FlatpakIcon size={20} />;
-    return <GlobeIcon size={20} />;
+    return <Icon name="globe" size={20} />;
   };
 
   return (
@@ -112,9 +108,9 @@ export function SetupStepRetroArchDownload() {
         className="setup-modal__website-link"
         onClick={() => openUrl(OFFICIAL_WEBSITE)}
       >
-        <GlobeIcon size={14} />
+        <Icon name="globe" size={14} />
         <span>{t("setup_official_website")}</span>
-        <LinkExternalIcon size={12} />
+        <Icon name="link-external" size={12} />
       </button>
 
       <div className="setup-modal__download-grid">
@@ -134,7 +130,7 @@ export function SetupStepRetroArchDownload() {
                 disabled={Boolean(installingId) && !isInstalling}
               >
                 <div className="setup-modal__download-card-badge">
-                  <DownloadIcon size={20} />
+                  <Icon name="download" size={20} />
                 </div>
                 <div className="setup-modal__download-card-main">
                   <span className="setup-modal__download-card-title">
@@ -177,7 +173,7 @@ export function SetupStepRetroArchDownload() {
           data-open-article="install-retroarch"
         >
           <div className="setup-modal__download-card-badge">
-            <BookIcon size={20} />
+            <Icon name="book" size={20} />
           </div>
           <div className="setup-modal__download-card-main">
             <span className="setup-modal__download-card-title">

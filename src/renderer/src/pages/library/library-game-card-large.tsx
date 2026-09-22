@@ -1,4 +1,5 @@
 import cn from "classnames";
+import { Icon } from "@renderer/components/icon/icon";
 
 import { LibraryGame } from "@types";
 import {
@@ -16,13 +17,7 @@ import {
 } from "@renderer/helpers";
 import { AchievementProgress, SteamLibraryBadge } from "@renderer/components";
 import { formatBytes, getDisplayedPlayTimeInMilliseconds } from "@shared";
-import {
-  ClockIcon,
-  AlertFillIcon,
-  DatabaseIcon,
-  FileZipIcon,
-  CheckCircleFillIcon,
-} from "@primer/octicons-react";
+
 import { memo, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import {
@@ -65,10 +60,9 @@ function InstalledBadge({ emulatorIcon }: Readonly<InstalledBadgeProps>) {
           className="library-game-card-large__installed-emulator-icon"
         />
       ) : (
-        <CheckCircleFillIcon
+        <Icon name="check-circle-fill"
           size={12}
-          className="library-game-card-large__installed-icon"
-        />
+          className="library-game-card-large__installed-icon" />
       )}
       <span className="library-game-card-large__installed-text">
         {t("installed")}
@@ -111,7 +105,7 @@ export const LibraryGameCardLarge = memo(function LibraryGameCardLarge({
       type: "installer" | "installed";
       bytes: number;
       formatted: string;
-      icon: typeof FileZipIcon;
+      iconName: string;
       tooltipKey: string;
     }[] = [];
 
@@ -120,7 +114,7 @@ export const LibraryGameCardLarge = memo(function LibraryGameCardLarge({
         type: "installer",
         bytes: game.installerSizeInBytes,
         formatted: formatBytes(game.installerSizeInBytes),
-        icon: FileZipIcon,
+        iconName: "file-zip",
         tooltipKey: "installer_size_tooltip",
       });
     }
@@ -130,7 +124,7 @@ export const LibraryGameCardLarge = memo(function LibraryGameCardLarge({
         type: "installed",
         bytes: game.installedSizeInBytes,
         formatted: formatBytes(game.installedSizeInBytes),
-        icon: DatabaseIcon,
+        iconName: "database",
         tooltipKey: "disk_usage_tooltip",
       });
     }
@@ -359,7 +353,7 @@ export const LibraryGameCardLarge = memo(function LibraryGameCardLarge({
                   className="library-game-card-large__size-bar"
                   title={t(bar.tooltipKey)}
                 >
-                  <bar.icon size={11} />
+                  <Icon name={bar.iconName} size={11} />
                   <div
                     className={`library-game-card-large__size-bar-line library-game-card-large__size-bar-line--${bar.type}`}
                     style={{ width: `${bar.widthPx}px` }}
@@ -378,12 +372,11 @@ export const LibraryGameCardLarge = memo(function LibraryGameCardLarge({
             {!hideBadges && (
               <div className="library-game-card-large__playtime">
                 {game.hasManuallyUpdatedPlaytime ? (
-                  <AlertFillIcon
+                  <Icon name="alert-fill"
                     size={11}
-                    className="library-game-card-large__manual-playtime"
-                  />
+                    className="library-game-card-large__manual-playtime" />
                 ) : (
-                  <ClockIcon size={11} />
+                  <Icon name="hourglass" size={11} />
                 )}
                 <span className="library-game-card-large__playtime-text">
                   {formatPlayTime(getDisplayedPlayTimeInMilliseconds(game))}

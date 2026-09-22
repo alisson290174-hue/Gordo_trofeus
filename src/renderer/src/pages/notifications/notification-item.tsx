@@ -1,13 +1,6 @@
 import { useCallback, useMemo } from "react";
-import {
-  XIcon,
-  PersonIcon,
-  ClockIcon,
-  StarFillIcon,
-  HeartFillIcon,
-  CommentDiscussionIcon,
-  GiftIcon,
-} from "@primer/octicons-react";
+import { Icon } from "@renderer/components/icon/icon";
+
 import retroAchievementsLogo from "@renderer/assets/icons/retroachievements.png";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -275,18 +268,18 @@ export function NotificationItem({
       return <img src={retroAchievementsLogo} alt="" />;
     }
     if (isReviewUpvote || isReviewAnswerUpvote) {
-      return <StarFillIcon size={24} />;
+      return <Icon name="star-fill" size={24} />;
     }
     if (isReviewAnswer) {
-      return <CommentDiscussionIcon size={24} />;
+      return <Icon name="comment-discussion" size={24} />;
     }
     if (notification.type === "CLOUD_GIFT_RECEIVED") {
-      return <GiftIcon size={24} />;
+      return <Icon name="gift" size={24} />;
     }
     if (isSouvenirLike) {
-      return <HeartFillIcon size={24} />;
+      return <Icon name="heart-fill" size={24} />;
     }
-    return <PersonIcon size={24} />;
+    return <Icon name="person" size={24} />;
   };
 
   return (
@@ -315,7 +308,7 @@ export function NotificationItem({
           {content.description}
         </span>
         <span className="notification-item__time">
-          <ClockIcon size={12} />
+          <Icon name="hourglass" size={12} />
           {formatDistance(new Date(notification.createdAt), new Date())}
         </span>
       </div>
@@ -339,7 +332,7 @@ export function NotificationItem({
           onClick={handleDismiss}
           title={t("dismiss")}
         >
-          <XIcon size={16} />
+          <Icon name="x" size={16} />
         </button>
       )}
     </button>

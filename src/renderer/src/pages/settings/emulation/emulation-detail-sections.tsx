@@ -1,15 +1,7 @@
 import { useTranslation } from "react-i18next";
+import { Icon } from "@renderer/components/icon/icon";
 import cn from "classnames";
-import {
-  ChevronLeftIcon,
-  ClockIcon,
-  DatabaseIcon,
-  FileDirectoryIcon,
-  PencilIcon,
-  PlusIcon,
-  SyncIcon,
-  XIcon,
-} from "@primer/octicons-react";
+
 
 import { Button, CheckboxField, ConfirmationModal } from "@renderer/components";
 import { useFormat } from "@renderer/hooks";
@@ -101,7 +93,7 @@ export function RomFoldersSection({
           <p>{t("rom_folders_section_description")}</p>
         </div>
         <Button theme="outline" onClick={onAddFolder} disabled={disabled}>
-          <PlusIcon size={14} />
+          <Icon name="plus" size={14} />
           <span>{t("add_folder")}</span>
         </Button>
       </header>
@@ -112,7 +104,7 @@ export function RomFoldersSection({
         )}
         {folders.map((folder) => (
           <div className="emulator-detail__row" key={folder.id}>
-            <FileDirectoryIcon size={24} />
+            <Icon name="file-directory" size={24} />
             <RomFolderInfo folder={folder} formatLastScan={formatLastScan} />
             <CheckboxField
               label={t("scan_subfolders")}
@@ -129,7 +121,7 @@ export function RomFoldersSection({
                 title={t("setup_rom_change")}
                 disabled={disabled}
               >
-                <PencilIcon size={16} />
+                <Icon name="pencil" size={16} />
               </button>
             )}
             <button
@@ -139,7 +131,7 @@ export function RomFoldersSection({
               aria-label={t("remove")}
               disabled={disabled}
             >
-              <XIcon size={16} />
+              <Icon name="x" size={16} />
             </button>
           </div>
         ))}
@@ -189,7 +181,7 @@ export function LibraryStatsGrid({
       </div>
       <div className="emulator-detail__stat">
         <div className="emulator-detail__stat-head">
-          <DatabaseIcon size={16} />
+          <Icon name="database" size={16} />
           <span className="emulator-detail__stat-label">
             {t("stat_storage")}
           </span>
@@ -207,7 +199,7 @@ export function LibraryStatsGrid({
       </div>
       <div className="emulator-detail__stat">
         <div className="emulator-detail__stat-head">
-          <ClockIcon size={16} />
+          <Icon name="hourglass" size={16} />
           <span className="emulator-detail__stat-label">
             {t("stat_last_scan")}
           </span>
@@ -255,7 +247,7 @@ export function DetailHeader({
         className="emulator-detail__breadcrumb"
         onClick={onBack}
       >
-        <ChevronLeftIcon size={12} />
+        <Icon name="chevron-left" size={12} />
         <span>{t("back_to_emulation")}</span>
       </button>
 
@@ -290,14 +282,13 @@ export function DetailHeader({
         </div>
         <div className="emulator-detail__hero-actions">
           <Button theme="primary" onClick={onRescan} disabled={rescanDisabled}>
-            <SyncIcon
+            <Icon name="sync"
               size={16}
               className={
                 rescanSpinning
                   ? "emulator-detail__redetect-icon--spinning"
                   : undefined
-              }
-            />
+              } />
             <span>{t("rescan_library")}</span>
           </Button>
         </div>
@@ -376,16 +367,15 @@ export function ExecutableRow({
       actions={
         <>
           <Button theme="outline" onClick={onRedetect} disabled={busy}>
-            <SyncIcon
+            <Icon name="sync"
               size={13}
               className={
                 busy ? "emulator-detail__redetect-icon--spinning" : undefined
-              }
-            />
+              } />
             <span>{t("re_detect")}</span>
           </Button>
           <Button theme="primary" onClick={onBrowse} disabled={busy}>
-            <FileDirectoryIcon size={16} />
+            <Icon name="file-directory" size={16} />
             <span>{t("browse")}</span>
           </Button>
         </>

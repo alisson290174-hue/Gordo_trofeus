@@ -1,8 +1,9 @@
 import { useDate } from "@renderer/hooks";
+import { Icon } from "@renderer/components/icon/icon";
 import type { UserAchievement } from "@types";
 import { useTranslation } from "react-i18next";
 import "./achievements.scss";
-import { EyeClosedIcon, SearchIcon } from "@primer/octicons-react";
+
 import { useState } from "react";
 import { FullscreenMediaModal } from "@renderer/components";
 
@@ -39,7 +40,7 @@ export function AchievementList({
                   className="achievements__item-hidden-icon"
                   title={t("hidden_achievement_tooltip")}
                 >
-                  <EyeClosedIcon size={12} />
+                  <Icon name="eye-closed" size={12} />
                 </span>
               )}
               {achievement.displayName}
@@ -82,7 +83,7 @@ export function AchievementList({
                 />
 
                 <span className="achievements__item-souvenir-overlay">
-                  <SearchIcon size={20} />
+                  <Icon name="search" size={20} />
                 </span>
               </button>
             )}

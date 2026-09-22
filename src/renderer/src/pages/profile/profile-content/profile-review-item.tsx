@@ -1,6 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
+import { Icon } from "@renderer/components/icon/icon";
 import { useNavigate } from "react-router-dom";
-import { ClockIcon } from "@primer/octicons-react";
+
 import { Star, ThumbsUp, ThumbsDown, TrashIcon, Languages } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
@@ -139,7 +140,7 @@ export function ProfileReviewItem({
               review.playTimeInSeconds && review.playTimeInSeconds > 0
             ) && (
               <div className="user-reviews__review-playtime">
-                <ClockIcon size={12} />
+                <Icon name="hourglass" size={12} />
                 <span>
                   {tGameDetails("review_played_for")}{" "}
                   {formatPlayTime(review.playTimeInSeconds || 0)}

@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useNavigate, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ChevronLeftIcon, SignInIcon } from "@primer/octicons-react";
+
 import type { UserGame } from "@types";
 import { useUserDetails } from "@renderer/hooks";
 import { buildGameDetailsPath } from "@renderer/helpers";
@@ -123,7 +124,7 @@ export default function CompareTrophies() {
           theme="outline"
           onClick={() => window.electron.openAuthWindow(AuthPage.SignIn)}
         >
-          <SignInIcon />
+          <Icon name="sign-in"  />
         </Button>
       </div>
     );
@@ -137,7 +138,7 @@ export default function CompareTrophies() {
           className="compare-trophies__back"
           onClick={() => navigate(-1)}
         >
-          <ChevronLeftIcon size={16} />
+          <Icon name="chevron-left" size={16} />
         </button>
         <h2>{t("compare_trophies_title")}</h2>
       </div>

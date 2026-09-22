@@ -1,4 +1,5 @@
 import { setHeaderTitle } from "@renderer/features";
+import { Icon } from "@renderer/components/icon/icon";
 import { useAppDispatch, useUserDetails } from "@renderer/hooks";
 import { useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -7,7 +8,7 @@ import {
   formatDownloadProgress,
   isGameCompleted,
 } from "@renderer/helpers";
-import { LockIcon, PersonIcon, TrophyIcon } from "@primer/octicons-react";
+
 import { gameDetailsContext } from "@renderer/context";
 import type { ComparedAchievements } from "@types";
 import { Link, ProgressBar } from "@renderer/components";
@@ -52,7 +53,7 @@ function AchievementSummary({ user, isComparison }: AchievementSummaryProps) {
             alt={user.displayName}
           />
         ) : (
-          <PersonIcon size={24} />
+          <Icon name="person" size={24} />
         )}
       </div>
     );
@@ -62,7 +63,7 @@ function AchievementSummary({ user, isComparison }: AchievementSummaryProps) {
     return (
       <div className="achievements-content__comparison">
         <div className="achievements-content__comparison__container">
-          <LockIcon size={24} />
+          <Icon name="lock" size={24} />
           <h3>
             <button
               className="achievements-content__comparison__container__subscription-required-button"
@@ -92,7 +93,7 @@ function AchievementSummary({ user, isComparison }: AchievementSummaryProps) {
         <h1>{user.displayName}</h1>
         <div className="achievements-content__user-summary__container__stats">
           <div className="achievements-content__user-summary__container__stats__trophy-count">
-            {!isCompleted && <TrophyIcon size={13} />}
+            {!isCompleted && <Icon name="trophy" size={13} />}
             <span>
               {user.unlockedAchievementCount} / {user.totalAchievementCount}
             </span>
@@ -102,7 +103,7 @@ function AchievementSummary({ user, isComparison }: AchievementSummaryProps) {
             className={`achievements-content__user-summary__container__stats__percentage${isCompleted ? " achievements-content__user-summary__container__stats__percentage--completed" : ""}`}
           >
             {isCompleted ? (
-              <TrophyIcon size={13} />
+              <Icon name="trophy" size={13} />
             ) : (
               formatDownloadProgress(
                 user.totalAchievementCount > 0
@@ -177,7 +178,7 @@ export function AchievementsContent({
             alt={user.displayName}
           />
         ) : (
-          <PersonIcon size={24} />
+          <Icon name="person" size={24} />
         )}
       </div>
     );

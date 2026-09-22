@@ -1,13 +1,7 @@
 import Skeleton from "react-loading-skeleton";
 import { useTranslation } from "react-i18next";
-import {
-  TelescopeIcon,
-  TrophyIcon,
-  ClockIcon,
-  HistoryIcon,
-  StackIcon,
-  DeviceDesktopIcon,
-} from "@primer/octicons-react";
+import { TelescopeIcon } from "@primer/octicons-react";
+import { Icon } from "@renderer/components/icon/icon";
 import InfiniteScroll from "react-infinite-scroll-component";
 import { useCallback, useMemo, useState } from "react";
 import { useFormat, useLibrary, useToast } from "@renderer/hooks";
@@ -148,14 +142,22 @@ export function LibraryTab({
   );
 
   const platformOptions: FilterDropdownOption<ProfilePlatform>[] = [
-    { value: "all", label: t("platform_all"), icon: StackIcon },
-    { value: "pc", label: t("platform_pc"), icon: DeviceDesktopIcon },
+    { value: "all", label: t("platform_all"), icon: <Icon name="stack" size={14} /> },
+    {
+      value: "pc",
+      label: t("platform_pc"),
+      icon: <Icon name="device-desktop" size={14} />,
+    },
     {
       value: "steam_library",
       label: t("category_steam_library", { ns: "library" }),
-      icon: SteamIcon,
+      icon: <SteamIcon size={14} />,
     },
-    { value: "classics", label: t("platform_classics"), icon: ClassicsIcon },
+    {
+      value: "classics",
+      label: t("platform_classics"),
+      icon: <ClassicsIcon size={14} />,
+    },
   ];
 
   const sortOptions: FilterDropdownOption<SortOption>[] = [
@@ -164,12 +166,20 @@ export function LibraryTab({
           {
             value: "achievementCount" as const,
             label: t("achievements_earned"),
-            icon: TrophyIcon,
+            icon: <Icon name="trophy" size={14} />,
           },
         ]
       : []),
-    { value: "playedRecently", label: t("played_recently"), icon: HistoryIcon },
-    { value: "playtime", label: t("playtime"), icon: ClockIcon },
+    {
+      value: "playedRecently",
+      label: t("played_recently"),
+      icon: <Icon name="history" size={14} />,
+    },
+    {
+      value: "playtime",
+      label: t("playtime"),
+      icon: <Icon name="hourglass" size={14} />,
+    },
   ];
 
   const hasGames = libraryGames.length > 0;

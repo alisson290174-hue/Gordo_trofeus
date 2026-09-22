@@ -1,6 +1,7 @@
 import { useEffect, useId, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
-import { ChevronRightIcon, GearIcon, AlertIcon } from "@primer/octicons-react";
+
 import { Tooltip } from "react-tooltip";
 
 import { formatRelativeShort } from "./relative-time";
@@ -172,7 +173,7 @@ export function ConsoleCard({
         {isConfigured && executableExists && requirementMissing && (
           <div className="console-card__hint-box">
             <div className="console-card__hint-title">
-              <AlertIcon size={14} />
+              <Icon name="alert" size={14} />
               <span>{t(`${requirement}_missing`)}</span>
             </div>
             <p className="console-card__hint-text">
@@ -184,7 +185,7 @@ export function ConsoleCard({
         {pathMissing && (
           <div className="console-card__hint-box">
             <div className="console-card__hint-title">
-              <AlertIcon size={14} />
+              <Icon name="alert" size={14} />
               <span>{t("executable_missing")}</span>
             </div>
             <p className="console-card__hint-text">
@@ -196,7 +197,7 @@ export function ConsoleCard({
         {!isConfigured && (
           <div className="console-card__hint-box">
             <div className="console-card__hint-title">
-              <AlertIcon size={14} />
+              <Icon name="alert" size={14} />
               <span>{t("setup_required")}</span>
             </div>
             <p className="console-card__hint-text">
@@ -227,9 +228,9 @@ export function ConsoleCard({
             className="console-card__cta"
             onClick={onConfigure}
           >
-            <GearIcon size={14} />
+            <Icon name="settings" size={14} />
             <span>{t(isReady ? "manage_emulator" : "configure_emulator")}</span>
-            <ChevronRightIcon size={12} />
+            <Icon name="chevron-right" size={12} />
           </button>
         ) : (
           <button
@@ -237,9 +238,9 @@ export function ConsoleCard({
             className="console-card__cta"
             onClick={onStartSetup}
           >
-            <GearIcon size={14} />
+            <Icon name="settings" size={14} />
             <span>{t("start_setup")}</span>
-            <ChevronRightIcon size={12} />
+            <Icon name="chevron-right" size={12} />
           </button>
         )}
       </div>

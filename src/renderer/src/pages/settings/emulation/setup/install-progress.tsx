@@ -1,7 +1,8 @@
 import type { ReactNode } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
-import { LinkExternalIcon, SyncIcon } from "@primer/octicons-react";
+
 
 export interface InstallProgressLike {
   phase: string;
@@ -60,7 +61,7 @@ export function InstallLoadingCard() {
   return (
     <div className="setup-modal__download-card setup-modal__download-card--loading">
       <div className="setup-modal__download-card-badge">
-        <SyncIcon size={20} className="setup-modal__spin" />
+        <Icon name="sync" size={20} className="setup-modal__spin" />
       </div>
       <div className="setup-modal__download-card-main">
         <span className="setup-modal__download-card-title">
@@ -99,10 +100,9 @@ export function ExternalLinkCard({
       </div>
       <span className="setup-modal__download-card-footer">
         <span className="setup-modal__download-card-url">{url}</span>
-        <LinkExternalIcon
+        <Icon name="link-external"
           size={14}
-          className="setup-modal__download-card-ext"
-        />
+          className="setup-modal__download-card-ext" />
       </span>
     </button>
   );

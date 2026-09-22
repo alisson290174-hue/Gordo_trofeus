@@ -1,6 +1,7 @@
 import { useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
-import { AlertIcon, SyncIcon } from "@primer/octicons-react";
+
 
 import { Button } from "../button/button";
 import { getErrorMessage, getErrorStack } from "./format-error";
@@ -53,7 +54,7 @@ export function ErrorFallback({
   return (
     <div className="error-fallback">
       <div className="error-fallback__content">
-        <AlertIcon size={48} className="error-fallback__icon" />
+        <Icon name="alert" size={48} className="error-fallback__icon" />
 
         <h1 className="error-fallback__title">{t("error_boundary_title")}</h1>
 
@@ -89,7 +90,7 @@ export function ErrorFallback({
 
         <div className="error-fallback__actions">
           <Button theme="primary" onClick={handleRestart}>
-            <SyncIcon />
+            <Icon name="sync"  />
             {t("error_boundary_restart")}
           </Button>
 

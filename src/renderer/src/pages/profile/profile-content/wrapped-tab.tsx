@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { XIcon } from "@primer/octicons-react";
+import { Icon } from "@renderer/components/icon/icon";
+
 import { useTranslation } from "react-i18next";
 import "./wrapped-tab.scss";
 
@@ -77,7 +78,7 @@ export function WrappedFullscreenModal({
             defaultValue: "Close",
           })}
         >
-          <XIcon size={24} />
+          <Icon name="x" size={24} />
         </button>
 
         <div

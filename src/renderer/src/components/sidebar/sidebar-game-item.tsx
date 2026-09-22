@@ -1,4 +1,5 @@
 import SteamLogo from "@renderer/assets/steam-logo.svg?react";
+import { Icon } from "@renderer/components/icon/icon";
 import { LibraryGame } from "@types";
 import cn from "classnames";
 import { useLocation } from "react-router-dom";
@@ -10,7 +11,7 @@ import {
   SteamLibraryBadge,
   useGameActions,
 } from "..";
-import { HeartFillIcon } from "@primer/octicons-react";
+
 import { useAppSelector, useToast } from "@renderer/hooks";
 import { useCollectionContextMenu } from "@renderer/context";
 import { shouldShowSteamLibraryBadge } from "@renderer/helpers";
@@ -128,7 +129,7 @@ export function SidebarGameItem({
             )}
 
           {game.favorite && (
-            <HeartFillIcon size={12} className="sidebar__game-favorite-icon" />
+            <Icon name="heart-fill" size={12} className="sidebar__game-favorite-icon" />
           )}
         </button>
       </li>

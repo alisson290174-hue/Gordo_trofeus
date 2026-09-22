@@ -1,6 +1,7 @@
 import { useContext, useMemo } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
-import { CheckIcon, XIcon } from "@primer/octicons-react";
+
 import { gameDetailsContext } from "@renderer/context/game-details/game-details.context";
 import { SidebarSection } from "../sidebar-section/sidebar-section";
 import "./game-language-section.scss";
@@ -51,16 +52,15 @@ export function GameLanguageSection() {
                 {lang.language}
               </div>
               <div className="game-language-section__cell game-language-section__cell--center">
-                <CheckIcon size={14} className="game-language-section__check" />
+                <Icon name="check" size={14} className="game-language-section__check" />
               </div>
               <div className="game-language-section__cell game-language-section__cell--center">
                 {lang.hasAudio ? (
-                  <CheckIcon
+                  <Icon name="check"
                     size={14}
-                    className="game-language-section__check"
-                  />
+                    className="game-language-section__check" />
                 ) : (
-                  <XIcon size={14} className="game-language-section__cross" />
+                  <Icon name="x" size={14} className="game-language-section__cross" />
                 )}
               </div>
             </div>

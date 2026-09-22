@@ -20,11 +20,7 @@ import {
 import type { LibraryCategory } from "@renderer/pages/library/category-filter";
 import type { SortOption } from "@renderer/pages/library/filter-options";
 
-import {
-  CheckCircleFillIcon,
-  CheckCircleIcon,
-  VideoIcon,
-} from "@primer/octicons-react";
+import { Icon } from "@renderer/components/icon/icon";
 import { Tooltip } from "react-tooltip";
 import deckyIcon from "@renderer/assets/icons/decky.png";
 import cn from "classnames";
@@ -467,7 +463,7 @@ export function Sidebar() {
           className="sidebar__big-picture-darwin"
           onClick={() => globalThis.window.electron.openBigPictureWindow()}
         >
-          <VideoIcon size={14} />
+          <Icon name="video" size={14} />
           {t("big_picture")}
         </button>
       )}
@@ -545,9 +541,9 @@ export function Sidebar() {
                 data-tooltip-place="top"
               >
                 {showPlayableOnly ? (
-                  <CheckCircleFillIcon size={16} />
+                  <Icon name="check-circle-fill" size={16} />
                 ) : (
-                  <CheckCircleIcon size={16} />
+                  <Icon name="check-circle" size={16} />
                 )}
               </button>
 

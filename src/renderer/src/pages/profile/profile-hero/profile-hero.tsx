@@ -1,17 +1,7 @@
 import { useCallback, useContext, useMemo, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { userProfileContext } from "@renderer/context";
-import {
-  BlockedIcon,
-  CheckCircleFillIcon,
-  CopyIcon,
-  GiftIcon,
-  PencilIcon,
-  PersonAddIcon,
-  SignOutIcon,
-  TrophyIcon,
-  XCircleFillIcon,
-  XCircleIcon,
-} from "@primer/octicons-react";
+
 import { buildGameDetailsPath } from "@renderer/helpers";
 import {
   Avatar,
@@ -153,7 +143,7 @@ export function ProfileHero() {
         }}
         disabled={isPerformingAction}
       >
-        <GiftIcon size={16} className="profile-hero__gift-icon" />
+        <Icon name="gift" size={16} className="profile-hero__gift-icon" />
         {t("gift_cloud")}
       </Button>
     );
@@ -171,7 +161,7 @@ export function ProfileHero() {
             disabled={isPerformingAction}
             className="profile-hero__button--outline"
           >
-            <PencilIcon />
+            <Icon name="pencil"  />
             {t("edit_profile")}
           </Button>
 
@@ -180,7 +170,7 @@ export function ProfileHero() {
             onClick={handleSignOut}
             disabled={isPerformingAction}
           >
-            <SignOutIcon />
+            <Icon name="sign-out"  />
             {t("sign_out")}
           </Button>
         </>
@@ -196,7 +186,7 @@ export function ProfileHero() {
             disabled={isPerformingAction}
             className="profile-hero__button--outline"
           >
-            <PersonAddIcon />
+            <Icon name="person-add"  />
             {t("add_friend")}
           </Button>
 
@@ -205,7 +195,7 @@ export function ProfileHero() {
             onClick={() => handleFriendAction(userProfile.id, "BLOCK")}
             disabled={isPerformingAction}
           >
-            <BlockedIcon />
+            <Icon name="blocked"  />
             {t("block_user")}
           </Button>
         </>
@@ -222,7 +212,7 @@ export function ProfileHero() {
             }
             disabled={isPerformingAction}
           >
-            <XCircleIcon />
+            <Icon name="x-circle"  />
             {t("undo_friendship")}
           </Button>
 
@@ -231,7 +221,7 @@ export function ProfileHero() {
             onClick={() => handleFriendAction(userProfile.id, "BLOCK")}
             disabled={isPerformingAction}
           >
-            <BlockedIcon />
+            <Icon name="blocked"  />
             {t("block_user")}
           </Button>
         </>
@@ -248,7 +238,7 @@ export function ProfileHero() {
           disabled={isPerformingAction}
           className="profile-hero__button--outline"
         >
-          <XCircleFillIcon /> {t("cancel_request")}
+          <Icon name="x-circle-fill"  /> {t("cancel_request")}
         </Button>
       );
     }
@@ -263,7 +253,7 @@ export function ProfileHero() {
           disabled={isPerformingAction}
           className="profile-hero__button--outline"
         >
-          <CheckCircleFillIcon /> {t("accept_request")}
+          <Icon name="check-circle-fill"  /> {t("accept_request")}
         </Button>
         <Button
           theme="danger"
@@ -272,7 +262,7 @@ export function ProfileHero() {
           }
           disabled={isPerformingAction}
         >
-          <XCircleFillIcon /> {t("ignore_request")}
+          <Icon name="x-circle-fill"  /> {t("ignore_request")}
         </Button>
       </>
     );
@@ -409,7 +399,7 @@ export function ProfileHero() {
                     >
                       {isCopied ? t("copied") : userProfile?.id}
                     </motion.span>
-                    <CopyIcon size={16} />
+                    <Icon name="copy" size={16} />
                   </motion.button>
                 </div>
               ) : (
@@ -464,7 +454,7 @@ export function ProfileHero() {
                 className="profile-hero__button--outline"
                 onClick={() => navigate(`/profile/${userProfile.id}/compare`)}
               >
-                <TrophyIcon />
+                <Icon name="trophy"  />
                 {t("compare_trophies")}
               </Button>
             )}

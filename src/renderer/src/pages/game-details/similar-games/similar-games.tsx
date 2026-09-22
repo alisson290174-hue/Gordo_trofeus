@@ -1,5 +1,6 @@
-import { ChevronLeftIcon, ChevronRightIcon } from "@primer/octicons-react";
+
 import useEmblaCarousel from "embla-carousel-react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -125,7 +126,7 @@ export function SimilarGames({ objectId, shop }: Readonly<SimilarGamesProps>) {
               disabled={!canScrollPrev}
               onClick={() => emblaApi?.scrollPrev()}
             >
-              <ChevronLeftIcon size={36} />
+              <Icon name="chevron-left" size={36} />
             </button>
 
             <button
@@ -135,7 +136,7 @@ export function SimilarGames({ objectId, shop }: Readonly<SimilarGamesProps>) {
               disabled={!canScrollNext}
               onClick={() => emblaApi?.scrollNext()}
             >
-              <ChevronRightIcon size={36} />
+              <Icon name="chevron-right" size={36} />
             </button>
           </div>
         </div>

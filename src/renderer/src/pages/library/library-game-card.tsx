@@ -1,4 +1,5 @@
 import { LibraryGame } from "@types";
+import { Icon } from "@renderer/components/icon/icon";
 import { getDisplayedPlayTimeInMilliseconds } from "@shared";
 import cn from "classnames";
 import {
@@ -17,11 +18,7 @@ import {
 import { AchievementProgress, SteamLibraryBadge } from "@renderer/components";
 import { memo, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  ClockIcon,
-  AlertFillIcon,
-  CheckCircleFillIcon,
-} from "@primer/octicons-react";
+
 import {
   EMULATOR_ICONS,
   RETROARCH_EMULATOR_ICON,
@@ -245,12 +242,11 @@ export const LibraryGameCard = memo(function LibraryGameCard({
           {!hideBadges && (
             <div className="library-game-card__playtime">
               {game.hasManuallyUpdatedPlaytime ? (
-                <AlertFillIcon
+                <Icon name="alert-fill"
                   size={11}
-                  className="library-game-card__manual-playtime"
-                />
+                  className="library-game-card__manual-playtime" />
               ) : (
-                <ClockIcon size={11} />
+                <Icon name="hourglass" size={11} />
               )}
               <span className="library-game-card__playtime-long">
                 {formatPlayTime(getDisplayedPlayTimeInMilliseconds(game))}
@@ -288,10 +284,9 @@ export const LibraryGameCard = memo(function LibraryGameCard({
                       className="library-game-card__installed-emulator-icon"
                     />
                   ) : (
-                    <CheckCircleFillIcon
+                    <Icon name="check-circle-fill"
                       size={11}
-                      className="library-game-card__installed-icon"
-                    />
+                      className="library-game-card__installed-icon" />
                   )}
                   <span className="library-game-card__installed-text">
                     {t("installed")}

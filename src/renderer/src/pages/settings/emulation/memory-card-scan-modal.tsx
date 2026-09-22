@@ -1,10 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
-import {
-  DatabaseIcon,
-  FileDirectoryIcon,
-  SyncIcon,
-} from "@primer/octicons-react";
+
 import { Gamepad2 } from "lucide-react";
 
 import { Button, Modal } from "@renderer/components";
@@ -179,7 +176,7 @@ export function MemoryCardScanModal({
                   }}
                 >
                   {!isDone && (
-                    <SyncIcon size={14} className="setup-modal__spin" />
+                    <Icon name="sync" size={14} className="setup-modal__spin" />
                   )}
                   <span>{phaseLabel}</span>
                 </span>
@@ -204,10 +201,9 @@ export function MemoryCardScanModal({
 
               {!isDone && currentLabel && (
                 <div className="setup-modal__scan-file">
-                  <FileDirectoryIcon
+                  <Icon name="file-directory"
                     size={14}
-                    className="setup-modal__scan-file-icon"
-                  />
+                    className="setup-modal__scan-file-icon" />
                   <span className="setup-modal__scan-file-name">
                     {currentLabel}
                   </span>
@@ -226,7 +222,7 @@ export function MemoryCardScanModal({
                 </div>
                 <div className="setup-modal__stat">
                   <span className="setup-modal__stat-icon">
-                    <DatabaseIcon size={16} />
+                    <Icon name="database" size={16} />
                   </span>
                   <span className="setup-modal__stat-label">
                     {t("memcard_stat_saves")}

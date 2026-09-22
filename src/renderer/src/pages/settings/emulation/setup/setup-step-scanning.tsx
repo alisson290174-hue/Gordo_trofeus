@@ -1,12 +1,7 @@
 import { useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
-import {
-  ChevronDownIcon,
-  ChevronRightIcon,
-  DatabaseIcon,
-  FileDirectoryIcon,
-  CheckCircleFillIcon,
-} from "@primer/octicons-react";
+
 import { Gamepad2 } from "lucide-react";
 
 import { ClassicsSpinner } from "@renderer/components";
@@ -83,10 +78,9 @@ export function SetupStepScanning({
       <div className="setup-modal__progress-meta">
         <span className="setup-modal__progress-status">
           {isDone ? (
-            <CheckCircleFillIcon
+            <Icon name="check-circle-fill"
               size={14}
-              className="setup-modal__progress-check"
-            />
+              className="setup-modal__progress-check" />
           ) : (
             <ClassicsSpinner size={14} />
           )}
@@ -111,10 +105,9 @@ export function SetupStepScanning({
 
       {!isDone && currentFile && (
         <div className="setup-modal__scan-file">
-          <FileDirectoryIcon
+          <Icon name="file-directory"
             size={14}
-            className="setup-modal__scan-file-icon"
-          />
+            className="setup-modal__scan-file-icon" />
           <span className="setup-modal__scan-file-name">{currentFile}</span>
           {status && (
             <span
@@ -142,7 +135,7 @@ export function SetupStepScanning({
         </div>
         <div className="setup-modal__stat">
           <div className="setup-modal__stat-head">
-            <DatabaseIcon size={16} className="setup-modal__stat-icon" />
+            <Icon name="database" size={16} className="setup-modal__stat-icon" />
             <span className="setup-modal__stat-label">{t("stat_storage")}</span>
           </div>
           <span className="setup-modal__stat-value">
@@ -160,9 +153,9 @@ export function SetupStepScanning({
             aria-expanded={unmatchedOpen}
           >
             {unmatchedOpen ? (
-              <ChevronDownIcon size={14} />
+              <Icon name="chevron-down" size={14} />
             ) : (
-              <ChevronRightIcon size={14} />
+              <Icon name="chevron-right" size={14} />
             )}
             <span className="setup-modal__unmatched-title">
               {t("setup_unmatched_title", { count: unmatchedFiles.length })}
@@ -175,10 +168,9 @@ export function SetupStepScanning({
                   key={`${file.name}-${index}`}
                   className="setup-modal__unmatched-item"
                 >
-                  <FileDirectoryIcon
+                  <Icon name="file-directory"
                     size={14}
-                    className="setup-modal__unmatched-icon"
-                  />
+                    className="setup-modal__unmatched-icon" />
                   <span className="setup-modal__unmatched-name">
                     {file.name}
                   </span>

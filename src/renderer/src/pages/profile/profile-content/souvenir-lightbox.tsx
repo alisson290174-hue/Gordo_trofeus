@@ -1,3 +1,4 @@
+import { Icon } from "@renderer/components/icon/icon";
 import {
   useCallback,
   useEffect,
@@ -11,16 +12,7 @@ import { createPortal } from "react-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
-  ChevronLeftIcon,
-  ChevronRightIcon,
-  EyeClosedIcon,
-  EyeIcon,
-  HeartFillIcon,
-  HeartIcon,
   ImageIcon,
-  ReportIcon,
-  TrophyIcon,
-  XIcon,
 } from "@primer/octicons-react";
 import { TrashIcon } from "lucide-react";
 import { Tooltip } from "react-tooltip";
@@ -202,7 +194,7 @@ function SouvenirSummary({
             }
           />
         ) : (
-          <TrophyIcon size={24} />
+          <Icon name="trophy" size={24} />
         )}
       </span>
 
@@ -245,7 +237,7 @@ function SouvenirSummary({
             <span
               className={`profile-souvenir-lightbox__rarity profile-souvenir-lightbox__rarity--${visualVariant}`}
             >
-              <TrophyIcon size={12} />
+              <Icon name="trophy" size={12} />
               {t(`${visualVariant}_souvenir`)}
             </span>
           ) : null}
@@ -315,7 +307,7 @@ function SouvenirAchievementListItem({
             onError={() => setFailedIconUrl(achievement.achievementIcon)}
           />
         ) : (
-          <TrophyIcon size={14} />
+          <Icon name="trophy" size={14} />
         )}
       </span>
       <span className="profile-souvenir-lightbox__achievement-list-copy">
@@ -368,8 +360,8 @@ function SouvenirActions({
     ? "show_souvenir_on_profile"
     : "hide_souvenir_from_profile";
   const visibilityLabelKey = isPrivate ? "show_souvenir" : "hide_souvenir";
-  const LikeIcon = souvenir.likedByMe ? HeartFillIcon : HeartIcon;
-  const VisibilityIcon = isPrivate ? EyeClosedIcon : EyeIcon;
+  const likeIconName = souvenir.likedByMe ? "heart-fill" : "heart";
+  const visibilityIconName = isPrivate ? "eye-closed" : "eye";
   const isLikeDisabled = isLiking || isLikeAnimating;
   const likeButtonClassName = [
     "profile-souvenir-lightbox__action",
@@ -407,7 +399,7 @@ function SouvenirActions({
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
       >
-        <LikeIcon size={16} />
+        <Icon name={likeIconName} size={16} />
         <AnimatePresence mode="wait">
           <motion.span
             key={souvenir.likeCount}
@@ -431,7 +423,7 @@ function SouvenirActions({
             aria-label={t(visibilityTitleKey)}
             title={t(visibilityTitleKey)}
           >
-            <VisibilityIcon size={16} />
+            <Icon name={visibilityIconName} size={16} />
             <span>{t(visibilityLabelKey)}</span>
           </button>
 
@@ -455,7 +447,7 @@ function SouvenirActions({
           aria-label={t(isReported ? "souvenir_reported" : "report_souvenir")}
           title={t(isReported ? "souvenir_reported" : "report_souvenir")}
         >
-          <ReportIcon size={16} />
+          <Icon name="report" size={16} />
           <span>{t(isReported ? "reported" : "report")}</span>
         </button>
       )}
@@ -660,7 +652,7 @@ export function SouvenirLightbox({
             disabled={isContentWarningVisible}
             aria-label={t("close", { ns: "modal" })}
           >
-            <XIcon size={24} />
+            <Icon name="x" size={24} />
           </button>
 
           <button
@@ -674,7 +666,7 @@ export function SouvenirLightbox({
             disabled={!hasPrevious || isNavigating || isContentWarningVisible}
             aria-label={t("previous_media", { ns: "game_details" })}
           >
-            <ChevronLeftIcon size={28} />
+            <Icon name="chevron-left" size={28} />
           </button>
 
           <button
@@ -686,7 +678,7 @@ export function SouvenirLightbox({
             disabled={!hasNext || isNavigating || isContentWarningVisible}
             aria-label={t("next_media", { ns: "game_details" })}
           >
-            <ChevronRightIcon size={28} />
+            <Icon name="chevron-right" size={28} />
           </button>
 
           <div

@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 import { GAMEMODE_SITE_URL, MANGOHUD_SITE_URL } from "@shared";
 
@@ -12,7 +13,7 @@ import {
 import { settingsContext } from "@renderer/context";
 import { useAppSelector } from "@renderer/hooks";
 import type { ProtonVersion } from "@types";
-import { DesktopDownloadIcon, LinkExternalIcon } from "@primer/octicons-react";
+
 import { logger } from "@renderer/logger";
 import { Tooltip } from "react-tooltip";
 
@@ -314,7 +315,7 @@ export function SettingsContextCompatibility() {
                         className="settings-behavior__gamemode-link"
                       >
                         GameMode
-                        <LinkExternalIcon />
+                        <Icon name="link-external"  />
                       </Link>
                     </span>
                   }
@@ -363,7 +364,7 @@ export function SettingsContextCompatibility() {
                         className="settings-behavior__mangohud-link"
                       >
                         MangoHud
-                        <LinkExternalIcon />
+                        <Icon name="link-external"  />
                       </Link>
                     </span>
                   }
@@ -400,7 +401,7 @@ export function SettingsContextCompatibility() {
             className="settings-general__common-redist-button"
             disabled={!canInstallCommonRedist || installingCommonRedist}
           >
-            <DesktopDownloadIcon />
+            <Icon name="desktop-download"  />
             {installingCommonRedist
               ? t("installing_common_redist")
               : t("install_common_redist")}

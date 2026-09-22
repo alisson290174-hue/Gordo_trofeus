@@ -319,7 +319,8 @@
       color: rgba(255, 255, 255, 0.6);
     }
 
-    svg {
+    svg,
+    .icon {
       display: block;
     }
   }
@@ -344,7 +345,8 @@
       }
     }
 
-    svg {
+    svg,
+    .icon {
       display: block;
     }
   }

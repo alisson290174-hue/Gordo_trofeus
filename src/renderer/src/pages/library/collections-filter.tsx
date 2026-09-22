@@ -1,12 +1,6 @@
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
-import {
-  ChevronDownIcon,
-  FileDirectoryFillIcon,
-  FileDirectoryIcon,
-  HeartFillIcon,
-  HeartIcon,
-  PlusIcon,
-} from "@primer/octicons-react";
+import { Icon } from "@renderer/components/icon/icon";
+
 import { useTranslation } from "react-i18next";
 import type { GameCollection } from "@types";
 import { useCloseOnLibraryScroll } from "./use-close-on-library-scroll";
@@ -29,20 +23,20 @@ interface CollectionsFilterProps {
   ) => void;
 }
 
-const getTriggerIcon = (
+const getTriggerIconName = (
   selectedCollection: GameCollection | undefined,
   favoritesCollectionId: string
 ) => {
-  if (!selectedCollection) return FileDirectoryIcon;
-  if (selectedCollection.id === favoritesCollectionId) return HeartFillIcon;
-  return FileDirectoryFillIcon;
+  if (!selectedCollection) return "file-directory";
+  if (selectedCollection.id === favoritesCollectionId) return "heart-fill";
+  return "file-directory-fill";
 };
 
-const getCollectionIcon = (isFavorites: boolean, isActive: boolean) => {
+const getCollectionIconName = (isFavorites: boolean, isActive: boolean) => {
   if (isFavorites) {
-    return isActive ? HeartFillIcon : HeartIcon;
+    return isActive ? "heart-fill" : "heart";
   }
-  return isActive ? FileDirectoryFillIcon : FileDirectoryIcon;
+  return isActive ? "file-directory-fill" : "file-directory";
 };
 
 export function CollectionsFilter({
@@ -61,7 +55,10 @@ export function CollectionsFilter({
     (collection) => collection.id === selectedCollectionId
   );
 
-  const TriggerIcon = getTriggerIcon(selectedCollection, favoritesCollectionId);
+  const triggerIconName = getTriggerIconName(
+    selectedCollection,
+    favoritesCollectionId
+  );
 
   return (
     <DropdownMenuPrimitive.Root
@@ -75,14 +72,13 @@ export function CollectionsFilter({
           className="collections-filter__trigger"
           aria-label={t("collections")}
         >
-          <TriggerIcon size={16} />
+          <Icon name={triggerIconName} size={16} />
           <span className="collections-filter__trigger-label">
             {selectedCollection ? selectedCollection.name : t("collections")}
           </span>
-          <ChevronDownIcon
+          <Icon name="chevron-down"
             size={LIBRARY_DROPDOWN_CHEVRON_SIZE}
-            className="collections-filter__chevron"
-          />
+            className="collections-filter__chevron" />
         </button>
       </DropdownMenuPrimitive.Trigger>
 
@@ -105,7 +101,10 @@ export function CollectionsFilter({
               const isFavorites = collection.id === favoritesCollectionId;
               const isActive = collection.id === selectedCollectionId;
 
-              const CollectionIcon = getCollectionIcon(isFavorites, isActive);
+              const collectionIconName = getCollectionIconName(
+                isFavorites,
+                isActive
+              );
 
               return (
                 <DropdownMenuPrimitive.Item
@@ -118,7 +117,7 @@ export function CollectionsFilter({
                       : (event) => onCollectionContextMenu(event, collection)
                   }
                 >
-                  <CollectionIcon size={16} />
+                  <Icon name={collectionIconName} size={16} />
                   <span className="collections-filter__item-label">
                     {collection.name}
                   </span>
@@ -139,7 +138,7 @@ export function CollectionsFilter({
               onCreate();
             }}
           >
-            <PlusIcon size={16} />
+            <Icon name="plus" size={16} />
             <span className="collections-filter__item-label">
               {t("create_collection", { ns: "sidebar" })}
             </span>

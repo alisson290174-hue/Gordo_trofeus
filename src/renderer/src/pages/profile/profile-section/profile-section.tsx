@@ -1,5 +1,6 @@
-import { ChevronDownIcon } from "@primer/octicons-react";
+
 import { useEffect, useRef, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import "./profile-section.scss";
 
 export interface ProfileSectionProps {
@@ -37,11 +38,10 @@ export function ProfileSection({
           onClick={() => setIsOpen(!isOpen)}
           className="profile-section__button"
         >
-          <ChevronDownIcon
+          <Icon name="chevron-down"
             className={`profile-section__chevron ${
               isOpen ? "profile-section__chevron--open" : ""
-            }`}
-          />
+            }`} />
           <span>{title}</span>
           {count !== undefined && (
             <span className="profile-section__count">{count}</span>

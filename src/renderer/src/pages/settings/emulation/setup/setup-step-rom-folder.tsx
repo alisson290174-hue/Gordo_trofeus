@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
-import { FileDirectoryIcon, PlusIcon, XIcon } from "@primer/octicons-react";
+import { Icon } from "@renderer/components/icon/icon";
+
 
 import { Button, CheckboxField } from "@renderer/components";
 
@@ -60,7 +61,7 @@ export function SetupStepRomFolder({
                 </span>
               </div>
               <Button theme="primary" onClick={onAddFolder}>
-                <FileDirectoryIcon size={14} />
+                <Icon name="file-directory" size={14} />
                 <span>{t("setup_rom_browse")}</span>
               </Button>
             </div>
@@ -98,7 +99,7 @@ export function SetupStepRomFolder({
                   )}
                 </div>
                 <Button theme="primary" onClick={() => onChangeFolder(index)}>
-                  <FileDirectoryIcon size={14} />
+                  <Icon name="file-directory" size={14} />
                   <span>{t("setup_rom_browse")}</span>
                 </Button>
                 {folders.length > 1 && (
@@ -108,7 +109,7 @@ export function SetupStepRomFolder({
                     aria-label="remove"
                     onClick={() => onRemoveFolder(index)}
                   >
-                    <XIcon size={14} />
+                    <Icon name="x" size={14} />
                   </button>
                 )}
               </div>
@@ -130,7 +131,7 @@ export function SetupStepRomFolder({
           className="setup-modal__add-folder"
           onClick={onAddFolder}
         >
-          <PlusIcon size={14} />
+          <Icon name="plus" size={14} />
           <span>{t("setup_rom_add_another")}</span>
         </button>
       </div>

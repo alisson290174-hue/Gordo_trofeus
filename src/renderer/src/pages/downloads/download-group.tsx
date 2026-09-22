@@ -1,4 +1,5 @@
 import type { GameShop, LibraryGame, SeedingStatus } from "@types";
+import { Icon } from "@renderer/components/icon/icon";
 
 import { Badge, Button, ConfirmationModal } from "@renderer/components";
 import {
@@ -28,21 +29,7 @@ import {
   DropdownMenu,
   DropdownMenuItem,
 } from "@renderer/components/dropdown-menu/dropdown-menu";
-import {
-  ArrowDownIcon,
-  ArrowUpIcon,
-  ClockIcon,
-  ColumnsIcon,
-  DownloadIcon,
-  FileDirectoryIcon,
-  FileIcon,
-  LinkIcon,
-  PlayIcon,
-  TrashIcon,
-  UnlinkIcon,
-  XCircleIcon,
-  GraphIcon,
-} from "@primer/octicons-react";
+
 import { MoreVertical, Folder } from "lucide-react";
 import { average } from "color.js";
 
@@ -387,7 +374,7 @@ function HeroDownloadView({
                   !isReconnecting &&
                   !isRecovering && (
                     <span className="download-group__progress-size">
-                      <DownloadIcon size={14} />
+                      <Icon name="download" size={14} />
                       {isGameDownloading && lastPacket
                         ? `${formatBytes(lastPacket.download.bytesDownloaded)} / ${finalDownloadSize}`
                         : `${formatBytes(game.download?.bytesDownloaded ?? 0)} / ${finalDownloadSize}`}
@@ -400,7 +387,7 @@ function HeroDownloadView({
                   <span className="download-group__progress-time">
                     {shouldShowEta && (
                       <>
-                        <ClockIcon size={14} />
+                        <Icon name="hourglass" size={14} />
                         {hasEta ? etaText : tGameDetails("calculating_eta")}
                       </>
                     )}
@@ -427,7 +414,7 @@ function HeroDownloadView({
                     onClick={() => pauseDownload(game.shop, game.objectId)}
                     className="download-group__glass-btn"
                   >
-                    <ColumnsIcon size={14} />
+                    <Icon name="columns" size={14} />
                     {t("pause")}
                   </button>
                 ) : (
@@ -436,7 +423,7 @@ function HeroDownloadView({
                     onClick={() => resumeDownload(game.shop, game.objectId)}
                     className="download-group__glass-btn"
                   >
-                    <PlayIcon size={14} />
+                    <Icon name="play" size={14} />
                     {t("resume")}
                   </button>
                 )}
@@ -445,7 +432,7 @@ function HeroDownloadView({
                   onClick={() => onCancelClick(game.shop, game.objectId)}
                   className="download-group__glass-btn"
                 >
-                  <XCircleIcon size={14} />
+                  <Icon name="x-circle" size={14} />
                   {t("cancel")}
                 </button>
               </div>
@@ -457,7 +444,7 @@ function HeroDownloadView({
           <div className="download-group__stats-column">
             <div className="download-group__stat-item">
               <span style={{ color: dominantColor, display: "flex" }}>
-                <DownloadIcon size={16} />
+                <Icon name="download" size={16} />
               </span>
               <div className="download-group__stat-content">
                 <span className="download-group__stat-label">
@@ -471,7 +458,7 @@ function HeroDownloadView({
 
             <div className="download-group__stat-item">
               <span style={{ color: dominantColor, display: "flex" }}>
-                <GraphIcon size={16} />
+                <Icon name="graph" size={16} />
               </span>
               <div className="download-group__stat-content">
                 <span className="download-group__stat-label">{t("peak")}:</span>
@@ -505,7 +492,7 @@ function HeroDownloadView({
               lastPacket.batchFilesTotal > 1 && (
                 <div className="download-group__stat-item">
                   <span style={{ color: dominantColor, display: "flex" }}>
-                    <FileIcon size={16} />
+                    <Icon name="file" size={16} />
                   </span>
                   <div className="download-group__stat-content">
                     <span className="download-group__stat-label">
@@ -828,7 +815,7 @@ export function DownloadGroup({
         {
           label: t("extract"),
           disabled: game.download.extracting,
-          icon: <FileDirectoryIcon />,
+          icon: <Icon name="file-directory"  />,
           onClick: () => {
             extractGameDownload(game.shop, game.objectId);
           },
@@ -836,7 +823,7 @@ export function DownloadGroup({
         {
           label: t("stop_seeding"),
           disabled: deleting,
-          icon: <UnlinkIcon />,
+          icon: <Icon name="unlink"  />,
           show:
             isGameSeeding(game) &&
             game.download?.downloader === Downloader.Torrent,
@@ -847,7 +834,7 @@ export function DownloadGroup({
         {
           label: t("resume_seeding"),
           disabled: deleting,
-          icon: <LinkIcon />,
+          icon: <Icon name="link"  />,
           show:
             !isGameSeeding(game) &&
             game.download?.downloader === Downloader.Torrent,
@@ -858,7 +845,7 @@ export function DownloadGroup({
         {
           label: t("delete"),
           disabled: deleting,
-          icon: <TrashIcon />,
+          icon: <Icon name="trash"  />,
           onClick: () => {
             openDeleteGameModal(game.shop, game.objectId);
           },
@@ -874,14 +861,14 @@ export function DownloadGroup({
           onClick: () => {
             pauseDownload(game.shop, game.objectId);
           },
-          icon: <ColumnsIcon />,
+          icon: <Icon name="columns"  />,
         },
         {
           label: t("cancel"),
           onClick: () => {
             handleCancelClick(game.shop, game.objectId);
           },
-          icon: <XCircleIcon />,
+          icon: <Icon name="x-circle"  />,
         },
       ];
     }
@@ -908,7 +895,7 @@ export function DownloadGroup({
         onClick: () => {
           resumeDownload(game.shop, game.objectId);
         },
-        icon: <PlayIcon />,
+        icon: <Icon name="play"  />,
       },
       {
         label: t("move_up"),
@@ -916,7 +903,7 @@ export function DownloadGroup({
         onClick: () => {
           handleMoveInQueue(game.shop, game.objectId, "up");
         },
-        icon: <ArrowUpIcon />,
+        icon: <Icon name="arrow-up"  />,
       },
       {
         label: t("move_down"),
@@ -924,14 +911,14 @@ export function DownloadGroup({
         onClick: () => {
           handleMoveInQueue(game.shop, game.objectId, "down");
         },
-        icon: <ArrowDownIcon />,
+        icon: <Icon name="arrow-down"  />,
       },
       {
         label: t("cancel"),
         onClick: () => {
           handleCancelClick(game.shop, game.objectId);
         },
-        icon: <XCircleIcon />,
+        icon: <Icon name="x-circle"  />,
       },
     ];
 
@@ -1112,7 +1099,7 @@ export function DownloadGroup({
                         </span>
                       ) : (
                         <span className="download-group__simple-size">
-                          <DownloadIcon size={14} />
+                          <Icon name="download" size={14} />
                           {size}
                         </span>
                       )}
@@ -1160,7 +1147,7 @@ export function DownloadGroup({
                         >
                           {isInstall ? (
                             <>
-                              <DownloadIcon size={16} />
+                              <Icon name="download" size={16} />
                               {t("install")}
                             </>
                           ) : (
@@ -1179,7 +1166,7 @@ export function DownloadGroup({
                       className="download-group__simple-menu-btn"
                       tooltip={t("resume")}
                     >
-                      <DownloadIcon size={16} />
+                      <Icon name="download" size={16} />
                     </Button>
                   )}
                   <DropdownMenu align="end" items={getGameActions(game)}>

@@ -1,5 +1,6 @@
 import cn from "classnames";
-import { AlertIcon, CheckCircleFillIcon } from "@primer/octicons-react";
+import { Icon } from "@renderer/components/icon/icon";
+
 import type { ReactNode } from "react";
 import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
 
@@ -49,9 +50,9 @@ export function SettingsIntegrationCard({
               )}
             >
               {statusTone === "success" ? (
-                <CheckCircleFillIcon size={14} />
+                <Icon name="check-circle-fill" size={14} />
               ) : statusTone === "warning" ? (
-                <AlertIcon size={14} />
+                <Icon name="alert" size={14} />
               ) : (
                 <span className="settings-integration-card__status-dot" />
               )}

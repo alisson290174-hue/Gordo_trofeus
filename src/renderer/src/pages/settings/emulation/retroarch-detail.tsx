@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
-import { FileDirectoryIcon, SyncIcon, TrashIcon } from "@primer/octicons-react";
+
 
 import { Button, RetroArchScanIndicator } from "@renderer/components";
 import { useRetroArchScan, useToast } from "@renderer/hooks";
@@ -479,14 +480,13 @@ export function RetroArchDetail({
                   onClick={handleRedetectCores}
                   disabled={busy || installingCores}
                 >
-                  <SyncIcon
+                  <Icon name="sync"
                     size={13}
                     className={
                       installingCores
                         ? "emulator-detail__redetect-icon--spinning"
                         : undefined
-                    }
-                  />
+                    } />
                   <span>{t("re_detect")}</span>
                 </Button>
                 <Button
@@ -494,7 +494,7 @@ export function RetroArchDetail({
                   onClick={handleChangeCoresDir}
                   disabled={busy || installingCores}
                 >
-                  <FileDirectoryIcon size={16} />
+                  <Icon name="file-directory" size={16} />
                   <span>{t("browse")}</span>
                 </Button>
               </>
@@ -508,7 +508,7 @@ export function RetroArchDetail({
               onClick={() => setRemoveOpen(true)}
               disabled={busy || scan.active}
             >
-              <TrashIcon size={14} />
+              <Icon name="trash" size={14} />
               <span>{t("remove_emulator")}</span>
             </button>
           )}
@@ -544,7 +544,7 @@ export function RetroArchDetail({
                 onClick={handleRescan}
                 disabled={busy || scan.active}
               >
-                <SyncIcon size={13} />
+                <Icon name="sync" size={13} />
                 <span>{t("rescan")}</span>
               </Button>
             </header>

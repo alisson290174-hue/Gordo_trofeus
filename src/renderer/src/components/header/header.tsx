@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { Icon } from "@renderer/components/icon/icon";
 import {
   useDeferredValue,
   useEffect,
@@ -8,13 +9,7 @@ import {
   useState,
 } from "react";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
-import {
-  ArrowLeftIcon,
-  PlusIcon,
-  SearchIcon,
-  SyncIcon,
-  XIcon,
-} from "@primer/octicons-react";
+
 import { Tooltip } from "react-tooltip";
 import { SidebarAddingCustomGameModal } from "@renderer/components/sidebar/sidebar-adding-custom-game-modal";
 
@@ -388,7 +383,7 @@ export function Header() {
             onClick={handleBackButtonClick}
             disabled={location.key === "default"}
           >
-            <ArrowLeftIcon />
+            <Icon name="arrow-left"  />
           </button>
 
           <h3
@@ -412,7 +407,7 @@ export function Header() {
               })}
               data-tooltip-place="bottom"
             >
-              <PlusIcon size={16} />
+              <Icon name="plus" size={16} />
             </button>
           )}
 
@@ -431,7 +426,7 @@ export function Header() {
               data-tooltip-content={t("scan_games_tooltip")}
               data-tooltip-place="bottom"
             >
-              <SyncIcon size={16} />
+              <Icon name="sync" size={16} />
             </button>
           )}
 
@@ -446,7 +441,7 @@ export function Header() {
               className="header__action-button"
               onClick={focusInput}
             >
-              <SearchIcon />
+              <Icon name="search"  />
             </button>
 
             <input
@@ -469,7 +464,7 @@ export function Header() {
                 onClick={handleClearSearch}
                 className="header__action-button"
               >
-                <XIcon />
+                <Icon name="x"  />
               </button>
             )}
           </div>

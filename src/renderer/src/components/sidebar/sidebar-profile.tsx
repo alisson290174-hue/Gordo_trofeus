@@ -1,11 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import {
-  BellIcon,
-  ChevronDownIcon,
-  PeopleIcon,
-  PersonIcon,
-  SignOutIcon,
-} from "@primer/octicons-react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useAppSelector, useToast, useUserDetails } from "@renderer/hooks";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -386,7 +380,8 @@ export function SidebarProfile() {
           {gameRunningDetails()}
 
           {userDetails && (
-            <ChevronDownIcon
+            <Icon
+              name="chevron-down"
               size={12}
               className={`sidebar-profile__chevron${dropdownOpen ? " sidebar-profile__chevron--open" : ""}`}
             />
@@ -403,7 +398,7 @@ export function SidebarProfile() {
             className="sidebar-profile__dropdown-item"
             onClick={handleViewProfile}
           >
-            <PersonIcon size={16} />
+            <Icon name="person" size={16} />
             <span>{t("user_profile:see_profile")}</span>
           </button>
 
@@ -412,7 +407,7 @@ export function SidebarProfile() {
             className="sidebar-profile__dropdown-item"
             onClick={handleNotificationsClick}
           >
-            <BellIcon size={16} />
+            <Icon name="bell" size={16} />
             <span>{t("notifications")}</span>
             {notificationCount > 0 && (
               <small className="sidebar-profile__dropdown-badge">
@@ -426,7 +421,7 @@ export function SidebarProfile() {
             className="sidebar-profile__dropdown-item"
             onClick={handleFriendsClick}
           >
-            <PeopleIcon size={16} />
+            <Icon name="people" size={16} />
             <span>{t("friends")}</span>
             {onlineFriendsCount > 0 && (
               <small className="sidebar-profile__dropdown-badge sidebar-profile__dropdown-badge--online">
@@ -443,7 +438,7 @@ export function SidebarProfile() {
             onClick={handleSignOut}
             disabled={isSigningOut}
           >
-            <SignOutIcon size={16} />
+            <Icon name="sign-out" size={16} />
             <span>{t("user_profile:sign_out")}</span>
           </button>
         </div>

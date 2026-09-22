@@ -1,5 +1,6 @@
 import { useId } from "react";
-import { CheckIcon } from "@primer/octicons-react";
+import { Icon } from "@renderer/components/icon/icon";
+
 import "./checkbox-field.scss";
 
 export interface CheckboxFieldProps
@@ -27,7 +28,7 @@ export function CheckboxField({ label, ...props }: CheckboxFieldProps) {
         <span
           className={`checkbox-field__icon ${props.checked ? "checked" : ""}`}
         >
-          <CheckIcon />
+          <Icon name="check"  />
         </span>
       </div>
       <label htmlFor={id} className="checkbox-field__label">

@@ -1,9 +1,10 @@
 import { useContext, useEffect, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { Trans, useTranslation } from "react-i18next";
 import { Button, CheckboxField, Link, TextField } from "@renderer/components";
 import { useAppSelector, useToast } from "@renderer/hooks";
 import { settingsContext } from "@renderer/context";
-import { LinkExternalIcon } from "@primer/octicons-react";
+
 import "./settings-all-debrid.scss";
 
 const ALLDEBRID_URL = "https://alldebrid.com";
@@ -90,7 +91,7 @@ export function SettingsAllDebrid() {
           to={ALLDEBRID_URL}
           className="settings-all-debrid__create-account"
         >
-          <LinkExternalIcon />
+          <Icon name="link-external"  />
           {t("create_alldebrid_account")}
         </Link>
       </div>

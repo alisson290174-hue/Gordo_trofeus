@@ -1,4 +1,5 @@
 import { type ReactNode, useEffect, useMemo, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import {
   ArrowClockwiseIcon,
   CircleNotchIcon,
@@ -7,7 +8,7 @@ import {
   PlusIcon,
   WarningCircleIcon,
 } from "@phosphor-icons/react";
-import { TrashIcon } from "@primer/octicons-react";
+
 import { useTranslation } from "react-i18next";
 
 import type {
@@ -537,7 +538,7 @@ export function CloudSaveV2FileBrowserModal({
       disabled={actionsAreDisabled}
       onClick={() => setIsDeleteConfirmationVisible(true)}
     >
-      <TrashIcon size={16} />
+      <Icon name="trash" size={16} />
       <span>{t("cloud_save_v2_delete")}</span>
     </Button>
   ) : null;

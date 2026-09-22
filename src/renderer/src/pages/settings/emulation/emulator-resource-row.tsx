@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import cn from "classnames";
-import { CheckCircleFillIcon, AlertIcon } from "@primer/octicons-react";
+
 
 interface ResourcePath {
   text: string | null;
@@ -45,9 +46,9 @@ export function EmulatorResourceRow({
             })}
           >
             {detected ? (
-              <CheckCircleFillIcon size={14} />
+              <Icon name="check-circle-fill" size={14} />
             ) : (
-              <AlertIcon size={14} />
+              <Icon name="alert" size={14} />
             )}
             <span>{statusLabel}</span>
           </span>

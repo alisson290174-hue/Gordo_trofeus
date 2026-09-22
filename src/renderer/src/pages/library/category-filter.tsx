@@ -1,5 +1,6 @@
-import { StackIcon, DeviceDesktopIcon } from "@primer/octicons-react";
+
 import { useTranslation } from "react-i18next";
+import { Icon } from "@renderer/components/icon/icon";
 import { SteamIcon } from "@renderer/components/steam-library-badge/steam-library-badge";
 import "./category-filter.scss";
 
@@ -67,11 +68,11 @@ export function CategoryFilter({
     label: string;
     icon: JSX.Element;
   }[] = [
-    { value: "all", label: t("category_all"), icon: <StackIcon size={14} /> },
+    { value: "all", label: t("category_all"), icon: <Icon name="stack" size={14} /> },
     {
       value: "pc",
       label: t("category_pc"),
-      icon: <DeviceDesktopIcon size={14} />,
+      icon: <Icon name="device-desktop" size={14} />,
     },
     {
       value: "steam_library",

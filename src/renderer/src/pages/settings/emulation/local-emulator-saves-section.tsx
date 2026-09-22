@@ -1,11 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
-import {
-  KebabHorizontalIcon,
-  QuestionIcon,
-  SyncIcon,
-  UploadIcon,
-} from "@primer/octicons-react";
+
 
 import { Button, GuideLink } from "@renderer/components";
 import { DropdownMenu } from "@renderer/components/dropdown-menu/dropdown-menu";
@@ -119,12 +115,11 @@ export function LocalEmulatorSavesSection({
         </div>
         <div className="emulator-detail__section-actions">
           <Button theme="outline" onClick={load} disabled={loading}>
-            <SyncIcon
+            <Icon name="sync"
               size={13}
               className={
                 loading ? "emulator-detail__redetect-icon--spinning" : ""
-              }
-            />
+              } />
             <span>{t("cloud_refresh")}</span>
           </Button>
         </div>
@@ -162,7 +157,7 @@ export function LocalEmulatorSavesSection({
                     <img src={cover} alt={title} loading="lazy" />
                   ) : (
                     <div className="emulator-detail__memcard-cover-placeholder">
-                      <QuestionIcon size={20} />
+                      <Icon name="question" size={20} />
                     </div>
                   )}
                 </div>
@@ -199,7 +194,7 @@ export function LocalEmulatorSavesSection({
                     align="end"
                     items={[
                       {
-                        icon: <UploadIcon size={16} />,
+                        icon: <Icon name="upload" size={16} />,
                         label: backingUp
                           ? t("cloud_backing_up")
                           : t("cloud_backup"),
@@ -213,7 +208,7 @@ export function LocalEmulatorSavesSection({
                       className="emulator-detail__memcard-menu"
                       aria-label={title}
                     >
-                      <KebabHorizontalIcon size={16} />
+                      <Icon name="kebab-horizontal" size={16} />
                     </button>
                   </DropdownMenu>
                 )}

@@ -1,3 +1,4 @@
+import { Icon } from "@renderer/components/icon/icon";
 import {
   useCallback,
   useEffect,
@@ -9,10 +10,7 @@ import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import {
-  AlertIcon,
   ImageIcon,
-  PencilIcon,
-  TrashIcon,
 } from "@primer/octicons-react";
 import { Button, ImageCropModal } from "@renderer/components";
 import { useToast, useAppSelector, useUserDetails } from "@renderer/hooks";
@@ -1078,9 +1076,9 @@ export function GameAssetsSettings({
                     }`}
                   >
                     {hasCustomAsset ? (
-                      <TrashIcon size={20} />
+                      <Icon name="trash" size={20} />
                     ) : (
-                      <PencilIcon size={20} />
+                      <Icon name="pencil" size={20} />
                     )}
                   </span>
                 </span>
@@ -1211,10 +1209,9 @@ export function GameAssetsSettings({
           !classicsUseHeroLayout &&
           (selectedAssetType === "hero" || selectedAssetType === "logo") && (
             <div className="game-assets-settings__warning">
-              <AlertIcon
+              <Icon name="alert"
                 size={16}
-                className="game-assets-settings__warning-icon"
-              />
+                className="game-assets-settings__warning-icon" />
               <span className="game-assets-settings__warning-text">
                 {t("classics_hero_layout_warning")}
               </span>
@@ -1236,7 +1233,7 @@ export function GameAssetsSettings({
             className="subscription-required-button"
             onClick={() => showHydraCloudModal("customization")}
           >
-            <AlertIcon size={14} />
+            <Icon name="alert" size={14} />
             <span>{t("custom_assets_not_sync")}</span>
           </button>
         )}

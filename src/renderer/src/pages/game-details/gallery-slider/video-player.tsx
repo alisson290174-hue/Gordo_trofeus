@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
-import { PlayIcon } from "@primer/octicons-react";
+
 import { useHlsVideo } from "@shared";
 
 const PLAY_ICON_SIZE = 24;
@@ -102,7 +103,7 @@ export function VideoPlayer({
           aria-label={t("play")}
         >
           <div className="gallery-slider__video-play-icon">
-            <PlayIcon size={PLAY_ICON_SIZE} />
+            <Icon name="play" size={PLAY_ICON_SIZE} />
           </div>
         </button>
       )}

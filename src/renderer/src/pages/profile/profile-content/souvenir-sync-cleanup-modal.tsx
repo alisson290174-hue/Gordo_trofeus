@@ -1,5 +1,6 @@
-import { TrashIcon } from "@primer/octicons-react";
+
 import type { AchievementSouvenirSyncItem } from "@types";
+import { Icon } from "@renderer/components/icon/icon";
 import { Button, Modal } from "@renderer/components";
 import { useTranslation } from "react-i18next";
 
@@ -55,7 +56,7 @@ export function SouvenirSyncCleanupModal({
             {t("souvenir_sync_cleanup_cancel")}
           </Button>
           <Button theme="danger" disabled={isDeleting} onClick={onConfirm}>
-            <TrashIcon size={14} />
+            <Icon name="trash" size={14} />
             {t("souvenir_sync_cleanup_confirm")}
           </Button>
         </div>

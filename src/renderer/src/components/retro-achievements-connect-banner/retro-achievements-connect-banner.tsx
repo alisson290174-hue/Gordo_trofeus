@@ -1,7 +1,8 @@
 import { useContext } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { ChevronRightIcon } from "@primer/octicons-react";
+
 
 import { gameDetailsContext } from "@renderer/context";
 import { useAppSelector } from "@renderer/hooks";
@@ -38,7 +39,7 @@ export function RetroAchievementsConnectBanner() {
       <span className="retro-achievements-connect-banner__text">
         {t("connect_retroachievements_prompt")}
       </span>
-      <ChevronRightIcon size={16} />
+      <Icon name="chevron-right" size={16} />
     </button>
   );
 }

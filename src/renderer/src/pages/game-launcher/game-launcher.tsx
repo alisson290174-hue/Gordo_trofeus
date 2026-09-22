@@ -1,11 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import {
   ImageIcon,
-  ClockIcon,
-  TrophyIcon,
-  ToolsIcon,
 } from "@primer/octicons-react";
 import AppIcon from "@renderer/assets/icons/app-icon-refresh.png";
 import { MAX_MINUTES_TO_SHOW_IN_PLAYTIME } from "@renderer/constants";
@@ -409,21 +407,21 @@ export default function GameLauncher() {
             <div className="game-launcher__stats">
               {playTime > 0 && (
                 <span className="game-launcher__stat">
-                  <ClockIcon size={14} />
+                  <Icon name="hourglass" size={14} />
                   {formatPlayTime(playTime)}
                 </span>
               )}
 
               {achievementCount > 0 && (
                 <span className="game-launcher__stat">
-                  <TrophyIcon size={14} />
+                  <Icon name="trophy" size={14} />
                   {unlockedAchievements}/{achievementCount}
                 </span>
               )}
 
               {protonVersion && (
                 <span className="game-launcher__stat">
-                  <ToolsIcon size={14} />
+                  <Icon name="tools" size={14} />
                   {protonVersion}
                 </span>
               )}

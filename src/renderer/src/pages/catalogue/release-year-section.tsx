@@ -1,5 +1,6 @@
-import { ChevronDownIcon } from "@primer/octicons-react";
+
 import { useEffect, useReducer, useRef } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 import "./release-year-section.scss";
 
@@ -69,11 +70,10 @@ export function ReleaseYearSection({
         onClick={toggleOpen}
         aria-expanded={isOpen}
       >
-        <ChevronDownIcon
+        <Icon name="chevron-down"
           className={`filter-section__chevron ${
             isOpen ? "filter-section__chevron--open" : ""
-          }`}
-        />
+          }`} />
         <div className="filter-section__header">
           <div
             className="filter-section__orb"

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
-import { LinkExternalIcon, SyncIcon } from "@primer/octicons-react";
+
 
 import { Button } from "@renderer/components";
 import { useToast } from "@renderer/hooks";
@@ -62,7 +63,7 @@ export function FirmwareSection({
             )
           }
         >
-          <LinkExternalIcon size={12} />
+          <Icon name="link-external" size={12} />
           <span>{t("firmware_official_link")}</span>
         </button>
       }
@@ -72,12 +73,11 @@ export function FirmwareSection({
           onClick={handleRedetect}
           disabled={disabled || checking}
         >
-          <SyncIcon
+          <Icon name="sync"
             size={13}
             className={
               checking ? "emulator-detail__redetect-icon--spinning" : undefined
-            }
-          />
+            } />
           <span>{t("re_detect")}</span>
         </Button>
       }

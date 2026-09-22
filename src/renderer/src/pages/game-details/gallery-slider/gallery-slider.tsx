@@ -1,11 +1,7 @@
 import { useContext, useCallback, useMemo, useState, useEffect } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
-import {
-  ChevronRightIcon,
-  ChevronLeftIcon,
-  PlayIcon,
-  ScreenFullIcon,
-} from "@primer/octicons-react";
+
 import useEmblaCarousel from "embla-carousel-react";
 import { gameDetailsContext } from "@renderer/context";
 import { useAppSelector } from "@renderer/hooks";
@@ -220,7 +216,7 @@ export function GallerySlider() {
                     onClick={() => setLightboxIndex(index)}
                     aria-label={t("view_fullscreen")}
                   >
-                    <ScreenFullIcon size={16} />
+                    <Icon name="screen-full" size={16} />
                   </button>
                 </>
               ) : (
@@ -249,7 +245,7 @@ export function GallerySlider() {
           aria-label={t("previous_screenshot")}
           tabIndex={0}
         >
-          <ChevronLeftIcon size={36} />
+          <Icon name="chevron-left" size={36} />
         </button>
 
         <button
@@ -259,7 +255,7 @@ export function GallerySlider() {
           aria-label={t("next_screenshot")}
           tabIndex={0}
         >
-          <ChevronRightIcon size={36} />
+          <Icon name="chevron-right" size={36} />
         </button>
       </div>
 
@@ -283,7 +279,7 @@ export function GallerySlider() {
             />
             {media.type === "video" && (
               <div className="gallery-slider__play-overlay">
-                <PlayIcon size={20} />
+                <Icon name="play" size={20} />
               </div>
             )}
           </button>

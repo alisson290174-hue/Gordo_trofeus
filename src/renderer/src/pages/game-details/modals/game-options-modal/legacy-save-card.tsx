@@ -1,5 +1,6 @@
 import { CircleNotchIcon } from "@phosphor-icons/react";
-import { DownloadIcon, TrashIcon } from "@primer/octicons-react";
+import { Icon } from "@renderer/components/icon/icon";
+
 import { Button } from "@renderer/components";
 import { useDate } from "@renderer/hooks";
 import { formatBytes } from "@shared";
@@ -77,7 +78,7 @@ export function LegacySaveCard({
             </>
           ) : (
             <>
-              <DownloadIcon />
+              <Icon name="download"  />
               {t("download")}
             </>
           )}
@@ -91,7 +92,7 @@ export function LegacySaveCard({
           disabled={actionsDisabled}
           onClick={() => onDelete(artifact.id, artifactName)}
         >
-          <TrashIcon />
+          <Icon name="trash"  />
         </Button>
       </div>
     </li>

@@ -1,5 +1,6 @@
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
-import { ChevronDownIcon } from "@primer/octicons-react";
+import { Icon } from "@renderer/components/icon/icon";
+
 import { useCloseOnLibraryScroll } from "./use-close-on-library-scroll";
 import {
   LIBRARY_DROPDOWN_CHEVRON_SIZE,
@@ -48,10 +49,9 @@ export function LibrarySelect({
           <span className="library-select__trigger-label">
             {selected?.label ?? ""}
           </span>
-          <ChevronDownIcon
+          <Icon name="chevron-down"
             size={LIBRARY_DROPDOWN_CHEVRON_SIZE}
-            className="library-select__chevron"
-          />
+            className="library-select__chevron" />
         </button>
       </DropdownMenuPrimitive.Trigger>
 

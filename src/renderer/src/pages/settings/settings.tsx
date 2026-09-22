@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { Icon } from "@renderer/components/icon/icon";
 import {
   SettingsContextConsumer,
   SettingsContextProvider,
@@ -7,16 +8,7 @@ import { SettingsAccount } from "./settings-account";
 import { useUserDetails } from "@renderer/hooks";
 import { Fragment, useMemo } from "react";
 import "./settings.scss";
-import {
-  BellIcon,
-  CloudIcon,
-  DownloadIcon,
-  GearIcon,
-  LinkIcon,
-  PlayIcon,
-  VideoIcon,
-  ShieldCheckIcon,
-} from "@primer/octicons-react";
+
 import { Gamepad2, Wrench } from "lucide-react";
 import { SettingsContextGeneral } from "./settings-context-general";
 import { SettingsContextDownloads } from "./settings-context-downloads";
@@ -38,32 +30,32 @@ export default function Settings() {
       {
         id: "general" as const,
         label: t("general"),
-        icon: <GearIcon size={16} />,
+        icon: <Icon name="settings" size={16} />,
       },
       {
         id: "downloads" as const,
         label: t("downloads"),
-        icon: <DownloadIcon size={16} />,
+        icon: <Icon name="download" size={16} />,
       },
       {
         id: "download_sources" as const,
         label: t("download_sources"),
-        icon: <LinkIcon size={16} />,
+        icon: <Icon name="link" size={16} />,
       },
       {
         id: "notifications" as const,
         label: t("notifications"),
-        icon: <BellIcon size={16} />,
+        icon: <Icon name="bell" size={16} />,
       },
       {
         id: "content_gameplay" as const,
         label: t("content_gameplay"),
-        icon: <PlayIcon size={16} />,
+        icon: <Icon name="play" size={16} />,
       },
       {
         id: "integrations" as const,
         label: t("integrations"),
-        icon: <CloudIcon size={16} />,
+        icon: <Icon name="cloud" size={16} />,
       },
       {
         id: "compatibility" as const,
@@ -75,14 +67,14 @@ export default function Settings() {
             {
               id: "account_privacy" as const,
               label: `${t("account")} & ${t("privacy")}`,
-              icon: <ShieldCheckIcon size={16} />,
+              icon: <Icon name="shield-check" size={16} />,
             },
           ]
         : []),
       {
         id: "big_picture" as const,
         label: t("big_picture"),
-        icon: <VideoIcon size={16} />,
+        icon: <Icon name="video" size={16} />,
       },
       {
         id: "emulation" as const,

@@ -1,5 +1,6 @@
-import { LockIcon } from "@primer/octicons-react";
+
 import { useTranslation } from "react-i18next";
+import { Icon } from "@renderer/components/icon/icon";
 
 import {
   MILLISECONDS_IN_HOUR,
@@ -23,7 +24,7 @@ export function ReviewGateNotice({
   return (
     <div className="review-gate-notice">
       <div className="review-gate-notice__icon">
-        <LockIcon size={20} />
+        <Icon name="lock" size={20} />
       </div>
 
       <div className="review-gate-notice__content">

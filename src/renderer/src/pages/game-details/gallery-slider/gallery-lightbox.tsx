@@ -1,11 +1,8 @@
 import { useEffect, useRef } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
-import {
-  XIcon,
-  ChevronLeftIcon,
-  ChevronRightIcon,
-} from "@primer/octicons-react";
+
 import { VideoPlayer } from "./video-player";
 import type { GalleryMediaItem } from "./gallery-slider";
 import "./gallery-lightbox.scss";
@@ -85,7 +82,7 @@ export function GalleryLightbox({
           className="gallery-lightbox__close-button"
           aria-label={t("close")}
         >
-          <XIcon size={24} />
+          <Icon name="x" size={24} />
         </button>
 
         <button
@@ -97,7 +94,7 @@ export function GalleryLightbox({
           }`}
           aria-label={t("previous_media")}
         >
-          <ChevronLeftIcon size={28} />
+          <Icon name="chevron-left" size={28} />
         </button>
 
         <button
@@ -109,7 +106,7 @@ export function GalleryLightbox({
           }`}
           aria-label={t("next_media")}
         >
-          <ChevronRightIcon size={28} />
+          <Icon name="chevron-right" size={28} />
         </button>
 
         <div

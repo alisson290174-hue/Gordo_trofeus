@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { createPortal } from "react-dom";
-import { XIcon } from "@primer/octicons-react";
+
 import { useTranslation } from "react-i18next";
 import { Button } from "@renderer/components";
 import type { HydraCloudFeature } from "@types";
@@ -187,7 +188,7 @@ export function CloudSubscriptionModal({
           aria-label="Close"
           tabIndex={state === "hidden" ? -1 : 0}
         >
-          <XIcon size={20} />
+          <Icon name="x" size={20} />
         </button>
         {isIframeUnavailable ? (
           <div

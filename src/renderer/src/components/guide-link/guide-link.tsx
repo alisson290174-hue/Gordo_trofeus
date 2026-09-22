@@ -1,6 +1,5 @@
 import type { ButtonHTMLAttributes, ReactNode } from "react";
-import { QuestionIcon } from "@primer/octicons-react";
-
+import { Icon } from "@renderer/components/icon/icon";
 import "./guide-link.scss";
 
 export interface GuideLinkProps
@@ -25,7 +24,11 @@ export function GuideLink({
       data-open-article={article}
     >
       <span className="guide-link__text">{children}</span>{" "}
-      <QuestionIcon size={iconSize} verticalAlign="middle" />
+      <Icon
+        name="question"
+        size={iconSize}
+        style={{ verticalAlign: "middle" }}
+      />
     </button>
   );
 }

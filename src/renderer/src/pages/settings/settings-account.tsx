@@ -1,3 +1,4 @@
+import { Icon } from "@renderer/components/icon/icon";
 import {
   Avatar,
   Button,
@@ -8,7 +9,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useToast, useUserDetails } from "@renderer/hooks";
 import { useCallback, useContext, useEffect, useState } from "react";
-import { KeyIcon, MailIcon, XCircleFillIcon } from "@primer/octicons-react";
+
 import { settingsContext } from "@renderer/context";
 import { AuthPage } from "@shared";
 import "./settings-account.scss";
@@ -179,7 +180,7 @@ export function SettingsAccount() {
             theme="outline"
             onClick={() => window.electron.openAuthWindow(AuthPage.UpdateEmail)}
           >
-            <MailIcon />
+            <Icon name="mail"  />
             {t("update_email")}
           </Button>
 
@@ -189,7 +190,7 @@ export function SettingsAccount() {
               window.electron.openAuthWindow(AuthPage.UpdatePassword)
             }
           >
-            <KeyIcon />
+            <Icon name="key"  />
             {t("update_password")}
           </Button>
         </div>
@@ -239,7 +240,7 @@ export function SettingsAccount() {
                     onClick={() => handleUnblockClick(user.id)}
                     disabled={isUnblocking}
                   >
-                    <XCircleFillIcon />
+                    <Icon name="x-circle-fill"  />
                   </button>
                 </li>
               );

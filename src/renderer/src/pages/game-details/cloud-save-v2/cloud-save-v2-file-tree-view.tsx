@@ -1,12 +1,6 @@
 import { type ReactNode, useEffect, useMemo, useRef, useState } from "react";
-import {
-  ChevronRightIcon,
-  FileDirectoryIcon,
-  FileIcon,
-  InfoIcon,
-  LinkExternalIcon,
-  TrashIcon,
-} from "@primer/octicons-react";
+import { Icon } from "@renderer/components/icon/icon";
+
 import { useTranslation } from "react-i18next";
 import { Tooltip } from "react-tooltip";
 
@@ -129,7 +123,7 @@ export function CloudSaveV2FileTreeView({
 
     return (
       <div className="cloud-save-v2__browser-file-cell">
-        <FileIcon size={18} className="cloud-save-v2__browser-tree-icon" />
+        <Icon name="file" size={18} className="cloud-save-v2__browser-tree-icon" />
         <div className="cloud-save-v2__browser-file-copy">
           <div className="cloud-save-v2__browser-file-heading">
             <strong title={name}>{name}</strong>
@@ -158,7 +152,7 @@ export function CloudSaveV2FileTreeView({
             title={t("cloud_save_v2_open_folder")}
             aria-label={t("cloud_save_v2_open_folder_named", { name })}
           >
-            <LinkExternalIcon size={15} />
+            <Icon name="link-external" size={15} />
             <span>{t("cloud_save_v2_open")}</span>
           </button>
         )}
@@ -171,7 +165,7 @@ export function CloudSaveV2FileTreeView({
             title={t("cloud_save_v2_rebind_custom_path")}
             aria-label={t("cloud_save_v2_rebind_custom_path_named", { name })}
           >
-            <FileDirectoryIcon size={15} />
+            <Icon name="file-directory" size={15} />
             <span>{t("cloud_save_v2_rebind_custom_path")}</span>
           </button>
         )}
@@ -184,7 +178,7 @@ export function CloudSaveV2FileTreeView({
             title={t("cloud_save_v2_remove_custom_path")}
             aria-label={t("cloud_save_v2_remove_custom_path_named", { name })}
           >
-            <TrashIcon size={15} />
+            <Icon name="trash" size={15} />
             <span>{t("cloud_save_v2_remove")}</span>
           </button>
         )}
@@ -268,15 +262,13 @@ export function CloudSaveV2FileTreeView({
           aria-expanded={isExpanded}
           onClick={() => toggleNode(node.id)}
         >
-          <ChevronRightIcon
+          <Icon name="chevron-right"
             size={15}
-            className={`cloud-save-v2__browser-tree-caret ${isExpanded ? "cloud-save-v2__browser-tree-caret--expanded" : ""}`}
-          />
+            className={`cloud-save-v2__browser-tree-caret ${isExpanded ? "cloud-save-v2__browser-tree-caret--expanded" : ""}`} />
         </button>
-        <FileDirectoryIcon
+        <Icon name="file-directory"
           size={18}
-          className="cloud-save-v2__browser-tree-icon"
-        />
+          className="cloud-save-v2__browser-tree-icon" />
         <div className="cloud-save-v2__browser-folder-copy">
           <div className="cloud-save-v2__browser-folder-heading">
             <strong
@@ -341,10 +333,9 @@ export function CloudSaveV2FileTreeView({
           onClick={() => toggleNode(node.id)}
           style={{ transform: `translateX(${hierarchyOffset}px)` }}
         >
-          <ChevronRightIcon
+          <Icon name="chevron-right"
             size={15}
-            className={`cloud-save-v2__browser-tree-caret ${isExpanded ? "cloud-save-v2__browser-tree-caret--expanded" : ""}`}
-          />
+            className={`cloud-save-v2__browser-tree-caret ${isExpanded ? "cloud-save-v2__browser-tree-caret--expanded" : ""}`} />
         </button>
         <div
           className="cloud-save-v2__browser-diff-cell"
@@ -354,10 +345,9 @@ export function CloudSaveV2FileTreeView({
           (node.type === "root" &&
             (node.customPath || node.unresolvedCustomPath)) ? (
             <div className="cloud-save-v2__browser-folder-cell">
-              <FileDirectoryIcon
+              <Icon name="file-directory"
                 size={18}
-                className="cloud-save-v2__browser-tree-icon"
-              />
+                className="cloud-save-v2__browser-tree-icon" />
               <div className="cloud-save-v2__browser-folder-copy">
                 <div className="cloud-save-v2__browser-folder-heading">
                   <strong
@@ -390,10 +380,9 @@ export function CloudSaveV2FileTreeView({
         >
           {node.hasRemoteFiles ? (
             <div className="cloud-save-v2__browser-folder-cell">
-              <FileDirectoryIcon
+              <Icon name="file-directory"
                 size={18}
-                className="cloud-save-v2__browser-tree-icon"
-              />
+                className="cloud-save-v2__browser-tree-icon" />
               <div className="cloud-save-v2__browser-folder-copy">
                 <strong title={remoteName}>{remoteName}</strong>
               </div>
@@ -440,7 +429,7 @@ export function CloudSaveV2FileTreeView({
         data-tooltip-id={CUSTOM_PATH_STATUS_TOOLTIP_ID}
         data-tooltip-content={unresolvedStatus}
       >
-        <InfoIcon size={14} />
+        <Icon name="info" size={14} />
       </button>
     ) : null;
     const remoteName = getRemoteBranchName(

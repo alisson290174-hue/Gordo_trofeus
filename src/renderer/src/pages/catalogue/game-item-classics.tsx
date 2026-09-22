@@ -1,5 +1,6 @@
-import { QuestionIcon, PlusIcon, CheckIcon } from "@primer/octicons-react";
+
 import { useEffect, useMemo, useRef, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 import cn from "classnames";
 
@@ -167,7 +168,7 @@ export function GameItemClassics({ game }: GameItemClassicsProps) {
             </>
           ) : (
             <div className="game-item-classics__cover-placeholder">
-              <QuestionIcon size={32} />
+              <Icon name="question" size={32} />
             </div>
           )}
 
@@ -206,7 +207,7 @@ export function GameItemClassics({ game }: GameItemClassicsProps) {
         aria-label={added ? t("already_in_library") : t("add_to_library")}
         disabled={added || isAddingToLibrary}
       >
-        {added ? <CheckIcon size={16} /> : <PlusIcon size={16} />}
+        {added ? <Icon name="check" size={16} /> : <Icon name="plus" size={16} />}
       </button>
     </article>
   );

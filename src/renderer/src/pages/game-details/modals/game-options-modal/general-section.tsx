@@ -1,4 +1,5 @@
 import { Trans, useTranslation } from "react-i18next";
+import { Icon } from "@renderer/components/icon/icon";
 import {
   getRetroArchRomExtensions,
   platformToRetroArchPlatform,
@@ -14,7 +15,9 @@ import {
 import { Button, CheckboxField, TextField } from "@renderer/components";
 import SteamLogo from "@renderer/assets/steam-logo.svg?react";
 import type { ClassicsDisc, LibraryGame, ShortcutLocation } from "@types";
-import { DotIcon, FileIcon } from "@primer/octicons-react";
+import {
+  DotIcon,
+} from "@primer/octicons-react";
 import { HardDrive, X, FolderOpen, ChevronDown } from "lucide-react";
 import { gameDetailsContext } from "@renderer/context";
 import {
@@ -210,7 +213,7 @@ function ClassicsDiscSection({ game }: Readonly<ClassicsDiscSectionProps>) {
           )}
 
           <Button type="button" theme="outline" onClick={handleAddDiscFile}>
-            <FileIcon />
+            <Icon name="file"  />
             {t("add_disc")}
           </Button>
           {system === "ps3" && (
@@ -536,7 +539,7 @@ export function GeneralSettingsSection({
                     theme="outline"
                     onClick={onChangeExecutableLocation}
                   >
-                    <FileIcon />
+                    <Icon name="file"  />
                     {t("select_executable")}
                   </Button>
                   {game.executablePath && (
@@ -614,7 +617,7 @@ export function GeneralSettingsSection({
                     theme="outline"
                     onClick={onAddTrackingExecutable}
                   >
-                    <FileIcon />
+                    <Icon name="file"  />
                     {t("add_tracking_executable")}
                   </Button>
                 </div>

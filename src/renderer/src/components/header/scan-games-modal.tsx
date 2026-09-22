@@ -1,12 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
-import {
-  AlertIcon,
-  DeviceDesktopIcon,
-  FileDirectoryIcon,
-  SyncIcon,
-  XIcon,
-} from "@primer/octicons-react";
+
 import cn from "classnames";
 
 import { Button, CheckboxField, Modal } from "@renderer/components";
@@ -196,7 +191,7 @@ export function ScanGamesModal({
             />
           ) : (
             <span className="scan-games-modal__game-icon scan-games-modal__game-icon--empty">
-              <DeviceDesktopIcon size={16} />
+              <Icon name="device-desktop" size={16} />
             </span>
           )}
           <span className="scan-games-modal__game-info">
@@ -252,7 +247,7 @@ export function ScanGamesModal({
                     {t("scan_games_folders_title")}
                   </span>
                   <Button theme="outline" onClick={handleAddFolder}>
-                    <FileDirectoryIcon size={14} />
+                    <Icon name="file-directory" size={14} />
                     {t("scan_games_add_folder")}
                   </Button>
                 </div>
@@ -273,7 +268,7 @@ export function ScanGamesModal({
                           onClick={() => handleRemoveFolder(folder)}
                           aria-label={t("scan_games_remove_folder")}
                         >
-                          <XIcon size={14} />
+                          <Icon name="x" size={14} />
                         </button>
                       </li>
                     ))}
@@ -298,7 +293,7 @@ export function ScanGamesModal({
 
         {isScanning && !scanResult && (
           <div className="scan-games-modal__scanning">
-            <SyncIcon size={24} className="scan-games-modal__spinner" />
+            <Icon name="sync" size={24} className="scan-games-modal__spinner" />
             <p className="scan-games-modal__scanning-text">
               {t("scan_games_in_progress")}
             </p>
@@ -360,7 +355,7 @@ export function ScanGamesModal({
         {scanResult && pending.length === 0 && (
           <div className="scan-games-modal__results">
             <div className="scan-games-modal__warning">
-              <AlertIcon size={14} className="scan-games-modal__warning-icon" />
+              <Icon name="alert" size={14} className="scan-games-modal__warning-icon" />
               <span>{t("scan_games_detection_warning")}</span>
             </div>
 

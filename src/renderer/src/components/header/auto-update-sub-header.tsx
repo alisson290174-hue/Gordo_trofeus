@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
+import { Icon } from "@renderer/components/icon/icon";
 import { useEffect, useState } from "react";
-import { SyncIcon } from "@primer/octicons-react";
+
 import { Link } from "../link/link";
 import "./auto-update-header.scss";
 import type { AppUpdaterEvent } from "@types";
@@ -50,10 +51,9 @@ export function AutoUpdateSubHeader() {
           to={releasesPageUrl}
           className="auto-update-sub-header__new-version-link"
         >
-          <SyncIcon
+          <Icon name="sync"
             className="auto-update-sub-header__new-version-icon"
-            size={12}
-          />
+            size={12} />
           {t("version_available_download", { version: newVersion })}
         </Link>
       </header>
@@ -68,10 +68,9 @@ export function AutoUpdateSubHeader() {
           className="auto-update-sub-header__new-version-button"
           onClick={handleClickInstallUpdate}
         >
-          <SyncIcon
+          <Icon name="sync"
             className="auto-update-sub-header__new-version-icon"
-            size={12}
-          />
+            size={12} />
           {t("version_available_install", { version: newVersion })}
         </button>
       </header>

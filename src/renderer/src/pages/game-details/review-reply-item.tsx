@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { TrashIcon } from "@primer/octicons-react";
+import { Icon } from "@renderer/components/icon/icon";
+
 import { ThumbsUp, ThumbsDown, Languages } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -202,7 +203,7 @@ export function ReviewReplyItem({
             onClick={() => onDelete(reply.id)}
             title={t("delete_reply")}
           >
-            <TrashIcon size={14} />
+            <Icon name="trash" size={14} />
           </button>
         )}
       </div>

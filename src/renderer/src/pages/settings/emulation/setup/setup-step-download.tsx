@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
-import { BookIcon, GlobeIcon, LinkExternalIcon } from "@primer/octicons-react";
+
 
 import type {
   EmulatorBinary,
@@ -159,9 +160,9 @@ export function SetupStepDownload({ binary }: Readonly<Props>) {
         className="setup-modal__website-link"
         onClick={() => openUrl(OFFICIAL_WEBSITES[binary])}
       >
-        <GlobeIcon size={14} />
+        <Icon name="globe" size={14} />
         <span>{t("setup_official_website")}</span>
-        <LinkExternalIcon size={12} />
+        <Icon name="link-external" size={12} />
       </button>
 
       <div className="setup-modal__download-grid">
@@ -183,7 +184,7 @@ export function SetupStepDownload({ binary }: Readonly<Props>) {
               >
                 <div className="setup-modal__download-card-badge">
                   {binary === "dolphin" ? (
-                    <GlobeIcon size={20} />
+                    <Icon name="globe" size={20} />
                   ) : (
                     <GitHubIcon size={20} />
                   )}
@@ -218,10 +219,9 @@ export function SetupStepDownload({ binary }: Readonly<Props>) {
                   <span className="setup-modal__download-card-url">
                     {visitLabel(option)}
                   </span>
-                  <LinkExternalIcon
+                  <Icon name="link-external"
                     size={14}
-                    className="setup-modal__download-card-ext"
-                  />
+                    className="setup-modal__download-card-ext" />
                 </button>
               )}
             </div>
@@ -246,7 +246,7 @@ export function SetupStepDownload({ binary }: Readonly<Props>) {
             onClick={() => openUrl(firmwarePageUrl(i18n.language))}
           >
             <div className="setup-modal__download-card-badge">
-              <GlobeIcon size={20} />
+              <Icon name="globe" size={20} />
             </div>
             <div className="setup-modal__download-card-main">
               <span className="setup-modal__download-card-title">
@@ -260,10 +260,9 @@ export function SetupStepDownload({ binary }: Readonly<Props>) {
               <span className="setup-modal__download-card-url">
                 {firmwarePageUrl(i18n.language)}
               </span>
-              <LinkExternalIcon
+              <Icon name="link-external"
                 size={14}
-                className="setup-modal__download-card-ext"
-              />
+                className="setup-modal__download-card-ext" />
             </span>
           </button>
         )}
@@ -278,7 +277,7 @@ export function SetupStepDownload({ binary }: Readonly<Props>) {
               data-open-article={ARTICLE_KEYS[binary]}
             >
               <div className="setup-modal__download-card-badge">
-                <BookIcon size={20} />
+                <Icon name="book" size={20} />
               </div>
               <div className="setup-modal__download-card-main">
                 <span className="setup-modal__download-card-title">

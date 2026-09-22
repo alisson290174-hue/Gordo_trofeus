@@ -1,10 +1,7 @@
 import type { ComparedAchievements } from "@types";
+import { Icon } from "@renderer/components/icon/icon";
 import "./achievements.scss";
-import {
-  CheckCircleIcon,
-  EyeClosedIcon,
-  LockIcon,
-} from "@primer/octicons-react";
+
 import { useDate } from "@renderer/hooks";
 import { useTranslation } from "react-i18next";
 
@@ -41,7 +38,7 @@ export function ComparedAchievementList({
                     className="achievements__item-hidden-icon"
                     title={t("hidden_achievement_tooltip")}
                   >
-                    <EyeClosedIcon size={12} />
+                    <Icon name="eye-closed" size={12} />
                   </span>
                 )}
                 {achievement.displayName}
@@ -56,11 +53,11 @@ export function ComparedAchievementList({
                 className="achievements__item-status achievements__item-status--unlocked"
                 title={formatDateTime(achievement.ownerStat.unlockTime!)}
               >
-                <CheckCircleIcon />
+                <Icon name="check-circle"  />
               </div>
             ) : (
               <div className="achievements__item-status">
-                <LockIcon />
+                <Icon name="lock"  />
               </div>
             )
           ) : null}
@@ -70,11 +67,11 @@ export function ComparedAchievementList({
               className="achievements__item-status achievements__item-status--unlocked"
               title={formatDateTime(achievement.targetStat.unlockTime!)}
             >
-              <CheckCircleIcon />
+              <Icon name="check-circle"  />
             </div>
           ) : (
             <div className="achievements__item-status">
-              <LockIcon />
+              <Icon name="lock"  />
             </div>
           )}
         </li>

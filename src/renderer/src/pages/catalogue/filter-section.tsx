@@ -1,7 +1,8 @@
 import { CheckboxField } from "@renderer/components/checkbox-field/checkbox-field";
+import { Icon } from "@renderer/components/icon/icon";
 import { TextField } from "@renderer/components/text-field/text-field";
 import { useFormat } from "@renderer/hooks";
-import { ChevronDownIcon } from "@primer/octicons-react";
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import "./filter.scss";
 import List from "rc-virtual-list";
@@ -107,11 +108,10 @@ export function FilterSection({
         onClick={() => setIsOpen((open) => !open)}
         aria-expanded={isOpen}
       >
-        <ChevronDownIcon
+        <Icon name="chevron-down"
           className={`filter-section__chevron ${
             isOpen ? "filter-section__chevron--open" : ""
-          }`}
-        />
+          }`} />
         <div className="filter-section__header">
           <div
             className="filter-section__orb"

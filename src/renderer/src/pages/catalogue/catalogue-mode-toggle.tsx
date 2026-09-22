@@ -1,6 +1,7 @@
 import { useTranslation } from "react-i18next";
+import { Icon } from "@renderer/components/icon/icon";
 import cn from "classnames";
-import { DeviceDesktopIcon } from "@primer/octicons-react";
+
 
 import { useAppDispatch, useAppSelector } from "@renderer/hooks";
 import { setMode } from "@renderer/features";
@@ -24,7 +25,7 @@ export function CatalogueModeToggle() {
         })}
         onClick={() => dispatch(setMode("modern"))}
       >
-        <DeviceDesktopIcon size={14} />
+        <Icon name="device-desktop" size={14} />
         <span>{t("mode_modern_games")}</span>
       </button>
       <button

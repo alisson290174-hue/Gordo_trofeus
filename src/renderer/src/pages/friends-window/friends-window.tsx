@@ -1,15 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
-import {
-  CheckIcon,
-  ChevronDownIcon,
-  ChevronRightIcon,
-  CopyIcon,
-  DashIcon,
-  PlusIcon,
-  SearchIcon,
-  XIcon,
-} from "@primer/octicons-react";
+
 
 import { Avatar } from "@renderer/components";
 import { useAppSelector, useUserDetails } from "@renderer/hooks";
@@ -438,9 +430,9 @@ export default function FriendsWindow() {
       aria-expanded={!collapsed}
     >
       {collapsed ? (
-        <ChevronRightIcon size={16} />
+        <Icon name="chevron-right" size={16} />
       ) : (
-        <ChevronDownIcon size={16} />
+        <Icon name="chevron-down" size={16} />
       )}
       <span className="friends-window__section-title">
         {title} ({count})
@@ -498,7 +490,7 @@ export default function FriendsWindow() {
               title={t("minimize")}
               aria-label={t("minimize")}
             >
-              <DashIcon size={16} />
+              <Icon name="dash" size={16} />
             </button>
             <button
               type="button"
@@ -507,7 +499,7 @@ export default function FriendsWindow() {
               title={t("close")}
               aria-label={t("close")}
             >
-              <XIcon size={16} />
+              <Icon name="x" size={16} />
             </button>
           </div>
         </header>
@@ -555,7 +547,7 @@ export default function FriendsWindow() {
                     <span className="friends-window__friend-code-value">
                       {isCopied ? t("copied") : profile.id}
                     </span>
-                    <CopyIcon size={14} />
+                    <Icon name="copy" size={14} />
                   </button>
                 )}
               </div>
@@ -581,7 +573,7 @@ export default function FriendsWindow() {
       <div className="friends-window__content">
         <div className="friends-window__search-row">
           <div className="friends-window__search">
-            <SearchIcon size={16} className="friends-window__search-icon" />
+            <Icon name="search" size={16} className="friends-window__search-icon" />
             <input
               type="text"
               value={search}
@@ -597,7 +589,7 @@ export default function FriendsWindow() {
                 title={t("clear_search")}
                 aria-label={t("clear_search")}
               >
-                <XIcon size={16} />
+                <Icon name="x" size={16} />
               </button>
             )}
           </div>
@@ -607,7 +599,7 @@ export default function FriendsWindow() {
             onClick={handleAddFriend}
             title={t("add_friend")}
           >
-            <PlusIcon size={16} />
+            <Icon name="plus" size={16} />
             {t("add_friend")}
           </button>
         </div>
@@ -652,7 +644,7 @@ export default function FriendsWindow() {
                           onClick={() => handleAcceptRequest(request.id)}
                           title={t("accept")}
                         >
-                          <CheckIcon size={16} />
+                          <Icon name="check" size={16} />
                         </button>
                         <button
                           type="button"
@@ -660,7 +652,7 @@ export default function FriendsWindow() {
                           onClick={() => handleRefuseRequest(request.id)}
                           title={t("refuse")}
                         >
-                          <XIcon size={16} />
+                          <Icon name="x" size={16} />
                         </button>
                       </div>
                     </li>

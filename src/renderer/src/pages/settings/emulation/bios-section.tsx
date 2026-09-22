@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
-import { FileDirectoryIcon, SyncIcon } from "@primer/octicons-react";
+
 
 import { Button } from "@renderer/components";
 import { useToast } from "@renderer/hooks";
@@ -104,14 +105,13 @@ export function BiosSection({
             onClick={handleRedetect}
             disabled={controlsDisabled || checking}
           >
-            <SyncIcon
+            <Icon name="sync"
               size={13}
               className={
                 checking
                   ? "emulator-detail__redetect-icon--spinning"
                   : undefined
-              }
-            />
+              } />
             <span>{t("re_detect")}</span>
           </Button>
           <Button
@@ -119,7 +119,7 @@ export function BiosSection({
             onClick={handleBrowse}
             disabled={controlsDisabled}
           >
-            <FileDirectoryIcon size={16} />
+            <Icon name="file-directory" size={16} />
             <span>{t("browse")}</span>
           </Button>
         </>

@@ -1,5 +1,6 @@
 import { BottomPanel, Header, Sidebar, Toast } from "@renderer/components";
-import { VideoIcon } from "@primer/octicons-react";
+import { Icon } from "@renderer/components/icon/icon";
+
 import {
   DashIcon,
   ScreenFullIcon,
@@ -563,7 +564,7 @@ export function App() {
             className="title-bar__big-picture"
             onClick={() => globalThis.window.electron.openBigPictureWindow()}
           >
-            <VideoIcon size={14} />
+            <Icon name="video" size={14} />
             {t("big_picture", { ns: "sidebar" })}
           </button>
 

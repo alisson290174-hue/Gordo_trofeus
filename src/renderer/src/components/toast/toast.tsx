@@ -1,10 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  AlertIcon,
-  CheckCircleFillIcon,
-  XCircleFillIcon,
-  XIcon,
-} from "@primer/octicons-react";
+import { Icon } from "@renderer/components/icon/icon";
+
 import { useTranslation } from "react-i18next";
 
 import "./toast.scss";
@@ -99,15 +95,15 @@ export function Toast({
             }}
           >
             {type === "success" && (
-              <CheckCircleFillIcon className="toast__icon--success" />
+              <Icon name="check-circle-fill" className="toast__icon--success" />
             )}
 
             {type === "error" && (
-              <XCircleFillIcon className="toast__icon--error" />
+              <Icon name="x-circle-fill" className="toast__icon--error" />
             )}
 
             {type === "warning" && (
-              <AlertIcon className="toast__icon--warning" />
+              <Icon name="alert" className="toast__icon--warning" />
             )}
 
             <span style={{ fontWeight: "bold", flex: 1 }}>{title}</span>
@@ -118,7 +114,7 @@ export function Toast({
               onClick={startAnimateClosing}
               aria-label={t("catalogue.close", { defaultValue: "Close" })}
             >
-              <XIcon />
+              <Icon name="x"  />
             </button>
           </div>
 

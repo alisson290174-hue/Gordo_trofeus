@@ -1,14 +1,6 @@
-import {
-  DownloadIcon,
-  GearIcon,
-  HeartFillIcon,
-  HeartIcon,
-  PinIcon,
-  PinSlashIcon,
-  PlayIcon,
-  PlusCircleIcon,
-} from "@primer/octicons-react";
+
 import { Button, ConfirmationModal } from "@renderer/components";
+import { Icon } from "@renderer/components/icon/icon";
 import { XCircle } from "lucide-react";
 import {
   useDownload,
@@ -300,7 +292,7 @@ export function HeroPanelActions() {
       onClick={addGameToLibrary}
       className="hero-panel-actions__action"
     >
-      <PlusCircleIcon />
+      <Icon name="plus-circle"  />
       {t("add_to_library")}
     </Button>
   );
@@ -358,7 +350,7 @@ export function HeroPanelActions() {
           disabled={deleting || isGameRunning}
           className="hero-panel-actions__action"
         >
-          <PlayIcon />
+          <Icon name="play"  />
           {t("play")}
         </Button>
       );
@@ -371,7 +363,7 @@ export function HeroPanelActions() {
         disabled={isGameDownloading}
         className={`hero-panel-actions__action ${repacks.length === 0 ? "hero-panel-actions__action--disabled" : ""}`}
       >
-        <DownloadIcon />
+        <Icon name="download"  />
         {t("download")}
       </Button>
     );
@@ -397,7 +389,7 @@ export function HeroPanelActions() {
           disabled={deleting}
           className="hero-panel-actions__action"
         >
-          {game.favorite ? <HeartFillIcon /> : <HeartIcon />}
+          {game.favorite ? <Icon name="heart-fill"  /> : <Icon name="heart"  />}
         </Button>
 
         {userDetails && game.shop !== "custom" && (
@@ -407,7 +399,7 @@ export function HeroPanelActions() {
             disabled={deleting}
             className="hero-panel-actions__action"
           >
-            {game.isPinned ? <PinSlashIcon /> : <PinIcon />}
+            {game.isPinned ? <Icon name="pin-slash"  /> : <Icon name="pin"  />}
           </Button>
         )}
 
@@ -420,7 +412,7 @@ export function HeroPanelActions() {
           disabled={deleting}
           className="hero-panel-actions__action"
         >
-          <GearIcon />
+          <Icon name="settings"  />
           {t("options")}
         </Button>
 

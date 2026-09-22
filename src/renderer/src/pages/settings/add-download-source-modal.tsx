@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 
 import { Button, Modal, TextField } from "@renderer/components";
@@ -8,7 +9,7 @@ import { logger } from "@renderer/logger";
 
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { SyncIcon } from "@primer/octicons-react";
+
 import "./add-download-source-modal.scss";
 
 interface AddDownloadSourceModalProps {
@@ -115,7 +116,7 @@ export function AddDownloadSourceModal({
 
             <Button type="submit" disabled={isSubmitting || isLoading}>
               {isLoading && (
-                <SyncIcon className="add-download-source-modal__spinner" />
+                <Icon name="sync" className="add-download-source-modal__spinner" />
               )}
               {isLoading ? t("adding") : t("add_download_source")}
             </Button>

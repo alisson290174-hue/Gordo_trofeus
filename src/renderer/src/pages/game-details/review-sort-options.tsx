@@ -1,9 +1,6 @@
-import {
-  ThumbsupIcon,
-  ChevronUpIcon,
-  ChevronDownIcon,
-} from "@primer/octicons-react";
+
 import { useTranslation } from "react-i18next";
+import { Icon } from "@renderer/components/icon/icon";
 import "./review-sort-options.scss";
 
 type ReviewSortOption =
@@ -52,9 +49,9 @@ export function ReviewSortOptions({
           onClick={handleDateToggle}
         >
           {sortBy === "newest" ? (
-            <ChevronDownIcon size={16} />
+            <Icon name="chevron-down" size={16} />
           ) : (
-            <ChevronUpIcon size={16} />
+            <Icon name="chevron-up" size={16} />
           )}
           <span>
             {sortBy === "oldest" ? t("sort_oldest") : t("sort_newest")}
@@ -66,9 +63,9 @@ export function ReviewSortOptions({
           onClick={handleScoreToggle}
         >
           {sortBy === "score_high" ? (
-            <ChevronDownIcon size={16} />
+            <Icon name="chevron-down" size={16} />
           ) : (
-            <ChevronUpIcon size={16} />
+            <Icon name="chevron-up" size={16} />
           )}
           <span>
             {sortBy === "score_low"
@@ -81,7 +78,7 @@ export function ReviewSortOptions({
           className={`review-sort-options__option ${isMostVotedActive ? "active" : ""}`}
           onClick={handleMostVotedClick}
         >
-          <ThumbsupIcon size={16} />
+          <Icon name="thumbs-up" size={16} />
           <span>{t("sort_most_voted")}</span>
         </button>
       </div>

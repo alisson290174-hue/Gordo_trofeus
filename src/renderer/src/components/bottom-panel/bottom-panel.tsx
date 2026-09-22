@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
-import { CommentDiscussionIcon } from "@primer/octicons-react";
+
 
 import {
   useAppSelector,
@@ -199,10 +200,9 @@ export function BottomPanel() {
                 </linearGradient>
               </defs>
             </svg>
-            <CommentDiscussionIcon
+            <Icon name="comment-discussion"
               size={14}
-              className="bottom-panel__help-icon"
-            />
+              className="bottom-panel__help-icon" />
             <small>{t("need_help", { ns: "sidebar" })}</small>
           </button>
         )}

@@ -1,24 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { AnimatePresence, motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import {
-  ChevronDownIcon,
-  ChevronRightIcon,
-  AlertIcon,
-  EyeClosedIcon,
-  GlobeIcon,
-  HeartFillIcon,
-  HeartIcon,
-  HistoryIcon,
   ImageIcon,
-  LockIcon,
-  PeopleIcon,
-  SearchIcon,
-  StackIcon,
-  SyncIcon,
-  TrophyIcon,
-  TrashIcon,
-  XIcon,
 } from "@primer/octicons-react";
 import { FilterDropdown, type FilterDropdownOption } from "./filter-dropdown";
 import type {
@@ -161,7 +146,7 @@ function SouvenirCard({
 
         {hasThumbnail && (
           <span className="profile-content__souvenir-image-overlay">
-            <SearchIcon size={24} />
+            <Icon name="search" size={24} />
           </span>
         )}
       </button>
@@ -173,7 +158,7 @@ function SouvenirCard({
             title={t("private_souvenir")}
             aria-label={t("private_souvenir")}
           >
-            <EyeClosedIcon size={14} />
+            <Icon name="eye-closed" size={14} />
           </span>
         ) : null}
 
@@ -188,9 +173,9 @@ function SouvenirCard({
           whileTap={{ scale: 0.95 }}
         >
           {achievement.likedByMe ? (
-            <HeartFillIcon size={14} />
+            <Icon name="heart-fill" size={14} />
           ) : (
-            <HeartIcon size={14} />
+            <Icon name="heart" size={14} />
           )}
           <AnimatePresence mode="wait">
             <motion.span
@@ -219,7 +204,7 @@ function SouvenirCard({
               }
             />
           ) : (
-            <TrophyIcon size={16} />
+            <Icon name="trophy" size={16} />
           )}
         </span>
 
@@ -316,7 +301,7 @@ function SouvenirGameGroup({
           onClick={() => setIsExpanded(!isExpanded)}
           aria-expanded={isExpanded}
         >
-          {isExpanded ? <ChevronDownIcon /> : <ChevronRightIcon />}
+          {isExpanded ? <Icon name="chevron-down"  /> : <Icon name="chevron-right"  />}
 
           <span className="profile-content__souvenirs-group-icon">
             {hasGameIcon ? (
@@ -412,7 +397,7 @@ function SouvenirsEmptyState({
     return (
       <div className="profile-content__no-games profile-content__souvenirs-empty">
         <span className="profile-content__telescope-icon">
-          <LockIcon size={24} />
+          <Icon name="lock" size={24} />
         </span>
         <h2>{t("souvenirs_cloud_title")}</h2>
         <p>{t("souvenirs_cloud_description")}</p>
@@ -513,26 +498,25 @@ export function SouvenirsTab({
   const { showErrorToast, showSuccessToast } = useToast();
   const privacyNotices = {
     PRIVATE: {
-      icon: LockIcon,
+      iconName: "lock",
       title: t("souvenirs_visibility_private_title"),
       description: t("souvenirs_visibility_private_description"),
     },
     FRIENDS: {
-      icon: PeopleIcon,
+      iconName: "people",
       title: t("souvenirs_visibility_friends_title"),
       description: t("souvenirs_visibility_friends_description"),
     },
     PUBLIC: {
-      icon: GlobeIcon,
+      iconName: "globe",
       title: t("souvenirs_visibility_public_title"),
       description: t("souvenirs_visibility_public_description"),
     },
   } satisfies Record<
     ProfileVisibility,
-    { icon: typeof LockIcon; title: string; description: string }
+    { iconName: string; title: string; description: string }
   >;
   const privacyNotice = privacyNotices[visibility];
-  const PrivacyIcon = privacyNotice.icon;
 
   useEffect(() => {
     if (!isMe) {
@@ -704,14 +688,34 @@ export function SouvenirsTab({
   }, [sortedAchievements]);
 
   const groupingOptions: FilterDropdownOption<SouvenirGrouping>[] = [
-    { value: "game", label: t("group_by_game"), icon: StackIcon },
-    { value: "none", label: t("no_grouping"), icon: SearchIcon },
+    {
+      value: "game",
+      label: t("group_by_game"),
+      icon: <Icon name="stack" size={14} />,
+    },
+    {
+      value: "none",
+      label: t("no_grouping"),
+      icon: <Icon name="search" size={14} />,
+    },
   ];
 
   const sortOptions: FilterDropdownOption<SouvenirSort>[] = [
-    { value: "recent", label: t("most_recent"), icon: HistoryIcon },
-    { value: "oldest", label: t("oldest_first"), icon: HistoryIcon },
-    { value: "rare", label: t("rarest_first"), icon: TrophyIcon },
+    {
+      value: "recent",
+      label: t("most_recent"),
+      icon: <Icon name="history" size={14} />,
+    },
+    {
+      value: "oldest",
+      label: t("oldest_first"),
+      icon: <Icon name="history" size={14} />,
+    },
+    {
+      value: "rare",
+      label: t("rarest_first"),
+      icon: <Icon name="trophy" size={14} />,
+    },
   ];
 
   return (
@@ -726,7 +730,7 @@ export function SouvenirsTab({
       {isMe && isPrivacyNoticeVisible ? (
         <aside className="profile-content__souvenirs-notice">
           <span className="profile-content__souvenirs-notice-icon">
-            <PrivacyIcon size={18} />
+            <Icon name={privacyNotice.iconName} size={18} />
           </span>
           <div className="profile-content__souvenirs-notice-copy">
             <strong>{privacyNotice.title}</strong>
@@ -739,7 +743,7 @@ export function SouvenirsTab({
             aria-label={t("dismiss_souvenirs_visibility_notice")}
             title={t("dismiss_souvenirs_visibility_notice")}
           >
-            <XIcon size={16} />
+            <Icon name="x" size={16} />
           </button>
         </aside>
       ) : null}
@@ -747,7 +751,7 @@ export function SouvenirsTab({
       {isMe && hasReachedLimit ? (
         <aside className="profile-content__souvenirs-notice">
           <span className="profile-content__souvenirs-notice-icon">
-            <AlertIcon size={18} />
+            <Icon name="alert" size={18} />
           </span>
           <div className="profile-content__souvenirs-notice-copy">
             <strong>{t("souvenir_limit_reached_title")}</strong>
@@ -758,7 +762,7 @@ export function SouvenirsTab({
 
       {hasSyncIssues ? (
         <aside className="profile-content__souvenirs-sync-status">
-          <AlertIcon size={20} />
+          <Icon name="alert" size={20} />
           <div className="profile-content__souvenirs-sync-status-copy">
             <strong>{tSettings("souvenir_sync_status_title")}</strong>
             <span>{syncMessages.join(" ")}</span>
@@ -770,14 +774,13 @@ export function SouvenirsTab({
                 disabled={isRetryingSync || isLoadingSyncDetails}
                 onClick={() => void handleRetrySync()}
               >
-                <SyncIcon
+                <Icon name="sync"
                   size={14}
                   className={
                     isRetryingSync
                       ? "profile-content__souvenirs-sync-status-icon--spinning"
                       : undefined
-                  }
-                />
+                  } />
                 {tSettings("retry_souvenir_sync")}
               </Button>
             ) : null}
@@ -786,7 +789,7 @@ export function SouvenirsTab({
               disabled={isRetryingSync || isLoadingSyncDetails}
               onClick={() => void handleOpenCleanup()}
             >
-              <TrashIcon size={14} />
+              <Icon name="trash" size={14} />
               {tSettings("clean_up_souvenir_sync")}
             </Button>
           </div>

@@ -1,4 +1,5 @@
 import { Badge } from "@renderer/components/badge/badge";
+import { Icon } from "@renderer/components/icon/icon";
 import { buildGameDetailsPath } from "@renderer/helpers";
 import { useAppSelector, useLibrary } from "@renderer/hooks";
 import { lazy, Suspense, useMemo, useState, useEffect } from "react";
@@ -7,7 +8,7 @@ import { Link } from "@renderer/components/link/link";
 import "./game-item.scss";
 import { useTranslation } from "react-i18next";
 import { CatalogueSearchResult } from "@types";
-import { QuestionIcon, PlusIcon, CheckIcon } from "@primer/octicons-react";
+
 import cn from "classnames";
 
 const ProtonDBBadge = lazy(async () => {
@@ -95,7 +96,7 @@ export function GameItem({ game }: GameItemProps) {
 
     return (
       <div className="game-item__cover-placeholder">
-        <QuestionIcon size={28} />
+        <Icon name="question" size={28} />
       </div>
     );
   }, [game.libraryImageUrl, game.title]);
@@ -155,7 +156,7 @@ export function GameItem({ game }: GameItemProps) {
         aria-label={added ? t("already_in_library") : t("add_to_library")}
         disabled={added || isAddingToLibrary}
       >
-        {added ? <CheckIcon size={16} /> : <PlusIcon size={16} />}
+        {added ? <Icon name="check" size={16} /> : <Icon name="plus" size={16} />}
       </button>
     </article>
   );

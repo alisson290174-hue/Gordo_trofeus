@@ -1,3 +1,4 @@
+import { Icon } from "@renderer/components/icon/icon";
 import {
   useCallback,
   useContext,
@@ -15,7 +16,7 @@ import type {
   AchievementCustomNotificationPosition,
   UserPreferences,
 } from "@types";
-import { UnmuteIcon } from "@primer/octicons-react";
+
 
 import "./settings-general.scss";
 
@@ -217,7 +218,7 @@ export function SettingsContextNotifications() {
               {t("achievement_sound_volume")}
             </label>
             <div className="settings-general__volume-slider-wrapper">
-              <UnmuteIcon size={16} className="settings-general__volume-icon" />
+              <Icon name="unmute" size={16} className="settings-general__volume-icon" />
               <input
                 id="achievement-volume"
                 type="range"

@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 
 import {
   TextField,
@@ -9,12 +10,7 @@ import {
 import { useTranslation } from "react-i18next";
 
 import type { DownloadSource } from "@types";
-import {
-  NoEntryIcon,
-  PlusCircleIcon,
-  SyncIcon,
-  TrashIcon,
-} from "@primer/octicons-react";
+
 import { AddDownloadSourceModal } from "./add-download-source-modal";
 import { useAppDispatch, useToast } from "@renderer/hooks";
 import { useFormat } from "@renderer/hooks/use-format";
@@ -219,7 +215,7 @@ export function SettingsDownloadSources() {
           }
           onClick={syncDownloadSources}
         >
-          <SyncIcon />
+          <Icon name="sync"  />
           {t("sync_download_sources")}
         </Button>
 
@@ -234,7 +230,7 @@ export function SettingsDownloadSources() {
               (hasLoadedDownloadSources && !downloadSources.length)
             }
           >
-            <TrashIcon />
+            <Icon name="trash"  />
             {t("button_delete_all_sources")}
           </Button>
 
@@ -244,7 +240,7 @@ export function SettingsDownloadSources() {
             onClick={() => setShowAddDownloadSourceModal(true)}
             disabled={isSyncingDownloadSources || isRemovingDownloadSource}
           >
-            <PlusCircleIcon />
+            <Icon name="plus-circle"  />
             {t("add_download_source")}
           </Button>
         </div>
@@ -267,7 +263,7 @@ export function SettingsDownloadSources() {
                 <div style={{ display: "flex" }}>
                   <Badge>
                     {isPendingOrMatching && (
-                      <SyncIcon className="settings-download-sources__spinner" />
+                      <Icon name="sync" className="settings-download-sources__spinner" />
                     )}
                     {statusTitle[downloadSource.status]}
                   </Badge>
@@ -307,7 +303,7 @@ export function SettingsDownloadSources() {
                     onClick={() => handleRemoveSource(downloadSource)}
                     disabled={isRemovingDownloadSource}
                   >
-                    <NoEntryIcon />
+                    <Icon name="no-entry"  />
                     {t("remove_download_source")}
                   </Button>
                 }

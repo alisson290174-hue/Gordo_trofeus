@@ -1,23 +1,10 @@
 import { useTranslation } from "react-i18next";
+import { Icon } from "@renderer/components/icon/icon";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { AuthPage } from "@shared";
 import {
-  PlayIcon,
-  DownloadIcon,
-  HeartIcon,
-  HeartFillIcon,
-  PlusIcon,
-  GearIcon,
   ImageIcon,
-  PencilIcon,
-  FileDirectoryIcon,
-  FileDirectoryFillIcon,
-  LinkIcon,
-  TrashIcon,
-  XIcon,
-  PinIcon,
-  PinSlashIcon,
 } from "@primer/octicons-react";
 import SteamLogo from "@renderer/assets/steam-logo.svg?react";
 import {
@@ -181,9 +168,9 @@ export function GameContextMenu({
       id: "favorite",
       label: t("favorites", { ns: "sidebar" }),
       icon: isFavoriteSelected ? (
-        <HeartFillIcon size={16} />
+        <Icon name="heart-fill" size={16} />
       ) : (
-        <HeartIcon size={16} />
+        <Icon name="heart" size={16} />
       ),
       onClick: () => {
         void handleToggleFavoriteStatus();
@@ -197,9 +184,9 @@ export function GameContextMenu({
           id: `collection-${collection.id}`,
           label: collection.name,
           icon: localCollectionIds.includes(collection.id) ? (
-            <FileDirectoryFillIcon size={16} />
+            <Icon name="file-directory-fill" size={16} />
           ) : (
-            <FileDirectoryIcon size={16} />
+            <Icon name="file-directory" size={16} />
           ),
           onClick: () => {
             void handleAssignGameCollection(collection.id);
@@ -220,7 +207,7 @@ export function GameContextMenu({
           {
             id: "collection-create",
             label: t("create_collection"),
-            icon: <PlusIcon size={16} />,
+            icon: <Icon name="plus" size={16} />,
             separator: collections.length > 0,
             onClick: () => {
               if (!userDetails) {
@@ -241,11 +228,11 @@ export function GameContextMenu({
       id: "play",
       label: isGameRunning ? t("close") : canPlay ? t("play") : t("download"),
       icon: isGameRunning ? (
-        <XIcon size={16} />
+        <Icon name="x" size={16} />
       ) : canPlay ? (
-        <PlayIcon size={16} />
+        <Icon name="play" size={16} />
       ) : (
-        <DownloadIcon size={16} />
+        <Icon name="download" size={16} />
       ),
       onClick: () => {
         if (isGameRunning) {
@@ -261,7 +248,7 @@ export function GameContextMenu({
     {
       id: "collection",
       label: t("collection"),
-      icon: <FileDirectoryIcon size={16} />,
+      icon: <Icon name="file-directory" size={16} />,
       onClick: () => {
         if (game.shop === "custom") return;
         void loadCollections();
@@ -283,13 +270,13 @@ export function GameContextMenu({
           {
             id: "shortcuts",
             label: t("create_shortcut_simple"),
-            icon: <LinkIcon size={16} />,
+            icon: <Icon name="link" size={16} />,
             disabled: isDeleting,
             submenu: [
               {
                 id: "desktop-shortcut",
                 label: t("create_shortcut_simple"),
-                icon: <LinkIcon size={16} />,
+                icon: <Icon name="link" size={16} />,
                 onClick: handleCreateShortcut,
                 disabled: isDeleting || creatingShortcut,
               },
@@ -308,7 +295,7 @@ export function GameContextMenu({
     {
       id: "manage",
       label: t("options"),
-      icon: <GearIcon size={16} />,
+      icon: <Icon name="settings" size={16} />,
       disabled: isDeleting,
       submenu: [
         {
@@ -319,9 +306,9 @@ export function GameContextMenu({
               : t("pin_game"),
           icon:
             (isPinned ?? game.isPinned ?? false) ? (
-              <PinSlashIcon size={16} />
+              <Icon name="pin-slash" size={16} />
             ) : (
-              <PinIcon size={16} />
+              <Icon name="pin" size={16} />
             ),
           onClick: onPinToggle ?? handleTogglePin,
           disabled: isDeleting,
@@ -338,7 +325,7 @@ export function GameContextMenu({
               {
                 id: "open-folder",
                 label: t("open_folder"),
-                icon: <FileDirectoryIcon size={16} />,
+                icon: <Icon name="file-directory" size={16} />,
                 onClick: handleOpenFolder,
                 disabled: isDeleting,
               },
@@ -349,7 +336,7 @@ export function GameContextMenu({
               {
                 id: "download-options",
                 label: t("open_download_options"),
-                icon: <DownloadIcon size={16} />,
+                icon: <Icon name="download" size={16} />,
                 onClick: handleOpenDownloadOptions,
                 disabled: isDeleting || isGameDownloading || !hasRepacks,
               },
@@ -360,7 +347,7 @@ export function GameContextMenu({
               {
                 id: "download-location",
                 label: t("open_download_location"),
-                icon: <FileDirectoryIcon size={16} />,
+                icon: <Icon name="file-directory" size={16} />,
                 onClick: handleOpenDownloadLocation,
                 disabled: isDeleting,
               },
@@ -370,7 +357,7 @@ export function GameContextMenu({
         {
           id: "remove-library",
           label: t("remove_from_library"),
-          icon: <XIcon size={16} />,
+          icon: <Icon name="x" size={16} />,
           onClick: () => setShowConfirmRemoveLibrary(true),
           disabled: isDeleting,
           danger: true,
@@ -381,7 +368,7 @@ export function GameContextMenu({
               {
                 id: "remove-files",
                 label: t("remove_files"),
-                icon: <TrashIcon size={16} />,
+                icon: <Icon name="trash" size={16} />,
                 onClick: () => setShowConfirmRemoveFiles(true),
                 disabled: isDeleting || isGameDownloading,
                 danger: true,
@@ -395,7 +382,7 @@ export function GameContextMenu({
       id: "properties",
       label: t("properties"),
       separator: true,
-      icon: <PencilIcon size={16} />,
+      icon: <Icon name="pencil" size={16} />,
       onClick: () => handleOpenGameOptions(),
       disabled: isDeleting,
     },

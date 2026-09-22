@@ -1,5 +1,6 @@
-import { XIcon } from "@primer/octicons-react";
+
 import { useId } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 import { Tooltip } from "react-tooltip";
 import "./filter.scss";
@@ -40,7 +41,7 @@ export function FilterItem({
         className="filter-item__remove-button"
         aria-label={`${t("clear_filters", { filterCount: 1 })}: ${filter}`}
       >
-        <XIcon size={13} aria-hidden="true" />
+        <Icon name="x" size={13} aria-hidden="true" />
       </button>
       <Tooltip id={tooltipId} style={{ zIndex: 9999 }} />
     </div>

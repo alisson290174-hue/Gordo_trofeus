@@ -1,15 +1,6 @@
 import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
-import {
-  CheckIcon,
-  ClockIcon,
-  DeviceDesktopIcon,
-  HeartIcon,
-  HourglassIcon,
-  SlidersIcon,
-  SortDescIcon,
-  StackIcon,
-  TrophyIcon,
-} from "@primer/octicons-react";
+import { Icon } from "@renderer/components/icon/icon";
+
 import { useId, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { Tooltip } from "react-tooltip";
@@ -77,12 +68,12 @@ export function SidebarFilterMenu({
     {
       value: "all",
       label: t("category_all", { ns: "library" }),
-      icon: <StackIcon size={14} />,
+      icon: <Icon name="stack" size={14} />,
     },
     {
       value: "pc",
       label: t("category_pc", { ns: "library" }),
-      icon: <DeviceDesktopIcon size={14} />,
+      icon: <Icon name="device-desktop" size={14} />,
     },
     {
       value: "steam_library",
@@ -104,22 +95,22 @@ export function SidebarFilterMenu({
     {
       value: "title_asc",
       label: t("sort_title", { ns: "library" }),
-      icon: <SortDescIcon size={14} />,
+      icon: <Icon name="sort-desc" size={14} />,
     },
     {
       value: "recently_played",
       label: t("recently_played", { ns: "library" }),
-      icon: <ClockIcon size={14} />,
+      icon: <Icon name="hourglass" size={14} />,
     },
     {
       value: "most_played",
       label: t("sort_most_played", { ns: "library" }),
-      icon: <HourglassIcon size={14} />,
+      icon: <Icon name="hourglass" size={14} />,
     },
     {
       value: "achievements",
       label: t("sort_achievements", { ns: "library" }),
-      icon: <TrophyIcon size={14} />,
+      icon: <Icon name="trophy" size={14} />,
     },
   ];
 
@@ -137,7 +128,7 @@ export function SidebarFilterMenu({
             pointerInteractionRef.current = true;
           }}
         >
-          <SlidersIcon size={16} />
+          <Icon name="sliders" size={16} />
         </button>
       </DropdownMenuPrimitive.Trigger>
 
@@ -182,7 +173,7 @@ export function SidebarFilterMenu({
                       forceMount
                       className="sidebar-filter-menu__item-indicator"
                     >
-                      <CheckIcon size={14} />
+                      <Icon name="check" size={14} />
                     </DropdownMenuPrimitive.ItemIndicator>
                   </DropdownMenuPrimitive.RadioItem>
                 ))}
@@ -202,13 +193,13 @@ export function SidebarFilterMenu({
                 onSelect={(event) => event.preventDefault()}
                 className="sidebar-filter-menu__item"
               >
-                <HeartIcon size={14} />
+                <Icon name="heart" size={14} />
                 <span>{t("show_favorites_first")}</span>
                 <DropdownMenuPrimitive.ItemIndicator
                   forceMount
                   className="sidebar-filter-menu__item-indicator"
                 >
-                  <CheckIcon size={14} />
+                  <Icon name="check" size={14} />
                 </DropdownMenuPrimitive.ItemIndicator>
               </DropdownMenuPrimitive.CheckboxItem>
 
@@ -229,7 +220,7 @@ export function SidebarFilterMenu({
                       forceMount
                       className="sidebar-filter-menu__item-indicator"
                     >
-                      <CheckIcon size={14} />
+                      <Icon name="check" size={14} />
                     </DropdownMenuPrimitive.ItemIndicator>
                   </DropdownMenuPrimitive.RadioItem>
                 ))}
@@ -262,7 +253,7 @@ export function SidebarFilterMenu({
                       forceMount
                       className="sidebar-filter-menu__item-indicator"
                     >
-                      <CheckIcon size={14} />
+                      <Icon name="check" size={14} />
                     </DropdownMenuPrimitive.ItemIndicator>
                   </DropdownMenuPrimitive.CheckboxItem>
 
@@ -283,7 +274,7 @@ export function SidebarFilterMenu({
                         forceMount
                         className="sidebar-filter-menu__item-indicator"
                       >
-                        <CheckIcon size={14} />
+                        <Icon name="check" size={14} />
                       </DropdownMenuPrimitive.ItemIndicator>
                     </DropdownMenuPrimitive.CheckboxItem>
                   ))}

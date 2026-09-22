@@ -1,4 +1,5 @@
 import { useContext, useEffect, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { Trans, useTranslation } from "react-i18next";
 
 import { Button, CheckboxField, Link, TextField } from "@renderer/components";
@@ -7,7 +8,7 @@ import "./settings-real-debrid.scss";
 import { useAppSelector, useToast } from "@renderer/hooks";
 
 import { settingsContext } from "@renderer/context";
-import { LinkExternalIcon } from "@primer/octicons-react";
+
 
 const realDebridReferralId = import.meta.env
   .RENDERER_VITE_REAL_DEBRID_REFERRAL_ID;
@@ -109,7 +110,7 @@ export function SettingsRealDebrid() {
           to={REAL_DEBRID_URL}
           className="settings-real-debrid__create-account"
         >
-          <LinkExternalIcon />
+          <Icon name="link-external"  />
           {t("create_real_debrid_account")}
         </Link>
       </div>

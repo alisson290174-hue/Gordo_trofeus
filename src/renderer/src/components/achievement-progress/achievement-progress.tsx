@@ -1,5 +1,6 @@
-import { TrophyIcon } from "@primer/octicons-react";
+
 import { isGameCompleted } from "@renderer/helpers";
+import { Icon } from "@renderer/components/icon/icon";
 import { ProgressBar } from "../progress-bar/progress-bar";
 
 interface AchievementProgressProps {
@@ -35,10 +36,9 @@ export function AchievementProgress({
       <div className={`${classNamePrefix}__achievement-header`}>
         <div className={`${classNamePrefix}__achievements-gap`}>
           {!isCompleted && (
-            <TrophyIcon
+            <Icon name="trophy"
               size={trophyIconSize}
-              className={`${classNamePrefix}__achievement-trophy`}
-            />
+              className={`${classNamePrefix}__achievement-trophy`} />
           )}
           <span className={`${classNamePrefix}__achievement-count`}>
             {unlockedAchievementCount} / {achievementCount}
@@ -46,7 +46,7 @@ export function AchievementProgress({
         </div>
         <span className={className}>
           {isCompleted ? (
-            <TrophyIcon size={trophyIconSize} />
+            <Icon name="trophy" size={trophyIconSize} />
           ) : (
             <>{percentage}%</>
           )}

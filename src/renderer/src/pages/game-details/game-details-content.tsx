@@ -1,3 +1,4 @@
+import { Icon } from "@renderer/components/icon/icon";
 import {
   useContext,
   useEffect,
@@ -6,7 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { PencilIcon } from "@primer/octicons-react";
+
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 
@@ -429,7 +430,7 @@ export function GameDetailsContent() {
                     onClick={handleEditGameClick}
                     title={t("edit_game_modal_button")}
                   >
-                    <PencilIcon size={16} />
+                    <Icon name="pencil" size={16} />
                   </button>
                 )}
 

@@ -1,3 +1,4 @@
+import { Icon } from "@renderer/components/icon/icon";
 import {
   useDeferredValue,
   useEffect,
@@ -16,11 +17,7 @@ import {
   useUserDetails,
 } from "@renderer/hooks";
 import { setHeaderTitle } from "@renderer/features";
-import {
-  HeartIcon,
-  FileDirectoryIcon,
-  SyncIcon,
-} from "@primer/octicons-react";
+
 import EmptyLibraryIllustration from "@renderer/assets/empty-states/empty-library.png";
 import EmptySearchIllustration from "@renderer/assets/empty-states/empty-search.png";
 import { useTranslation } from "react-i18next";
@@ -619,7 +616,7 @@ export default function Library() {
       {shouldShowClassicsImporting && (
         <div className="library__empty">
           <div className="library__icon-container library__icon-container--spinning">
-            <SyncIcon size={24} />
+            <Icon name="sync" size={24} />
           </div>
           <h2>{t("importing_classics_title")}</h2>
           <p>{t("importing_classics_description")}</p>
@@ -629,7 +626,7 @@ export default function Library() {
       {shouldShowFavoritesEmptyState && (
         <div className="library__empty">
           <div className="library__icon-container">
-            <HeartIcon size={24} />
+            <Icon name="heart" size={24} />
           </div>
           <h2>{t("empty_favorites_title")}</h2>
           <p>{t("empty_favorites_description")}</p>
@@ -639,7 +636,7 @@ export default function Library() {
       {shouldShowCollectionEmptyState && (
         <div className="library__empty">
           <div className="library__icon-container">
-            <FileDirectoryIcon size={24} />
+            <Icon name="file-directory" size={24} />
           </div>
           <h2>{t("empty_collection_title")}</h2>
           <p>{t("empty_collection_description")}</p>

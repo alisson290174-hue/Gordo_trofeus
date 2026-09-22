@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
-import { CheckIcon } from "@primer/octicons-react";
+import { Icon } from "@renderer/components/icon/icon";
+
 
 import { Button } from "@renderer/components";
 
@@ -23,7 +24,7 @@ export function SetupStepDone({
   return (
     <div className="setup-modal__done">
       <div className="setup-modal__done-check">
-        <CheckIcon size={28} />
+        <Icon name="check" size={28} />
       </div>
       <h3 className="setup-modal__done-title">
         {t(multipleSystems ? "setup_done_title_plural" : "setup_done_title", {

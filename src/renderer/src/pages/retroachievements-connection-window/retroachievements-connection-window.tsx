@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import type { FormEventHandler } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { LinkExternalIcon } from "@primer/octicons-react";
+
 
 import { Button, Link, TextField, WindowTitleBar } from "@renderer/components";
 import retroAchievementsLogo from "@renderer/assets/icons/retroachievements.png";
@@ -219,7 +220,7 @@ export default function RetroAchievementsConnectionWindow() {
             to={RETRO_ACHIEVEMENTS_URL}
             className="retroachievements-connection-window__create-account"
           >
-            <LinkExternalIcon size={14} />
+            <Icon name="link-external" size={14} />
             {t("retroachievements_create_account")}
           </Link>
 

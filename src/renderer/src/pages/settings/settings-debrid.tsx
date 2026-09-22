@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useFeature, useAppSelector } from "@renderer/hooks";
 import {
   readStoredSectionCollapsed,
@@ -8,7 +9,7 @@ import { SettingsTorBox } from "./settings-torbox";
 import { SettingsRealDebrid } from "./settings-real-debrid";
 import { SettingsPremiumize } from "./settings-premiumize";
 import { SettingsAllDebrid } from "./settings-all-debrid";
-import { ChevronRightIcon, CheckCircleFillIcon } from "@primer/octicons-react";
+
 import { useTranslation } from "react-i18next";
 import "./settings-debrid.scss";
 
@@ -93,17 +94,16 @@ export function SettingsDebrid() {
                   : "settings-debrid__collapse-icon--expanded"
               }`}
             >
-              <ChevronRightIcon size={16} />
+              <Icon name="chevron-right" size={16} />
             </span>
           </button>
           <h3 className="settings-debrid__section-title">
             {t("debrid_provider_real_debrid")}
           </h3>
           {userPreferences?.realDebridApiToken && (
-            <CheckCircleFillIcon
+            <Icon name="check-circle-fill"
               size={16}
-              className="settings-debrid__check-icon"
-            />
+              className="settings-debrid__check-icon" />
           )}
         </div>
 
@@ -138,17 +138,16 @@ export function SettingsDebrid() {
                     : "settings-debrid__collapse-icon--expanded"
                 }`}
               >
-                <ChevronRightIcon size={16} />
+                <Icon name="chevron-right" size={16} />
               </span>
             </button>
             <h3 className="settings-debrid__section-title">
               {t("debrid_provider_premiumize")}
             </h3>
             {userPreferences?.premiumizeApiToken && (
-              <CheckCircleFillIcon
+              <Icon name="check-circle-fill"
                 size={16}
-                className="settings-debrid__check-icon"
-              />
+                className="settings-debrid__check-icon" />
             )}
           </div>
 
@@ -184,17 +183,16 @@ export function SettingsDebrid() {
                     : "settings-debrid__collapse-icon--expanded"
                 }`}
               >
-                <ChevronRightIcon size={16} />
+                <Icon name="chevron-right" size={16} />
               </span>
             </button>
             <h3 className="settings-debrid__section-title">
               {t("debrid_provider_alldebrid")}
             </h3>
             {userPreferences?.allDebridApiToken && (
-              <CheckCircleFillIcon
+              <Icon name="check-circle-fill"
                 size={16}
-                className="settings-debrid__check-icon"
-              />
+                className="settings-debrid__check-icon" />
             )}
           </div>
 
@@ -230,17 +228,16 @@ export function SettingsDebrid() {
                     : "settings-debrid__collapse-icon--expanded"
                 }`}
               >
-                <ChevronRightIcon size={16} />
+                <Icon name="chevron-right" size={16} />
               </span>
             </button>
             <h3 className="settings-debrid__section-title">
               {t("debrid_provider_torbox")}
             </h3>
             {userPreferences?.torBoxApiToken && (
-              <CheckCircleFillIcon
+              <Icon name="check-circle-fill"
                 size={16}
-                className="settings-debrid__check-icon"
-              />
+                className="settings-debrid__check-icon" />
             )}
           </div>
 

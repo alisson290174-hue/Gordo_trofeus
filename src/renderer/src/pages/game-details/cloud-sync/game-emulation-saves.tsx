@@ -1,18 +1,8 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import {
-  ClockIcon,
-  CodeIcon,
-  DeviceDesktopIcon,
-  HistoryIcon,
-  PencilIcon,
-  PlusIcon,
-  SearchIcon,
-  SyncIcon,
-  TrashIcon,
-  UploadIcon,
-} from "@primer/octicons-react";
+
 
 import { Button, ConfirmationModal, GuideLink } from "@renderer/components";
 import {
@@ -200,22 +190,20 @@ export function GameEmulationSaves({
               disabled={uploadingKey === "wii-data-bin"}
             >
               {uploadingKey === "wii-data-bin" ? (
-                <SyncIcon
+                <Icon name="sync"
                   size={14}
-                  className="game-emulation-saves__sync-icon"
-                />
+                  className="game-emulation-saves__sync-icon" />
               ) : (
-                <UploadIcon size={14} />
+                <Icon name="upload" size={14} />
               )}
               <span>{t("browse_files")}</span>
             </Button>
           )}
           {(hasAnyLocalStorage || !isMemoryCardPlatform) && (
             <Button theme="outline" onClick={load} disabled={loading}>
-              <SyncIcon
+              <Icon name="sync"
                 size={13}
-                className={loading ? "game-emulation-saves__sync-icon" : ""}
-              />
+                className={loading ? "game-emulation-saves__sync-icon" : ""} />
               <span>{t("cloud_refresh")}</span>
             </Button>
           )}
@@ -239,14 +227,14 @@ export function GameEmulationSaves({
               navigate(`/settings?tab=emulation&system=${platform}`)
             }
           >
-            <PlusIcon size={14} />
+            <Icon name="plus" size={14} />
             <span>{t("game_add_memory_card")}</span>
           </Button>
         </div>
       ) : localSaves.length === 0 && cloudSaves.length === 0 ? (
         <div className="game-emulation-saves__prompt">
           <span className="game-emulation-saves__prompt-octicon">
-            <SearchIcon size={40} />
+            <Icon name="search" size={40} />
           </span>
           <h3>{t("game_no_saves_title")}</h3>
           <p>
@@ -300,11 +288,11 @@ export function GameEmulationSaves({
                       <div className="game-emulation-saves__card-body">
                         <div className="game-emulation-saves__card-meta">
                           <span title={deviceLabel}>
-                            <DeviceDesktopIcon size={14} />
+                            <Icon name="device-desktop" size={14} />
                             {deviceLabel}
                           </span>
                           <span>
-                            <ClockIcon size={14} />
+                            <Icon name="hourglass" size={14} />
                             {formatDate(
                               record.modifiedAt
                                 ? new Date(record.modifiedAt).toISOString()
@@ -320,12 +308,11 @@ export function GameEmulationSaves({
                             disabled={uploading}
                           >
                             {uploading ? (
-                              <SyncIcon
+                              <Icon name="sync"
                                 size={14}
-                                className="game-emulation-saves__sync-icon"
-                              />
+                                className="game-emulation-saves__sync-icon" />
                             ) : (
-                              <UploadIcon size={14} />
+                              <Icon name="upload" size={14} />
                             )}
                             <span>
                               {uploading
@@ -382,7 +369,7 @@ export function GameEmulationSaves({
                           onClick={() => setRenameFor(save)}
                           aria-label={t("cloud_rename_title")}
                         >
-                          <PencilIcon size={14} />
+                          <Icon name="pencil" size={14} />
                         </button>
                         <small className="game-emulation-saves__card-size">
                           {formatBytes(save.artifactLengthInBytes)}
@@ -392,15 +379,15 @@ export function GameEmulationSaves({
                       <div className="game-emulation-saves__card-body">
                         <div className="game-emulation-saves__card-meta">
                           <span title={save.fileName}>
-                            <CodeIcon size={14} />
+                            <Icon name="code" size={14} />
                             {save.fileName}
                           </span>
                           <span>
-                            <DeviceDesktopIcon size={14} />
+                            <Icon name="device-desktop" size={14} />
                             {save.hostname ?? "—"}
                           </span>
                           <span>
-                            <ClockIcon size={14} />
+                            <Icon name="hourglass" size={14} />
                             {formatDate(save.localLastModifiedAt)}
                           </span>
                         </div>
@@ -410,7 +397,7 @@ export function GameEmulationSaves({
                             theme="outline"
                             onClick={() => setRestoreFor(save)}
                           >
-                            <HistoryIcon size={14} />
+                            <Icon name="history" size={14} />
                             <span>{t("cloud_restore")}</span>
                           </Button>
                           <button
@@ -419,7 +406,7 @@ export function GameEmulationSaves({
                             onClick={() => setDeleteFor(save)}
                             aria-label={t("cloud_delete")}
                           >
-                            <TrashIcon size={16} />
+                            <Icon name="trash" size={16} />
                           </button>
                         </div>
                       </div>

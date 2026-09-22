@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
-import {
-  ClockIcon,
-  CheckCircleFillIcon,
-  FileDirectoryIcon,
-  SyncIcon,
-} from "@primer/octicons-react";
+
 
 import { Button } from "@renderer/components";
 import type { EmulatorConfig, EmulatorSystem } from "@types";
@@ -119,7 +115,7 @@ export function SetupStepBios({
           onClick={handleSelectFolder}
           disabled={checking}
         >
-          <FileDirectoryIcon size={14} />
+          <Icon name="file-directory" size={14} />
           <span>{t("setup_bios_select_folder")}</span>
         </Button>
       </div>
@@ -141,9 +137,9 @@ export function SetupStepBios({
             style={{ width: 36, height: 36 }}
           >
             {installed ? (
-              <CheckCircleFillIcon size={16} />
+              <Icon name="check-circle-fill" size={16} />
             ) : (
-              <ClockIcon size={16} />
+              <Icon name="hourglass" size={16} />
             )}
           </div>
           <div className="setup-modal__alert-text">
@@ -153,7 +149,7 @@ export function SetupStepBios({
           </div>
           {!installed && (
             <Button theme="primary" onClick={() => probe()} disabled={checking}>
-              <SyncIcon size={14} />
+              <Icon name="sync" size={14} />
               <span>{t("setup_bios_check_again")}</span>
             </Button>
           )}

@@ -1,12 +1,7 @@
 import { useEffect, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
-import {
-  ClockIcon,
-  CheckCircleFillIcon,
-  GlobeIcon,
-  LinkExternalIcon,
-  SyncIcon,
-} from "@primer/octicons-react";
+
 
 import { Button } from "@renderer/components";
 import type { EmulatorConfig } from "@types";
@@ -83,9 +78,9 @@ export function SetupStepFirmware({
             window.electron.openExternal(firmwarePageUrl(i18n.language))
           }
         >
-          <GlobeIcon size={14} />
+          <Icon name="globe" size={14} />
           <span>{t("setup_firmware_guide")}</span>
-          <LinkExternalIcon size={12} />
+          <Icon name="link-external" size={12} />
         </button>
       </div>
 
@@ -103,9 +98,9 @@ export function SetupStepFirmware({
             style={{ width: 36, height: 36 }}
           >
             {installed ? (
-              <CheckCircleFillIcon size={16} />
+              <Icon name="check-circle-fill" size={16} />
             ) : (
-              <ClockIcon size={16} />
+              <Icon name="hourglass" size={16} />
             )}
           </div>
           <div className="setup-modal__alert-text">
@@ -122,7 +117,7 @@ export function SetupStepFirmware({
           </div>
           {!installed && (
             <Button theme="primary" onClick={probe} disabled={checking}>
-              <SyncIcon size={14} />
+              <Icon name="sync" size={14} />
               <span>{t("setup_firmware_check_again")}</span>
             </Button>
           )}

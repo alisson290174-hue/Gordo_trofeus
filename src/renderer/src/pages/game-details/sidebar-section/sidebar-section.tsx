@@ -1,5 +1,6 @@
-import { ChevronDownIcon, LinkExternalIcon } from "@primer/octicons-react";
+
 import { useEffect, useRef, useState } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import "./sidebar-section.scss";
 
 export interface SidebarSectionProps {
@@ -38,11 +39,10 @@ export function SidebarSection({
         />
 
         <span className="sidebar-section__button">
-          <ChevronDownIcon
+          <Icon name="chevron-down"
             className={`sidebar-section__chevron ${
               isOpen ? "sidebar-section__chevron--open" : ""
-            }`}
-          />
+            }`} />
           <span>{title}</span>
         </span>
 
@@ -54,7 +54,7 @@ export function SidebarSection({
             rel="noreferrer"
           >
             {subtitle}
-            <LinkExternalIcon size={12} />
+            <Icon name="link-external" size={12} />
           </a>
         )}
       </div>

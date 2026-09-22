@@ -1,5 +1,6 @@
-import { DashIcon, XIcon } from "@primer/octicons-react";
+
 import type { CSSProperties } from "react";
+import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -37,7 +38,7 @@ export function WindowTitleBar({
           title={t("minimize")}
           aria-label={t("minimize")}
         >
-          <DashIcon size={16} />
+          <Icon name="dash" size={16} />
         </button>
         <button
           type="button"
@@ -46,7 +47,7 @@ export function WindowTitleBar({
           title={t("close")}
           aria-label={t("close")}
         >
-          <XIcon size={16} />
+          <Icon name="x" size={16} />
         </button>
       </div>
     </header>
