@@ -14,6 +14,7 @@ import { registerFriendRoutes } from "./friends/routes.js";
 import { registerPublicProfileRoutes } from "./profile/public-routes.js";
 import { registerCollectionRoutes } from "./collections/routes.js";
 import { registerMiscRoutes } from "./misc-routes.js";
+import { seedAppIdQueueIfNeeded, startSteamCatalogueSyncLoop } from "./catalogue/steam-catalogue-sync.js";
 
 const app = Fastify({ logger: true });
 
@@ -49,6 +50,9 @@ registerMiscRoutes(app);
 app.get("/health", async () => ({ ok: true }));
 
 const HOST = "127.0.0.1"; // Caddy is the only public-facing listener in production.
+
+await seedAppIdQueueIfNeeded();
+startSteamCatalogueSyncLoop();
 
 app
   .listen({ port: config.port, host: HOST })

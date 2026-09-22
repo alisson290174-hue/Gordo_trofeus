@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { db } from "../db.js";
 import { getOrCacheSteamGame, type SteamGameRow } from "./steam-lookup.js";
+import { getCuratedNewReleases, getCuratedTopSellers } from "./featured-categories.js";
 
 function parseJsonArray(value: string | null): string[] {
   if (!value) return [];
@@ -50,36 +51,22 @@ function downloadSourceIdsForGame(appid: number): string[] {
   return rows.map((r) => r.name).filter((name): name is string => Boolean(name));
 }
 
-/** Games that have at least one matched repack, most recently added first. */
-const recentGamesStatement = db.prepare(`
-  SELECT sg.*, MAX(gr.created_at) as latest_repack_at
-  FROM steam_games sg
-  JOIN game_repacks gr ON gr.appid = sg.appid
-  GROUP BY sg.appid
-  ORDER BY latest_repack_at DESC
-  LIMIT ?
-`);
-
-/** A shuffled sample of the catalogue — different from "hot" so the home tabs don't all show the
- * same handful of games (the pool is randomized per request, not per-user). */
+/** A random sample of the whole catalogue (independent of download sources) — used for
+ * "Surpreenda-me" and as a filler when a curated list doesn't have enough entries cached yet. */
 const shuffledGamesStatement = db.prepare(`
-  SELECT sg.*
-  FROM steam_games sg
-  JOIN game_repacks gr ON gr.appid = sg.appid
-  GROUP BY sg.appid
-  ORDER BY RANDOM()
-  LIMIT ?
+  SELECT * FROM steam_games ORDER BY RANDOM() LIMIT ?
 `);
 
-/** Games ranked by how many achievements we have cataloged for them, falling back to recency for
- * games that tie (most commonly 0, before their achievement list has ever been fetched). */
+/** Games ranked by how many achievements we have cataloged for them, falling back to cache
+ * recency for games that tie (most commonly 0, before their achievement list has ever been
+ * fetched). Independent of download sources — a game doesn't need a matched repack to show up
+ * here, only a cataloged achievement list. */
 const mostAchievementsGamesStatement = db.prepare(`
-  SELECT sg.*, COUNT(DISTINCT ac.name) as achievement_count, MAX(gr.created_at) as latest_repack_at
+  SELECT sg.*, COUNT(DISTINCT ac.name) as achievement_count
   FROM steam_games sg
-  JOIN game_repacks gr ON gr.appid = sg.appid
   LEFT JOIN achievement_catalogue ac ON ac.shop = 'steam' AND ac.object_id = CAST(sg.appid AS TEXT)
   GROUP BY sg.appid
-  ORDER BY achievement_count DESC, latest_repack_at DESC
+  ORDER BY achievement_count DESC, sg.cached_at DESC
   LIMIT ?
 `);
 
@@ -95,10 +82,8 @@ function distinctValues(column: "genres" | "developers" | "publishers"): string[
 }
 
 const similarGamesStatement = db.prepare(`
-  SELECT DISTINCT sg.*
-  FROM steam_games sg
-  JOIN game_repacks gr ON gr.appid = sg.appid
-  WHERE sg.appid != ? AND sg.genres LIKE ?
+  SELECT * FROM steam_games
+  WHERE appid != ? AND genres LIKE ?
   LIMIT 6
 `);
 
@@ -241,15 +226,12 @@ export function registerCatalogueRoutes(app: FastifyInstance) {
 
     const games = db
       .prepare(
-        `SELECT DISTINCT sg.* FROM steam_games sg JOIN game_repacks gr ON gr.appid = sg.appid
+        `SELECT * FROM steam_games sg
          WHERE ${whereClause} ORDER BY sg.title ASC LIMIT ? OFFSET ?`
       )
       .all(...params, take, skip) as unknown as SteamGameRow[];
     const { total } = db
-      .prepare(
-        `SELECT COUNT(DISTINCT sg.appid) as total FROM steam_games sg JOIN game_repacks gr ON gr.appid = sg.appid
-         WHERE ${whereClause}`
-      )
+      .prepare(`SELECT COUNT(*) as total FROM steam_games sg WHERE ${whereClause}`)
       .get(...params) as { total: number };
 
     reply.send({
@@ -262,13 +244,28 @@ export function registerCatalogueRoutes(app: FastifyInstance) {
     "/catalogue/:category(hot|weekly|achievements)",
     async (request, reply) => {
       const take = Number(request.query.take ?? 12);
-      const statement =
-        request.params.category === "achievements"
-          ? mostAchievementsGamesStatement
-          : request.params.category === "weekly"
-            ? shuffledGamesStatement
-            : recentGamesStatement;
-      const games = statement.all(take) as unknown as SteamGameRow[];
+      const category = request.params.category;
+
+      let games: SteamGameRow[];
+      if (category === "achievements") {
+        games = mostAchievementsGamesStatement.all(take) as unknown as SteamGameRow[];
+      } else {
+        // "hot"/"weekly" use Valve's own curated lists (top sellers / new releases) so these tabs
+        // show real popularity signal instead of an arbitrary sample now that the catalogue isn't
+        // limited to games with a matched download source. If the curated list hasn't been
+        // resolved into steam_games yet (rare — it's fetched on demand), fill the rest randomly
+        // so the tab is never emptier than `take`.
+        const curated =
+          category === "hot" ? await getCuratedTopSellers(take) : await getCuratedNewReleases(take);
+        games = curated;
+        if (games.length < take) {
+          const seen = new Set(games.map((g) => g.appid));
+          const fill = (shuffledGamesStatement.all(take - games.length) as unknown as SteamGameRow[])
+            .filter((g) => !seen.has(g.appid));
+          games = [...games, ...fill];
+        }
+      }
+
       reply.send(games.map((g) => toCatalogueSearchResult(g, downloadSourceIdsForGame(g.appid))));
     }
   );

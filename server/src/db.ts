@@ -54,6 +54,16 @@ CREATE TABLE IF NOT EXISTS game_repacks (
   upload_date TEXT, download_source_id TEXT NOT NULL REFERENCES download_sources(id),
   created_at TEXT NOT NULL
 );
+-- Fila de ingestão do catálogo completo da Steam (independente de fonte de download) — populada uma
+-- vez a partir do GetAppList e processada aos poucos em segundo plano para respeitar o rate limit.
+CREATE TABLE IF NOT EXISTS steam_appid_sync_queue (
+  appid INTEGER PRIMARY KEY, name TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'pending', -- pending | done | skipped
+  updated_at TEXT
+);
+CREATE TABLE IF NOT EXISTS sync_state (
+  key TEXT PRIMARY KEY, value TEXT NOT NULL
+);
 
 -- Biblioteca sincronizada / conquistas
 CREATE TABLE IF NOT EXISTS profile_games (

@@ -33,6 +33,7 @@ async function searchStoreByTitle(title: string): Promise<SteamSearchItem[]> {
 }
 
 interface SteamAppDetails {
+  type?: string;
   name: string;
   genres?: { description: string }[];
   developers?: string[];
@@ -44,7 +45,7 @@ async function fetchAppDetails(appid: number): Promise<SteamAppDetails | null> {
   const url = new URL("https://store.steampowered.com/api/appdetails");
   url.searchParams.set("appids", String(appid));
 
-  const response = await fetch(url).catch(() => null);
+  const response = await fetch(url, { signal: AbortSignal.timeout(10_000) }).catch(() => null);
   if (!response?.ok) return null;
 
   const data = (await response.json().catch(() => null)) as Record<
@@ -84,7 +85,9 @@ export async function getOrCacheSteamGame(appid: number): Promise<SteamGameRow |
   if (cached) return cached;
 
   const details = await fetchAppDetails(appid);
-  if (!details) return null;
+  // The store also lists DLC, demos, software, soundtracks, etc. under the same appdetails
+  // endpoint — only "game" entries belong in the catalogue.
+  if (!details || (details.type && details.type !== "game")) return null;
 
   const { coverUrl, heroUrl, logoUrl } = coverUrlsFor(appid);
   upsertGameStatement.run({
