@@ -40,8 +40,8 @@
     }
 
     &--active {
-      background-color: globals.$background-color;
-      color: globals.$body-color;
+      background-color: rgba(244, 165, 16, 0.12);
+      color: globals.$brand-orange;
     }
   }
 
@@ -214,9 +214,9 @@
     }
 
     &--active {
-      border-color: globals.$body-color;
-      background-color: globals.$background-color;
-      color: globals.$body-color;
+      border-color: globals.$brand-orange;
+      background-color: rgba(244, 165, 16, 0.12);
+      color: globals.$brand-orange;
     }
   }
 
