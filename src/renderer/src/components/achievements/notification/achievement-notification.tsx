@@ -6,6 +6,7 @@ import cn from "classnames";
 import { getAchievementTier } from "@shared";
 import { Icon } from "@renderer/components/icon/icon";
 import Ellipses from "@renderer/assets/icons/ellipses.png";
+import PlatinumCelebrationBurst from "@renderer/assets/achievements/platinum-celebration-burst.png";
 import TierBadgePlatinum from "@renderer/assets/achievements/tier-badge-platinum.png";
 import TierBadgeGold from "@renderer/assets/achievements/tier-badge-gold.png";
 import TierBadgeSilver from "@renderer/assets/achievements/tier-badge-silver.png";
@@ -81,6 +82,13 @@ export function AchievementNotificationItem({
           </div>
 
           <div className="achievement-notification__additional-overlay">
+            {achievement.isPlatinum && (
+              <img
+                className="achievement-notification__platinum-burst"
+                src={PlatinumCelebrationBurst}
+                alt=""
+              />
+            )}
             <div className="achievement-notification__dark-overlay"></div>
             <img
               className="achievement-notification__ellipses-overlay"
