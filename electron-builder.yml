@@ -43,33 +43,6 @@ nsis:
 portable:
   artifactName: ${productName}-${version}-portable.${ext}
   unpackDirName: false
-mac:
-  entitlementsInherit: build/entitlements.mac.plist
-  extraResources:
-    - from: binaries/7zz
-  extendInfo:
-    - NSCameraUsageDescription: Application requests access to the device's camera.
-    - NSMicrophoneUsageDescription: Application requests access to the device's microphone.
-    - NSDocumentsFolderUsageDescription: Application requests access to the user's Documents folder.
-    - NSDownloadsFolderUsageDescription: Application requests access to the user's Downloads folder.
-  notarize: false
-dmg:
-  artifactName: ${name}-${version}.${ext}
-linux:
-  extraResources:
-    - from: binaries/7zzs
-    - from: binaries/umu/umu-run
-  target:
-    - AppImage
-    - snap
-    - deb
-    - rpm
-  maintainer: electronjs.org
-  category: Game
-  mimeTypes:
-    - x-scheme-handler/hydralauncher
-appImage:
-  artifactName: ${name}-${version}.${ext}
 npmRebuild: false
 publish:
   provider: github
