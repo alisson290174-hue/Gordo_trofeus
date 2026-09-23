@@ -11,7 +11,13 @@ export interface SteamGameRow {
   logo_url: string | null;
   release_year: number | null;
   cached_at: string;
+  lang: string | null;
 }
+
+// Games cached before Portuguese support was added have lang = NULL — treating that as stale
+// forces a one-time re-fetch (in Portuguese) the next time each one is touched, without needing
+// to wipe and rebuild the whole catalogue.
+const CATALOGUE_LANG = "brazilian";
 
 interface SteamSearchItem {
   id: number;
@@ -44,6 +50,7 @@ interface SteamAppDetails {
 async function fetchAppDetails(appid: number): Promise<SteamAppDetails | null> {
   const url = new URL("https://store.steampowered.com/api/appdetails");
   url.searchParams.set("appids", String(appid));
+  url.searchParams.set("l", CATALOGUE_LANG);
 
   const response = await fetch(url, { signal: AbortSignal.timeout(10_000) }).catch(() => null);
   if (!response?.ok) return null;
@@ -71,23 +78,26 @@ function parseReleaseYear(dateString?: string): number | null {
 
 const getGameStatement = db.prepare("SELECT * FROM steam_games WHERE appid = ?");
 const upsertGameStatement = db.prepare(`
-  INSERT INTO steam_games (appid, title, genres, developers, publishers, cover_url, hero_url, logo_url, release_year, cached_at)
-  VALUES ($appid, $title, $genres, $developers, $publishers, $coverUrl, $heroUrl, $logoUrl, $releaseYear, $cachedAt)
+  INSERT INTO steam_games (appid, title, genres, developers, publishers, cover_url, hero_url, logo_url, release_year, cached_at, lang)
+  VALUES ($appid, $title, $genres, $developers, $publishers, $coverUrl, $heroUrl, $logoUrl, $releaseYear, $cachedAt, $lang)
   ON CONFLICT(appid) DO UPDATE SET
     title = excluded.title, genres = excluded.genres, developers = excluded.developers,
     publishers = excluded.publishers, cover_url = excluded.cover_url, hero_url = excluded.hero_url,
-    logo_url = excluded.logo_url, release_year = excluded.release_year, cached_at = excluded.cached_at
+    logo_url = excluded.logo_url, release_year = excluded.release_year, cached_at = excluded.cached_at,
+    lang = excluded.lang
 `);
 
-/** Fetches (and caches) full Steam metadata for a known appid. Returns the cached row if already present. */
+/** Fetches (and caches) full Steam metadata for a known appid. Returns the cached row if already
+ * present in the current catalogue language; re-fetches if it was cached before Portuguese
+ * support existed (lang IS NULL). */
 export async function getOrCacheSteamGame(appid: number): Promise<SteamGameRow | null> {
   const cached = getGameStatement.get(appid) as unknown as SteamGameRow | undefined;
-  if (cached) return cached;
+  if (cached && cached.lang === CATALOGUE_LANG) return cached;
 
   const details = await fetchAppDetails(appid);
   // The store also lists DLC, demos, software, soundtracks, etc. under the same appdetails
   // endpoint — only "game" entries belong in the catalogue.
-  if (!details || (details.type && details.type !== "game")) return null;
+  if (!details || (details.type && details.type !== "game")) return cached ?? null;
 
   const { coverUrl, heroUrl, logoUrl } = coverUrlsFor(appid);
   upsertGameStatement.run({
@@ -101,6 +111,7 @@ export async function getOrCacheSteamGame(appid: number): Promise<SteamGameRow |
     logoUrl,
     releaseYear: parseReleaseYear(details.release_date?.date),
     cachedAt: new Date().toISOString(),
+    lang: CATALOGUE_LANG,
   });
 
   return getGameStatement.get(appid) as unknown as SteamGameRow;

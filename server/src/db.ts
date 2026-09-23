@@ -141,6 +141,18 @@ try {
 } catch {
   // coluna já existe
 }
+// lang é NULL para linhas cacheadas antes do suporte a português — tratado como "precisa
+// re-buscar" pelo código que lê essas tabelas, então não precisa de backfill aqui.
+try {
+  db.exec("ALTER TABLE steam_games ADD COLUMN lang TEXT");
+} catch {
+  // coluna já existe
+}
+try {
+  db.exec("ALTER TABLE achievement_catalogue ADD COLUMN lang TEXT");
+} catch {
+  // coluna já existe
+}
 
 // Seed da allowlist a partir do .env — idempotente, roda a cada boot.
 const seedAllowedSteamId = db.prepare(

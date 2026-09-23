@@ -112,6 +112,25 @@ export async function seedAppIdQueueIfNeeded(): Promise<void> {
   }
 }
 
+const requeueUntranslatedStatement = db.prepare(`
+  INSERT INTO steam_appid_sync_queue (appid, name, status, updated_at)
+  SELECT appid, title, 'pending', $updatedAt FROM steam_games WHERE lang IS NULL OR lang != 'brazilian'
+  ON CONFLICT(appid) DO UPDATE SET status = 'pending'
+`);
+
+/** One-time migration: games cached before Portuguese support (matched via download sources,
+ * before the full-catalogue sync existed) would otherwise sit in English forever — the bulk
+ * listing queries (search, hot, weekly) read steam_games directly and don't go through
+ * getOrCacheSteamGame, so nothing would ever re-fetch them on its own. Re-queuing them lets the
+ * regular sync loop pick them up and translate them like any other pending appid. */
+export function requeueUntranslatedGamesIfNeeded(): void {
+  const done = getStateStatement.get("untranslated_games_requeued") as { value: string } | undefined;
+  if (done) return;
+
+  requeueUntranslatedStatement.run({ updatedAt: new Date().toISOString() });
+  setStateStatement.run("untranslated_games_requeued", new Date().toISOString());
+}
+
 let batchInFlight = false;
 
 async function processSyncBatch(): Promise<void> {

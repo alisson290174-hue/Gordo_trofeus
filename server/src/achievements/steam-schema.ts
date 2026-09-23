@@ -14,7 +14,11 @@ export interface AchievementCatalogueRow {
   global_unlock_percent: number | null;
   retroachievements_game_id: number | null;
   cached_at: string;
+  lang: string | null;
 }
+
+// Rows cached before Portuguese support was added have lang = NULL, which is treated as stale.
+const CATALOGUE_LANG = "brazilian";
 
 interface SteamSchemaAchievement {
   name: string;
@@ -29,8 +33,11 @@ async function fetchSteamSchema(appid: number): Promise<SteamSchemaAchievement[]
   const url = new URL("https://api.steampowered.com/ISteamUserStats/GetSchemaForGame/v2/");
   url.searchParams.set("key", config.steamApiKey);
   url.searchParams.set("appid", String(appid));
+  // Steam falls back to English on its own when a game has no Portuguese translation for a
+  // given achievement, so there's no manual fallback logic needed here.
+  url.searchParams.set("l", "brazilian");
 
-  const response = await fetch(url).catch(() => null);
+  const response = await fetch(url, { signal: AbortSignal.timeout(10_000) }).catch(() => null);
   if (!response?.ok) return [];
 
   const data = (await response.json()) as {
@@ -69,12 +76,13 @@ const listCatalogueStatement = db.prepare(
   "SELECT * FROM achievement_catalogue WHERE shop = ? AND object_id = ?"
 );
 const upsertAchievementStatement = db.prepare(`
-  INSERT INTO achievement_catalogue (shop, object_id, name, display_name, description, icon, icongray, hidden, global_unlock_percent, cached_at)
-  VALUES ($shop, $objectId, $name, $displayName, $description, $icon, $icongray, $hidden, $globalUnlockPercent, $cachedAt)
+  INSERT INTO achievement_catalogue (shop, object_id, name, display_name, description, icon, icongray, hidden, global_unlock_percent, cached_at, lang)
+  VALUES ($shop, $objectId, $name, $displayName, $description, $icon, $icongray, $hidden, $globalUnlockPercent, $cachedAt, $lang)
   ON CONFLICT(shop, object_id, name) DO UPDATE SET
     display_name = excluded.display_name, description = excluded.description,
     icon = excluded.icon, icongray = excluded.icongray, hidden = excluded.hidden,
-    global_unlock_percent = excluded.global_unlock_percent, cached_at = excluded.cached_at
+    global_unlock_percent = excluded.global_unlock_percent, cached_at = excluded.cached_at,
+    lang = excluded.lang
 `);
 const updateGlobalUnlockPercentStatement = db.prepare(
   "UPDATE achievement_catalogue SET global_unlock_percent = ? WHERE shop = ? AND object_id = ? AND name = ?"
@@ -86,8 +94,9 @@ export async function getOrCacheAchievementCatalogue(
   objectId: string
 ): Promise<AchievementCatalogueRow[]> {
   const cached = listCatalogueStatement.all(shop, objectId) as unknown as AchievementCatalogueRow[];
+  const needsTranslation = cached.some((row) => row.lang !== CATALOGUE_LANG);
 
-  if (cached.length > 0) {
+  if (cached.length > 0 && !needsTranslation) {
     // Backfills rarity for rows cached before global_unlock_percent existed, without
     // re-fetching the (much heavier) schema.
     if (shop === "steam" && cached.some((row) => row.global_unlock_percent === null)) {
@@ -103,13 +112,16 @@ export async function getOrCacheAchievementCatalogue(
     return cached;
   }
 
-  if (shop !== "steam") return [];
+  if (shop !== "steam") return cached;
 
   const [schema, percentages] = await Promise.all([
     fetchSteamSchema(Number(objectId)),
     fetchGlobalAchievementPercentages(Number(objectId)),
   ]);
-  if (schema.length === 0) return [];
+  // A translation re-fetch that comes back empty (rate limit, transient error) keeps serving
+  // the stale-but-valid cached rows instead of wiping out an achievement list that already
+  // worked in English.
+  if (schema.length === 0) return cached;
 
   const now = new Date().toISOString();
   for (const achievement of schema) {
@@ -124,6 +136,7 @@ export async function getOrCacheAchievementCatalogue(
       hidden: achievement.hidden,
       globalUnlockPercent: percentages.get(achievement.name) ?? null,
       cachedAt: now,
+      lang: CATALOGUE_LANG,
     });
   }
 
