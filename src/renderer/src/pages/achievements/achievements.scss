@@ -86,24 +86,56 @@ $logo-max-width: 200px;
     gap: globals.$spacing-unit * 2;
     padding: globals.$spacing-unit * 2;
     width: 100%;
-    background-color: rgba(globals.$background-color, 0.88);
+    // Transparent on purpose — the navy vignette + noise backdrop from the parent
+    // container (achievements-content.scss) is meant to show through behind the rows.
+    background-color: transparent;
   }
 
   &__item {
     display: flex;
-    transition: all ease 0.1s;
+    transition: filter ease 0.1s;
     color: globals.$muted-color;
     width: 100%;
     overflow: hidden;
-    border-radius: 4px;
+    position: relative;
+    border-radius: 6px;
+    // Neutral by default — this is the "locked" state (no tier class gets applied until the
+    // achievement is unlocked, see achievement-list.tsx).
+    border-left: 3px solid globals.$border-color;
+    background: rgba(0, 0, 0, 0.2);
     padding: globals.$spacing-unit globals.$spacing-unit;
     gap: globals.$spacing-unit * 2;
     align-items: center;
     text-align: left;
 
     &:hover {
-      background-color: globals.$border-color;
+      filter: brightness(1.15);
       text-decoration: none;
+    }
+
+    &--bronze {
+      border-left-color: #cd7f32;
+      background: linear-gradient(100deg, rgba(0, 0, 0, 0.3) 0%, rgba(205, 127, 50, 0.05) 220%);
+    }
+
+    &--gold {
+      border-left-color: globals.$brand-orange;
+      background: linear-gradient(100deg, rgba(0, 0, 0, 0.3) 0%, rgba(244, 165, 16, 0.14) 220%);
+    }
+
+    &--silver {
+      border-left-color: #c0c5ce;
+      background: linear-gradient(94deg, rgba(28, 28, 28, 0.6) -25%, rgba(46, 53, 66, 0.6) 100%);
+    }
+
+    &--platinum {
+      border-left-color: globals.$brand-orange;
+      background: linear-gradient(
+        100deg,
+        rgba(globals.$brand-navy, 0.6) -30%,
+        rgba(18, 23, 42, 0.6) 45%,
+        rgba(244, 165, 16, 0.18) 220%
+      );
     }
 
     &-icon-wrapper {
@@ -117,10 +149,30 @@ $logo-max-width: 200px;
       border-radius: 4px;
       object-fit: cover;
       display: block;
+      outline: 1px solid #cd7f32;
+      box-shadow: 0px 0px 8px 0px rgba(205, 127, 50, 0.2);
 
       &--locked {
         filter: grayscale(100%);
+        opacity: globals.$disabled-opacity;
+        outline-color: globals.$border-color;
+        box-shadow: none;
       }
+    }
+
+    &--gold &-image {
+      outline-color: globals.$brand-orange;
+      box-shadow: 0px 0px 10px 0px rgba(244, 165, 16, 0.3);
+    }
+
+    &--silver &-image {
+      outline-color: #c0c5ce;
+      box-shadow: 0px 0px 10px 0px rgba(192, 197, 206, 0.25);
+    }
+
+    &--platinum &-image {
+      outline-color: globals.$brand-orange;
+      box-shadow: 0px 0px 12px 0px rgba(244, 165, 16, 0.35);
     }
 
     &-tier-badge {
