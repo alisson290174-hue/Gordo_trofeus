@@ -7,7 +7,7 @@ import "./auto-update-header.scss";
 import type { AppUpdaterEvent } from "@types";
 
 export const releasesPageUrl =
-  "https://github.com/hydralauncher/hydra/releases/latest";
+  "https://github.com/alisson290174-hue/Gordo_trofeus/releases/latest";
 
 export function AutoUpdateSubHeader() {
   const [isReadyToInstall, setIsReadyToInstall] = useState(false);
