@@ -316,6 +316,16 @@ $logo-max-width: 200px;
     &-compared {
       display: grid;
       grid-template-columns: 3fr 1fr 1fr;
+      // Comparison rows don't carry a rarity signal (ComparedAchievements has no
+      // globalUnlockPercent), so they can't use a real tier color — fall back to a
+      // neutral navy card instead of the default (which reads as "locked").
+      border-left-color: globals.$brand-navy;
+      background: rgba(globals.$brand-navy, 0.35);
+
+      .achievements__item-image {
+        outline-color: globals.$border-color;
+        box-shadow: none;
+      }
 
       &--no-owner {
         grid-template-columns: 3fr 2fr;
