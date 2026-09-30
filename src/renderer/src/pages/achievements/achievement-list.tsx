@@ -3,21 +3,12 @@ import { Icon } from "@renderer/components/icon/icon";
 import type { UserAchievement } from "@types";
 import { useTranslation } from "react-i18next";
 import { getAchievementTier } from "@shared";
-import TierBadgePlatinum from "@renderer/assets/achievements/tier-badge-platinum.png";
-import TierBadgeGold from "@renderer/assets/achievements/tier-badge-gold.png";
-import TierBadgeSilver from "@renderer/assets/achievements/tier-badge-silver.png";
-import TierBadgeBronze from "@renderer/assets/achievements/tier-badge-bronze.png";
 import "./achievements.scss";
 
 import { useState } from "react";
-import { FullscreenMediaModal } from "@renderer/components";
-
-const TIER_BADGES = {
-  platinum: TierBadgePlatinum,
-  gold: TierBadgeGold,
-  silver: TierBadgeSilver,
-  bronze: TierBadgeBronze,
-};
+import { FullscreenMediaModal, Img, TrophyCup } from "@renderer/components";
+import { getTierFallbackIconUrl } from "@renderer/helpers/achievement-fallback-icon";
+import { getAchievementRarity } from "@renderer/helpers/achievement-rarity";
 
 interface AchievementListProps {
   achievements: UserAchievement[];
@@ -35,42 +26,47 @@ export function AchievementList({
   } | null>(null);
 
   return (
-    <ul className="achievements__list">
+    <ul className="ach-list">
       {achievements.map((achievement) => {
-        const tier = achievement.unlocked
-          ? getAchievementTier({
-              isPlatinum: false,
-              globalUnlockPercent: achievement.globalUnlockPercent,
-            })
-          : null;
+        const tier = getAchievementTier({
+          isPlatinum: false,
+          globalUnlockPercent: achievement.globalUnlockPercent,
+        });
+        const rarity = getAchievementRarity(achievement.globalUnlockPercent);
+        const percent = achievement.globalUnlockPercent;
+        // The rarity bar shows how many players own it — a rarer trophy reads as a shorter bar.
+        const barWidth =
+          percent == null ? 100 : Math.max(4, Math.min(100, percent));
 
         return (
           <li
             key={achievement.name}
-            className={`achievements__item ${tier ? `achievements__item--${tier}` : ""}`}
+            className={`ach ach--${tier}${achievement.unlocked ? "" : " ach--locked"}`}
           >
-            <div className="achievements__item-icon-wrapper">
-              <img
-                className={`achievements__item-image ${!achievement.unlocked ? "achievements__item-image--locked" : ""}`}
+            <div className="ach__icon">
+              <Img
+                className="ach__art"
                 src={achievement.icon}
+                fallback={getTierFallbackIconUrl(
+                  false,
+                  achievement.globalUnlockPercent
+                )}
                 alt={achievement.displayName}
                 loading="lazy"
               />
-
-              {tier && (
-                <img
-                  className="achievements__item-tier-badge"
-                  src={TIER_BADGES[tier]}
-                  alt=""
-                />
+              {!achievement.unlocked && (
+                <span className="ach__lock">
+                  <Icon name="lock" size={20} />
+                </span>
               )}
+              <TrophyCup tier={tier} className="ach__cup" />
             </div>
 
-            <div className="achievements__item-content">
-              <h4 className="achievements__item-title">
+            <div className="ach__body">
+              <h4 className="ach__name">
                 {achievement.hidden && (
                   <span
-                    className="achievements__item-hidden-icon"
+                    className="ach__hidden"
                     title={t("hidden_achievement_tooltip")}
                   >
                     <Icon name="eye-closed" size={12} />
@@ -79,7 +75,7 @@ export function AchievementList({
                 {achievement.displayName}
                 {achievement.hardcoreUnlockTime != null && (
                   <span
-                    className="achievements__item-hardcore-badge"
+                    className="ach__hardcore"
                     title={t("hardcore_unlocked_at", {
                       date: formatDateTime(achievement.hardcoreUnlockTime),
                     })}
@@ -88,14 +84,23 @@ export function AchievementList({
                   </span>
                 )}
               </h4>
-              <p>{achievement.description}</p>
+              <p className="ach__desc">{achievement.description}</p>
+              <div className="ach__rarity">
+                <span className="ach__rbar">
+                  <i style={{ width: `${barWidth}%` }} />
+                </span>
+                <span className="ach__rtag">
+                  {t(`rarity_${rarity}`)}
+                  {percent != null && ` · ${percent.toFixed(1)}%`}
+                </span>
+              </div>
             </div>
 
-            <div className="achievements__item-meta">
+            <div className="ach__meta">
               {achievement.unlocked && achievement.imageUrl && (
                 <button
                   type="button"
-                  className="achievements__item-souvenir"
+                  className="ach__souvenir"
                   onClick={() =>
                     setSouvenir({
                       src: achievement.imageUrl!,
@@ -107,32 +112,36 @@ export function AchievementList({
                   title={t("view_souvenir")}
                 >
                   <img
-                    className="achievements__item-souvenir-image"
                     src={achievement.imageUrl}
                     alt={t("souvenir_alt", {
                       achievement: achievement.displayName,
                     })}
                     loading="lazy"
+                    onError={(event) => {
+                      event.currentTarget.style.display = "none";
+                    }}
                   />
-
-                  <span className="achievements__item-souvenir-overlay">
+                  <span className="ach__souvenir-overlay">
                     <Icon name="search" size={20} />
                   </span>
                 </button>
               )}
 
-              <div className="achievements__item-meta-details">
-                {achievement.unlockTime != null && (
-                  <div
-                    className="achievements__item-unlock-time"
-                    title={t("unlocked_at", {
-                      date: formatDateTime(achievement.unlockTime),
-                    })}
-                  >
-                    <small>{formatDateTime(achievement.unlockTime)}</small>
-                  </div>
-                )}
-              </div>
+              {achievement.unlocked && achievement.unlockTime != null ? (
+                <span
+                  className="ach__date"
+                  title={t("unlocked_at", {
+                    date: formatDateTime(achievement.unlockTime),
+                  })}
+                >
+                  {formatDateTime(achievement.unlockTime)}
+                </span>
+              ) : (
+                <span className="ach__status">
+                  <Icon name="lock" size={12} />
+                  {t("locked_label")}
+                </span>
+              )}
             </div>
           </li>
         );

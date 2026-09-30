@@ -34,6 +34,9 @@ import { getDirSize } from "./services/download/helpers";
 import { GofileApi } from "./services/hosters";
 import { clearLegacyAchievementPersistence } from "./level/clear-legacy-achievements";
 import { startSteamSyncOnStartup } from "./services/steam-integration/steam-startup-sync";
+import { backfillMissingGameMetadata } from "./helpers/backfill-game-metadata";
+import { backfillPs2Covers } from "./helpers/backfill-ps2-covers";
+import { backfillPs2Metadata } from "./helpers/backfill-ps2-metadata";
 
 const hasMissingSeedFiles = async (download: Download): Promise<boolean> => {
   if (!download.folderName) return false;
@@ -110,6 +113,15 @@ export const loadState = async () => {
   await HydraApi.setupApi().then(async () => {
     uploadGamesBatch();
     void migrateDownloadSources();
+
+    // Repair library games saved without a title back when the catalogue was sparse (shows as
+    // "undefined" in the library/profile and in achievement notifications). Runs in the
+    // background so it never delays startup.
+    void backfillMissingGameMetadata();
+    // Fill PS2 box art for games imported before covers existed (no rescan needed).
+    // Then real titles, fanart and logos from the server's PS2 index (after covers so it can
+    // replace the box art that stands in as background).
+    void backfillPs2Covers().then(() => backfillPs2Metadata());
 
     const { syncDownloadSourcesFromApi } = await import("./services/user");
     void syncDownloadSourcesFromApi();

@@ -1,12 +1,15 @@
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { Icon } from "@renderer/components/icon/icon";
 
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { useDate } from "@renderer/hooks";
+import { useDate, useLibrary } from "@renderer/hooks";
+import { getCoverArt } from "@renderer/helpers/ps5-game";
 import cn from "classnames";
 
 import type { LocalNotification } from "@types";
+import { Img } from "@renderer/components";
+import GameIconPlaceholder from "@renderer/assets/icons/game-icon-placeholder.png";
 import "./notification-item.scss";
 
 interface LocalNotificationItemProps {
@@ -23,6 +26,27 @@ export function LocalNotificationItem({
   const { t } = useTranslation("notifications_page");
   const { formatDistance } = useDate();
   const navigate = useNavigate();
+  const { library } = useLibrary();
+
+  // Download/extraction notifications link to /game/:shop/:objectId — use the
+  // library entry for a proper 2:3 cover (the stored icon is often a wide logo).
+  const libraryGame = useMemo(() => {
+    const match = notification.url?.match(/^\/game\/([^/]+)\/([^/?#]+)/);
+    if (!match) return null;
+    return (
+      library.find(
+        (game) => game.shop === match[1] && game.objectId === match[2]
+      ) ?? null
+    );
+  }, [library, notification.url]);
+
+  const cover = libraryGame ? getCoverArt(libraryGame) : null;
+
+  // Older notifications were saved without the game name ("{{title}} extraído…").
+  const description =
+    libraryGame && /^\s/.test(notification.description ?? "")
+      ? `${libraryGame.title}${notification.description}`
+      : notification.description;
 
   const handleClick = useCallback(() => {
     if (!notification.isRead) {
@@ -67,9 +91,15 @@ export function LocalNotificationItem({
       })}
       onClick={handleClick}
     >
-      <div className="notification-item__picture">
-        {notification.pictureUrl ? (
-          <img src={notification.pictureUrl} alt="" />
+      <div
+        className={cn("notification-item__picture", {
+          "notification-item__picture--cover": Boolean(cover),
+        })}
+      >
+        {cover ? (
+          <Img src={cover} fallback={GameIconPlaceholder} alt="" />
+        ) : notification.pictureUrl ? (
+          <Img src={notification.pictureUrl} fallback={GameIconPlaceholder} alt="" />
         ) : (
           getIcon()
         )}
@@ -78,7 +108,7 @@ export function LocalNotificationItem({
       <div className="notification-item__content">
         <span className="notification-item__title">{notification.title}</span>
         <span className="notification-item__description">
-          {notification.description}
+          {description}
         </span>
         <span className="notification-item__time">
           <Icon name="hourglass" size={12} />

@@ -33,7 +33,7 @@
 
   &__reviews-title {
     font-size: 1.25rem;
-    font-weight: 600;
+    font-weight: 500;
     color: globals.$muted-color;
     margin: 0;
   }
@@ -51,7 +51,7 @@
     padding: 4px 8px;
     border-radius: 6px;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 500;
     min-width: 24px;
     text-align: center;
     flex-shrink: 0;
@@ -91,7 +91,7 @@
 
   &__reviews-empty-title {
     color: rgba(255, 255, 255, 0.9);
-    font-weight: 600;
+    font-weight: 500;
     margin: 0 0 calc(globals.$spacing-unit * 1) 0;
   }
 

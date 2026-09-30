@@ -13,6 +13,11 @@ interface RedistCheck {
   check: () => boolean;
 }
 
+// Windows redistributables (public Microsoft/Creative installers) are pulled from our own fork so
+// the app depends on no Hydra-owned repository. Fork hydralauncher/hydra-common-redist into this
+// account once: `gh repo fork hydralauncher/hydra-common-redist`.
+const COMMON_REDIST_REPO = "alisson290174-hue/hydra-common-redist";
+
 export class CommonRedistManager {
   private static readonly redistributables = [
     "dotNetFx40_Full_setup.exe",
@@ -242,7 +247,7 @@ export class CommonRedistManager {
       logger.log(`Downloading ${redist}...`);
 
       const response = await axios.get(
-        `https://github.com/hydralauncher/hydra-common-redist/raw/refs/heads/main/${redist}`,
+        `https://github.com/${COMMON_REDIST_REPO}/raw/refs/heads/main/${redist}`,
         {
           responseType: "arraybuffer",
         }

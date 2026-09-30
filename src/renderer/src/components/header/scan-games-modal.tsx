@@ -5,6 +5,8 @@ import { useTranslation } from "react-i18next";
 import cn from "classnames";
 
 import { Button, CheckboxField, Modal } from "@renderer/components";
+import { Img } from "@renderer/components/img/img";
+import GameIconPlaceholder from "@renderer/assets/icons/game-icon-placeholder.png";
 
 import "./scan-games-modal.scss";
 
@@ -184,8 +186,9 @@ export function ScanGamesModal({
       {games.map((game) => (
         <li key={game.executablePath} className="scan-games-modal__game-item">
           {game.iconUrl ? (
-            <img
+            <Img
               src={game.iconUrl}
+              fallback={GameIconPlaceholder}
               alt=""
               className="scan-games-modal__game-icon"
             />
@@ -336,8 +339,9 @@ export function ScanGamesModal({
                         }
                       >
                         {choice.iconUrl && (
-                          <img
+                          <Img
                             src={choice.iconUrl}
+                            fallback={GameIconPlaceholder}
                             alt=""
                             className="scan-games-modal__choice-icon"
                           />

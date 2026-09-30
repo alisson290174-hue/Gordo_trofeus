@@ -1,4 +1,5 @@
 import { lazy, Suspense, useContext, useEffect, useState } from "react";
+import { getGenreNames } from "@renderer/helpers/ps5-game";
 import type {
   HowLongToBeatCategory,
   ProtonDBData,
@@ -18,6 +19,8 @@ import {
   useUserDetails,
 } from "@renderer/hooks";
 import { Icon } from "@renderer/components/icon/icon";
+import { Img } from "@renderer/components";
+import { getTierFallbackIconUrl } from "@renderer/helpers/achievement-fallback-icon";
 import { HowLongToBeatSection } from "./how-long-to-beat-section";
 import { LaunchboxDetailsSection } from "./launchbox-details-section";
 import { SidebarSection } from "../sidebar-section/sidebar-section";
@@ -128,11 +131,13 @@ export function Sidebar() {
   const { formatDateTime } = useDate();
   const { numberFormatter } = useFormat();
   const achievementsCount = achievements?.length ?? 0;
+  // With achievements loaded, the main column's Troféus card (ps5-details) owns them; this
+  // section only remains for the RetroAchievements connect banner.
   const shouldRenderAchievementsSection =
-    (!!userDetails && achievementsCount > 0) ||
-    (shop === "launchbox" &&
-      !!shopDetails?.retroAchievementsGameId &&
-      !userPreferences?.retroAchievementsWebApiKey);
+    achievementsCount === 0 &&
+    shop === "launchbox" &&
+    !!shopDetails?.retroAchievementsGameId &&
+    !userPreferences?.retroAchievementsWebApiKey;
 
   useEffect(() => {
     if (objectId) {
@@ -197,11 +202,12 @@ export function Sidebar() {
             {achievementsPlaceholder.map((achievement) => (
               <li key={achievement.name}>
                 <div className="list__item">
-                  <img
+                  <Img
                     className={`list__item-image achievements-placeholder__blur ${
                       achievement.unlocked ? "" : "list__item-image--locked"
                     }`}
                     src={achievement.icon}
+                    fallback={getTierFallbackIconUrl(false, null)}
                     alt={achievement.displayName}
                   />
                   <div>
@@ -255,11 +261,12 @@ export function Sidebar() {
                   className="list__item"
                   title={achievement.description}
                 >
-                  <img
+                  <Img
                     className={`list__item-image ${
                       achievement.unlocked ? "" : "list__item-image--locked"
                     }`}
                     src={achievement.icon}
+                    fallback={getTierFallbackIconUrl(false, null)}
                     alt={achievement.displayName}
                   />
                   <div>
@@ -307,20 +314,22 @@ export function Sidebar() {
               <p>{numberFormatter.format(stats?.playerCount)}</p>
             </div>
 
-            <div className="stats__category">
-              <p className="stats__category-title">
-                <Icon name="star" size={18} />
-                {t("rating_count")}
-              </p>
-              <StarRating
-                rating={
-                  stats?.averageScore === 0
-                    ? null
-                    : (stats?.averageScore ?? null)
-                }
-                size={16}
-              />
-            </div>
+            {Boolean(stats?.averageScore) && (
+              <div className="stats__category">
+                <p className="stats__category-title">
+                  <Icon name="star" size={18} />
+                  {t("rating_count")}
+                </p>
+                <StarRating
+                  rating={
+                    stats?.averageScore === 0
+                      ? null
+                      : (stats?.averageScore ?? null)
+                  }
+                  size={16}
+                />
+              </div>
+            )}
           </div>
         </SidebarSection>
       )}
@@ -328,7 +337,7 @@ export function Sidebar() {
       {shop === "launchbox" && (
         <LaunchboxDetailsSection
           platform={shopDetails?.platform}
-          genres={shopDetails?.genres?.map((g) => g.name)}
+          genres={getGenreNames(shopDetails?.genres)}
           skus={shopDetails?.skus}
         />
       )}

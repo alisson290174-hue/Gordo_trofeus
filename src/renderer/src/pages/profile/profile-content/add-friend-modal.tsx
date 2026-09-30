@@ -48,12 +48,14 @@ export function AddFriendModal({ visible, onClose }: AddFriendModalProps) {
   }, [visible, fetchFriendRequests, userDetails]);
 
   const handleChangeFriendCode = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const code = e.target.value.trim().slice(0, 8);
+    // Friend codes on this server are the user's full id (a UUID), not the 8-char Hydra code —
+    // accept the whole thing (just trimmed and length-capped) so it can be pasted in.
+    const code = e.target.value.trim().slice(0, 64);
     setFriendCode(code);
   };
 
   const validateFriendCode = (callback: () => void) => {
-    if (friendCode.length === 8) {
+    if (friendCode.trim().length > 0) {
       return callback();
     }
 
@@ -81,9 +83,9 @@ export function AddFriendModal({ visible, onClose }: AddFriendModalProps) {
   };
 
   const handleClickSeeProfile = () => {
-    if (friendCode.length === 8) {
+    if (friendCode.trim().length > 0) {
       onClose();
-      navigate(`/profile/${friendCode}`);
+      navigate(`/profile/${friendCode.trim()}`);
     }
   };
 
@@ -105,8 +107,8 @@ export function AddFriendModal({ visible, onClose }: AddFriendModalProps) {
 
   const sentRequests = friendRequests.filter((req) => req.type === "SENT");
   const currentRequest =
-    friendCode.length === 8
-      ? sentRequests.find((req) => req.id === friendCode)
+    friendCode.trim().length > 0
+      ? sentRequests.find((req) => req.id === friendCode.trim())
       : null;
 
   return (

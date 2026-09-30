@@ -17,31 +17,39 @@
   &__mode-toggle {
     display: flex;
     gap: 4px;
-    background-color: globals.$dark-background-color;
-    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
     padding: 4px;
   }
 
   &__mode-option {
     flex: 1;
-    padding: globals.$spacing-unit calc(globals.$spacing-unit * 2);
+    height: 38px;
+    padding: 0 18px;
     border: none;
     background: none;
-    color: globals.$muted-color;
+    color: rgba(233, 238, 247, 0.62);
+    font-family: inherit;
     font-size: 14px;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 999px;
     transition:
-      background-color 0.2s ease,
-      color 0.2s ease;
+      background-color 0.15s ease,
+      color 0.15s ease;
 
     &:hover {
-      color: globals.$body-color;
+      color: #fff;
     }
 
     &--active {
-      background-color: rgba(244, 165, 16, 0.12);
-      color: globals.$brand-orange;
+      background: #fff;
+      color: #0b1020;
+      font-weight: 500;
+
+      &:hover {
+        color: #0b1020;
+      }
     }
   }
 
@@ -215,7 +223,7 @@
 
     &--active {
       border-color: globals.$brand-orange;
-      background-color: rgba(244, 165, 16, 0.12);
+      background-color: rgba(0, 112, 243, 0.12);
       color: globals.$brand-orange;
     }
   }

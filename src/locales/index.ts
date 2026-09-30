@@ -1,3 +1,4 @@
+import type { ResourceLanguage } from "i18next";
 import en from "./en/translation.json";
 import ptPT from "./pt-PT/translation.json";
 import ptBR from "./pt-BR/translation.json";
@@ -34,7 +35,10 @@ import vi from "./vi/translation.json";
 import ja from "./ja/translation.json";
 import sl from "./sl/translation.json";
 
-export default {
+// Explicit type: the inferred one is too large for TS to serialize (TS7056).
+type LocaleResource = ResourceLanguage & { language_name: string };
+
+const resources: Record<string, LocaleResource> & { en: LocaleResource } = {
   "pt-BR": ptBR,
   "pt-PT": ptPT,
   en,
@@ -71,3 +75,5 @@ export default {
   ja,
   sl,
 };
+
+export default resources;

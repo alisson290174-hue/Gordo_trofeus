@@ -1060,6 +1060,9 @@ export function GameAssetsSettings({
                   src={previewUrl}
                   alt={t(getTranslationKey("_preview"))}
                   className="game-assets-settings__preview-image"
+                  onError={(event) => {
+                    event.currentTarget.style.display = "none";
+                  }}
                 />
                 <span
                   className="game-assets-settings__preview-action-overlay"

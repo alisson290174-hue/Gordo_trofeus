@@ -22,7 +22,7 @@ export function registerMiscRoutes(app: FastifyInstance) {
     reply.send({ connected: false, snapshotPreserved: false })
   );
 
-  app.get("/profile/cloud-saves/snapshots", async (_request, reply) => reply.send([]));
+  // /profile/cloud-saves/* is now served for real by registerCloudSaveRoutes.
   app.get("/profile/games/artifacts", async (_request, reply) => reply.send([]));
   app.get("/profile/download-sources", async (_request, reply) => reply.send([]));
 

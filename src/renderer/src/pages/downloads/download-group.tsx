@@ -1,7 +1,9 @@
+import { getCoverArt, getHeaderArt, getHeroArt } from "@renderer/helpers/ps5-game";
 import type { GameShop, LibraryGame, SeedingStatus } from "@types";
 import { Icon } from "@renderer/components/icon/icon";
 
-import { Badge, Button, ConfirmationModal } from "@renderer/components";
+import { Badge, Button, ConfirmationModal, Img } from "@renderer/components";
+import CoverPlaceholder from "@renderer/assets/library-catalogue/cover-placeholder.png";
 import {
   formatDownloadProgress,
   buildGameDetailsPath,
@@ -53,7 +55,7 @@ function isTooCloseRGB(a: string, b: string, threshold: number): boolean {
   return distance < threshold;
 }
 
-const CHART_BACKGROUND_COLOR = "#1a1a1a";
+const CHART_BACKGROUND_COLOR = "#121a2c";
 const COLOR_DISTANCE_THRESHOLD = 28;
 const FALLBACK_CHART_COLOR = "#fff";
 
@@ -308,13 +310,11 @@ function HeroDownloadView({
     <div className="download-group download-group--hero">
       <div className="download-group__hero-background">
         <img
-          src={
-            game.customHeroImageUrl ||
-            game.libraryHeroImageUrl ||
-            game.libraryImageUrl ||
-            ""
-          }
+          src={getHeroArt(game) ?? ""}
           alt={game.title}
+          onError={(event) => {
+            event.currentTarget.style.display = "none";
+          }}
         />
         <div className="download-group__hero-overlay" />
       </div>
@@ -331,6 +331,9 @@ function HeroDownloadView({
                 <img
                   src={game.customLogoImageUrl || game.logoImageUrl || ""}
                   alt={game.title}
+                  onError={(event) => {
+                    event.currentTarget.style.display = "none";
+                  }}
                 />
               </button>
             ) : (
@@ -692,11 +695,7 @@ export function DownloadGroup({
   useEffect(() => {
     if (library.length > 0 && title === t("download_in_progress")) {
       const game = library[0];
-      const heroImageUrl =
-        game.customHeroImageUrl ||
-        game.libraryHeroImageUrl ||
-        game.libraryImageUrl ||
-        "";
+      const heroImageUrl = getHeroArt(game) ?? "";
       if (heroImageUrl && game.id) {
         extractDominantColor(heroImageUrl, game.id);
       }
@@ -1069,8 +1068,9 @@ export function DownloadGroup({
                   onClick={() => navigate(buildGameDetailsPath(game))}
                   className="download-group__simple-thumbnail"
                 >
-                  <img
-                    src={game.customCoverImageUrl || game.libraryImageUrl || ""}
+                  <Img
+                    src={getHeaderArt(game) ?? getCoverArt(game) ?? undefined}
+                    fallback={CoverPlaceholder}
                     alt={game.title}
                   />
                 </button>

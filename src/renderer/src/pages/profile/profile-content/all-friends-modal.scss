@@ -19,7 +19,7 @@
     padding: 4px 8px;
     border-radius: 6px;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 500;
     min-width: 24px;
     text-align: center;
   }
@@ -55,7 +55,7 @@
   }
 
   &__name {
-    font-weight: 600;
+    font-weight: 500;
     color: globals.$muted-color;
     font-size: globals.$body-font-size;
     overflow: hidden;

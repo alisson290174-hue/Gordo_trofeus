@@ -1,7 +1,8 @@
 import { useContext, useId } from "react";
 import { useTranslation } from "react-i18next";
 import { Tooltip } from "react-tooltip";
-import { Modal } from "@renderer/components";
+import { Modal, Img } from "@renderer/components";
+import BadgePlaceholder from "@renderer/assets/icons/badge-placeholder.png";
 import { userProfileContext } from "@renderer/context";
 import { useDate } from "@renderer/hooks";
 import "./all-badges-modal.scss";
@@ -55,8 +56,9 @@ export function AllBadgesModal({
                   data-tooltip-place="top"
                   data-tooltip-content={tooltipContent}
                 >
-                  <img
+                  <Img
                     src={badge.badge.url}
+                    fallback={BadgePlaceholder}
                     alt={badge.name}
                     width={32}
                     height={32}

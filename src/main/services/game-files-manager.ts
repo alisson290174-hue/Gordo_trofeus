@@ -305,7 +305,7 @@ export class GameFilesManager {
     );
 
     if (publishNotification && game) {
-      publishExtractionCompleteNotification(game);
+      publishExtractionCompleteNotification(game, download.folderName);
     }
 
     this.lastProgressUpdateTime = 0;

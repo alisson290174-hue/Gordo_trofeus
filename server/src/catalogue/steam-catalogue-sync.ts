@@ -131,6 +131,24 @@ export function requeueUntranslatedGamesIfNeeded(): void {
   setStateStatement.run("untranslated_games_requeued", new Date().toISOString());
 }
 
+const requeueForReviewCountStatement = db.prepare(`
+  INSERT INTO steam_appid_sync_queue (appid, name, status, updated_at)
+  SELECT appid, title, 'pending', $updatedAt FROM steam_games WHERE review_count IS NULL
+  ON CONFLICT(appid) DO UPDATE SET status = 'pending'
+`);
+
+/** One-time migration for the popularity sort: games cached before the review_count column existed
+ * have it NULL and would sort last forever, since the bulk listing queries read steam_games
+ * directly. Re-queuing them lets the sync loop re-fetch each one (getOrCacheSteamGame now backfills
+ * review_count on a null), filling the popularity signal across the whole catalogue over time. */
+export function requeueGamesForReviewCountIfNeeded(): void {
+  const done = getStateStatement.get("review_count_requeued") as { value: string } | undefined;
+  if (done) return;
+
+  requeueForReviewCountStatement.run({ updatedAt: new Date().toISOString() });
+  setStateStatement.run("review_count_requeued", new Date().toISOString());
+}
+
 let batchInFlight = false;
 
 async function processSyncBatch(): Promise<void> {

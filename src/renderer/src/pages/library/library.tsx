@@ -31,13 +31,15 @@ import {
   isGameInstalled,
   sortLibraryGames,
 } from "@renderer/helpers";
+import { getTrophyProgress } from "@renderer/helpers/ps5-game";
+import cn from "classnames";
 import { useSearchParams } from "react-router-dom";
-import { LibraryGameCard } from "./library-game-card";
+import { LibraryPs5Card } from "./library-ps5-card";
 import { LibraryGameCardLarge } from "./library-game-card-large";
 import { ViewOptions, ViewMode } from "./view-options";
 import { FilterOptions, SortOption } from "./filter-options";
 import { CategoryFilter, LibraryCategory } from "./category-filter";
-import { InstalledFilter } from "./installed-filter";
+import { AchievementsFilter } from "./achievements-filter";
 import { PlatformFilter } from "./platform-filter";
 import { CollectionsFilter } from "./collections-filter";
 import {
@@ -51,20 +53,72 @@ import {
 import "./library.scss";
 
 const FAVORITES_COLLECTION_ID = "__favorites__";
-const GAP = 16;
+const LIBRARY_ACHIEVEMENTS_ONLY_STORAGE_KEY = "library-achievements-only";
+const LIBRARY_STATUS_STORAGE_KEY = "library-status";
+const GAP = 22;
 const LARGE_CARD_ESTIMATED_HEIGHT = 300;
-const FALLBACK_ITEM_WIDTH = 150;
+const FALLBACK_ITEM_WIDTH = 180;
+// Title + subtitle under the 2:3 cover (gap 12 + 19 + 3 + 16).
+const CARD_TEXT_HEIGHT = 50;
 
-const COLUMN_BREAKPOINTS = [3000, 2600, 2000, 1300, 900] as const;
-const COLUMNS: Record<"grid" | "compact", readonly number[]> = {
-  grid: [12, 8, 6, 5, 4, 2],
-  compact: [14, 12, 9, 7, 5, 3],
+// Conceito 1 grid is `repeat(auto-fill, minmax(180px, 1fr))`; "compact" packs a bit tighter.
+const MIN_CARD_WIDTH: Record<"grid" | "compact", number> = {
+  grid: 180,
+  compact: 150,
 };
 
 const getColumnsCount = (width: number, mode: ViewMode): number => {
   if (mode === "large") return width >= 900 ? 2 : 1;
-  const idx = COLUMN_BREAKPOINTS.findIndex((bp) => width >= bp);
-  return COLUMNS[mode][idx === -1 ? COLUMN_BREAKPOINTS.length : idx];
+  return Math.max(1, Math.floor((width + GAP) / (MIN_CARD_WIDTH[mode] + GAP)));
+};
+
+type LibraryStatus =
+  | "all"
+  | "installed"
+  | "platinum"
+  | "in_progress"
+  | "not_installed";
+
+const STATUS_FILTERS: {
+  value: LibraryStatus;
+  labelKey: string;
+  test: (game: LibraryGame) => boolean;
+}[] = [
+  { value: "all", labelKey: "dashboard:status_all", test: () => true },
+  {
+    value: "installed",
+    labelKey: "dashboard:status_installed",
+    test: isGameInstalled,
+  },
+  {
+    value: "platinum",
+    labelKey: "dashboard:status_platinum",
+    test: (game) => getTrophyProgress(game).isPlatinum,
+  },
+  {
+    value: "in_progress",
+    labelKey: "dashboard:status_in_progress",
+    test: (game) => {
+      const progress = getTrophyProgress(game);
+      return progress.total > 0 && !progress.isPlatinum;
+    },
+  },
+  {
+    value: "not_installed",
+    labelKey: "dashboard:status_not_installed",
+    test: (game) => !isGameInstalled(game),
+  },
+];
+
+const readStoredStatus = (): LibraryStatus => {
+  const saved = localStorage.getItem(LIBRARY_STATUS_STORAGE_KEY);
+  if (STATUS_FILTERS.some((filter) => filter.value === saved)) {
+    return saved as LibraryStatus;
+  }
+  // Carry over the old "installed only" toggle.
+  return localStorage.getItem(LIBRARY_INSTALLED_ONLY_STORAGE_KEY) === "true"
+    ? "installed"
+    : "all";
 };
 
 const readStoredPlatforms = (): string[] => {
@@ -136,8 +190,9 @@ export default function Library() {
   });
   const [selectedPlatforms, setSelectedPlatforms] =
     useState<string[]>(readStoredPlatforms);
-  const [showInstalledOnly, setShowInstalledOnly] = useState<boolean>(
-    () => localStorage.getItem(LIBRARY_INSTALLED_ONLY_STORAGE_KEY) === "true"
+  const [status, setStatus] = useState<LibraryStatus>(readStoredStatus);
+  const [showAchievementsOnly, setShowAchievementsOnly] = useState<boolean>(
+    () => localStorage.getItem(LIBRARY_ACHIEVEMENTS_ONLY_STORAGE_KEY) === "true"
   );
   const [isImportingClassics, setIsImportingClassics] = useState(false);
 
@@ -217,9 +272,18 @@ export default function Library() {
     localStorage.setItem(LIBRARY_PLATFORMS_STORAGE_KEY, JSON.stringify(next));
   }, []);
 
-  const handleShowInstalledOnlyChange = useCallback((next: boolean) => {
-    setShowInstalledOnly(next);
-    localStorage.setItem(LIBRARY_INSTALLED_ONLY_STORAGE_KEY, String(next));
+  const handleStatusChange = useCallback((next: LibraryStatus) => {
+    setStatus(next);
+    localStorage.setItem(LIBRARY_STATUS_STORAGE_KEY, next);
+    localStorage.setItem(
+      LIBRARY_INSTALLED_ONLY_STORAGE_KEY,
+      String(next === "installed")
+    );
+  }, []);
+
+  const handleShowAchievementsOnlyChange = useCallback((next: boolean) => {
+    setShowAchievementsOnly(next);
+    localStorage.setItem(LIBRARY_ACHIEVEMENTS_ONLY_STORAGE_KEY, String(next));
   }, []);
 
   const handleCategoryChange = useCallback(
@@ -382,7 +446,8 @@ export default function Library() {
     [library, sortBy]
   );
 
-  const filteredLibrary = useMemo(() => {
+  // Everything except the status chips, so each chip can show how many games it would keep.
+  const baseFilteredLibrary = useMemo(() => {
     let filtered = sortedLibrary;
 
     if (selectedCollectionId) {
@@ -413,8 +478,10 @@ export default function Library() {
       );
     }
 
-    if (showInstalledOnly) {
-      filtered = filtered.filter(isGameInstalled);
+    if (showAchievementsOnly) {
+      filtered = filtered.filter(
+        (game) => game.achievementSupport === "working"
+      );
     }
 
     const queryLower = removeDiacritics(deferredSearchQuery).toLowerCase();
@@ -443,8 +510,21 @@ export default function Library() {
     selectedCollectionId,
     effectiveCategory,
     selectedPlatforms,
-    showInstalledOnly,
+    showAchievementsOnly,
   ]);
+
+  const statusCounts = useMemo(() => {
+    const counts = {} as Record<LibraryStatus, number>;
+    for (const filter of STATUS_FILTERS) {
+      counts[filter.value] = baseFilteredLibrary.filter(filter.test).length;
+    }
+    return counts;
+  }, [baseFilteredLibrary]);
+
+  const filteredLibrary = useMemo(() => {
+    const filter = STATUS_FILTERS.find((item) => item.value === status);
+    return filter ? baseFilteredLibrary.filter(filter.test) : baseFilteredLibrary;
+  }, [baseFilteredLibrary, status]);
 
   const uniquePlatforms = useMemo(() => {
     const set = new Set<string>();
@@ -505,7 +585,7 @@ export default function Library() {
       containerWidth > 0
         ? (containerWidth - GAP * (columnsCount - 1)) / columnsCount
         : FALLBACK_ITEM_WIDTH;
-    return Math.round((itemWidth * 3) / 2) + GAP;
+    return Math.round((itemWidth * 3) / 2) + CARD_TEXT_HEIGHT + GAP;
   }, [viewMode, containerWidth, columnsCount]);
 
   const rowVirtualizer = useVirtualizer({
@@ -525,7 +605,7 @@ export default function Library() {
   }, [
     effectiveCategory,
     selectedPlatforms,
-    showInstalledOnly,
+    status,
     sortBy,
     selectedCollectionId,
     setHeaderHidden,
@@ -562,8 +642,44 @@ export default function Library() {
         <div
           className={`library__page-header${isHeaderHidden ? " library__page-header--hidden" : ""}`}
         >
-          <div className="library__controls-row">
-            <div className="library__controls-left">
+          <div className="library__page-header-inner">
+            <div className="library__title-row">
+              <div className="library__title-block">
+                <span className="library__eyebrow">
+                  {t("dashboard:your_collection")}
+                </span>
+                <h1 className="library__title">{t("library")}</h1>
+              </div>
+              <span className="library__count">
+                {t("dashboard:games_count", { count: filteredLibrary.length })}
+              </span>
+              <div className="library__grow" />
+              <FilterOptions sortBy={sortBy} onSortChange={handleSortChange} />
+              <ViewOptions
+                viewMode={viewMode}
+                onViewModeChange={handleViewModeChange}
+              />
+            </div>
+
+            <div className="library__chips-row">
+              {STATUS_FILTERS.map((filter) => (
+                <button
+                  key={filter.value}
+                  type="button"
+                  className={cn("library__chip", {
+                    "library__chip--active": status === filter.value,
+                  })}
+                  onClick={() => handleStatusChange(filter.value)}
+                >
+                  <span>{t(filter.labelKey)}</span>
+                  <span className="library__chip-count">
+                    {statusCounts[filter.value]}
+                  </span>
+                </button>
+              ))}
+
+              <div className="library__chips-divider" />
+
               <CategoryFilter
                 category={effectiveCategory}
                 onCategoryChange={handleCategoryChange}
@@ -576,14 +692,10 @@ export default function Library() {
                 onCreate={handleCreateCollectionButtonClick}
                 onCollectionContextMenu={openCollectionContextMenu}
               />
-              <InstalledFilter
-                showInstalledOnly={showInstalledOnly}
-                onShowInstalledOnlyChange={handleShowInstalledOnlyChange}
+              <AchievementsFilter
+                showAchievementsOnly={showAchievementsOnly}
+                onShowAchievementsOnlyChange={handleShowAchievementsOnlyChange}
               />
-            </div>
-
-            <div className="library__controls-right">
-              <FilterOptions sortBy={sortBy} onSortChange={handleSortChange} />
               {effectiveCategory !== "pc" &&
                 effectiveCategory !== "steam_library" && (
                   <PlatformFilter
@@ -592,10 +704,6 @@ export default function Library() {
                     onPlatformsChange={handlePlatformsChange}
                   />
                 )}
-              <ViewOptions
-                viewMode={viewMode}
-                onViewModeChange={handleViewModeChange}
-              />
             </div>
           </div>
         </div>
@@ -697,7 +805,7 @@ export default function Library() {
                         onContextMenu={handleOpenContextMenu}
                       />
                     ) : (
-                      <LibraryGameCard
+                      <LibraryPs5Card
                         key={`${game.shop}-${game.objectId}`}
                         game={game}
                         onContextMenu={handleOpenContextMenu}

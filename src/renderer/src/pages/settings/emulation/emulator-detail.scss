@@ -47,7 +47,7 @@
 
   &__hero-title {
     font-size: 32px;
-    font-weight: 600;
+    font-weight: 500;
     color: #fafafa;
     letter-spacing: -0.64px;
     margin: 0;
@@ -139,7 +139,7 @@
 
     h3 {
       font-size: 21px;
-      font-weight: 600;
+      font-weight: 500;
       color: #fafafa;
       letter-spacing: -0.42px;
       margin: 0;
@@ -169,8 +169,8 @@
   }
 
   &__row {
-    background: #0d0d0d;
-    border: 1px solid #1c1c1c;
+    background: #070b16;
+    border: 1px solid #121a2c;
     border-radius: 12px;
     padding: 16px 24px;
     display: flex;
@@ -204,7 +204,7 @@
 
   &__exec-name {
     font-size: 16px;
-    font-weight: 600;
+    font-weight: 500;
     color: #fafafa;
   }
 
@@ -385,7 +385,7 @@
 
   &__folder-path {
     font-size: clamp(13px, 1.4vw, 16px);
-    font-weight: 600;
+    font-weight: 500;
     color: #fafafa;
     word-break: break-all;
   }
@@ -437,7 +437,7 @@
   }
 
   &__stat {
-    background: #0d0d0d;
+    background: #070b16;
     border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 10px;
     padding: 24px;
@@ -468,7 +468,7 @@
 
   &__stat-value {
     font-size: clamp(20px, 2.4vw, 30px);
-    font-weight: 700;
+    font-weight: 500;
     color: #fafafa;
     letter-spacing: -0.36px;
     overflow-wrap: break-word;
@@ -544,7 +544,7 @@
 
   &__memcard-group-title {
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 500;
     color: #c0c1c7;
     text-transform: uppercase;
     letter-spacing: 0.4px;
@@ -579,7 +579,7 @@
     height: 4px;
     width: 100%;
     border-radius: 999px;
-    background: #1c1c1c;
+    background: #121a2c;
     overflow: hidden;
   }
 
@@ -597,8 +597,8 @@
   }
 
   &__memcard-card {
-    background: #0d0d0d;
-    border: 1px solid #1c1c1c;
+    background: #070b16;
+    border: 1px solid #121a2c;
     border-radius: 10px;
     padding: 10px 12px;
     display: flex;
@@ -641,7 +641,7 @@
 
   &__memcard-title {
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 500;
     color: #fafafa;
     white-space: nowrap;
     overflow: hidden;
@@ -693,7 +693,7 @@
     align-items: center;
     gap: 6px;
     background: transparent;
-    border: 1px solid #1c1c1c;
+    border: 1px solid #121a2c;
     border-radius: 8px;
     color: #c0c1c7;
     cursor: pointer;
@@ -703,7 +703,7 @@
 
     &:hover {
       color: #fafafa;
-      border-color: #2a2a2a;
+      border-color: #1f2a42;
     }
 
     &:disabled {
@@ -726,7 +726,7 @@
     justify-content: center;
     width: 32px;
     height: 32px;
-    border: 1px solid #1c1c1c;
+    border: 1px solid #121a2c;
     border-radius: 8px;
     background: transparent;
     color: #c0c1c7;
@@ -734,7 +734,7 @@
 
     &:hover:not(:disabled) {
       color: #fafafa;
-      border-color: #2a2a2a;
+      border-color: #1f2a42;
     }
 
     &:disabled {
@@ -801,7 +801,7 @@
     box-sizing: border-box;
     min-width: 0;
     height: 153px;
-    background: #0d0d0d;
+    background: #070b16;
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 8px;
     padding: 16px;
@@ -875,7 +875,7 @@
     flex: 0 1 auto;
     min-width: 0;
     font-size: 18px;
-    font-weight: 700;
+    font-weight: 500;
     letter-spacing: 0.18px;
     color: #c0c1c7;
     white-space: nowrap;
@@ -941,7 +941,7 @@
 
   &__cloud-locked-title {
     font-size: 15px;
-    font-weight: 600;
+    font-weight: 500;
     color: #fafafa;
     margin: 0;
     max-width: 360px;
@@ -971,8 +971,8 @@
     gap: 2px;
     width: 100%;
     text-align: left;
-    background: #0d0d0d;
-    border: 1px solid #1c1c1c;
+    background: #070b16;
+    border: 1px solid #121a2c;
     border-radius: 8px;
     padding: 10px 12px;
     cursor: pointer;
@@ -984,7 +984,7 @@
 
   &__restore-target-name {
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 500;
     color: #fafafa;
   }
 
@@ -1035,7 +1035,7 @@
 
     &--active {
       opacity: 0.8;
-      font-weight: 600;
+      font-weight: 500;
       border-bottom-color: #fafafa;
     }
 
@@ -1074,8 +1074,8 @@
     min-width: 240px;
     display: flex;
     align-items: center;
-    background: #0d0d0d;
-    border: 1px solid #1c1c1c;
+    background: #070b16;
+    border: 1px solid #121a2c;
     border-radius: 8px;
     padding: 12px 16px;
     cursor: pointer;
@@ -1085,7 +1085,7 @@
 
     &:hover:not(:disabled),
     &:focus-visible {
-      border-color: #2a2a2a;
+      border-color: #1f2a42;
     }
 
     &:focus-visible {
@@ -1179,7 +1179,7 @@
 
   &__rom-title {
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 500;
     color: #fafafa;
     opacity: 0.8;
     white-space: nowrap;

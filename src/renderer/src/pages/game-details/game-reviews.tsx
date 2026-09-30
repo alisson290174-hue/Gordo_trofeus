@@ -3,7 +3,6 @@ import { Icon } from "@renderer/components/icon/icon";
 
 import { useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
 import { useTranslation } from "react-i18next";
 import type { GameReview, Game, GameShop } from "@types";
 
@@ -84,7 +83,6 @@ export function GameReviews({
       StarterKit.configure({
         link: false,
       }),
-      Underline,
     ],
     content: "",
     editorProps: {

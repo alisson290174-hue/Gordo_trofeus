@@ -357,7 +357,7 @@
     }
 
     &--select-all {
-      font-weight: 600;
+      font-weight: 500;
       border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       margin-bottom: globals.$spacing-unit;
     }
@@ -465,12 +465,12 @@
     font-size: 12px;
 
     &--bold {
-      font-weight: 600;
+      font-weight: 500;
       font-size: 13px;
     }
 
     &--folder {
-      font-weight: 600;
+      font-weight: 500;
     }
   }
 

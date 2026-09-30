@@ -18,7 +18,7 @@
   &__percent {
     color: globals.$muted-color;
     font-variant-numeric: tabular-nums;
-    font-weight: 600;
+    font-weight: 500;
   }
 
   &:hover &__label {
@@ -32,7 +32,7 @@
     padding: 12px 14px;
     border: 1px solid globals.$border-color;
     border-radius: 8px;
-    background: #0d0d0d;
+    background: #070b16;
     justify-content: flex-start;
 
     .classics-scan-indicator__percent {

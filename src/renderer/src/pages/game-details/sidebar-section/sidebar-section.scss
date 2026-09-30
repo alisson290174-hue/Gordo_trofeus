@@ -1,23 +1,19 @@
 @use "../../../scss/globals.scss";
+@use "../../../scss/ps5.scss";
 
 .sidebar-section {
-  background-color: globals.$background-color;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background-color: ps5.$card;
+  border-radius: 22px;
+  border: 1px solid ps5.$card-border;
   overflow: hidden;
+  font-family: ps5.$font;
 
   &__header {
     position: relative;
     display: flex;
     flex-direction: column;
-    padding: calc(globals.$spacing-unit * 2.5) calc(globals.$spacing-unit * 2);
+    padding: 22px 24px 6px;
     gap: calc(globals.$spacing-unit / 2);
-    transition: background-color 0.2s ease;
-
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.1);
-    }
   }
 
   &__toggle {
@@ -42,11 +38,15 @@
   &__button {
     display: flex;
     align-items: center;
+    justify-content: space-between;
+    flex-direction: row-reverse;
     gap: globals.$spacing-unit;
-    color: globals.$muted-color;
-    font-size: globals.$body-font-size;
+    color: rgba(233, 238, 247, 0.6);
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
     transition: all ease 0.2s;
-    font-weight: bold;
+    font-weight: 400;
     pointer-events: none;
   }
 
@@ -68,6 +68,9 @@
   }
 
   &__chevron {
+    width: 16px;
+    height: 16px;
+    opacity: 0.55;
     transition: transform ease 0.2s;
 
     &--open {
@@ -78,7 +81,9 @@
   &__content {
     overflow: hidden;
     transition: max-height 0.4s cubic-bezier(0, 1, 0, 1);
-    background-color: globals.$dark-background-color;
     position: relative;
+    font-weight: 300;
+    font-size: 14.5px;
+    color: rgba(233, 238, 247, 0.85);
   }
 }

@@ -27,6 +27,7 @@ import "./torrenting";
 import "./user";
 import "./user-preferences";
 import "./library/transfer-game-files";
+import "./library/generate-goldberg-achievements";
 import "./emulators";
 import "./retroarch";
 

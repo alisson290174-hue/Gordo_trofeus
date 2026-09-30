@@ -6,6 +6,8 @@ import cn from "classnames";
 
 import { Badge } from "@renderer/components/badge/badge";
 import { Link } from "@renderer/components/link/link";
+import { Img } from "@renderer/components/img/img";
+import CoverPlaceholder from "@renderer/assets/library-catalogue/cover-placeholder.png";
 import { buildGameDetailsPath } from "@renderer/helpers";
 import { useAppSelector, useLibrary } from "@renderer/hooks";
 
@@ -158,10 +160,14 @@ export function GameItemClassics({ game }: GameItemClassicsProps) {
                 alt=""
                 aria-hidden="true"
                 loading="lazy"
+                onError={(event) => {
+                  event.currentTarget.style.display = "none";
+                }}
               />
-              <img
+              <Img
                 className="game-item-classics__cover-image"
                 src={game.libraryImageUrl}
+                fallback={CoverPlaceholder}
                 alt={game.title}
                 loading="lazy"
               />

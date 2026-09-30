@@ -1,36 +1,40 @@
 @use "../../../scss/globals.scss";
+@use "../../../scss/ps5.scss";
 
 .profile-section {
-  background-color: globals.$background-color;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  background-color: ps5.$card;
+  border-radius: 22px;
+  border: 1px solid ps5.$card-border;
   overflow: hidden;
+  font-family: ps5.$font;
 
   &__header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    background-color: globals.$background-color;
+    background-color: transparent;
     padding-right: calc(globals.$spacing-unit * 2);
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: rgba(255, 255, 255, 0.04);
     }
   }
 
   &__button {
-    padding: calc(globals.$spacing-unit * 2.5) calc(globals.$spacing-unit * 2);
+    padding: 20px 22px;
     display: flex;
     align-items: center;
     background-color: transparent;
-    color: globals.$muted-color;
+    color: rgba(233, 238, 247, 0.6);
     flex: 1;
     cursor: pointer;
     transition: all ease 0.2s;
     gap: globals.$spacing-unit;
-    font-size: globals.$body-font-size;
-    font-weight: bold;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
     border: none;
 
     &:active {
@@ -44,7 +48,7 @@
     padding: 4px 8px;
     border-radius: 6px;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 500;
     min-width: 24px;
     text-align: center;
   }
@@ -65,7 +69,7 @@
   &__content {
     overflow: hidden;
     transition: max-height 0.4s cubic-bezier(0, 1, 0, 1);
-    background-color: globals.$dark-background-color;
+    background-color: transparent;
     position: relative;
   }
 }

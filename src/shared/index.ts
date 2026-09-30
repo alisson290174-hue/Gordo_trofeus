@@ -50,6 +50,7 @@ export * from "./tracker-list";
 export * from "./souvenirs";
 export * from "./souvenir-sync";
 export * from "./achievement-tier";
+export * from "./game-title";
 
 export class UserNotLoggedInError extends Error {
   constructor() {

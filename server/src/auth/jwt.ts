@@ -22,7 +22,11 @@ export function signAccessToken(userId: string, steamId: string) {
 }
 
 export function verifyAccessToken(token: string): AccessTokenPayload {
-  return jwt.verify(token, config.jwtSecret) as AccessTokenPayload;
+  // Pin the algorithm: we only ever sign with HS256, so accepting anything else (or "none")
+  // would only widen the attack surface (algorithm-confusion / alg:none forgeries).
+  return jwt.verify(token, config.jwtSecret, {
+    algorithms: ["HS256"],
+  }) as AccessTokenPayload;
 }
 
 export function generateRefreshToken() {

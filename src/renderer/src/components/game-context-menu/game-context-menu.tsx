@@ -289,6 +289,30 @@ export function GameContextMenu({
         ]
       : []),
 
+    ...(game.shop === "steam" && game.executablePath
+      ? [
+          {
+            id: "generate-goldberg-achievements",
+            label: t("generate_achievements"),
+            icon: <Icon name="trophy" size={16} />,
+            disabled: isDeleting,
+            onClick: async () => {
+              const result = await window.electron
+                .generateGoldbergAchievements(game.objectId, game.shop)
+                .catch(() => ({ ok: false as const, reason: "write_failed" as const }));
+
+              if (result.ok) {
+                showSuccessToast(
+                  t("generate_achievements_success", { count: result.count })
+                );
+              } else {
+                showErrorToast(t(`generate_achievements_error_${result.reason}`));
+              }
+            },
+          },
+        ]
+      : []),
+
     {
       id: "manage",
       label: t("options"),

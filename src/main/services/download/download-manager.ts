@@ -771,7 +771,7 @@ export class DownloadManager {
     game: Game,
     gameId: string
   ) {
-    publishDownloadCompleteNotification(game);
+    publishDownloadCompleteNotification(game, download.folderName);
 
     const userPreferences = await db.get<string, UserPreferences | null>(
       levelKeys.userPreferences,

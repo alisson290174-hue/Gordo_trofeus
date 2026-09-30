@@ -1,22 +1,111 @@
 @use "../../../scss/globals.scss";
+@use "../../../scss/ps5.scss";
 
+// Conceito 1 buttons. `.button.` prefix outranks the shared Button theme styles.
 .hero-panel-actions {
-  &__action {
-    border: solid 1px globals.$muted-color;
+  &__container {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
 
-    &--disabled {
-      opacity: 0.5;
+  &__action--disabled {
+    opacity: 0.5;
+  }
+
+  @at-root .button.hero-panel-actions__primary {
+    position: relative;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    height: 54px;
+    min-width: 190px;
+    padding: 0 34px;
+    border-radius: 27px;
+    background: ps5.$accent;
+    border: 1px solid ps5.$accent;
+    color: #fff;
+    font-family: ps5.$font;
+    font-size: 17px;
+    font-weight: 500;
+    box-shadow: 0 10px 30px rgba(0, 112, 243, 0.35);
+    transition: background-color 0.15s ease;
+
+    &:hover:not(:disabled) {
+      background: ps5.$accent-hover;
+    }
+
+    > * {
+      position: relative;
     }
   }
 
-  &__container {
-    display: flex;
-    gap: calc(globals.$spacing-unit * 2);
+  @at-root .button.hero-panel-actions__primary--muted {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.3);
+    box-shadow: none;
+
+    &:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.16);
+    }
   }
 
-  &__separator {
-    width: 1px;
-    background-color: globals.$muted-color;
-    opacity: 0.2;
+  &__fill {
+    position: absolute !important;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    background: rgba(0, 112, 243, 0.55);
+    transition: width 0.4s ease;
+  }
+
+  @at-root .button.hero-panel-actions__ghost {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 54px;
+    padding: 0 26px;
+    border-radius: 27px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(16px);
+    color: #fff;
+    font-family: ps5.$font;
+    font-size: 16px;
+    font-weight: 400;
+
+    &:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.18);
+    }
+  }
+
+  @at-root .button.hero-panel-actions__round {
+    width: 54px;
+    height: 54px;
+    padding: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    backdrop-filter: blur(16px);
+    color: #fff;
+    flex: none;
+
+    &:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.18);
+    }
+  }
+
+  @at-root .button.hero-panel-actions__round--favorite {
+    color: #ff5d7a;
+  }
+
+  @at-root .button.hero-panel-actions__round--pinned {
+    color: ps5.$accent-text;
   }
 }

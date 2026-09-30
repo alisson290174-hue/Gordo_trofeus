@@ -2,9 +2,11 @@
 @use "../../scss/globals.scss";
 
 .button {
-  padding: globals.$spacing-unit globals.$spacing-unit * 2;
+  padding: globals.$spacing-unit globals.$spacing-unit * 2.25;
   background-color: globals.$muted-color;
-  border-radius: 8px;
+  border-radius: 20px;
+  font-family: inherit;
+  font-size: 14px;
   border: solid 1px transparent;
   transition: all ease 0.2s;
   cursor: pointer;
@@ -23,12 +25,15 @@
     cursor: not-allowed;
   }
 
+  // Conceito 1: solid blue pill with a soft glow.
   &--primary {
-    background-color: globals.$brand-navy;
+    background-color: globals.$brand-orange;
     color: #fff;
+    font-weight: 500;
+    box-shadow: 0 8px 24px rgba(0, 112, 243, 0.3);
 
-    &:hover {
-      background-color: color.scale(globals.$brand-navy, $lightness: 25%);
+    &:hover:not(:disabled) {
+      background-color: #1a82ff;
     }
 
     &:disabled {
@@ -37,13 +42,14 @@
     }
   }
 
+  // Conceito 1: glass pill.
   &--outline {
-    background-color: transparent;
-    border: solid 1px globals.$border-color;
+    background-color: rgba(255, 255, 255, 0.06);
+    border: solid 1px rgba(255, 255, 255, 0.14);
     color: globals.$muted-color;
 
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.1);
+    &:hover:not(:disabled) {
+      background-color: rgba(255, 255, 255, 0.12);
     }
 
     &:disabled {
@@ -52,7 +58,8 @@
   }
 
   &--dark {
-    background-color: globals.$dark-background-color;
+    background-color: rgba(255, 255, 255, 0.04);
+    border: solid 1px rgba(255, 255, 255, 0.08);
     color: globals.$muted-color;
   }
 

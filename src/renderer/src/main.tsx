@@ -25,7 +25,6 @@ import resources from "@locales";
 import { logger } from "./logger";
 import { addCookieInterceptor } from "./cookies";
 import { clearStateFromPreviousSession } from "./session-state";
-import * as Sentry from "@sentry/react";
 import { ErrorBoundary } from "./components/error-boundary/error-boundary";
 import { levelDBService } from "./services/leveldb.service";
 import Catalogue from "./pages/catalogue/catalogue";
@@ -35,7 +34,9 @@ import GameDetails from "./pages/game-details/game-details";
 import Settings from "./pages/settings/settings";
 import Profile from "./pages/profile/profile";
 import CompareTrophies from "./pages/profile/compare-trophies/compare-trophies";
+import CompareGame from "./pages/profile/compare-game/compare-game";
 import Achievements from "./pages/achievements/achievements";
+import Trophies from "./pages/trophies/trophies";
 import Library from "./pages/library/library";
 import Notifications from "./pages/notifications/notifications";
 import { AchievementNotification } from "./pages/achievements/notification/achievement-notification";
@@ -56,18 +57,6 @@ import BigPictureGameAchievements from "../../big-picture/src/pages/game-achieve
 import BigPictureProfile from "../../big-picture/src/pages/profile/profile";
 
 console.log = logger.log;
-
-Sentry.init({
-  dsn: import.meta.env.RENDERER_VITE_SENTRY_DSN,
-  integrations: [
-    Sentry.browserTracingIntegration(),
-    Sentry.replayIntegration(),
-  ],
-  tracesSampleRate: 0.5,
-  replaysSessionSampleRate: 0,
-  replaysOnErrorSampleRate: 0,
-  release: "hydra-launcher@" + (await globalThis.electron.getVersion()),
-});
 
 globalThis.addEventListener("unhandledrejection", (event) => {
   logger.error("Unhandled promise rejection", event.reason);
@@ -125,6 +114,26 @@ globalThis.electron.onUserPreferencesUpdated((preferences) => {
   }
 });
 
+// Nunca mostrar o ícone de "imagem quebrada": a imagem que falhar some e o fundo do card aparece.
+document.addEventListener(
+  "error",
+  (event) => {
+    if (event.target instanceof HTMLImageElement) {
+      event.target.classList.add("img--broken");
+    }
+  },
+  true
+);
+document.addEventListener(
+  "load",
+  (event) => {
+    if (event.target instanceof HTMLImageElement) {
+      event.target.classList.remove("img--broken");
+    }
+  },
+  true
+);
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <Provider store={store}>
@@ -149,7 +158,12 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
                     path="/profile/:userId/compare"
                     element={<CompareTrophies />}
                   />
+                  <Route
+                    path="/profile/:userId/compare/:shop/:objectId"
+                    element={<CompareGame />}
+                  />
                   <Route path="/achievements" element={<Achievements />} />
+                  <Route path="/trophies" element={<Trophies />} />
                   <Route path="/notifications" element={<Notifications />} />
                 </Route>
 

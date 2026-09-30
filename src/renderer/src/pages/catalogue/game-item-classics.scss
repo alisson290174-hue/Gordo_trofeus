@@ -1,7 +1,7 @@
 .game-item-classics {
   position: relative;
-  background: #0d0d0d;
-  border: 1px solid #1c1c1c;
+  background: #070b16;
+  border: 1px solid #121a2c;
   border-radius: 8px;
   overflow: hidden;
   color: #fafafa;
@@ -149,7 +149,7 @@
 
   &__title {
     font-size: 14px;
-    font-weight: 700;
+    font-weight: 500;
     color: rgba(255, 255, 255, 0.8);
     overflow: hidden;
     text-overflow: ellipsis;

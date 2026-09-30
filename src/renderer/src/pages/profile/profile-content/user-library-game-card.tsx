@@ -112,7 +112,7 @@ export function UserLibraryGameCard({
   return (
     <>
       <li
-        className="user-library-game__wrapper"
+        className={`user-library-game__wrapper${isCompleted && hasAchievementProgress ? " user-library-game__wrapper--platinum" : ""}`}
         title={isTooltipHovered ? undefined : game.title}
       >
         <VerticalCoverCard
@@ -159,6 +159,13 @@ export function UserLibraryGameCard({
                 isMe,
                 hideSteamLibraryBadges
               ) && <SteamLibraryBadge />}
+
+              {isCompleted && hasAchievementProgress && (
+                <div className="user-library-game__platinum-badge">
+                  <Icon name="trophy" size={11} />
+                  <span>{t("platinum", { defaultValue: "Platina" })}</span>
+                </div>
+              )}
             </div>
 
             {hasAchievementProgress && (

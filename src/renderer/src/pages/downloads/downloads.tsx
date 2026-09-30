@@ -187,6 +187,14 @@ export default function Downloads() {
 
       {hasItemsInLibrary ? (
         <section className="downloads__container">
+          <div className="downloads__page-header">
+            <span className="downloads__eyebrow">
+              {t("transfers", { ns: "dashboard" })}
+            </span>
+            <h1 className="downloads__title">
+              {t("downloads", { ns: "sidebar" })}
+            </h1>
+          </div>
           <div className="downloads__groups">
             {downloadGroups.map((group) => (
               <DownloadGroup

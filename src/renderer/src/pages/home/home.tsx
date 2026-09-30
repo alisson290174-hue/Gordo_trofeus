@@ -1,210 +1,413 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { levelDBService } from "@renderer/services/leveldb.service";
-import { orderBy } from "lodash-es";
 import { useNavigate } from "react-router-dom";
+import { orderBy } from "lodash-es";
+import cn from "classnames";
 
-import Skeleton, { SkeletonTheme } from "react-loading-skeleton";
-
-import { Button, GameCard, Hero } from "@renderer/components";
-import type { DownloadSource, ShopAssets, Steam250Game } from "@types";
-
-import flameIconStatic from "@renderer/assets/icons/flame-static.png";
-import flameIconAnimated from "@renderer/assets/icons/flame-animated.gif";
-import starsIconAnimated from "@renderer/assets/icons/stars-animated.gif";
-
-import { buildGameDetailsPath, ensureArray } from "@renderer/helpers";
-import { CatalogueCategory } from "@shared";
+import { Icon } from "@renderer/components/icon/icon";
+import { useLibrary } from "@renderer/hooks";
+import { buildGameDetailsPath, isGameReadyToPlay } from "@renderer/helpers";
+import { pickShowcase } from "@renderer/helpers/showcase";
+import {
+  fetchGameSummary,
+  formatSummaryMeta,
+  getCoverArt,
+  getHeaderArt,
+  getHeroArt,
+  getLogoArt,
+  getTrophyProgress,
+  type GameSummary,
+} from "@renderer/helpers/ps5-game";
+import type { LibraryGame, ShopAssets, Steam250Game } from "@types";
 import "./home.scss";
 
-export default function Home() {
-  const { t } = useTranslation("home");
-  const navigate = useNavigate();
+const HERO_ROTATE_MS = 8000;
+const HERO_TILE_COUNT = 8;
+const SESSION_SEED = Date.now() % 100000;
 
-  const [animateFlame, setAnimateFlame] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [randomGame, setRandomGame] = useState<Steam250Game | null>(null);
+type DiscoverTab = "hot" | "weekly" | "almost";
 
-  const [currentCatalogueCategory, setCurrentCatalogueCategory] = useState(
-    CatalogueCategory.Hot
+interface HeroGame {
+  key: string;
+  asset: ShopAssets | LibraryGame;
+  libraryGame: LibraryGame | null;
+}
+
+const toKey = (game: { shop: string; objectId: string }) =>
+  `${game.shop}:${game.objectId}`;
+
+function GameLogo({
+  game,
+  className,
+}: Readonly<{ game: ShopAssets | LibraryGame; className: string }>) {
+  const logo = getLogoArt(game);
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => setFailed(false), [logo]);
+
+  if (!logo || failed) {
+    return <div className={`${className}--text`}>{game.title}</div>;
+  }
+
+  return (
+    <img
+      className={className}
+      src={logo}
+      alt={game.title}
+      onError={() => setFailed(true)}
+    />
   );
+}
 
-  const [catalogue, setCatalogue] = useState<
-    Record<CatalogueCategory, ShopAssets[]>
-  >({
-    [CatalogueCategory.Hot]: [],
-    [CatalogueCategory.Weekly]: [],
-    [CatalogueCategory.Achievements]: [],
-  });
+function DiscoverCard({
+  game,
+  sub,
+  onOpen,
+}: Readonly<{
+  game: ShopAssets | LibraryGame;
+  sub: string | null;
+  onOpen: () => void;
+}>) {
+  const { i18n } = useTranslation();
+  const [summary, setSummary] = useState<GameSummary | null>(null);
 
-  const getCatalogue = useCallback(async (category: CatalogueCategory) => {
-    try {
-      setCurrentCatalogueCategory(category);
-      setIsLoading(true);
+  useEffect(() => {
+    if (sub !== null) return;
+    let cancelled = false;
 
-      const sources = (await levelDBService.values(
-        "downloadSources"
-      )) as DownloadSource[];
-      const downloadSources = orderBy(sources, "createdAt", "desc");
+    fetchGameSummary(game.objectId, game.shop, i18n.language).then(
+      (result) => {
+        if (!cancelled) setSummary(result);
+      }
+    );
 
-      const params = {
-        take: 12,
-        skip: 0,
-        downloadSourceIds: downloadSources.map((source) => source.id),
-      };
+    return () => {
+      cancelled = true;
+    };
+  }, [game.objectId, game.shop, i18n.language, sub]);
 
-      const catalogue = await window.electron.hydraApi.get<ShopAssets[]>(
-        `/catalogue/${category}`,
-        {
-          params,
-          needsAuth: false,
-        }
-      );
+  const header = getHeaderArt(game);
+  const subtitle =
+    sub ?? [summary?.genre, summary?.developer].filter(Boolean).join(" · ");
 
-      setCatalogue((prev) => ({
-        ...prev,
-        [category]: ensureArray<ShopAssets>(
-          catalogue,
-          `/catalogue/${category}`
-        ),
-      }));
-    } finally {
-      setIsLoading(false);
-    }
+  return (
+    <button type="button" className="home-discover__card" onClick={onOpen}>
+      <div
+        className="home-discover__art"
+        style={header ? { backgroundImage: `url("${header}")` } : undefined}
+      />
+      <div className="home-discover__text">
+        <span className="home-discover__name">{game.title}</span>
+        <span className="home-discover__sub">{subtitle || " "}</span>
+      </div>
+    </button>
+  );
+}
+
+export default function Home() {
+  const { t, i18n } = useTranslation("dashboard");
+  const navigate = useNavigate();
+  const { library } = useLibrary();
+
+  // "Em alta" / "Mais baixados" come from the bundled showcase (helpers/showcase.ts): instant,
+  // offline-proof and no broken images while the server/CDN load. New shuffle per app session.
+  const catalogue = useMemo<Record<"hot" | "weekly", ShopAssets[]>>(() => {
+    const picks = pickShowcase(24, SESSION_SEED);
+    return { hot: picks.slice(0, 12), weekly: picks.slice(12, 24) };
   }, []);
+  const [discoverTab, setDiscoverTab] = useState<DiscoverTab>("hot");
+  const [randomGame, setRandomGame] = useState<Steam250Game | null>(null);
+  const [focusIndex, setFocusIndex] = useState(0);
+  const [summaries, setSummaries] = useState<
+    Record<string, GameSummary | null>
+  >({});
 
-  const getRandomGame = useCallback(() => {
+  useEffect(() => {
     window.electron.getRandomGame().then((game) => {
       if (game) setRandomGame(game);
     });
   }, []);
 
-  const handleRandomizerClick = () => {
+  const libraryGames = useMemo(
+    () => library.filter((game) => !game.isDeleted),
+    [library]
+  );
+
+  // Hero row = most recently played library games; falls back to "Em alta" for a new user.
+  const heroGames = useMemo<HeroGame[]>(() => {
+    const played = orderBy(
+      libraryGames,
+      [
+        (game) => (game.lastTimePlayed ? new Date(game.lastTimePlayed).getTime() : 0),
+        (game) => (game.addedToLibraryAt ? new Date(game.addedToLibraryAt).getTime() : 0),
+      ],
+      ["desc", "desc"]
+    ).slice(0, HERO_TILE_COUNT);
+
+    if (played.length > 0) {
+      return played.map((game) => ({
+        key: toKey(game),
+        asset: game,
+        libraryGame: game,
+      }));
+    }
+
+    return (catalogue.hot ?? []).slice(0, HERO_TILE_COUNT).map((game) => ({
+      key: toKey(game),
+      asset: game,
+      libraryGame: null,
+    }));
+  }, [libraryGames, catalogue.hot]);
+
+  const safeFocusIndex = heroGames.length ? focusIndex % heroGames.length : 0;
+  const focus = heroGames[safeFocusIndex] ?? null;
+
+  useEffect(() => {
+    if (heroGames.length < 2) return;
+
+    const timeout = setTimeout(
+      () => setFocusIndex((index) => (index + 1) % heroGames.length),
+      HERO_ROTATE_MS
+    );
+
+    return () => clearTimeout(timeout);
+  }, [focusIndex, heroGames.length]);
+
+  useEffect(() => {
+    if (!focus || focus.key in summaries) return;
+    let cancelled = false;
+
+    fetchGameSummary(focus.asset.objectId, focus.asset.shop, i18n.language).then(
+      (summary) => {
+        if (!cancelled) {
+          setSummaries((prev) => ({ ...prev, [focus.key]: summary }));
+        }
+      }
+    );
+
+    return () => {
+      cancelled = true;
+    };
+  }, [focus, summaries, i18n.language]);
+
+  const openGame = useCallback(
+    (game: { shop: ShopAssets["shop"]; objectId: string; title: string }) =>
+      navigate(buildGameDetailsPath(game)),
+    [navigate]
+  );
+
+  const handleSurprise = () => {
     if (randomGame) {
       navigate(
         buildGameDetailsPath(
           { ...randomGame, shop: "steam" },
-          {
-            fromRandomizer: "1",
-          }
+          { fromRandomizer: "1" }
         )
       );
     }
   };
 
-  const handleCategoryClick = (category: CatalogueCategory) => {
-    if (category !== currentCatalogueCategory) {
-      getCatalogue(category);
+  const discoverGames = useMemo(() => {
+    if (discoverTab === "almost") {
+      return orderBy(
+        libraryGames.filter((game) => {
+          const progress = getTrophyProgress(game);
+          return progress.total > 0 && !progress.isPlatinum;
+        }),
+        [(game) => getTrophyProgress(game).percent],
+        ["desc"]
+      ).slice(0, 6);
     }
-  };
 
-  useEffect(() => {
-    setIsLoading(true);
-    getCatalogue(CatalogueCategory.Hot);
+    return catalogue[discoverTab]?.slice(0, 6) ?? null;
+  }, [discoverTab, libraryGames, catalogue]);
 
-    getRandomGame();
-  }, [getCatalogue, getRandomGame]);
+  const focusSummary = focus ? summaries[focus.key] : null;
+  const focusProgress = focus?.libraryGame
+    ? getTrophyProgress(focus.libraryGame)
+    : null;
+  const focusHero = focus ? getHeroArt(focus.asset) : null;
+  const isFocusReady = focus?.libraryGame
+    ? isGameReadyToPlay(focus.libraryGame)
+    : false;
 
-  const categories = Object.values(CatalogueCategory);
-
-  const handleMouseEnterCategory = (category: CatalogueCategory) => {
-    if (category === CatalogueCategory.Hot) {
-      setAnimateFlame(true);
-    }
-  };
-
-  const handleMouseLeaveCategory = (category: CatalogueCategory) => {
-    if (category === CatalogueCategory.Hot) {
-      setAnimateFlame(false);
-    }
-  };
+  const discoverTabs: { key: DiscoverTab; icon: string; label: string }[] = [
+    { key: "hot", icon: "graph", label: t("discover_hot") },
+    { key: "weekly", icon: "star", label: t("discover_weekly") },
+    { key: "almost", icon: "trophy", label: t("discover_almost") },
+  ];
 
   return (
-    <SkeletonTheme baseColor="#1c1c1c" highlightColor="#444">
-      <section className="home__content">
-        <Hero />
+    <div className="home">
+      <section className="home-hero">
+        <div
+          key={focus?.key ?? "empty"}
+          className={cn("home-hero__art", {
+            // No landscape art (classics before the PS2 index fills in): a box scan blown up to
+            // full screen pixelates, so it becomes a soft blurred backdrop instead.
+            "home-hero__art--from-cover":
+              Boolean(focusHero) && focus && focusHero === getCoverArt(focus.asset),
+          })}
+          style={
+            focusHero ? { backgroundImage: `url("${focusHero}")` } : undefined
+          }
+        />
+        <div className="home-hero__shade-x" />
+        <div className="home-hero__shade-y" />
 
-        <section className="home__header">
-          <ul className="home__buttons-list">
-            {categories.map((category) => (
-              <li key={category}>
-                <Button
-                  theme={
-                    category === currentCatalogueCategory
-                      ? "primary"
-                      : "outline"
-                  }
-                  onClick={() => handleCategoryClick(category)}
-                  onMouseEnter={() => handleMouseEnterCategory(category)}
-                  onMouseLeave={() => handleMouseLeaveCategory(category)}
-                >
-                  {category === CatalogueCategory.Hot && (
-                    <div className="home__icon-wrapper">
-                      <img
-                        src={flameIconStatic}
-                        alt=""
-                        className="home__flame-icon"
-                        style={{ display: animateFlame ? "none" : "block" }}
-                      />
-                      <img
-                        src={flameIconAnimated}
-                        alt=""
-                        className="home__flame-icon"
-                        style={{ display: animateFlame ? "block" : "none" }}
-                      />
+        <div className="home-hero__content">
+          <div className="home-hero__tiles">
+            {heroGames.map((game, index) => {
+              const isFocused = index === safeFocusIndex;
+              const cover = getCoverArt(game.asset);
+
+              return (
+                <div key={game.key} className="home-hero__tile-wrap">
+                  <button
+                    type="button"
+                    className={cn("home-hero__tile", {
+                      "home-hero__tile--focused": isFocused,
+                    })}
+                    style={
+                      cover ? { backgroundImage: `url("${cover}")` } : undefined
+                    }
+                    onClick={() =>
+                      isFocused ? openGame(game.asset) : setFocusIndex(index)
+                    }
+                    title={game.asset.title}
+                  />
+                  {isFocused && (
+                    <div className="home-hero__tile-label">
+                      <span className="home-hero__tile-name">
+                        {game.asset.title}
+                      </span>
                     </div>
                   )}
+                </div>
+              );
+            })}
+          </div>
 
-                  {t(category)}
-                </Button>
-              </li>
-            ))}
-          </ul>
+          <div className="home-hero__spacer" />
 
-          <Button
-            onClick={handleRandomizerClick}
-            theme="outline"
-            disabled={!randomGame}
-          >
-            <div className="home__icon-wrapper">
-              <img
-                src={starsIconAnimated}
-                alt=""
-                className="home__stars-icon"
-              />
-            </div>
-            {t("surprise_me")}
-          </Button>
-        </section>
+          {focus && (
+            <div className="home-hero__info" key={focus.key}>
+              <GameLogo game={focus.asset} className="home-hero__logo" />
 
-        <h2 className="home__title">
-          {currentCatalogueCategory === CatalogueCategory.Hot && (
-            <div className="home__title-icon">
-              <img
-                src={flameIconAnimated}
-                alt=""
-                className="home__title-flame-icon"
-              />
+              <div className="home-hero__meta">
+                {formatSummaryMeta(focusSummary) || " "}
+              </div>
+
+              {focusSummary?.description && (
+                <p className="home-hero__desc">{focusSummary.description}</p>
+              )}
+
+              <div className="home-hero__actions">
+                <button
+                  type="button"
+                  className="home-hero__primary"
+                  onClick={() => openGame(focus.asset)}
+                >
+                  <Icon name={isFocusReady ? "play" : "download"} size={18} />
+                  <span>{isFocusReady ? t("play") : t("download")}</span>
+                </button>
+
+                <button
+                  type="button"
+                  className="home-hero__round"
+                  onClick={() => openGame(focus.asset)}
+                  title={t("more")}
+                >
+                  <Icon name="kebab-horizontal" size={20} />
+                </button>
+
+                {focusProgress && focusProgress.total > 0 && (
+                  <div className="home-hero__trophy-pill">
+                    <Icon
+                      name="trophy"
+                      size={18}
+                      className={cn("home-hero__trophy-icon", {
+                        "home-hero__trophy-icon--platinum":
+                          focusProgress.isPlatinum,
+                      })}
+                    />
+                    <span>{focusProgress.percent}%</span>
+                    <div className="home-hero__trophy-bar">
+                      <span style={{ width: `${focusProgress.percent}%` }} />
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           )}
-
-          {t(currentCatalogueCategory)}
-        </h2>
-
-        <section className="home__cards">
-          {isLoading
-            ? Array.from({ length: 12 }).map((_, index) => (
-                <Skeleton key={index} className="home__card-skeleton" />
-              ))
-            : catalogue[currentCatalogueCategory].map((result) => (
-                <GameCard
-                  key={result.objectId}
-                  game={result}
-                  onClick={() => navigate(buildGameDetailsPath(result))}
-                />
-              ))}
-        </section>
+        </div>
       </section>
-    </SkeletonTheme>
+
+      <section className="home-discover">
+        <div className="home-discover__header">
+          {discoverTabs.map((tab) => (
+            <button
+              key={tab.key}
+              type="button"
+              className={cn("home-discover__tab", {
+                "home-discover__tab--active": discoverTab === tab.key,
+              })}
+              onClick={() => setDiscoverTab(tab.key)}
+            >
+              <Icon name={tab.icon} size={18} />
+              <span>{tab.label}</span>
+            </button>
+          ))}
+
+          <div className="home-discover__grow" />
+
+          <button
+            type="button"
+            className="home-discover__surprise"
+            onClick={handleSurprise}
+            disabled={!randomGame}
+          >
+            <Icon name="sync" size={16} />
+            <span>{t("surprise_me")}</span>
+          </button>
+        </div>
+
+        <div className="home-discover__grid">
+          {discoverGames === null
+            ? Array.from({ length: 6 }).map((_, index) => (
+                <div key={index} className="home-discover__skeleton">
+                  <div className="home-discover__art ps5-shimmer" />
+                  <div className="home-discover__skeleton-line ps5-shimmer" />
+                </div>
+              ))
+            : discoverGames.map((game) => {
+                const progress =
+                  discoverTab === "almost" ? getTrophyProgress(game) : null;
+
+                return (
+                  <DiscoverCard
+                    key={toKey(game)}
+                    game={game}
+                    sub={
+                      progress
+                        ? t("almost_platinum_sub", {
+                            percent: progress.percent,
+                            count: progress.total - progress.unlocked,
+                          })
+                        : null
+                    }
+                    onOpen={() => openGame(game)}
+                  />
+                );
+              })}
+        </div>
+
+        {discoverGames !== null && discoverGames.length === 0 && (
+          <p className="home-discover__empty">
+            {discoverTab === "almost" ? t("almost_empty") : t("discover_empty")}
+          </p>
+        )}
+      </section>
+    </div>
   );
 }

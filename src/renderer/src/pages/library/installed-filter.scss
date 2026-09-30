@@ -19,6 +19,12 @@ $button-transition-duration: 0.2s;
       background: rgba(255, 255, 255, 0.08);
     }
 
+    &--active {
+      background: rgba(globals.$brand-orange, 0.16);
+      border-color: globals.$brand-orange;
+      color: globals.$brand-orange;
+    }
+
     svg {
       display: block;
     }

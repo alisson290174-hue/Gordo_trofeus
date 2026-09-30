@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Underline from "@tiptap/extension-underline";
 
 import { Button } from "@renderer/components";
 
@@ -37,7 +36,6 @@ export function ReviewReplyComposer({
       StarterKit.configure({
         link: false,
       }),
-      Underline,
     ],
     content: prefill ? `<p>${escapeHtml(prefill)}</p>` : "",
     autofocus: "end",

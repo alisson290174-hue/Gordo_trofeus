@@ -15,7 +15,11 @@ import {
   resolveClassicsBadge,
   shouldShowSteamLibraryBadge,
 } from "@renderer/helpers";
-import { AchievementProgress, SteamLibraryBadge } from "@renderer/components";
+import {
+  AchievementProgress,
+  AchievementSupportBadge,
+  SteamLibraryBadge,
+} from "@renderer/components";
 import { formatBytes, getDisplayedPlayTimeInMilliseconds } from "@shared";
 
 import { memo, useEffect, useMemo, useState } from "react";
@@ -179,6 +183,7 @@ export const LibraryGameCardLarge = memo(function LibraryGameCardLarge({
   );
 
   const [heroIndex, setHeroIndex] = useState(0);
+  const [logoFailed, setLogoFailed] = useState(false);
 
   const [unlockedAchievementsCount, setUnlockedAchievementsCount] = useState(
     game.unlockedAchievementCount ?? 0
@@ -293,6 +298,10 @@ export const LibraryGameCardLarge = memo(function LibraryGameCardLarge({
 
   const logoImage = game.customLogoImageUrl ?? game.logoImageUrl;
 
+  useEffect(() => {
+    setLogoFailed(false);
+  }, [logoImage]);
+
   const { label: classicsPlatformLabel, icon: classicsEmulatorIcon } =
     resolveClassicsBadge(
       game.shop,
@@ -328,6 +337,9 @@ export const LibraryGameCardLarge = memo(function LibraryGameCardLarge({
           alt=""
           aria-hidden="true"
           className="library-game-card-large__animated-hero"
+          onError={(event) => {
+            event.currentTarget.style.display = "none";
+          }}
         />
       )}
       {classicsForegroundUrl && (
@@ -336,6 +348,9 @@ export const LibraryGameCardLarge = memo(function LibraryGameCardLarge({
           alt={game.title}
           className="library-game-card-large__classics-foreground"
           loading="lazy"
+          onError={(event) => {
+            event.currentTarget.style.display = "none";
+          }}
         />
       )}
       {!hideAchievementProgress &&
@@ -397,11 +412,12 @@ export const LibraryGameCardLarge = memo(function LibraryGameCardLarge({
         </div>
 
         <div className="library-game-card-large__logo-container">
-          {logoImage ? (
+          {logoImage && !logoFailed ? (
             <img
               src={logoImage}
               alt={game.title}
               className="library-game-card-large__logo"
+              onError={() => setLogoFailed(true)}
             />
           ) : (
             <h3 className="library-game-card-large__title">{game.title}</h3>
@@ -409,6 +425,9 @@ export const LibraryGameCardLarge = memo(function LibraryGameCardLarge({
         </div>
 
         <div className="library-game-card-large__info-bar">
+          {!hideBadges && (
+            <AchievementSupportBadge support={game.achievementSupport} />
+          )}
           {!hideAchievementProgress &&
             ((game.achievementCount ?? 0) > 0 ||
               unlockedAchievementsCount > 0) && (

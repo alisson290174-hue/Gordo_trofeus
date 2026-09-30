@@ -1,26 +1,13 @@
-import { useCallback, useContext, useMemo, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@renderer/components/icon/icon";
 import { userProfileContext } from "@renderer/context";
-
 import { buildGameDetailsPath } from "@renderer/helpers";
-import {
-  Avatar,
-  Button,
-  FullscreenMediaModal,
-  Link,
-} from "@renderer/components";
+import { formatHours } from "@renderer/helpers/ps5-game";
+import { FullscreenMediaModal, Link } from "@renderer/components";
 import { useTranslation } from "react-i18next";
-import {
-  useAppSelector,
-  useDate,
-  useToast,
-  useUserDetails,
-} from "@renderer/hooks";
-import { addSeconds } from "date-fns";
+import { useAppSelector, useToast, useUserDetails } from "@renderer/hooks";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { AuthPage } from "@shared";
-
 import type { FriendRequestAction } from "@types";
 import { EditProfileModal } from "../edit-profile-modal/edit-profile-modal";
 import Skeleton from "react-loading-skeleton";
@@ -31,14 +18,28 @@ type FriendAction =
   | FriendRequestAction
   | ("BLOCK" | "UNDO_FRIENDSHIP" | "SEND");
 
+interface MenuItem {
+  key: string;
+  label: string;
+  icon: string;
+  danger?: boolean;
+  onSelect: () => void;
+}
+
+/**
+ * Profile hero (design "Balói — Perfil de troféus"): banner under the top nav, big ringed
+ * avatar, name in thin display type, a meta line and pill actions. Destructive actions
+ * (undo friendship, block, sign out) live in the "⋯" menu, like the PS5 profile.
+ */
 export function ProfileHero() {
   const [showEditProfileModal, setShowEditProfileModal] = useState(false);
   const [showFullscreenAvatar, setShowFullscreenAvatar] = useState(false);
   const [isPerformingAction, setIsPerformingAction] = useState(false);
-  const [isCopyButtonHovered, setIsCopyButtonHovered] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
 
-  const { isMe, getUserProfile, userProfile, heroBackground, backgroundImage } =
+  const { isMe, getUserProfile, userProfile, backgroundImage, userStats } =
     useContext(userProfileContext);
   const {
     signOut,
@@ -48,22 +49,25 @@ export function ProfileHero() {
     blockUser,
     userDetails,
   } = useUserDetails();
-
   const { gameRunning } = useAppSelector((state) => state.gameRunning);
 
-  const { t } = useTranslation("user_profile");
-  const { formatDistance } = useDate();
-
+  const { t, i18n } = useTranslation(["user_profile", "dashboard"]);
   const { showSuccessToast, showErrorToast } = useToast();
-
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isMenuOpen) return;
+    const close = (event: MouseEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) setIsMenuOpen(false);
+    };
+    document.addEventListener("mousedown", close);
+    return () => document.removeEventListener("mousedown", close);
+  }, [isMenuOpen]);
 
   const handleSignOut = useCallback(async () => {
     setIsPerformingAction(true);
-
     try {
       await signOut();
-
       showSuccessToast(t("successfully_signed_out"));
     } finally {
       setIsPerformingAction(false);
@@ -74,7 +78,6 @@ export function ProfileHero() {
   const handleFriendAction = useCallback(
     async (userId: string, action: FriendAction) => {
       if (!userProfile) return;
-
       if (!userDetails) {
         window.electron.openAuthWindow(AuthPage.SignIn);
         return;
@@ -93,7 +96,6 @@ export function ProfileHero() {
             showSuccessToast(t("user_blocked_successfully"));
             navigate(-1);
           });
-
           return;
         }
 
@@ -103,7 +105,7 @@ export function ProfileHero() {
         }
 
         await updateFriendRequestState(userId, action).then(getUserProfile);
-      } catch (err) {
+      } catch {
         showErrorToast(t("try_again"));
       } finally {
         setIsPerformingAction(false);
@@ -124,156 +126,12 @@ export function ProfileHero() {
     ]
   );
 
-  const giftAction = useMemo(() => {
-    if (!userProfile || isMe || !userProfile.canReceiveCloudGift) return null;
-
-    return (
-      <Button
-        theme="cloud"
-        onClick={() => {
-          if (!userDetails) {
-            window.electron.openAuthWindow(AuthPage.SignIn);
-            return;
-          }
-
-          window.electron.openCheckout({
-            path: "/gift",
-            recipientId: userProfile.id,
-          });
-        }}
-        disabled={isPerformingAction}
-      >
-        <Icon name="gift" size={16} className="profile-hero__gift-icon" />
-        {t("gift_cloud")}
-      </Button>
-    );
-  }, [isMe, isPerformingAction, t, userDetails, userProfile]);
-
-  const profileActions = useMemo(() => {
-    if (!userProfile) return null;
-
-    if (isMe) {
-      return (
-        <>
-          <Button
-            theme="outline"
-            onClick={() => setShowEditProfileModal(true)}
-            disabled={isPerformingAction}
-            className="profile-hero__button--outline"
-          >
-            <Icon name="pencil"  />
-            {t("edit_profile")}
-          </Button>
-
-          <Button
-            theme="danger"
-            onClick={handleSignOut}
-            disabled={isPerformingAction}
-          >
-            <Icon name="sign-out"  />
-            {t("sign_out")}
-          </Button>
-        </>
-      );
-    }
-
-    if (userProfile.relation == null) {
-      return (
-        <>
-          <Button
-            theme="outline"
-            onClick={() => handleFriendAction(userProfile.id, "SEND")}
-            disabled={isPerformingAction}
-            className="profile-hero__button--outline"
-          >
-            <Icon name="person-add"  />
-            {t("add_friend")}
-          </Button>
-
-          <Button
-            theme="danger"
-            onClick={() => handleFriendAction(userProfile.id, "BLOCK")}
-            disabled={isPerformingAction}
-          >
-            <Icon name="blocked"  />
-            {t("block_user")}
-          </Button>
-        </>
-      );
-    }
-
-    if (userProfile.relation.status === "ACCEPTED") {
-      return (
-        <>
-          <Button
-            theme="danger"
-            onClick={() =>
-              handleFriendAction(userProfile.id, "UNDO_FRIENDSHIP")
-            }
-            disabled={isPerformingAction}
-          >
-            <Icon name="x-circle"  />
-            {t("undo_friendship")}
-          </Button>
-
-          <Button
-            theme="danger"
-            onClick={() => handleFriendAction(userProfile.id, "BLOCK")}
-            disabled={isPerformingAction}
-          >
-            <Icon name="blocked"  />
-            {t("block_user")}
-          </Button>
-        </>
-      );
-    }
-
-    if (userProfile.relation.BId === userProfile.id) {
-      return (
-        <Button
-          theme="outline"
-          onClick={() =>
-            handleFriendAction(userProfile.relation!.BId, "CANCEL")
-          }
-          disabled={isPerformingAction}
-          className="profile-hero__button--outline"
-        >
-          <Icon name="x-circle-fill"  /> {t("cancel_request")}
-        </Button>
-      );
-    }
-
-    return (
-      <>
-        <Button
-          theme="outline"
-          onClick={() =>
-            handleFriendAction(userProfile.relation!.AId, "ACCEPTED")
-          }
-          disabled={isPerformingAction}
-          className="profile-hero__button--outline"
-        >
-          <Icon name="check-circle-fill"  /> {t("accept_request")}
-        </Button>
-        <Button
-          theme="danger"
-          onClick={() =>
-            handleFriendAction(userProfile.relation!.AId, "REFUSED")
-          }
-          disabled={isPerformingAction}
-        >
-          <Icon name="x-circle-fill"  /> {t("ignore_request")}
-        </Button>
-      </>
-    );
-  }, [
-    handleFriendAction,
-    handleSignOut,
-    isMe,
-    t,
-    isPerformingAction,
-    userProfile,
-  ]);
+  const copyFriendCode = useCallback(() => {
+    if (!userProfile?.id) return;
+    globalThis.window.electron.clipboard.writeText(userProfile.id);
+    setIsCopied(true);
+    setTimeout(() => setIsCopied(false), 1400);
+  }, [userProfile]);
 
   const handleAvatarClick = useCallback(() => {
     if (userProfile?.profileImageUrl) {
@@ -283,47 +141,107 @@ export function ProfileHero() {
     }
   }, [isMe, userProfile?.profileImageUrl]);
 
-  const copyFriendCode = useCallback(() => {
-    if (userProfile?.id) {
-      globalThis.window.electron.clipboard.writeText(userProfile.id);
-      setIsCopied(true);
-
-      const startTime = performance.now();
-      const duration = 1200; // 1.2 seconds
-
-      const animate = (currentTime: number) => {
-        const elapsed = currentTime - startTime;
-        if (elapsed < duration) {
-          requestAnimationFrame(animate);
-        } else {
-          setIsCopied(false);
-        }
-      };
-
-      requestAnimationFrame(animate);
-    }
-  }, [userProfile]);
-
   const currentGame = useMemo(() => {
     if (isMe) {
-      if (gameRunning)
-        return {
-          ...gameRunning,
-          objectId: gameRunning.objectId,
-          sessionDurationInSeconds: gameRunning.sessionDurationInMillis / 1000,
-        };
-
-      return null;
+      return gameRunning
+        ? { title: gameRunning.title, objectId: gameRunning.objectId, shop: gameRunning.shop }
+        : null;
     }
-    return userProfile?.currentGame;
+    return userProfile?.currentGame ?? null;
   }, [isMe, userProfile, gameRunning]);
+
+  const relation = userProfile?.relation ?? null;
+  const isFriend = relation?.status === "ACCEPTED";
+
+  const { buttons, menu } = useMemo(() => {
+    const buttons: JSX.Element[] = [];
+    const menu: MenuItem[] = [];
+    if (!userProfile) return { buttons, menu };
+
+    if (isMe) {
+      buttons.push(
+        <button key="edit" type="button" className="pf-hero__pill" onClick={() => setShowEditProfileModal(true)} disabled={isPerformingAction}>
+          <Icon name="pencil" size={16} />
+          {t("edit_profile")}
+        </button>,
+        <button key="code" type="button" className="pf-hero__pill" onClick={copyFriendCode}>
+          <Icon name={isCopied ? "check" : "copy"} size={16} />
+          {isCopied ? t("copied") : t("dashboard:friend_code")}
+        </button>
+      );
+      menu.push({ key: "signout", label: t("sign_out"), icon: "sign-out", danger: true, onSelect: handleSignOut });
+      return { buttons, menu };
+    }
+
+    if (userDetails) {
+      buttons.push(
+        <button key="compare" type="button" className="pf-hero__pill pf-hero__pill--primary" onClick={() => navigate(`/profile/${userProfile.id}/compare`)}>
+          <Icon name="trophy" size={17} />
+          {t("dashboard:compare_trophies")}
+        </button>
+      );
+    }
+
+    if (relation == null) {
+      buttons.push(
+        <button key="add" type="button" className="pf-hero__pill" onClick={() => handleFriendAction(userProfile.id, "SEND")} disabled={isPerformingAction}>
+          <Icon name="person-add" size={16} />
+          {t("add_friend")}
+        </button>
+      );
+    } else if (isFriend) {
+      buttons.push(
+        <span key="friends" className="pf-hero__pill pf-hero__pill--static">
+          <Icon name="check" size={16} />
+          {t("dashboard:friends_label")}
+        </span>
+      );
+      menu.push({ key: "undo", label: t("undo_friendship"), icon: "x-circle", danger: true, onSelect: () => handleFriendAction(userProfile.id, "UNDO_FRIENDSHIP") });
+    } else if (relation.BId === userProfile.id) {
+      buttons.push(
+        <button key="cancel" type="button" className="pf-hero__pill" onClick={() => handleFriendAction(relation.BId, "CANCEL")} disabled={isPerformingAction}>
+          <Icon name="x-circle-fill" size={16} />
+          {t("cancel_request")}
+        </button>
+      );
+    } else {
+      buttons.push(
+        <button key="accept" type="button" className="pf-hero__pill" onClick={() => handleFriendAction(relation.AId, "ACCEPTED")} disabled={isPerformingAction}>
+          <Icon name="check-circle-fill" size={16} />
+          {t("accept_request")}
+        </button>,
+        <button key="ignore" type="button" className="pf-hero__pill" onClick={() => handleFriendAction(relation.AId, "REFUSED")} disabled={isPerformingAction}>
+          <Icon name="x-circle-fill" size={16} />
+          {t("ignore_request")}
+        </button>
+      );
+    }
+
+    menu.push({ key: "block", label: t("block_user"), icon: "blocked", danger: true, onSelect: () => handleFriendAction(userProfile.id, "BLOCK") });
+    return { buttons, menu };
+  }, [userProfile, isMe, isPerformingAction, t, copyFriendCode, isCopied, handleSignOut, userDetails, navigate, relation, isFriend, handleFriendAction]);
+
+  const eyebrow = isMe
+    ? t("dashboard:your_profile")
+    : isFriend
+      ? t("dashboard:friend")
+      : t("dashboard:player");
+
+  const metaItems = [
+    userStats ? t("dashboard:games_count", { count: userStats.libraryCount }) : null,
+    userStats?.totalPlayTimeInSeconds?.value
+      ? t("dashboard:played_hours", {
+          hours: formatHours(userStats.totalPlayTimeInSeconds.value * 1000, i18n.language),
+        })
+      : null,
+    userProfile ? t("dashboard:karma_n", { count: userProfile.karma }) : null,
+  ].filter(Boolean) as string[];
+
+  const initial = (userProfile?.displayName ?? "").charAt(0).toUpperCase();
 
   return (
     <>
-      <EditProfileModal
-        visible={showEditProfileModal}
-        onClose={() => setShowEditProfileModal(false)}
-      />
+      <EditProfileModal visible={showEditProfileModal} onClose={() => setShowEditProfileModal(false)} />
 
       <FullscreenMediaModal
         visible={showFullscreenAvatar}
@@ -332,133 +250,87 @@ export function ProfileHero() {
         alt={userProfile?.displayName}
       />
 
-      <section
-        className={`profile-hero__content-box ${
-          !backgroundImage ? "profile-hero__content-box--default-banner" : ""
-        }`}
-        style={{ background: !backgroundImage ? heroBackground : undefined }}
-      >
-        {giftAction && (
-          <div className="profile-hero__gift-action">{giftAction}</div>
-        )}
-
-        {backgroundImage && (
-          <img
-            src={backgroundImage}
-            alt=""
-            className="profile-hero__background-image"
-          />
-        )}
-
-        <div
-          className={`profile-hero__background-overlay ${
-            !backgroundImage
-              ? "profile-hero__background-overlay--transparent"
-              : ""
-          }`}
-        >
-          <div className="profile-hero__user-information">
-            <button
-              type="button"
-              className="profile-hero__avatar-button"
-              onClick={handleAvatarClick}
-            >
-              <Avatar
-                size={96}
-                alt={userProfile?.displayName}
-                src={userProfile?.profileImageUrl}
-              />
-            </button>
-
-            <div className="profile-hero__information">
-              {userProfile ? (
-                <div className="profile-hero__display-name-container">
-                  <h2 className="profile-hero__display-name">
-                    {userProfile?.displayName}
-                  </h2>
-
-                  <motion.button
-                    type="button"
-                    className="profile-hero__copy-button"
-                    onClick={copyFriendCode}
-                    title={t("copy_friend_code")}
-                    onMouseEnter={() => setIsCopyButtonHovered(true)}
-                    onMouseLeave={() => setIsCopyButtonHovered(false)}
-                    initial={{ width: 28 }}
-                    animate={{
-                      width: isCopyButtonHovered || isCopied ? 105 : 28,
-                    }}
-                    transition={{ duration: 0.2, ease: "easeInOut" }}
-                  >
-                    <motion.span
-                      className="profile-hero__friend-code"
-                      initial={{ opacity: 0, marginRight: 0 }}
-                      animate={{
-                        opacity: isCopyButtonHovered || isCopied ? 1 : 0,
-                        marginRight: isCopyButtonHovered || isCopied ? 8 : 0,
-                      }}
-                      transition={{ duration: 0.2, ease: "easeInOut" }}
-                    >
-                      {isCopied ? t("copied") : userProfile?.id}
-                    </motion.span>
-                    <Icon name="copy" size={16} />
-                  </motion.button>
-                </div>
-              ) : (
-                <Skeleton width={150} height={28} />
-              )}
-
-              {currentGame && (
-                <div className="profile-hero__current-game-wrapper">
-                  <div className="profile-hero__current-game-details">
-                    <Link
-                      to={buildGameDetailsPath({
-                        ...currentGame,
-                        objectId: currentGame.objectId,
-                      })}
-                    >
-                      {currentGame.title}
-                    </Link>
-                  </div>
-
-                  <small>
-                    {t("playing_for", {
-                      amount: formatDistance(
-                        addSeconds(
-                          new Date(),
-                          -currentGame.sessionDurationInSeconds
-                        ),
-                        new Date()
-                      ),
-                    })}
-                  </small>
-                </div>
-              )}
-            </div>
-
-            <UploadBackgroundImageButton />
-          </div>
+      <section className="pf-hero">
+        <div className="pf-hero__art">
+          {backgroundImage ? (
+            <img
+              src={backgroundImage}
+              alt=""
+              onError={(event) => {
+                event.currentTarget.style.display = "none";
+              }}
+            />
+          ) : (
+            <div className="pf-hero__art-default" />
+          )}
         </div>
+        <div className="pf-hero__shade" />
 
-        <div
-          className={`profile-hero__hero-panel ${
-            !backgroundImage ? "profile-hero__hero-panel--transparent" : ""
-          }`}
-          style={{
-            background: !backgroundImage ? heroBackground : undefined,
-          }}
-        >
-          <div className="profile-hero__actions">
-            {profileActions}
-            {!isMe && userProfile && (
-              <Button
-                theme="outline"
-                className="profile-hero__button--outline"
-                onClick={() => navigate(`/profile/${userProfile.id}/compare`)}
-              >
-                <Icon name="trophy"  />
-                {t("compare_trophies")}
-              </Button>
+        {isMe && <UploadBackgroundImageButton />}
+
+        <div className="pf-hero__identity">
+          <button type="button" className="pf-hero__avatar" onClick={handleAvatarClick}>
+            {userProfile?.profileImageUrl ? (
+              <img src={userProfile.profileImageUrl} alt={userProfile.displayName} />
+            ) : (
+              <span>{initial}</span>
+            )}
+            {currentGame && <span className="pf-hero__online" />}
+          </button>
+
+          <div className="pf-hero__text">
+            <span className="pf-hero__eyebrow">{eyebrow}</span>
+            {userProfile ? (
+              <h1 className="pf-hero__name">{userProfile.displayName}</h1>
+            ) : (
+              <Skeleton width={260} height={60} />
+            )}
+            <div className="pf-hero__meta">
+              {currentGame && (
+                <span className="pf-hero__playing">
+                  <span className="pf-hero__playing-dot" />
+                  {t("dashboard:playing")}{" "}
+                  <Link to={buildGameDetailsPath({ ...currentGame })}>{currentGame.title}</Link>
+                </span>
+              )}
+              {metaItems.map((item) => (
+                <span key={item}>{item}</span>
+              ))}
+            </div>
+          </div>
+
+          <div className="pf-hero__actions">
+            {buttons}
+            {menu.length > 0 && (
+              <div className="pf-hero__menu" ref={menuRef}>
+                <button
+                  type="button"
+                  className="pf-hero__round"
+                  aria-label={t("dashboard:more")}
+                  onClick={() => setIsMenuOpen((open) => !open)}
+                >
+                  <Icon name="kebab-horizontal" size={18} />
+                </button>
+                {isMenuOpen && (
+                  <div className="pf-hero__dropdown">
+                    {menu.map((item) => (
+                      <button
+                        key={item.key}
+                        type="button"
+                        className={`pf-hero__dropdown-item${item.danger ? " pf-hero__dropdown-item--danger" : ""}`}
+                        onClick={() => {
+                          setIsMenuOpen(false);
+                          item.onSelect();
+                        }}
+                        disabled={isPerformingAction}
+                      >
+                        <Icon name={item.icon} size={16} />
+                        {item.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             )}
           </div>
         </div>

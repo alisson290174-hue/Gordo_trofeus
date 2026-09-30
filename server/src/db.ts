@@ -132,6 +132,50 @@ CREATE TABLE IF NOT EXISTS blocks (
   blocker_id TEXT NOT NULL REFERENCES users(id), blocked_id TEXT NOT NULL REFERENCES users(id),
   created_at TEXT NOT NULL, PRIMARY KEY (blocker_id, blocked_id)
 );
+
+-- Cloud save (v2, baseado em snapshots). Blobs content-addressed por sha256, deduplicados e
+-- contados por referência: o mesmo save compartilhado entre versões/jogos guarda 1 arquivo só.
+CREATE TABLE IF NOT EXISTS cloud_save_blobs (
+  hash TEXT PRIMARY KEY, size_bytes INTEGER NOT NULL,
+  stored_path TEXT NOT NULL, ref_count INTEGER NOT NULL DEFAULT 0,
+  created_at TEXT NOT NULL
+);
+-- Um único snapshot ativo por (usuário, jogo) — o cliente rejeita mais de um. O commit substitui
+-- o anterior e incrementa a versão.
+CREATE TABLE IF NOT EXISTS cloud_snapshots (
+  id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id),
+  shop TEXT NOT NULL, object_id TEXT NOT NULL,
+  version INTEGER NOT NULL, snapshot_hash TEXT NOT NULL,
+  platform TEXT, hostname TEXT,
+  created_at TEXT NOT NULL, updated_at TEXT NOT NULL,
+  UNIQUE(user_id, shop, object_id)
+);
+CREATE TABLE IF NOT EXISTS cloud_snapshot_variants (
+  snapshot_id TEXT NOT NULL REFERENCES cloud_snapshots(id) ON DELETE CASCADE,
+  variant_id TEXT NOT NULL, kind TEXT NOT NULL,
+  steam_id64 TEXT, concrete_folder_id TEXT,
+  PRIMARY KEY (snapshot_id, variant_id)
+);
+CREATE TABLE IF NOT EXISTS cloud_snapshot_custom_paths (
+  snapshot_id TEXT NOT NULL REFERENCES cloud_snapshots(id) ON DELETE CASCADE,
+  raw_path TEXT NOT NULL, PRIMARY KEY (snapshot_id, raw_path)
+);
+CREATE TABLE IF NOT EXISTS cloud_snapshot_files (
+  snapshot_id TEXT NOT NULL REFERENCES cloud_snapshots(id) ON DELETE CASCADE,
+  variant_id TEXT NOT NULL, raw_path TEXT NOT NULL, relative_path TEXT NOT NULL,
+  hash TEXT NOT NULL REFERENCES cloud_save_blobs(hash), size_bytes INTEGER NOT NULL,
+  last_modified_at TEXT NOT NULL,
+  PRIMARY KEY (snapshot_id, variant_id, raw_path, relative_path)
+);
+-- Proposta de snapshot entre o prepare e o commit. Guarda o manifesto proposto (variants, files,
+-- custom paths) como JSON até o commit publicar. Limpo por expiração.
+CREATE TABLE IF NOT EXISTS cloud_pending_snapshots (
+  id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES users(id),
+  shop TEXT NOT NULL, object_id TEXT NOT NULL,
+  base_version INTEGER NOT NULL, snapshot_hash TEXT NOT NULL,
+  platform TEXT, hostname TEXT, manifest_json TEXT NOT NULL,
+  created_at TEXT NOT NULL
+);
 `);
 
 // Migração leve, idempotente — coluna adicionada após o deploy inicial. ALTER TABLE ADD COLUMN
@@ -153,6 +197,47 @@ try {
 } catch {
   // coluna já existe
 }
+// Contagem de reviews da Steam (recommendations.total) — sinal de popularidade para ordenar o
+// catálogo. NULL em linhas cacheadas antes desta coluna → tratado como "precisa re-buscar" e cai
+// por último na ordenação por popularidade até ser preenchido.
+try {
+  db.exec("ALTER TABLE steam_games ADD COLUMN review_count INTEGER");
+} catch {
+  // coluna já existe
+}
+// Conquistas online/multiplayer: marcadas para serem escondidas do catálogo, de modo que a
+// "platina" seja alcançável só com jogo offline (decisão deste servidor pessoal — jogos como
+// GTA V/RDR2 têm troféus exclusivos de online que ninguém aqui vai fazer).
+try {
+  db.exec("ALTER TABLE achievement_catalogue ADD COLUMN is_online INTEGER NOT NULL DEFAULT 0");
+} catch {
+  // coluna já existe
+}
+// (Re)classifica a cada boot as que a Steam descreve como online/multiplayer — idempotente, só
+// toca linhas ainda marcadas como offline. Cobre PT e EN. "GTA Online:"/"Red Dead Online:" são os
+// prefixos que a própria Steam usa nesses jogos; multiplayer/multijogador/pvp cobrem os demais.
+db.exec(`
+  UPDATE achievement_catalogue SET is_online = 1
+  WHERE is_online = 0 AND (
+    LOWER(description) LIKE '%online%'
+    OR LOWER(description) LIKE '%multiplayer%'
+    OR LOWER(description) LIKE '%multijogador%'
+    OR LOWER(description) LIKE '%pvp%'
+    OR LOWER(display_name) LIKE '%multiplayer%'
+    OR LOWER(display_name) LIKE '%online%'
+  )
+`);
+
+// Integração RetroAchievements por usuário (credenciais validadas na Web API oficial).
+db.exec(`
+  CREATE TABLE IF NOT EXISTS retroachievements_integrations (
+    user_id TEXT PRIMARY KEY,
+    username TEXT NOT NULL,
+    web_api_key TEXT NOT NULL,
+    ra_user_id TEXT,
+    connected_at TEXT NOT NULL
+  )
+`);
 
 // Seed da allowlist a partir do .env — idempotente, roda a cada boot.
 const seedAllowedSteamId = db.prepare(

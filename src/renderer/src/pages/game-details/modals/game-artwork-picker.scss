@@ -13,7 +13,7 @@
   &__title {
     flex-shrink: 0;
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 500;
   }
 
   &__divider {
@@ -183,8 +183,8 @@
     }
 
     &--active {
-      border-color: #f4a510;
-      box-shadow: 0 0 0 1px #f4a510;
+      border-color: #0070f3;
+      box-shadow: 0 0 0 1px #0070f3;
     }
   }
 

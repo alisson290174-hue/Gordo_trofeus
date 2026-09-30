@@ -1,6 +1,11 @@
 import type { FastifyInstance } from "fastify";
+import { genreAliases, normalizeGenre, normalizeGenres } from "./genres.js";
 import { db } from "../db.js";
-import { getOrCacheSteamGame, type SteamGameRow } from "./steam-lookup.js";
+import {
+  getOrCacheSteamGame,
+  ingestSteamGamesByTitle,
+  type SteamGameRow,
+} from "./steam-lookup.js";
 import { getCuratedNewReleases, getCuratedTopSellers } from "./featured-categories.js";
 
 function parseJsonArray(value: string | null): string[] {
@@ -32,7 +37,7 @@ function toCatalogueSearchResult(game: SteamGameRow, downloadSourceIds: string[]
     objectId: String(game.appid),
     title: game.title,
     shop: "steam",
-    genres: parseJsonArray(game.genres),
+    genres: normalizeGenres(parseJsonArray(game.genres)),
     developers: parseJsonArray(game.developers),
     publishers: parseJsonArray(game.publishers),
     releaseYear: game.release_year,
@@ -77,7 +82,8 @@ const distinctFieldStatement = (column: "genres" | "developers" | "publishers") 
 function distinctValues(column: "genres" | "developers" | "publishers"): string[] {
   const rows = distinctFieldStatement(column).all() as Record<string, string>[];
   const values = new Set<string>();
-  for (const row of rows) for (const v of parseJsonArray(row[column])) values.add(v);
+  for (const row of rows)
+    for (const v of parseJsonArray(row[column])) values.add(column === "genres" ? normalizeGenre(v) : v);
   return [...values].sort();
 }
 
@@ -185,6 +191,8 @@ export function registerCatalogueRoutes(app: FastifyInstance) {
       genres?: string[];
       publishers?: string[];
       developers?: string[];
+      sortBy?: string;
+      sortOrder?: string;
       // Kept for backwards compatibility with an earlier client contract that nested
       // these same fields under `data` — the real client sends them at the top level.
       data?: {
@@ -196,6 +204,8 @@ export function registerCatalogueRoutes(app: FastifyInstance) {
         genres?: string[];
         publishers?: string[];
         developers?: string[];
+        sortBy?: string;
+        sortOrder?: string;
       };
     };
   }>("/catalogue/search", async (request, reply) => {
@@ -203,36 +213,90 @@ export function registerCatalogueRoutes(app: FastifyInstance) {
     const term = body.title ?? body.query ?? "";
     const take = body.take ?? 20;
     const skip = body.skip ?? 0;
-    const likeTerm = `%${term}%`;
 
     // This catalogue only has Steam games matched — a "classics" (launchbox) search has nothing to return.
     if (body.shops && body.shops.length > 0 && !body.shops.includes("steam")) {
       return reply.send({ edges: [], count: 0 });
     }
 
-    const conditions = ["sg.title LIKE ?"];
-    const params: string[] = [likeTerm];
+    // Match each word of the search independently instead of the whole phrase, so punctuation and
+    // word order in the stored title don't matter: "Hollow Knight Silksong" still finds
+    // "Hollow Knight: Silksong", and "elden ring" finds "ELDEN RING". Each word must appear (AND).
+    const titleTokens = term.trim().split(/\s+/).filter(Boolean);
+    const conditions: string[] = [];
+    const params: string[] = [];
+    if (titleTokens.length > 0) {
+      for (const token of titleTokens) {
+        conditions.push("sg.title LIKE ?");
+        params.push(`%${token}%`);
+      }
+    } else {
+      conditions.push("sg.title LIKE ?");
+      params.push("%");
+    }
     for (const [column, values] of [
       ["genres", body.genres],
       ["publishers", body.publishers],
       ["developers", body.developers],
     ] as const) {
       for (const value of values ?? []) {
-        conditions.push(`sg.${column} LIKE ?`);
-        params.push(`%${JSON.stringify(value.trim()).slice(1, -1)}%`);
+        // Genres may be stored in English or Portuguese: match any spelling of the same genre.
+        const spellings = column === "genres" ? genreAliases(value) : [value.trim()];
+        conditions.push(`(${spellings.map(() => `sg.${column} LIKE ?`).join(" OR ")})`);
+        for (const spelling of spellings) {
+          params.push(`%${JSON.stringify(spelling).slice(1, -1)}%`);
+        }
       }
     }
     const whereClause = conditions.join(" AND ");
 
-    const games = db
-      .prepare(
-        `SELECT * FROM steam_games sg
-         WHERE ${whereClause} ORDER BY sg.title ASC LIMIT ? OFFSET ?`
-      )
-      .all(...params, take, skip) as unknown as SteamGameRow[];
-    const { total } = db
-      .prepare(`SELECT COUNT(*) as total FROM steam_games sg WHERE ${whereClause}`)
-      .get(...params) as { total: number };
+    // Map the client's sort choice to a safe ORDER BY built only from fixed strings (no user
+    // input reaches the SQL). Popularity uses Steam's review count; games not yet enriched
+    // (review_count NULL) sort last so the junk-first alphabetical wall is gone by default.
+    const direction = body.sortOrder === "asc" ? "ASC" : "DESC";
+    let orderClause: string;
+    switch (body.sortBy) {
+      case "alphabetical":
+        orderClause = `sg.title COLLATE NOCASE ${direction}`;
+        break;
+      case "releaseDate":
+        orderClause = `sg.release_year IS NULL ASC, sg.release_year ${direction}, sg.title COLLATE NOCASE ASC`;
+        break;
+      // popularity / reviewScore / hydraScore (default) — most reviewed first. Until the
+      // background sync backfills review_count for the whole catalogue, games still at NULL fall
+      // back to newest-first (not alphabetical), so the default view never leads with "#"/symbol
+      // asset-flips.
+      default:
+        orderClause = `COALESCE(sg.review_count, -1) ${direction}, sg.release_year IS NULL ASC, sg.release_year DESC, sg.title COLLATE NOCASE ASC`;
+    }
+
+    const runQuery = () => {
+      const games = db
+        .prepare(
+          `SELECT * FROM steam_games sg
+           WHERE ${whereClause} ORDER BY ${orderClause} LIMIT ? OFFSET ?`
+        )
+        .all(...params, take, skip) as unknown as SteamGameRow[];
+      const { total } = db
+        .prepare(`SELECT COUNT(*) as total FROM steam_games sg WHERE ${whereClause}`)
+        .get(...params) as { total: number };
+      return { games, total };
+    };
+
+    let { games, total } = runQuery();
+
+    // On-demand ingestion: the background sync only ingests a slice of Steam's ~188k apps, so a
+    // known game (Elden Ring, a new release) may not be cached yet. If a title search comes back
+    // empty, pull the matches from Steam live, cache them, and retry once so the game shows up now
+    // instead of after days. Skipped for filter-only searches (no title to look up on the store).
+    const isFilterOnlySearch =
+      (body.genres?.length ?? 0) > 0 ||
+      (body.publishers?.length ?? 0) > 0 ||
+      (body.developers?.length ?? 0) > 0;
+    if (total === 0 && term.trim().length >= 2 && !isFilterOnlySearch) {
+      const ingested = await ingestSteamGamesByTitle(term).catch(() => 0);
+      if (ingested > 0) ({ games, total } = runQuery());
+    }
 
     reply.send({
       edges: games.map((g) => toCatalogueSearchResult(g, downloadSourceIdsForGame(g.appid))),

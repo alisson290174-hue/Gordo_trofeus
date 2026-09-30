@@ -5,7 +5,8 @@ import { useContext, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import SteamLogo from "@renderer/assets/steam-logo.svg?react";
-import { Avatar, Link } from "@renderer/components";
+import { Avatar, Img, Link } from "@renderer/components";
+import GameIconPlaceholder from "@renderer/assets/icons/game-icon-placeholder.png";
 import { AllFriendsModal } from "./all-friends-modal";
 import { AddFriendModal } from "./add-friend-modal";
 import "./friends-box.scss";
@@ -25,11 +26,12 @@ export function FriendsBox() {
   const getGameImage = (game: { iconUrl: string | null; title: string }) => {
     if (game.iconUrl) {
       return (
-        <img
+        <Img
           className="friends-box__game-image"
           alt={game.title}
           width={16}
           src={game.iconUrl}
+          fallback={GameIconPlaceholder}
         />
       );
     }

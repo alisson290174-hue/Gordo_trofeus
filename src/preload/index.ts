@@ -1613,6 +1613,8 @@ contextBridge.exposeInMainWorld("electron", {
     ),
   getUnlockedAchievements: (objectId: string, shop: GameShop) =>
     ipcRenderer.invoke("getUnlockedAchievements", objectId, shop),
+  generateGoldbergAchievements: (objectId: string, shop: GameShop) =>
+    ipcRenderer.invoke("generateGoldbergAchievements", objectId, shop),
   deleteAchievementSouvenir: (payload: { souvenirId: string }) =>
     ipcRenderer.invoke("deleteAchievementSouvenir", payload),
   getRetroAchievementsAchievements: (

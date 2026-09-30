@@ -1,6 +1,5 @@
 const ALLOWED_REMOTE_HOSTS = [
   "steamgriddb.com",
-  "losbroxas.org",
   "steamstatic.com",
   "akamaihd.net",
   "launchbox-app.com",

@@ -1122,6 +1122,21 @@ declare global {
       objectId: string,
       shop: GameShop
     ) => Promise<UserAchievement[]>;
+    generateGoldbergAchievements: (
+      objectId: string,
+      shop: GameShop
+    ) => Promise<
+      | { ok: true; count: number; path: string }
+      | {
+          ok: false;
+          reason:
+            | "not_steam"
+            | "unknown_game"
+            | "no_executable"
+            | "no_schema"
+            | "write_failed";
+        }
+    >;
     deleteAchievementSouvenir: (payload: {
       souvenirId: string;
     }) => Promise<void>;

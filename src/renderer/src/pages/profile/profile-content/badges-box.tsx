@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import { Tooltip } from "react-tooltip";
 import { useDate } from "@renderer/hooks";
 import { AllBadgesModal } from "./all-badges-modal";
+import { Img } from "@renderer/components";
+import BadgePlaceholder from "@renderer/assets/icons/badge-placeholder.png";
 import "./badges-box.scss";
 
 const MAX_VISIBLE_BADGES = 4;
@@ -46,8 +48,9 @@ export function BadgesBox() {
                   data-tooltip-place="top"
                   data-tooltip-content={tooltipContent}
                 >
-                  <img
+                  <Img
                     src={badge.badge.url}
+                    fallback={BadgePlaceholder}
                     alt={badge.name}
                     width={32}
                     height={32}

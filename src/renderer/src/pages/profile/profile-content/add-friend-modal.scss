@@ -26,7 +26,7 @@
     font-size: 0.875rem;
     color: globals.$body-color;
     font-family: monospace;
-    font-weight: 600;
+    font-weight: 500;
     flex: 1;
   }
 
@@ -79,7 +79,7 @@
     h3 {
       margin: 0;
       font-size: globals.$body-font-size;
-      font-weight: 600;
+      font-weight: 500;
       color: globals.$muted-color;
     }
   }
@@ -112,7 +112,7 @@
 
   &__friend-name {
     flex: 1;
-    font-weight: 600;
+    font-weight: 500;
     color: globals.$muted-color;
     font-size: globals.$body-font-size;
     overflow: hidden;

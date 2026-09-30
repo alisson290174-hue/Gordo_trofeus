@@ -9,7 +9,7 @@ export default function Profile() {
 
   return (
     <UserProfileContextProvider userId={userId!}>
-      <SkeletonTheme baseColor="#1c1c1c" highlightColor="#444">
+      <SkeletonTheme baseColor="#121a2c" highlightColor="#1e2940">
         <div className="profile__wrapper">
           <ProfileContent />
         </div>

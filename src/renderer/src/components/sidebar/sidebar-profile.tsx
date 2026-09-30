@@ -5,6 +5,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import SteamLogo from "@renderer/assets/steam-logo.svg?react";
 import { Avatar } from "../avatar/avatar";
+import { Img } from "../img/img";
+import GameIconPlaceholder from "@renderer/assets/icons/game-icon-placeholder.png";
 import { AuthPage } from "@shared";
 import { platformToSystem } from "@renderer/helpers";
 import { logger } from "@renderer/logger";
@@ -339,11 +341,12 @@ export function SidebarProfile() {
 
     if (gameRunning.iconUrl) {
       return (
-        <img
+        <Img
           className="sidebar-profile__game-running-icon"
           alt={gameRunning.title}
           width={24}
           src={gameRunning.iconUrl}
+          fallback={GameIconPlaceholder}
         />
       );
     }

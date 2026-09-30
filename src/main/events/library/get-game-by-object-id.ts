@@ -1,6 +1,7 @@
 import { registerEvent } from "../register-event";
 import { gamesSublevel, downloadsSublevel, levelKeys } from "@main/level";
 import type { GameShop } from "@types";
+import { displayGameTitle } from "@shared";
 import {
   resolveAchievementCount,
   resolveUnlockedAchievementCount,
@@ -41,6 +42,7 @@ const getGameByObjectId = async (
 
   return {
     ...game,
+    title: displayGameTitle(game.title, game.shop),
     id: gameKey,
     download,
     unlockedAchievementCount,

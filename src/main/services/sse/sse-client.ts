@@ -1,3 +1,4 @@
+import { isAxiosError } from "axios";
 import { UserNotLoggedInError } from "@shared";
 import { HydraApi } from "../hydra-api";
 import { logger } from "../logger";
@@ -55,6 +56,11 @@ const client = new RealtimeWebSocketClient({
   shouldStop: (error) => {
     if (error instanceof UserNotLoggedInError) {
       logger.info("Realtime connect skipped: user is not logged in");
+      return true;
+    }
+    // Balói server has no realtime endpoint yet: stop instead of retrying every few seconds.
+    if (isAxiosError(error) && error.response?.status === 404) {
+      logger.info("Realtime connect skipped: server has no /auth/realtime");
       return true;
     }
     return false;

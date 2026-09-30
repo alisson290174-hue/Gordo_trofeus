@@ -4,7 +4,8 @@ import { Icon } from "@renderer/components/icon/icon";
 import retroAchievementsLogo from "@renderer/assets/icons/retroachievements.png";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@renderer/components";
+import { Button, Img } from "@renderer/components";
+import GameIconPlaceholder from "@renderer/assets/icons/game-icon-placeholder.png";
 import { useDate, useUserDetails } from "@renderer/hooks";
 import cn from "classnames";
 import { buildSouvenirNotificationTarget } from "@shared";
@@ -262,7 +263,13 @@ export function NotificationItem({
 
   const getIcon = () => {
     if (notification.pictureUrl) {
-      return <img src={notification.pictureUrl} alt="" />;
+      return (
+        <Img
+          src={notification.pictureUrl}
+          fallback={GameIconPlaceholder}
+          alt=""
+        />
+      );
     }
     if (isRetroAchievements) {
       return <img src={retroAchievementsLogo} alt="" />;

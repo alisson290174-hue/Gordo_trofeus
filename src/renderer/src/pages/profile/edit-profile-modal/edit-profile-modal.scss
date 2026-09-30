@@ -15,7 +15,15 @@
   }
 
   &__hint {
-    margin-top: calc(globals.$spacing-unit * 2);
+    margin-top: 16px;
+    font-size: 12.5px;
+    font-weight: 300;
+    line-height: 1.5;
+    color: rgba(233, 238, 247, 0.55);
+
+    a {
+      color: #4d9bff;
+    }
   }
 
   &__submit {
@@ -30,9 +38,19 @@
     color: globals.$body-color;
     justify-content: center;
     align-items: center;
-    background-color: globals.$background-color;
+    background: transparent;
     position: relative;
     cursor: pointer;
+    border-radius: 50%;
+    padding: 0;
+    box-shadow:
+      0 0 0 3px rgba(255, 255, 255, 0.9),
+      0 16px 40px rgba(0, 0, 0, 0.5);
+
+    img,
+    .profile-avatar {
+      border-radius: 50%;
+    }
   }
 
   &__avatar-overlay {
@@ -47,7 +65,7 @@
     justify-content: center;
     transition: all ease 0.2s;
     align-items: center;
-    border-radius: 4px;
+    border-radius: 50%;
     opacity: 0;
   }
 

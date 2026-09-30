@@ -2,16 +2,23 @@
 
 .user-library-game {
   &__wrapper {
-    border-radius: 4px;
+    border-radius: 16px;
     overflow: hidden;
     position: relative;
     display: flex;
-    transition: all ease 0.2s;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.4);
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease;
     cursor: grab;
     container-type: inline-size;
 
     &:hover {
-      transform: scale(1.05);
+      transform: translateY(-4px);
+      box-shadow:
+        0 0 0 3px #0070f3,
+        0 18px 40px rgba(0, 112, 243, 0.25);
     }
 
     &:active {
@@ -28,14 +35,36 @@
         transform: scale(1.02) rotate(2deg);
       }
     }
+
+    // Platinum (100% achievements) — a clear platinum-blue glow so completed games stand out
+    // instead of blending into the grid.
+    // Platinum (100%): the same cyan-platinum used by the trophy tiers.
+    &--platinum {
+      border-color: rgba(207, 230, 234, 0.55);
+      box-shadow:
+        0 0 22px -2px rgba(150, 220, 215, 0.5),
+        0 14px 34px rgba(0, 0, 0, 0.4);
+    }
+  }
+
+  &__platinum-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: radial-gradient(circle at 30% 25%, #ffffff 0%, #cfe6ea 45%, #8fc4cc 100%);
+    color: #123a42;
+    font-size: 10px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding: 4px 7px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(150, 220, 215, 0.45);
+    white-space: nowrap;
   }
 
   &__container {
     transition: all ease 0.2s;
-
-    &:hover {
-      transform: scale(1.05);
-    }
   }
 
   &__overlay {

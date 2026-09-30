@@ -250,7 +250,6 @@ export interface UserDetails {
   allowCloudGifts: boolean;
   souvenirsVisibility: ProfileVisibility;
   bio: string;
-  workwondersJwt: string;
   subscription: Subscription | null;
   karma: number;
   quirks?: {

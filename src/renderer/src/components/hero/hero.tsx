@@ -4,6 +4,7 @@ import type { TrendingGame } from "@types";
 import { useTranslation } from "react-i18next";
 import Skeleton from "react-loading-skeleton";
 import { ensureArray } from "@renderer/helpers";
+import { Img } from "@renderer/components/img/img";
 import HeroPlaceholder from "@renderer/assets/library-catalogue/hero-placeholder.jpg";
 import "./hero.scss";
 
@@ -53,20 +54,26 @@ export function Hero() {
         key={game.uri}
       >
         <div className="hero__backdrop">
-          <img
-            src={game.libraryHeroImageUrl ?? HeroPlaceholder}
+          <Img
+            src={game.libraryHeroImageUrl}
+            fallback={HeroPlaceholder}
             alt={game.description ?? ""}
             className="hero__media"
           />
 
           <div className="hero__content">
-            <img
-              src={game.logoImageUrl ?? undefined}
-              width="250px"
-              alt={game.description ?? ""}
-              loading="eager"
-              className="hero__logo"
-            />
+            {game.logoImageUrl && (
+              <img
+                src={game.logoImageUrl}
+                width="250px"
+                alt={game.description ?? ""}
+                loading="eager"
+                className="hero__logo"
+                onError={(event) => {
+                  event.currentTarget.style.display = "none";
+                }}
+              />
+            )}
             <p className="hero__description">{game.description}</p>
           </div>
         </div>

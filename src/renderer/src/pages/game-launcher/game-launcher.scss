@@ -5,7 +5,7 @@
   flex-direction: column;
   height: 100vh;
   width: 100vw;
-  background: linear-gradient(135deg, #0d0d0d 0%, #1a1a2e 50%, #16213e 100%);
+  background: linear-gradient(135deg, #070b16 0%, #1a1a2e 50%, #16213e 100%);
   -webkit-app-region: drag;
   padding: calc(globals.$spacing-unit * 3);
   box-sizing: border-box;
@@ -50,7 +50,7 @@
     bottom: 0;
     background: radial-gradient(
       ellipse at top right,
-      rgba(244, 165, 16, 0.15) 0%,
+      rgba(0, 112, 243, 0.15) 0%,
       transparent 50%
     );
     pointer-events: none;
@@ -120,7 +120,7 @@
 
   &__title {
     font-size: 22px;
-    font-weight: 700;
+    font-weight: 500;
     color: globals.$body-color;
     margin: 0;
     overflow: hidden;
@@ -206,12 +206,12 @@
     width: 100%;
     background-color: globals.$muted-color;
     border: solid 1px transparent;
-    color: #0d0d0d;
+    color: #070b16;
     border-radius: 8px;
     padding: globals.$spacing-unit calc(globals.$spacing-unit * 2);
     min-height: 40px;
     font-size: 14px;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
     transition: all ease 0.2s;
     font-family: inherit;

@@ -1,0 +1,426 @@
+[
+ {
+  "objectId": "1174180",
+  "title": "Red Dead Redemption 2"
+ },
+ {
+  "objectId": "271590",
+  "title": "Grand Theft Auto V"
+ },
+ {
+  "objectId": "292030",
+  "title": "The Witcher 3: Wild Hunt"
+ },
+ {
+  "objectId": "1091500",
+  "title": "Cyberpunk 2077"
+ },
+ {
+  "objectId": "1245620",
+  "title": "ELDEN RING"
+ },
+ {
+  "objectId": "2622380",
+  "title": "ELDEN RING NIGHTREIGN"
+ },
+ {
+  "objectId": "814380",
+  "title": "Sekiro: Shadows Die Twice"
+ },
+ {
+  "objectId": "374320",
+  "title": "Dark Souls III"
+ },
+ {
+  "objectId": "1627720",
+  "title": "Lies of P"
+ },
+ {
+  "objectId": "1325200",
+  "title": "Nioh 2"
+ },
+ {
+  "objectId": "1593500",
+  "title": "God of War"
+ },
+ {
+  "objectId": "2322010",
+  "title": "God of War Ragnarök"
+ },
+ {
+  "objectId": "1817070",
+  "title": "Marvel's Spider-Man Remastered"
+ },
+ {
+  "objectId": "1817190",
+  "title": "Marvel's Spider-Man: Miles Morales"
+ },
+ {
+  "objectId": "2215430",
+  "title": "Ghost of Tsushima"
+ },
+ {
+  "objectId": "1151640",
+  "title": "Horizon Zero Dawn"
+ },
+ {
+  "objectId": "2420110",
+  "title": "Horizon Forbidden West"
+ },
+ {
+  "objectId": "1190460",
+  "title": "Death Stranding"
+ },
+ {
+  "objectId": "1259420",
+  "title": "Days Gone"
+ },
+ {
+  "objectId": "2208920",
+  "title": "Assassin's Creed Valhalla"
+ },
+ {
+  "objectId": "812140",
+  "title": "Assassin's Creed Odyssey"
+ },
+ {
+  "objectId": "582160",
+  "title": "Assassin's Creed Origins"
+ },
+ {
+  "objectId": "1462040",
+  "title": "Final Fantasy VII Remake"
+ },
+ {
+  "objectId": "2909400",
+  "title": "Final Fantasy VII Rebirth"
+ },
+ {
+  "objectId": "2515020",
+  "title": "Final Fantasy XVI"
+ },
+ {
+  "objectId": "637650",
+  "title": "Final Fantasy XV"
+ },
+ {
+  "objectId": "524220",
+  "title": "NieR:Automata"
+ },
+ {
+  "objectId": "1687950",
+  "title": "Persona 5 Royal"
+ },
+ {
+  "objectId": "2050650",
+  "title": "Resident Evil 4"
+ },
+ {
+  "objectId": "1196590",
+  "title": "Resident Evil Village"
+ },
+ {
+  "objectId": "883710",
+  "title": "Resident Evil 2"
+ },
+ {
+  "objectId": "418370",
+  "title": "Resident Evil 7 Biohazard"
+ },
+ {
+  "objectId": "582010",
+  "title": "Monster Hunter: World"
+ },
+ {
+  "objectId": "1446780",
+  "title": "Monster Hunter Rise"
+ },
+ {
+  "objectId": "601150",
+  "title": "Devil May Cry 5"
+ },
+ {
+  "objectId": "1364780",
+  "title": "Street Fighter 6"
+ },
+ {
+  "objectId": "1562430",
+  "title": "Dredge"
+ },
+ {
+  "objectId": "990080",
+  "title": "Hogwarts Legacy"
+ },
+ {
+  "objectId": "1086940",
+  "title": "Baldur's Gate 3"
+ },
+ {
+  "objectId": "2358720",
+  "title": "Black Myth: Wukong"
+ },
+ {
+  "objectId": "1623730",
+  "title": "Palworld"
+ },
+ {
+  "objectId": "553850",
+  "title": "Helldivers 2"
+ },
+ {
+  "objectId": "1426210",
+  "title": "It Takes Two"
+ },
+ {
+  "objectId": "2138710",
+  "title": "Sifu"
+ },
+ {
+  "objectId": "1778820",
+  "title": "Tekken 8"
+ },
+ {
+  "objectId": "489830",
+  "title": "Skyrim Special Edition"
+ },
+ {
+  "objectId": "377160",
+  "title": "Fallout 4"
+ },
+ {
+  "objectId": "782330",
+  "title": "DOOM Eternal"
+ },
+ {
+  "objectId": "892970",
+  "title": "Valheim"
+ },
+ {
+  "objectId": "264710",
+  "title": "Subnautica"
+ },
+ {
+  "objectId": "534380",
+  "title": "Dying Light 2"
+ },
+ {
+  "objectId": "1326470",
+  "title": "Sons of the Forest"
+ },
+ {
+  "objectId": "252490",
+  "title": "Rust"
+ },
+ {
+  "objectId": "381210",
+  "title": "Dead by Daylight"
+ },
+ {
+  "objectId": "739630",
+  "title": "Phasmophobia"
+ },
+ {
+  "objectId": "367520",
+  "title": "Hollow Knight"
+ },
+ {
+  "objectId": "1030300",
+  "title": "Hollow Knight: Silksong"
+ },
+ {
+  "objectId": "1145360",
+  "title": "Hades"
+ },
+ {
+  "objectId": "1145350",
+  "title": "Hades II"
+ },
+ {
+  "objectId": "413150",
+  "title": "Stardew Valley"
+ },
+ {
+  "objectId": "105600",
+  "title": "Terraria"
+ },
+ {
+  "objectId": "268910",
+  "title": "Cuphead"
+ },
+ {
+  "objectId": "504230",
+  "title": "Celeste"
+ },
+ {
+  "objectId": "620",
+  "title": "Portal 2"
+ },
+ {
+  "objectId": "870780",
+  "title": "Control"
+ },
+ {
+  "objectId": "632470",
+  "title": "Disco Elysium"
+ },
+ {
+  "objectId": "323190",
+  "title": "Frostpunk"
+ },
+ {
+  "objectId": "294100",
+  "title": "RimWorld"
+ },
+ {
+  "objectId": "427520",
+  "title": "Factorio"
+ },
+ {
+  "objectId": "976310",
+  "title": "Mortal Kombat 11"
+ },
+ {
+  "objectId": "1551360",
+  "title": "Forza Horizon 5"
+ },
+ {
+  "objectId": "1139900",
+  "title": "Ghostrunner"
+ },
+ {
+  "objectId": "730",
+  "title": "Counter-Strike 2"
+ },
+ {
+  "objectId": "570",
+  "title": "Dota 2"
+ },
+ {
+  "objectId": "1172470",
+  "title": "Apex Legends"
+ },
+ {
+  "objectId": "578080",
+  "title": "PUBG: Battlegrounds"
+ },
+ {
+  "objectId": "1888930",
+  "title": "The Last of Us Part I"
+ },
+ {
+  "objectId": "2531310",
+  "title": "The Last of Us Part II Remastered"
+ },
+ {
+  "objectId": "2651280",
+  "title": "Marvel's Spider-Man 2"
+ },
+ {
+  "objectId": "1085660",
+  "title": "Destiny 2"
+ },
+ {
+  "objectId": "22380",
+  "title": "Fallout: New Vegas"
+ },
+ {
+  "objectId": "289070",
+  "title": "Civilization VI"
+ },
+ {
+  "objectId": "1172620",
+  "title": "Sea of Thieves"
+ },
+ {
+  "objectId": "359550",
+  "title": "Rainbow Six Siege"
+ },
+ {
+  "objectId": "1966720",
+  "title": "Lethal Company"
+ },
+ {
+  "objectId": "1716740",
+  "title": "Starfield"
+ },
+ {
+  "objectId": "2694490",
+  "title": "Path of Exile 2"
+ },
+ {
+  "objectId": "1888160",
+  "title": "Armored Core VI"
+ },
+ {
+  "objectId": "400",
+  "title": "Portal"
+ },
+ {
+  "objectId": "4000",
+  "title": "Garry's Mod"
+ },
+ {
+  "objectId": "945360",
+  "title": "Among Us"
+ },
+ {
+  "objectId": "2767030",
+  "title": "Marvel Rivals"
+ },
+ {
+  "objectId": "1774580",
+  "title": "Star Wars Jedi: Survivor"
+ },
+ {
+  "objectId": "1237970",
+  "title": "Titanfall 2"
+ },
+ {
+  "objectId": "1172380",
+  "title": "Star Wars Jedi: Fallen Order"
+ },
+ {
+  "objectId": "2379780",
+  "title": "Balatro"
+ },
+ {
+  "objectId": "1794680",
+  "title": "Vampire Survivors"
+ },
+ {
+  "objectId": "1328670",
+  "title": "Mass Effect Legendary Edition"
+ },
+ {
+  "objectId": "2124490",
+  "title": "Silent Hill 2"
+ },
+ {
+  "objectId": "2677660",
+  "title": "Indiana Jones and the Great Circle"
+ },
+ {
+  "objectId": "1649240",
+  "title": "Returnal"
+ },
+ {
+  "objectId": "1895880",
+  "title": "Ratchet & Clank: Rift Apart"
+ },
+ {
+  "objectId": "1659420",
+  "title": "Uncharted: Legacy of Thieves"
+ },
+ {
+  "objectId": "1693980",
+  "title": "Dead Space"
+ },
+ {
+  "objectId": "1113000",
+  "title": "Persona 4 Golden"
+ },
+ {
+  "objectId": "1293830",
+  "title": "Forza Horizon 4"
+ }
+]

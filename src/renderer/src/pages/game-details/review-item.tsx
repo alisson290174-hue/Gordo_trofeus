@@ -149,6 +149,9 @@ export function ReviewItem({
             alt=""
             loading="lazy"
             decoding="async"
+            onError={(event) => {
+              event.currentTarget.style.display = "none";
+            }}
             className="game-details__review-banner"
           />
         )}

@@ -1,5 +1,7 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { Icon } from "@renderer/components/icon/icon";
+import { Img } from "@renderer/components/img/img";
+import GameIconPlaceholder from "@renderer/assets/icons/game-icon-placeholder.png";
 import { createPortal } from "react-dom";
 import { Tooltip } from "react-tooltip";
 
@@ -237,8 +239,9 @@ export function SearchDropdown({
                       onClick={() => onSelectSuggestion(item)}
                     >
                       {item.iconUrl ? (
-                        <img
+                        <Img
                           src={item.iconUrl}
+                          fallback={GameIconPlaceholder}
                           alt=""
                           className="search-dropdown__item-icon search-dropdown__item-icon--image"
                         />

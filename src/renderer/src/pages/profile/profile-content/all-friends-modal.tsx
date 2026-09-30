@@ -1,7 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { Modal, Avatar, Button } from "@renderer/components";
+import { Modal, Avatar, Button, Img } from "@renderer/components";
+import GameIconPlaceholder from "@renderer/assets/icons/game-icon-placeholder.png";
 import { logger } from "@renderer/logger";
 import SteamLogo from "@renderer/assets/steam-logo.svg?react";
 import type { UserFriend } from "@types";
@@ -101,7 +102,15 @@ export function AllFriendsModal({
 
   const getGameImage = (game: { iconUrl: string | null; title: string }) => {
     if (game.iconUrl) {
-      return <img alt={game.title} width={16} height={16} src={game.iconUrl} />;
+      return (
+        <Img
+          alt={game.title}
+          width={16}
+          height={16}
+          src={game.iconUrl}
+          fallback={GameIconPlaceholder}
+        />
+      );
     }
     return <SteamLogo width={16} height={16} />;
   };

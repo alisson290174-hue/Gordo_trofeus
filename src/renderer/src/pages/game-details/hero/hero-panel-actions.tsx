@@ -1,7 +1,6 @@
 
 import { Button, ConfirmationModal } from "@renderer/components";
 import { Icon } from "@renderer/components/icon/icon";
-import { XCircle } from "lucide-react";
 import {
   useDownload,
   useLibrary,
@@ -290,7 +289,7 @@ export function HeroPanelActions() {
       theme="outline"
       disabled={toggleLibraryGameDisabled}
       onClick={addGameToLibrary}
-      className="hero-panel-actions__action"
+      className="hero-panel-actions__action hero-panel-actions__primary"
     >
       <Icon name="plus-circle"  />
       {t("add_to_library")}
@@ -302,8 +301,9 @@ export function HeroPanelActions() {
       onClick={() => setShowRepacksModal(true)}
       theme="outline"
       disabled={deleting}
-      className="hero-panel-actions__action"
+      className="hero-panel-actions__action hero-panel-actions__ghost"
     >
+      <Icon name="download" size={18} />
       {t("open_download_options")}
     </Button>
   );
@@ -314,13 +314,18 @@ export function HeroPanelActions() {
       return (
         <Button
           theme="outline"
-          className="hero-panel-actions__action"
+          className="hero-panel-actions__action hero-panel-actions__primary hero-panel-actions__primary--muted"
           onClick={() => {
             setGameOptionsInitialCategory("locations");
             setShowGameOptionsModal(true);
           }}
         >
-          Transferring {percent}%
+          <span
+            className="hero-panel-actions__fill"
+            style={{ width: `${percent}%` }}
+          />
+          <Icon name="download" size={18} />
+          <span>{t("dashboard:transferring", { percent })}</span>
         </Button>
       );
     }
@@ -331,9 +336,9 @@ export function HeroPanelActions() {
           onClick={closeGame}
           theme="outline"
           disabled={deleting}
-          className="hero-panel-actions__action"
+          className="hero-panel-actions__action hero-panel-actions__primary hero-panel-actions__primary--muted"
         >
-          <XCircle size={18} />
+          <Icon name="x" size={18} />
           {t("close")}
         </Button>
       );
@@ -348,10 +353,28 @@ export function HeroPanelActions() {
           onClick={openGame}
           theme="outline"
           disabled={deleting || isGameRunning}
-          className="hero-panel-actions__action"
+          className="hero-panel-actions__action hero-panel-actions__primary"
         >
-          <Icon name="play"  />
+          <Icon name="play" size={18} />
           {t("play")}
+        </Button>
+      );
+    }
+
+    if (isGameDownloading) {
+      const percent = Math.round((lastPacket?.progress ?? 0) * 100);
+      return (
+        <Button
+          onClick={() => navigate("/downloads")}
+          theme="outline"
+          className="hero-panel-actions__action hero-panel-actions__primary hero-panel-actions__primary--muted"
+        >
+          <span
+            className="hero-panel-actions__fill"
+            style={{ width: `${percent}%` }}
+          />
+          <Icon name="download" size={18} />
+          <span>{t("dashboard:transferring", { percent })}</span>
         </Button>
       );
     }
@@ -360,10 +383,9 @@ export function HeroPanelActions() {
       <Button
         onClick={() => setShowRepacksModal(true)}
         theme="outline"
-        disabled={isGameDownloading}
-        className={`hero-panel-actions__action ${repacks.length === 0 ? "hero-panel-actions__action--disabled" : ""}`}
+        className={`hero-panel-actions__action hero-panel-actions__primary ${repacks.length === 0 ? "hero-panel-actions__action--disabled" : ""}`}
       >
-        <Icon name="download"  />
+        <Icon name="download" size={18} />
         {t("download")}
       </Button>
     );
@@ -371,10 +393,10 @@ export function HeroPanelActions() {
 
   if (repacks.length && !game) {
     return (
-      <>
+      <div className="hero-panel-actions__container">
         {addGameToLibraryButton}
         {showDownloadOptionsButton}
-      </>
+      </div>
     );
   }
 
@@ -382,14 +404,13 @@ export function HeroPanelActions() {
     return (
       <div className="hero-panel-actions__container">
         {gameActionButton()}
-        <div className="hero-panel-actions__separator" />
         <Button
           onClick={toggleGameFavorite}
           theme="outline"
           disabled={deleting}
-          className="hero-panel-actions__action"
+          className={`hero-panel-actions__action hero-panel-actions__round ${game.favorite ? "hero-panel-actions__round--favorite" : ""}`}
         >
-          {game.favorite ? <Icon name="heart-fill"  /> : <Icon name="heart"  />}
+          <Icon name={game.favorite ? "heart-fill" : "heart"} size={20} />
         </Button>
 
         {userDetails && game.shop !== "custom" && (
@@ -397,9 +418,9 @@ export function HeroPanelActions() {
             onClick={toggleGamePinned}
             theme="outline"
             disabled={deleting}
-            className="hero-panel-actions__action"
+            className={`hero-panel-actions__action hero-panel-actions__round ${game.isPinned ? "hero-panel-actions__round--pinned" : ""}`}
           >
-            {game.isPinned ? <Icon name="pin-slash"  /> : <Icon name="pin"  />}
+            <Icon name="pin" size={20} />
           </Button>
         )}
 
@@ -410,10 +431,10 @@ export function HeroPanelActions() {
           }}
           theme="outline"
           disabled={deleting}
-          className="hero-panel-actions__action"
+          className="hero-panel-actions__action hero-panel-actions__round"
+          title={t("options")}
         >
-          <Icon name="settings"  />
-          {t("options")}
+          <Icon name="kebab-horizontal" size={20} />
         </Button>
 
         {game.shop === "launchbox" && (
@@ -446,5 +467,9 @@ export function HeroPanelActions() {
     );
   }
 
-  return addGameToLibraryButton;
+  return (
+    <div className="hero-panel-actions__container">
+      {addGameToLibraryButton}
+    </div>
+  );
 }

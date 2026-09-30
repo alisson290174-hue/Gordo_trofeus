@@ -1,8 +1,8 @@
-import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
+import cn from "classnames";
 import "./profile-content.scss";
 
-export type ProfileTabType = "library" | "reviews" | "souvenirs";
+export type ProfileTabType = "overview" | "souvenirs" | "reviews" | "activity";
 
 interface ProfileTabsProps {
   activeTab: ProfileTabType;
@@ -17,78 +17,34 @@ export function ProfileTabs({
   souvenirsCount,
   onTabChange,
 }: Readonly<ProfileTabsProps>) {
-  const { t } = useTranslation("user_profile");
+  const { t } = useTranslation(["user_profile", "dashboard"]);
+
+  const tabs: { key: ProfileTabType; label: string; count?: number }[] = [
+    { key: "overview", label: t("dashboard:overview") },
+    { key: "souvenirs", label: t("souvenirs"), count: souvenirsCount },
+    { key: "reviews", label: t("user_reviews"), count: reviewsTotalCount },
+    { key: "activity", label: t("dashboard:activity") },
+  ];
 
   return (
-    <div className="profile-content__tabs">
-      <div className="profile-content__tab-wrapper">
+    <div className="profile-content__tabs" role="tablist">
+      {tabs.map((tab) => (
         <button
+          key={tab.key}
           type="button"
-          className={`profile-content__tab ${activeTab === "library" ? "profile-content__tab--active" : ""}`}
-          onClick={() => onTabChange("library")}
+          role="tab"
+          aria-selected={activeTab === tab.key}
+          className={cn("profile-content__tab", {
+            "profile-content__tab--active": activeTab === tab.key,
+          })}
+          onClick={() => onTabChange(tab.key)}
         >
-          {t("library")}
+          {tab.label}
+          {tab.count ? (
+            <span className="profile-content__tab-badge">{tab.count}</span>
+          ) : null}
         </button>
-        {activeTab === "library" && (
-          <motion.div
-            className="profile-content__tab-underline"
-            layoutId="tab-underline"
-            transition={{
-              type: "spring",
-              stiffness: 300,
-              damping: 30,
-            }}
-          />
-        )}
-      </div>
-      <div className="profile-content__tab-wrapper">
-        <button
-          type="button"
-          className={`profile-content__tab ${activeTab === "reviews" ? "profile-content__tab--active" : ""}`}
-          onClick={() => onTabChange("reviews")}
-        >
-          {t("user_reviews")}
-          {reviewsTotalCount > 0 && (
-            <span className="profile-content__tab-badge">
-              {reviewsTotalCount}
-            </span>
-          )}
-        </button>
-        {activeTab === "reviews" && (
-          <motion.div
-            className="profile-content__tab-underline"
-            layoutId="tab-underline"
-            transition={{
-              type: "spring",
-              stiffness: 300,
-              damping: 30,
-            }}
-          />
-        )}
-      </div>
-      <div className="profile-content__tab-wrapper">
-        <button
-          type="button"
-          className={`profile-content__tab ${activeTab === "souvenirs" ? "profile-content__tab--active" : ""}`}
-          onClick={() => onTabChange("souvenirs")}
-        >
-          {t("souvenirs")}
-          {souvenirsCount > 0 && (
-            <span className="profile-content__tab-badge">{souvenirsCount}</span>
-          )}
-        </button>
-        {activeTab === "souvenirs" && (
-          <motion.div
-            className="profile-content__tab-underline"
-            layoutId="tab-underline"
-            transition={{
-              type: "spring",
-              stiffness: 300,
-              damping: 30,
-            }}
-          />
-        )}
-      </div>
+      ))}
     </div>
   );
 }

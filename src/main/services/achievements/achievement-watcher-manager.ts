@@ -17,8 +17,13 @@ import { publishCombinedNewAchievementNotification } from "../notifications";
 import { db, gamesSublevel, levelKeys } from "@main/level";
 import { setTimeout } from "node:timers/promises";
 import { Wine } from "../wine";
+import { WindowManager } from "../window-manager";
 import { AchievementMemoryStore } from "./achievement-memory-store";
 import { achievementNotificationPresenter } from "../achievement-notification-presenter-electron";
+import {
+  classifyAchievementSupportFromFiles,
+  persistAchievementSupport,
+} from "./classify-achievement-support";
 
 const fileStats: Map<string, number> = new Map();
 const fltFiles: Map<string, Set<string>> = new Map();
@@ -234,6 +239,11 @@ export class AchievementWatcherManager {
       awaitGameDirectoryLocations: true,
     });
 
+    await persistAchievementSupport(
+      game,
+      classifyAchievementSupportFromFiles(game, gameAchievementFiles)
+    );
+
     const unlockedAchievements: UnlockedAchievement[] = [];
 
     for (const achievementFile of gameAchievementFiles) {
@@ -425,6 +435,20 @@ export class AchievementWatcherManager {
   public static async preSearchAchievements() {
     try {
       const gameAchievementFiles = await this.getGameAchievementFiles();
+
+      // Flag which installed games actually record achievements (green/gray badge in the library),
+      // reusing the files we just scanned so this costs no extra disk work.
+      await Promise.all(
+        gameAchievementFiles.map(({ game, achievementFiles }) =>
+          persistAchievementSupport(
+            game,
+            classifyAchievementSupportFromFiles(game, achievementFiles)
+          )
+        )
+      );
+      // The library UI loaded before this classification finished — refresh it so the
+      // platinum-readiness badge appears without a manual refresh.
+      WindowManager.sendToAppWindows("on-library-batch-complete");
 
       const preProcessResults = await Promise.all(
         gameAchievementFiles.map(({ game, achievementFiles }) => {

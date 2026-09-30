@@ -6,6 +6,8 @@ import { getUserById } from "../users.js";
 import { getOrCacheAchievementCatalogue, type AchievementCatalogueRow } from "./steam-schema.js";
 import { upsertProfileGame, type ProfileGameRow } from "../library/routes.js";
 import { addKarma, KARMA } from "../karma.js";
+import { config } from "../config.js";
+import { getPs2Metadata } from "../catalogue/ps2-index.js";
 
 interface UserAchievementRow {
   profile_game_id: string;
@@ -88,6 +90,13 @@ function applyAchievementUnlocks(
   }
 }
 
+/** Clients load souvenir images straight from this URL — a bare key resolves to file:///…/key.jpeg. */
+function souvenirUrl(souvenirId: string | null | undefined): string | null {
+  if (!souvenirId) return null;
+  const row = souvenirImageUrlStatement.get(souvenirId) as { image_key: string } | undefined;
+  return row ? `${config.publicBaseUrl}/files/${row.image_key}` : null;
+}
+
 function toUnlockedAchievements(profileGameId: string) {
   const rows = listUserAchievementsStatement.all(profileGameId) as unknown as UserAchievementRow[];
   return rows.map((r) => ({
@@ -122,6 +131,27 @@ export function registerAchievementRoutes(app: FastifyInstance) {
     }
   );
 
+  // Official Hydra API shape, used by Project HAM (set HYDRA_API_URL to this server) to know
+  // which achievements a game has. HAM's parser rejects nulls, so every field is a string.
+  app.get<{ Querystring: { shop?: string; objectId?: string; language?: string } }>(
+    "/games/achievements",
+    async (request, reply) => {
+      const { shop = "steam", objectId } = request.query;
+      if (!objectId) return reply.code(400).send({ message: "objectId is required" });
+      const catalogue = await getOrCacheAchievementCatalogue(shop, objectId);
+      reply.send(
+        catalogue.map((a) => ({
+          name: a.name,
+          displayName: a.display_name ?? a.name,
+          description: a.description ?? "",
+          icon: a.icon ?? "",
+          icongray: a.icongray ?? a.icon ?? "",
+          hidden: Boolean(a.hidden),
+        }))
+      );
+    }
+  );
+
   // Base game lookup used by the client's RetroAchievements mapping flow.
   app.get<{ Params: { shop: string; objectId: string } }>(
     "/games/:shop/:objectId",
@@ -133,7 +163,25 @@ export function registerAchievementRoutes(app: FastifyInstance) {
         | undefined;
       // RetroAchievements matching isn't implemented yet — always "no mapping" for now, which the
       // client already treats as a valid, non-error state.
-      reply.send({ retroAchievementsGameId: row?.retroachievements_game_id ?? null });
+      const ps2 =
+        request.params.shop === "launchbox" ? getPs2Metadata(request.params.objectId) : null;
+      reply.send({
+        ...(ps2
+          ? {
+              objectId: request.params.objectId,
+              title: ps2.title,
+              iconUrl: null,
+              libraryHeroImageUrl: ps2.heroUrl,
+              libraryImageUrl: ps2.coverUrl,
+              logoImageUrl: ps2.logoUrl,
+              logoPosition: null,
+              coverImageUrl: ps2.coverUrl,
+              releaseDate: ps2.releaseYear ? String(ps2.releaseYear) : null,
+              releaseYear: ps2.releaseYear,
+            }
+          : {}),
+        retroAchievementsGameId: row?.retroachievements_game_id ?? null,
+      });
     }
   );
 
@@ -246,10 +294,7 @@ export function registerAchievementRoutes(app: FastifyInstance) {
           unlockTime: unlock?.unlock_time ?? null,
           hardcoreUnlockTime: unlock?.hardcore_unlock_time ?? null,
           source: unlock?.source,
-          imageUrl: unlock?.souvenir_id
-            ? (souvenirImageUrlStatement.get(unlock.souvenir_id) as { image_key: string } | undefined)
-                ?.image_key
-            : null,
+          imageUrl: souvenirUrl(unlock?.souvenir_id),
         };
       })
     );

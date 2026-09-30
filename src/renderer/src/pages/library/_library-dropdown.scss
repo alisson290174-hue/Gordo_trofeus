@@ -4,21 +4,23 @@
   display: inline-flex;
   align-items: center;
   gap: globals.$spacing-unit;
-  height: 40px;
-  padding: 0 12px;
-  border-radius: 8px;
-  border: 1px solid globals.$border-color;
-  background-color: globals.$background-color;
-  color: #dadbe1;
+  height: 42px;
+  padding: 0 18px;
+  border-radius: 21px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(16px);
+  color: rgba(233, 238, 247, 0.8);
   cursor: pointer;
-  font-size: globals.$body-font-size;
+  font-family: inherit;
+  font-size: 14px;
 
   #{$selector}:hover {
-    border-color: rgba(255, 255, 255, 0.5);
+    background-color: rgba(255, 255, 255, 0.1);
   }
 
   #{$selector}[data-state="open"] {
-    border-color: #dadbe1;
+    border-color: rgba(255, 255, 255, 0.5);
   }
 }
 
@@ -31,10 +33,11 @@
 @mixin content {
   max-height: var(--radix-dropdown-menu-content-available-height);
   overflow-y: auto;
-  background-color: globals.$dark-background-color;
-  border: 1px solid globals.$border-color;
-  border-radius: 6px;
-  padding: 4px;
+  background-color: rgba(16, 23, 42, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  padding: 6px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
   z-index: globals.$backdrop-z-index;
   animation: library-dropdown-fade-in 0.15s ease-out;
 }
@@ -47,7 +50,7 @@
   align-items: center;
   gap: 8px;
   height: 34px;
-  border-radius: 4px;
+  border-radius: 10px;
   padding: 6px 12px;
   cursor: pointer;
   transition:

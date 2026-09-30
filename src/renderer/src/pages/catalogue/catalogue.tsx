@@ -638,6 +638,12 @@ export default function Catalogue() {
       <div className="catalogue__header">
         <div className="catalogue__header-row">
           <div className="catalogue__header-summary">
+            <span className="catalogue__eyebrow">
+              {t("explore", { ns: "dashboard" })}
+            </span>
+            <h1 className="catalogue__title">
+              {t("catalogue", { ns: "sidebar" })}
+            </h1>
             <span className="catalogue__result-count">
               {t("result_count", {
                 resultCount: formatNumber(itemsCount),
@@ -738,7 +744,7 @@ export default function Catalogue() {
           })}
         >
           {showSkeleton ? (
-            <SkeletonTheme baseColor="#1c1c1c" highlightColor="#444">
+            <SkeletonTheme baseColor="#121a2c" highlightColor="#1e2940">
               {Array.from({ length: PAGE_SIZE }).map((_, i) => (
                 <Skeleton
                   key={i}

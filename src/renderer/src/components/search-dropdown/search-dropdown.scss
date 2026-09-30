@@ -68,8 +68,8 @@
     }
 
     &--active {
-      background-color: rgba(244, 165, 16, 0.12);
-      border-color: rgba(244, 165, 16, 0.35);
+      background-color: rgba(0, 112, 243, 0.12);
+      border-color: rgba(0, 112, 243, 0.35);
       color: globals.$brand-orange;
     }
   }
@@ -79,7 +79,7 @@
     cursor: pointer;
     padding: 0;
     font-size: 11px;
-    font-weight: bold;
+    font-weight: 500;
     text-transform: uppercase;
     transition: color ease 0.2s;
     background: transparent;
@@ -184,7 +184,7 @@
   &__highlight {
     background-color: rgba(255, 193, 7, 0.4);
     color: #ffa000;
-    font-weight: 600;
+    font-weight: 500;
     padding: 0 2px;
     border-radius: 2px;
   }

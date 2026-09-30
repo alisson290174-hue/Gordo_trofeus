@@ -45,7 +45,7 @@
     margin: 0;
     color: globals.$muted-color;
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 500;
   }
 
   &__status {
@@ -134,7 +134,7 @@
   &__username {
     overflow: hidden;
     color: globals.$muted-color;
-    font-weight: 600;
+    font-weight: 500;
     text-overflow: ellipsis;
     white-space: nowrap;
   }

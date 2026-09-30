@@ -89,6 +89,9 @@ export function ReviewReplyItem({
             alt=""
             loading="lazy"
             decoding="async"
+            onError={(event) => {
+              event.currentTarget.style.display = "none";
+            }}
             className="game-details__reply-banner"
           />
         )}

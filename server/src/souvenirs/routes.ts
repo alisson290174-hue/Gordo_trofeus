@@ -5,6 +5,7 @@ import { requireAuth } from "../auth/require-auth.js";
 import { getUserById, type UserRow } from "../users.js";
 import { addKarma, KARMA } from "../karma.js";
 import { config } from "../config.js";
+import { getOrCacheSteamGame } from "../catalogue/steam-lookup.js";
 
 const MAX_SOUVENIR_BYTES = 8 * 1024 * 1024;
 
@@ -46,19 +47,64 @@ const bumpLikeCountStatement = db.prepare(
 const setVisibilityStatement = db.prepare("UPDATE souvenirs SET visibility = ? WHERE id = ?");
 const deleteSouvenirStatement = db.prepare("DELETE FROM souvenirs WHERE id = ?");
 
-function toProfileSouvenir(row: SouvenirRow) {
+const profileGameStatement = db.prepare(
+  "SELECT shop, object_id FROM profile_games WHERE id = ?"
+);
+const catalogueAchievementStatement = db.prepare(
+  "SELECT display_name, description, icon FROM achievement_catalogue WHERE shop = ? AND object_id = ? AND name = ?"
+);
+const unlockTimeStatement = db.prepare(
+  "SELECT unlock_time FROM user_achievements WHERE profile_game_id = ? AND achievement_name = ?"
+);
+
+/** Full ProfileSouvenir shape: the client needs the game (title/cover) and the achievement details,
+ * otherwise every card reads "Jogo desconhecido". */
+async function toProfileSouvenir(row: SouvenirRow, viewerId: string | null = null) {
   const achievementNames = (
     achievementsForSouvenirStatement.all(row.id) as { achievement_name: string }[]
   ).map((a) => a.achievement_name);
 
+  const profileGame = profileGameStatement.get(row.profile_game_id) as
+    | { shop: string; object_id: string }
+    | undefined;
+  const shop = profileGame?.shop ?? "steam";
+  const objectId = profileGame?.object_id ?? "";
+  const game =
+    shop === "steam" && objectId ? await getOrCacheSteamGame(Number(objectId)) : null;
+
+  const achievements = achievementNames.map((name) => {
+    const info = catalogueAchievementStatement.get(shop, objectId, name) as
+      | { display_name: string | null; description: string | null; icon: string | null }
+      | undefined;
+    const unlock = unlockTimeStatement.get(row.profile_game_id, name) as
+      | { unlock_time: number }
+      | undefined;
+    return {
+      name,
+      displayName: info?.display_name ?? name,
+      description: info?.description ?? "",
+      achievementIcon: info?.icon ?? null,
+      unlockTime: unlock?.unlock_time ?? 0,
+      points: null,
+      isRare: null,
+      isPlatinum: false,
+    };
+  });
+
   return {
     id: row.id,
     imageUrl: `${config.publicBaseUrl}/files/${row.image_key}`,
-    capturedAt: row.captured_at,
+    capturedAt: Date.parse(row.captured_at) || row.captured_at,
     primaryAchievementName: row.primary_achievement_name,
-    achievements: achievementNames.map((name) => ({ name })),
+    achievements,
     visibility: row.visibility,
+    gameId: row.profile_game_id,
+    shop,
+    objectId,
+    gameTitle: game?.title ?? null,
+    gameIconUrl: game?.cover_url ?? null,
     likeCount: row.like_count,
+    likedByMe: viewerId ? Boolean(hasLikedStatement.get(row.id, viewerId)) : false,
   };
 }
 
@@ -130,7 +176,9 @@ export function registerSouvenirRoutes(app: FastifyInstance) {
     ) as unknown as SouvenirRow[];
 
     reply.send({
-      items: rows.map(toProfileSouvenir),
+      items: await Promise.all(
+        rows.map((row) => toProfileSouvenir(row, viewer?.id ?? null))
+      ),
       total: rows.length,
       hasReachedLimit: false,
       hiddenReason: null,
@@ -156,7 +204,12 @@ export function registerSouvenirRoutes(app: FastifyInstance) {
         addKarma(souvenir.user_id, KARMA.SOUVENIR_LIKED);
       }
 
-      reply.send(toProfileSouvenir(getSouvenirStatement.get(souvenir.id) as unknown as SouvenirRow));
+      reply.send(
+        await toProfileSouvenir(
+          getSouvenirStatement.get(souvenir.id) as unknown as SouvenirRow,
+          user.id
+        )
+      );
     }
   );
 
@@ -197,7 +250,12 @@ export function registerSouvenirRoutes(app: FastifyInstance) {
       }
 
       setVisibilityStatement.run(request.body.visibility, souvenir.id);
-      reply.send(toProfileSouvenir(getSouvenirStatement.get(souvenir.id) as unknown as SouvenirRow));
+      reply.send(
+        await toProfileSouvenir(
+          getSouvenirStatement.get(souvenir.id) as unknown as SouvenirRow,
+          user.id
+        )
+      );
     }
   );
 

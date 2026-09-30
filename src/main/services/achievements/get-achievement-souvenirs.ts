@@ -38,7 +38,10 @@ export const fetchRemoteUserGameAchievements = async (
         .filter((achievement) => achievement.imageUrl)
         .map((achievement) => [
           achievement.name.toUpperCase(),
-          achievement.imageUrl!,
+          // Older servers sent the bare file key instead of a URL.
+          /^https?:\/\//.test(achievement.imageUrl!)
+            ? achievement.imageUrl!
+            : `${import.meta.env.MAIN_VITE_API_URL}/files/${achievement.imageUrl}`,
         ])
     ),
     unlocked: remoteAchievements.flatMap((achievement) => {

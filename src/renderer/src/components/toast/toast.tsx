@@ -106,7 +106,7 @@ export function Toast({
               <Icon name="alert" className="toast__icon--warning" />
             )}
 
-            <span style={{ fontWeight: "bold", flex: 1 }}>{title}</span>
+            <span style={{ fontWeight: 500, flex: 1 }}>{title}</span>
 
             <button
               type="button"

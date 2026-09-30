@@ -620,7 +620,7 @@ export function GameArtworkPicker({
         </span>
       )}
 
-      <SkeletonTheme baseColor="#1c1c1c" highlightColor="#444">
+      <SkeletonTheme baseColor="#121a2c" highlightColor="#1e2940">
         <div className="game-artwork__scroll-shell">
           <div
             className={`game-artwork__scroll${isEmpty ? " game-artwork__scroll--empty" : ""}`}

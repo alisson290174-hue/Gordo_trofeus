@@ -1,0 +1,695 @@
+@use "../../../scss/ps5.scss";
+
+// "Perfil de troféus" (design Balói — Perfil de troféus, approved 2026-09-30).
+
+.pf-eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: ps5.$text-55;
+  font-weight: 400;
+
+  &--strong {
+    color: rgba(233, 238, 247, 0.6);
+  }
+}
+
+.pf-tier-platinum {
+  color: ps5.$tier-platinum !important;
+}
+.pf-tier-gold {
+  color: ps5.$tier-gold !important;
+}
+.pf-tier-silver {
+  color: ps5.$tier-silver !important;
+}
+.pf-tier-bronze {
+  color: ps5.$tier-bronze !important;
+}
+
+.pf-card {
+  border-radius: 22px;
+  background: ps5.$card;
+  border: 1px solid ps5.$card-border;
+  font-family: ps5.$font;
+  color: ps5.$text;
+}
+
+.pf-link {
+  font-family: ps5.$font;
+  font-size: 14px;
+  color: ps5.$accent-text;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+}
+
+.pf-empty {
+  font-size: 14px;
+  color: ps5.$text-55;
+  margin: 0;
+}
+
+// ---- Trophy band ----
+.pf-band {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 24px 30px;
+  border-radius: 26px;
+  background: linear-gradient(
+    120deg,
+    rgba(0, 112, 243, 0.14) 0%,
+    rgba(15, 22, 39, 0.92) 40%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(24px);
+  font-family: ps5.$font;
+  color: ps5.$text;
+  font-weight: 300;
+  flex-wrap: wrap;
+
+  &__level {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    width: 380px;
+    max-width: 100%;
+    flex: none;
+  }
+
+  &__emblem {
+    position: relative;
+    width: 104px;
+    height: 104px;
+    flex: none;
+    box-sizing: border-box;
+    border-radius: 50%;
+    border: 3px solid rgba(255, 255, 255, 0.65);
+    box-shadow:
+      0 0 36px var(--emblem-glow),
+      0 10px 26px rgba(0, 0, 0, 0.5),
+      inset 0 -8px 16px rgba(0, 0, 0, 0.3);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: var(--emblem-ink);
+
+    svg {
+      position: relative;
+      width: 22px;
+      height: 22px;
+      fill: currentColor;
+      opacity: 0.8;
+    }
+
+    &--bronze {
+      --emblem-ink: #3a1f0c;
+      --emblem-glow: rgba(201, 133, 74, 0.35);
+      background: radial-gradient(
+        circle at 34% 28%,
+        #ffe0c2 0%,
+        #d9955c 38%,
+        #9a5a2a 72%,
+        #5e3316 100%
+      );
+    }
+
+    &--silver {
+      --emblem-ink: #262c36;
+      --emblem-glow: rgba(192, 197, 206, 0.35);
+      background: radial-gradient(
+        circle at 34% 28%,
+        #ffffff 0%,
+        #d5dae2 36%,
+        #8d95a3 72%,
+        #555c68 100%
+      );
+    }
+
+    &--gold {
+      --emblem-ink: #402a02;
+      --emblem-glow: rgba(244, 180, 58, 0.35);
+      background: radial-gradient(
+        circle at 34% 28%,
+        #fff4cc 0%,
+        #f7c24c 36%,
+        #c68712 72%,
+        #7a4f06 100%
+      );
+    }
+  }
+
+  &__emblem-ring {
+    position: absolute;
+    inset: 8px;
+    border-radius: 50%;
+    border: 1px solid rgba(0, 0, 0, 0.22);
+  }
+
+  &__emblem-number {
+    position: relative;
+    font-size: 34px;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  &__level-text {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__level-title {
+    font-size: 30px;
+    font-weight: 300;
+    line-height: 1;
+  }
+
+  &__bar {
+    height: 6px;
+    border-radius: 3px;
+    background: rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    margin-top: 4px;
+
+    span {
+      display: block;
+      height: 100%;
+      border-radius: 3px;
+      background: linear-gradient(90deg, ps5.$accent, ps5.$accent-text);
+    }
+  }
+
+  &__hint {
+    font-size: 13px;
+    color: rgba(233, 238, 247, 0.6);
+  }
+
+  &__divider {
+    width: 1px;
+    align-self: stretch;
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  &__total {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    width: 110px;
+    flex: none;
+  }
+
+  &__total-value {
+    font-size: 56px;
+    font-weight: 200;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__tiers {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 10px;
+    flex: 1;
+    min-width: 440px;
+  }
+
+  &__tier {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+
+    img {
+      width: 52px;
+      height: 52px;
+      flex: none;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.4));
+    }
+
+    &--platinum {
+      background: linear-gradient(
+        135deg,
+        rgba(150, 220, 215, 0.18),
+        rgba(150, 220, 215, 0.04)
+      );
+      border-color: rgba(190, 240, 235, 0.32);
+    }
+  }
+
+  &__tier-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__tier-label {
+    font-size: 11px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+  }
+
+  &__tier-value {
+    font-size: 32px;
+    font-weight: 200;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+// ---- Overview ----
+.pf-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  font-family: ps5.$font;
+  color: ps5.$text;
+}
+
+.pf-section-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+
+  &:not(:first-child) {
+    margin-top: 14px;
+  }
+}
+
+.pf-section-title {
+  font-size: 22px;
+  font-weight: 300;
+}
+
+.pf-section-count {
+  font-size: 16px;
+  color: ps5.$text-50;
+}
+
+.pf-showcase {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr);
+  gap: 14px;
+
+  &__featured {
+    position: relative;
+    display: flex;
+    gap: 20px;
+    padding: 18px;
+    border-radius: 24px;
+    overflow: hidden;
+    text-align: left;
+    color: ps5.$text;
+    font-family: ps5.$font;
+    cursor: pointer;
+    background: linear-gradient(
+      120deg,
+      rgba(150, 220, 215, 0.2) 0%,
+      rgba(15, 22, 39, 0.95) 60%
+    );
+    border: 1px solid rgba(190, 240, 235, 0.45);
+    box-shadow: 0 0 40px rgba(150, 220, 215, 0.12);
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: translateY(-3px);
+    }
+  }
+
+  &__cover {
+    width: 120px;
+    height: 180px;
+    object-fit: cover;
+    border-radius: 14px;
+    flex: none;
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.5);
+    background: #1a2233;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    padding-top: 4px;
+  }
+
+  &__badge {
+    width: 62px;
+    height: 62px;
+    filter: drop-shadow(0 0 16px rgba(150, 220, 215, 0.6));
+  }
+
+  &__title {
+    font-size: 26px;
+    font-weight: 300;
+    line-height: 1.1;
+    overflow-wrap: anywhere;
+  }
+
+  &__meta {
+    font-size: 13.5px;
+    color: rgba(233, 238, 247, 0.6);
+  }
+
+  &__mini {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    gap: 8px;
+    padding: 16px;
+    min-height: 216px;
+    border-radius: 24px;
+    overflow: hidden;
+    text-align: left;
+    color: ps5.$text;
+    font-family: ps5.$font;
+    cursor: pointer;
+    border: 1px solid rgba(190, 240, 235, 0.35);
+    transition: transform 0.2s ease;
+
+    &:hover {
+      transform: translateY(-3px);
+    }
+  }
+
+  &__mini-cover {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: brightness(0.45);
+  }
+
+  &__mini-badge {
+    position: relative;
+    width: 44px;
+    height: 44px;
+  }
+
+  &__mini-title {
+    position: relative;
+    font-size: 16px;
+    font-weight: 400;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 18px;
+    min-height: 216px;
+    box-sizing: border-box;
+    border-radius: 24px;
+    border: 1px dashed rgba(255, 255, 255, 0.16);
+    color: ps5.$text-45;
+    text-align: center;
+    font-size: 14px;
+
+    img {
+      width: 48px;
+      height: 48px;
+      filter: grayscale(1) brightness(0.5);
+    }
+  }
+}
+
+.pf-shots {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+
+  &__item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    text-align: left;
+    cursor: pointer;
+    font-family: ps5.$font;
+  }
+
+  &__frame {
+    display: block;
+    aspect-ratio: 16 / 9;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid ps5.$card-border;
+    background: #1a2233;
+    transition: box-shadow 0.2s ease;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .pf-shots__item:hover & {
+      box-shadow: 0 0 0 3px ps5.$accent;
+    }
+  }
+
+  &__caption {
+    font-size: 13px;
+    color: rgba(233, 238, 247, 0.6);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.pf-activity {
+  display: flex;
+  flex-direction: column;
+  padding: 6px 20px;
+
+  &__row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 0;
+    border-bottom: 1px solid ps5.$row-line;
+    text-align: left;
+    font-family: ps5.$font;
+    color: ps5.$text;
+    cursor: pointer;
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:disabled {
+      cursor: default;
+    }
+
+    &:hover:not(:disabled) .pf-activity__title {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+  }
+
+  &__icon {
+    width: 42px;
+    height: 42px;
+    flex: none;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    &--platinum {
+      background: rgba(150, 220, 215, 0.16);
+      color: ps5.$tier-platinum;
+    }
+    &--trophies {
+      background: rgba(244, 180, 58, 0.14);
+      color: ps5.$tier-gold;
+    }
+    &--played {
+      background: rgba(0, 112, 243, 0.16);
+      color: ps5.$accent-text;
+    }
+    &--souvenir {
+      background: rgba(78, 224, 168, 0.14);
+      color: #4ee0a8;
+    }
+  }
+
+  &__text {
+    flex: 1;
+    min-width: 0;
+    font-size: 15px;
+    font-weight: 300;
+  }
+
+  &__verb {
+    color: rgba(233, 238, 247, 0.65);
+  }
+
+  &__title {
+    font-weight: 400;
+  }
+
+  &__detail {
+    color: ps5.$text-50;
+  }
+
+  &__date {
+    font-size: 13px;
+    color: rgba(233, 238, 247, 0.45);
+    white-space: nowrap;
+  }
+}
+
+// ---- Side column ----
+.pf-side-card {
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  &__head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+}
+
+.pf-friend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  &__who {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    text-align: left;
+    cursor: pointer;
+    font-family: ps5.$font;
+    color: ps5.$text;
+  }
+
+  &__avatar {
+    position: relative;
+    width: 44px;
+    height: 44px;
+    flex: none;
+    border-radius: 50%;
+    background: #2a4a7a;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+
+    img {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+  }
+
+  &__online {
+    position: absolute;
+    right: -1px;
+    bottom: -1px;
+    width: 12px;
+    height: 12px;
+    box-sizing: border-box;
+    border-radius: 50%;
+    background: #4ee0a8;
+    border: 2px solid #0f1627;
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  &__name {
+    font-size: 14.5px;
+    font-weight: 400;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__status {
+    font-size: 12px;
+    color: ps5.$text-50;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &--playing {
+      color: #4ee0a8;
+    }
+  }
+}
+
+.pf-compare-chip {
+  flex: none;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: 16px;
+  background: rgba(0, 112, 243, 0.16);
+  border: 1px solid rgba(0, 112, 243, 0.45);
+  color: ps5.$text;
+  font-family: ps5.$font;
+  font-size: 12.5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+
+  &:hover {
+    background: rgba(0, 112, 243, 0.3);
+  }
+}
+
+.pf-about__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 14.5px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid ps5.$row-line;
+
+  &:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+  }
+}
+
+.pf-about__label {
+  color: ps5.$text-55;
+}
+
+.pf-about__value {
+  font-weight: 400;
+  text-align: right;
+}

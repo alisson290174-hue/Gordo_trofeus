@@ -1,6 +1,7 @@
 import { buildGameDetailsPath } from "@renderer/helpers";
 import { Icon } from "@renderer/components/icon/icon";
-import { Link } from "@renderer/components";
+import { Img, Link } from "@renderer/components";
+import GameIconPlaceholder from "@renderer/assets/icons/game-icon-placeholder.png";
 import { useCallback, useContext } from "react";
 import { userProfileContext } from "@renderer/context";
 import { useTranslation } from "react-i18next";
@@ -51,8 +52,9 @@ export function RecentGamesBox() {
               to={buildUserGameDetailsPath(game)}
               className="recent-games__list-item"
             >
-              <img
-                src={game.iconUrl!}
+              <Img
+                src={game.iconUrl}
+                fallback={GameIconPlaceholder}
                 alt={game.title}
                 className="recent-games__game-image"
               />

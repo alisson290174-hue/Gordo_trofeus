@@ -75,17 +75,19 @@
 }
 
 .filter-section {
-  background-color: globals.$background-color;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background-color: rgba(255, 255, 255, 0.035);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   overflow: hidden;
 
   &__button {
-    padding: calc(globals.$spacing-unit * 2.5) calc(globals.$spacing-unit * 2);
+    padding: 20px 22px;
     display: flex;
+    flex-direction: row-reverse; // chevron on the right, like the Detalhes cards
     align-items: center;
-    background-color: globals.$background-color;
+    background-color: transparent;
     color: globals.$muted-color;
     width: 100%;
     cursor: pointer;
@@ -94,11 +96,11 @@
       color 0.2s ease;
     gap: globals.$spacing-unit;
     font-size: globals.$body-font-size;
-    font-weight: bold;
+    font-weight: 500;
     border: none;
 
     &:hover {
-      background-color: rgba(255, 255, 255, 0.1);
+      background-color: rgba(255, 255, 255, 0.03);
     }
 
     &:active {
@@ -109,6 +111,9 @@
   &__chevron {
     transition: transform ease 0.2s;
     flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    opacity: 0.55;
 
     &--open {
       transform: rotate(180deg);
@@ -124,26 +129,27 @@
   }
 
   &__header-count {
-    background-color: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.7);
-    padding: 4px 8px;
-    border-radius: 6px;
-    font-size: 12px;
-    font-weight: 600;
+    background-color: rgba(255, 255, 255, 0.07);
+    color: rgba(255, 255, 255, 0.6);
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    font-weight: 400;
     min-width: 24px;
     text-align: center;
     flex-shrink: 0;
   }
 
   &__orb {
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
+    display: none;
   }
 
   &__title {
-    font-size: 16px;
-    font-weight: 500;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(233, 238, 247, 0.6);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -152,16 +158,18 @@
   &__content {
     overflow: hidden;
     transition: max-height 0.4s cubic-bezier(0, 1, 0, 1);
-    background-color: globals.$dark-background-color;
+    background-color: transparent;
     position: relative;
   }
 
   &__content-inner {
-    padding: calc(globals.$spacing-unit * 2);
+    padding: 0 22px 20px;
   }
 
   &__count {
-    font-size: 12px;
+    font-size: 12.5px;
+    font-weight: 300;
+    color: rgba(233, 238, 247, 0.5);
     margin-bottom: 12px;
     display: block;
   }
@@ -207,7 +215,7 @@
     color: globals.$muted-color;
     background-color: transparent;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
     transition:
       color 0.15s ease,
@@ -225,7 +233,7 @@
 
     &--active {
       color: globals.$brand-orange;
-      background-color: rgba(244, 165, 16, 0.12);
+      background-color: rgba(0, 112, 243, 0.12);
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
     }
   }

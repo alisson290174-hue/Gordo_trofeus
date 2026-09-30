@@ -1,12 +1,14 @@
 @use "../../scss/globals.scss";
+@use "../../scss/ps5.scss";
 
 .notifications {
   display: flex;
   flex-direction: column;
   gap: calc(globals.$spacing-unit * 2);
-  padding: calc(globals.$spacing-unit * 3);
+  padding: 36px ps5.$page-gutter 24px;
   width: 100%;
-  max-width: 800px;
+  max-width: 900px;
+  font-family: ps5.$font;
   margin: 0 auto;
   min-height: calc(100vh - 200px);
 
@@ -22,7 +24,7 @@
     gap: globals.$spacing-unit;
     position: relative;
     flex: 1;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    gap: 8px;
   }
 
   &__tab-wrapper {
@@ -30,10 +32,13 @@
   }
 
   &__tab {
-    background: none;
-    border: none;
-    color: rgba(255, 255, 255, 0.6);
-    padding: calc(globals.$spacing-unit) calc(globals.$spacing-unit * 2);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 19px;
+    height: 38px;
+    font-family: inherit;
+    color: ps5.$text-80;
+    padding: 0 18px;
     cursor: pointer;
     font-size: 14px;
     font-weight: 500;
@@ -46,8 +51,11 @@
       color: rgba(255, 255, 255, 0.8);
     }
 
-    &--active {
-      color: globals.$brand-orange;
+    &--active,
+    &--active:hover {
+      background: #ffffff;
+      border-color: #ffffff;
+      color: ps5.$bg;
     }
   }
 
@@ -61,7 +69,7 @@
     background-color: rgba(255, 255, 255, 0.15);
     border-radius: 6px;
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 500;
     color: rgba(255, 255, 255, 0.9);
     line-height: 20px;
   }
@@ -71,7 +79,8 @@
     bottom: -1px;
     left: 0;
     right: 0;
-    height: 2px;
+    height: 0;
+    display: none;
     background: globals.$brand-orange;
   }
 
@@ -132,4 +141,10 @@
     padding: calc(globals.$spacing-unit * 2);
     padding-bottom: calc(globals.$spacing-unit * 3);
   }
+}
+
+// Badge stays readable on the white active chip.
+.notifications__tab--active .notifications__tab-badge {
+  background-color: rgba(7, 11, 22, 0.12);
+  color: #070b16;
 }

@@ -10,7 +10,7 @@ import {
   gamesShopCacheSublevel,
   gamesSublevel,
 } from "@main/level";
-import { composeAssetsWithArtwork } from "@shared";
+import { composeAssetsWithArtwork, displayGameTitle } from "@shared";
 import {
   resolveAchievementCount,
   resolveUnlockedAchievementCount,
@@ -114,7 +114,30 @@ const getLibrary = async (): Promise<LibraryGame[]> => {
               ),
               // Spread composed assets last to ensure all image URLs are properly set
               ...composedAssets,
-              title: composedAssets?.title || game.title,
+              // PS2/classics covers are backfilled onto the game record's libraryHeroImageUrl and
+              // survive profile syncs that reset the shop-assets to null. Feed them into the cover
+              // fields every card reads (grid uses coverImageUrl/libraryImageUrl, large uses hero),
+              // so covers show in every view regardless of the assets record.
+              // Since the PS2 index backfill the hero is real fanart, so the box art lives in
+              // game.coverImageUrl; the hero only doubles as cover for records without one.
+              ...(game.shop === "launchbox" &&
+              (game.coverImageUrl || game.libraryHeroImageUrl)
+                ? {
+                    coverImageUrl:
+                      composedAssets?.coverImageUrl ??
+                      game.coverImageUrl ??
+                      game.libraryHeroImageUrl,
+                    libraryImageUrl:
+                      composedAssets?.libraryImageUrl ??
+                      game.coverImageUrl ??
+                      game.libraryHeroImageUrl,
+                    libraryHeroImageUrl:
+                      composedAssets?.libraryHeroImageUrl ??
+                      game.libraryHeroImageUrl,
+                  }
+                : {}),
+              // ROM dump tags ("(U) [SLUS-21879]", "(www.…)") never reach the UI.
+              title: displayGameTitle(composedAssets?.title || game.title, game.shop),
               platform: game.platform ?? null,
               // Preserve custom image URLs from game if they exist
               customIconUrl: game.customIconUrl,

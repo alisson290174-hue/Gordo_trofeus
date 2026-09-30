@@ -1,6 +1,7 @@
 
 import type { GameStats, ShopAssets } from "@types";
 import { Icon } from "@renderer/components/icon/icon";
+import { Img } from "@renderer/components/img/img";
 
 import SteamLogo from "@renderer/assets/steam-logo.svg?react";
 import CoverPlaceholder from "@renderer/assets/library-catalogue/cover-placeholder.png";
@@ -49,8 +50,9 @@ export function GameCard({ game, ...props }: GameCardProps) {
       onMouseEnter={handleHover}
     >
       <div className="game-card__backdrop">
-        <img
-          src={game.libraryImageUrl ?? CoverPlaceholder}
+        <Img
+          src={game.libraryImageUrl}
+          fallback={CoverPlaceholder}
           alt={game.title}
           className="game-card__cover"
           loading="lazy"

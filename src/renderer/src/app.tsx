@@ -1,4 +1,6 @@
-import { BottomPanel, Header, Sidebar, Toast } from "@renderer/components";
+import { ControlCenter, Header, Toast } from "@renderer/components";
+import { isFullBleedPath } from "@renderer/components/header/header";
+import cn from "classnames";
 import { Icon } from "@renderer/components/icon/icon";
 
 import {
@@ -18,7 +20,6 @@ import {
 import { useDownloadOptionsListener } from "@renderer/hooks/use-download-options-listener";
 import i18n from "i18next";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { WorkWonders } from "workwonders-sdk";
 
 import {
   clearExtraction,
@@ -57,13 +58,6 @@ export interface AppProps {
   children: React.ReactNode;
 }
 
-type WorkWondersWithKnowledge = WorkWonders & {
-  knowledge?: {
-    initKnowledgeWidget?: () => void;
-    showArticle?: (articleId: number) => void;
-  };
-};
-
 export function App() {
   const contentRef = useRef<HTMLDivElement>(null);
   const { updateLibrary, library } = useLibrary();
@@ -75,7 +69,6 @@ export function App() {
 
   const { clearDownload, setLastPacket, lastPacket } = useDownload();
 
-  const workwondersRef = useRef<WorkWonders | null>(null);
 
   const { fetchUserDetails, updateUserDetails, clearUserDetails } =
     useUserDetails();
@@ -171,90 +164,8 @@ export function App() {
     }
   }, [clearDownload, lastPacket?.gameId, library]);
 
-  // WorkWonders SDK intentionally never initializes in this fork — workwondersRef stays null
-  // forever, which is a safe no-op for the unrelated help-center/changelog call sites below.
-
-  useEffect(() => {
-    const onClick = async (event: MouseEvent) => {
-      const userPreferences = await window.electron.getUserPreferences();
-      const language = userPreferences?.language ?? "en";
-
-      const articleMapping = {
-        pt: {
-          "cannot-write-directory": 1429,
-          seeding: 1442,
-          "peers-and-seeds": 1449,
-          "steam-achievements": 1412,
-          "install-duckstation": 6441,
-          "install-pcsx2": 6192,
-          "install-rpcs3": 6510,
-          "install-retroarch": 7108,
-          "install-ppsspp": 7315,
-          "install-dolphin": 7268,
-          "wii-saves": 7384,
-          "retroachievements-emulators": 6629,
-        },
-        en: {
-          "cannot-write-directory": 4122,
-          seeding: 4116,
-          "peers-and-seeds": 4119,
-          "steam-achievements": 4140,
-          "install-duckstation": 6465,
-          "install-pcsx2": 6390,
-          "install-rpcs3": 6524,
-          "install-retroarch": 7120,
-          "install-ppsspp": 7328,
-          "install-dolphin": 7281,
-          "wii-saves": 7406,
-          "retroachievements-emulators": 6692,
-        },
-        ru: {
-          "install-duckstation": 6479,
-          "install-pcsx2": 6429,
-          "install-rpcs3": 6541,
-          "install-retroarch": 7135,
-          "install-ppsspp": 7338,
-          "install-dolphin": 7292,
-          "wii-saves": 7422,
-          "retroachievements-emulators": 6717,
-        },
-        es: {
-          "install-duckstation": 6492,
-          "install-pcsx2": 6410,
-          "install-rpcs3": 6552,
-          "install-retroarch": 7142,
-          "install-ppsspp": 7375,
-          "install-dolphin": 7303,
-          "wii-saves": 7431,
-          "retroachievements-emulators": 6743,
-        },
-      };
-
-      const $helpCenterTarget = (event.target as HTMLElement).closest(
-        "[data-open-article]"
-      );
-
-      if ($helpCenterTarget) {
-        const article = $helpCenterTarget.getAttribute("data-open-article");
-        const articleId =
-          articleMapping[language.slice(0, 2)]?.[
-            article as keyof typeof articleMapping
-          ] ?? articleMapping["en"]?.[article as keyof typeof articleMapping];
-
-        if (articleId) {
-          const workWondersWithKnowledge =
-            workwondersRef.current as WorkWondersWithKnowledge | null;
-          workWondersWithKnowledge?.knowledge?.showArticle?.(articleId);
-        }
-      }
-    };
-
-    window.addEventListener("click", onClick);
-
-    return () => {
-      window.removeEventListener("click", onClick);
-    };
-  }, []);
+  // The Hydra help-center article opener (WorkWonders knowledge widget) was removed with the rest
+  // of the WorkWonders SDK — this fork is independent of Hydra's hosted help center.
 
   const setupExternalResources = useCallback(async () => {
     const cachedUserDetails = window.localStorage.getItem("userDetails");
@@ -273,7 +184,11 @@ export function App() {
       updateUserDetails(userDetails);
     }
 
-    if (!document.getElementById("external-resources")) {
+    // Hydra's external bundle; Balói doesn't ship one (the env var is unset).
+    if (
+      import.meta.env.RENDERER_VITE_EXTERNAL_RESOURCES_URL &&
+      !document.getElementById("external-resources")
+    ) {
       const $script = document.createElement("script");
       $script.id = "external-resources";
       $script.src = `${import.meta.env.RENDERER_VITE_EXTERNAL_RESOURCES_URL}/bundle.js?t=${Date.now()}`;
@@ -463,11 +378,7 @@ export function App() {
   }, [onSignIn, updateLibrary, clearUserDetails, dispatch, showErrorToast, t]);
 
   useEffect(() => {
-    const asyncScrollAndNotify = async () => {
-      if (contentRef.current) contentRef.current.scrollTop = 0;
-      await workwondersRef.current?.notifyUrlChange?.();
-    };
-    asyncScrollAndNotify();
+    if (contentRef.current) contentRef.current.scrollTop = 0;
   }, [location.pathname, location.search]);
 
   useEffect(() => {
@@ -642,22 +553,22 @@ export function App() {
       <RetroArchScanModal />
 
       <main>
-        <Sidebar />
-
         <article className="container">
           <Header />
 
           <section
             ref={contentRef}
             id="scrollableDiv"
-            className="container__content"
+            className={cn("container__content", {
+              "container__content--bleed": isFullBleedPath(location.pathname),
+            })}
           >
             <Outlet />
           </section>
         </article>
       </main>
 
-      <BottomPanel />
+      <ControlCenter />
     </>
   );
 }

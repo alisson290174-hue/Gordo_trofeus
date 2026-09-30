@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { chunk } from "lodash-es";
@@ -419,6 +419,14 @@ type DiscsByTitle = Map<
   string,
   { primaryPath: string; name: string; sku: string | null }[]
 >;
+type UnmatchedGroups = Map<
+  string,
+  {
+    folderPath: string;
+    sizeBytes: number;
+    files: { primaryPath: string; name: string; sku: string | null }[];
+  }
+>;
 type ProgressFn = (payload: LaunchboxImportProgress) => void;
 
 const cancelledResult = (
@@ -637,12 +645,16 @@ const aggregateMatches = (
   unmatchedFiles: UnmatchedFile[];
   titleByFolder: TitleByFolder;
   discsByTitle: DiscsByTitle;
+  unmatchedGroups: UnmatchedGroups;
 } => {
   let unmatched = 0;
   const unmatchedFiles: UnmatchedFile[] = [];
   const seenUnmatchedGroups = new Set<string>();
   const titleByFolder: TitleByFolder = new Map();
   const discsByTitle: DiscsByTitle = new Map();
+  // Groups that matched nothing in the catalogue but are still real ROMs — collected so they can
+  // be added to the library under their filename (bootlegs/mods never appear in any catalogue).
+  const unmatchedGroups: UnmatchedGroups = new Map();
   let matchedSizeBytes = 0;
 
   for (let i = 0; i < enriched.length; i++) {
@@ -672,13 +684,34 @@ const aggregateMatches = (
         });
       }
       discsByTitle.set(titleKey, discsForTitle);
-    } else if (!seenUnmatchedGroups.has(groupKey)) {
-      seenUnmatchedGroups.add(groupKey);
-      unmatched += 1;
-      unmatchedFiles.push({
-        name: game.name,
-        reason: reason === "matched" ? "unmatched" : reason,
-      });
+    } else {
+      if (!seenUnmatchedGroups.has(groupKey)) {
+        seenUnmatchedGroups.add(groupKey);
+        unmatched += 1;
+        unmatchedFiles.push({
+          name: game.name,
+          reason: reason === "matched" ? "unmatched" : reason,
+        });
+      }
+
+      // A file sniffed as the wrong platform stays out of this system's library; a plain
+      // "unmatched" ROM is a real game for this system that just isn't in the catalogue.
+      if (reason !== "wrong_platform") {
+        const group = unmatchedGroups.get(groupKey) ?? {
+          folderPath: game.folderPath,
+          sizeBytes: 0,
+          files: [],
+        };
+        if (!group.files.some((f) => f.primaryPath === game.primaryPath)) {
+          group.files.push({
+            primaryPath: game.primaryPath,
+            name: game.name,
+            sku,
+          });
+          group.sizeBytes += game.sizeBytes;
+        }
+        unmatchedGroups.set(groupKey, group);
+      }
     }
 
     onMatch?.(
@@ -691,12 +724,13 @@ const aggregateMatches = (
     );
   }
 
-  return { unmatched, unmatchedFiles, titleByFolder, discsByTitle };
+  return { unmatched, unmatchedFiles, titleByFolder, discsByTitle, unmatchedGroups };
 };
 
 const rollupFolders = (
   folders: FolderInput[],
-  titleByFolder: TitleByFolder
+  titleByFolder: TitleByFolder,
+  unmatchedGroups: UnmatchedGroups
 ): {
   folderRollup: Map<string, { fileCount: number; sizeBytes: number }>;
   totalFileCount: number;
@@ -709,7 +743,19 @@ const rollupFolders = (
   for (const folder of folders) {
     folderRollup.set(folder.path, { fileCount: 0, sizeBytes: 0 });
   }
-  for (const { folderPath, sizeBytes } of titleByFolder.values()) {
+  // Count catalogue matches and filename-only (unmatched) games alike — both are real library
+  // entries now, so the settings "games found" total reflects everything the user can see.
+  const contributions = [
+    ...[...titleByFolder.values()].map((v) => ({
+      folderPath: v.folderPath,
+      sizeBytes: v.sizeBytes,
+    })),
+    ...[...unmatchedGroups.values()].map((g) => ({
+      folderPath: g.folderPath,
+      sizeBytes: g.sizeBytes,
+    })),
+  ];
+  for (const { folderPath, sizeBytes } of contributions) {
     const bucket = folderRollup.get(folderPath);
     if (bucket) {
       bucket.fileCount += 1;
@@ -749,6 +795,120 @@ const persistMatchedEntries = async (
     ).catch((err) => {
       logger.error("Failed to persist launchbox entry locally", err);
     });
+  }
+};
+
+/**
+ * Adds a ROM that matched nothing in the catalogue to the library under its filename. Bootlegs and
+ * ROM hacks (Bomba Patch, MyMax, …) never appear in LaunchBox/GameTDB, so without this they'd scan
+ * fine yet never show up — the reported bug. A stable id derived from the group means a rescan
+ * updates the same entry instead of duplicating it.
+ */
+// Box art for a PS2 disc serial from the community xlenore/ps2-covers repo (served via jsDelivr).
+// The extracted serial is already in the repo's `XXXX-NNNNN` shape, so the match is exact; a serial
+// with no cover in the repo just 404s and the UI falls back to its placeholder.
+const ps2CoverUrl = (serial: string | null | undefined): string | null =>
+  serial
+    ? `https://cdn.jsdelivr.net/gh/xlenore/ps2-covers@main/covers/default/${serial}.jpg`
+    : null;
+
+const persistUnmatchedGame = async (
+  objectId: string,
+  title: string,
+  discs: ClassicsDisc[],
+  system: EmulatorSystem,
+  romSizeBytes: number | null,
+  coverUrl: string | null
+) => {
+  const shop = "launchbox" as const;
+  const gameKey = levelKeys.game(shop, objectId);
+  const platform = SYSTEM_DEFAULT_PLATFORM[system];
+
+  await gamesShopAssetsSublevel
+    .put(gameKey, {
+      objectId,
+      shop,
+      title,
+      iconUrl: null,
+      libraryHeroImageUrl: coverUrl,
+      libraryImageUrl: coverUrl,
+      logoImageUrl: null,
+      logoPosition: null,
+      coverImageUrl: coverUrl,
+      downloadSources: [],
+      updatedAt: Date.now(),
+    })
+    .catch((err) => logger.error("Could not cache unmatched rom assets", err));
+
+  const existing = await gamesSublevel.get(gameKey);
+  if (existing) {
+    await clearFinishedDownload(shop, objectId);
+    existing.isDeleted = false;
+    existing.addedToLibraryAt ??= new Date();
+    if (!existing.title) existing.title = title;
+    if (platform && !existing.platform) existing.platform = platform;
+    if (coverUrl) existing.libraryHeroImageUrl = coverUrl;
+    existing.discs = discs;
+    if (
+      !existing.selectedDiscPath ||
+      !discs.some((d) => d.path === existing.selectedDiscPath)
+    ) {
+      existing.selectedDiscPath = discs[0]?.path ?? null;
+    }
+    existing.romSizeBytes = romSizeBytes ?? existing.romSizeBytes ?? null;
+    await gamesSublevel.put(gameKey, existing);
+  } else {
+    await gamesSublevel.put(gameKey, {
+      title,
+      iconUrl: null,
+      libraryHeroImageUrl: coverUrl,
+      logoImageUrl: null,
+      objectId,
+      shop,
+      remoteId: null,
+      isDeleted: false,
+      playTimeInMilliseconds: 0,
+      lastTimePlayed: null,
+      addedToLibraryAt: new Date(),
+      platform,
+      discs,
+      selectedDiscPath: discs[0]?.path ?? null,
+      romSizeBytes,
+    });
+  }
+};
+
+const persistUnmatchedGames = async (
+  unmatchedGroups: UnmatchedGroups,
+  system: EmulatorSystem,
+  signal: CancelSignal
+) => {
+  for (const [groupKey, group] of unmatchedGroups) {
+    if (signal.cancelled) break;
+    if (group.files.length === 0) continue;
+
+    const discs = buildDiscList(group.files);
+    // Stable, collision-free id: a serial keeps a rescan pointing at the same entry; otherwise the
+    // group key (folder + disc-stripped name) does. Prefixed so it never clashes with a real
+    // LaunchBox catalogue id if the game is later matched properly.
+    const serial = group.files.find((f) => f.sku)?.sku;
+    const objectId = serial
+      ? `rom-sku-${normalizeSku(serial)}`
+      : `rom-${createHash("sha1").update(groupKey).digest("hex").slice(0, 16)}`;
+    const title = baseNameWithoutExt(group.files[0].name);
+    // PS2 box art by serial from the community cover repo; other systems have no such source yet.
+    const coverUrl = system === "ps2" ? ps2CoverUrl(serial) : null;
+
+    await persistUnmatchedGame(
+      objectId,
+      title,
+      discs,
+      system,
+      group.sizeBytes || null,
+      coverUrl
+    ).catch((err) =>
+      logger.error("Failed to persist unmatched rom locally", err)
+    );
   }
 };
 
@@ -885,7 +1045,7 @@ export async function runLaunchboxImport(
   }
   const matched = matchedEntries.size;
 
-  const { unmatched, unmatchedFiles, titleByFolder, discsByTitle } =
+  const { unmatched, unmatchedFiles, titleByFolder, discsByTitle, unmatchedGroups } =
     aggregateMatches(
       enriched,
       groupCanonical,
@@ -912,7 +1072,8 @@ export async function runLaunchboxImport(
 
   const { folderRollup, totalFileCount, totalSizeBytes } = rollupFolders(
     folders,
-    titleByFolder
+    titleByFolder,
+    unmatchedGroups
   );
 
   if (signal.cancelled) {
@@ -933,6 +1094,19 @@ export async function runLaunchboxImport(
     system,
     signal
   );
+  if (signal.cancelled) {
+    return cancelledResult(
+      totalFileCount,
+      totalSizeBytes,
+      matched,
+      unmatched,
+      unmatchedFiles
+    );
+  }
+
+  // Add every ROM that matched no catalogue entry to the library under its filename, so bootlegs
+  // and mods (which no catalogue has) still show up instead of silently vanishing after a scan.
+  await persistUnmatchedGames(unmatchedGroups, system, signal);
   if (signal.cancelled) {
     return cancelledResult(
       totalFileCount,

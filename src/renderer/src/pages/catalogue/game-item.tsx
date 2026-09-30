@@ -1,9 +1,10 @@
-import { Badge } from "@renderer/components/badge/badge";
 import { Icon } from "@renderer/components/icon/icon";
 import { buildGameDetailsPath } from "@renderer/helpers";
+import { getShowcaseArt } from "@renderer/helpers/showcase";
 import { useAppSelector, useLibrary } from "@renderer/hooks";
 import { lazy, Suspense, useMemo, useState, useEffect } from "react";
 import { Link } from "@renderer/components/link/link";
+import CoverPlaceholder from "@renderer/assets/library-catalogue/cover-placeholder.png";
 
 import "./game-item.scss";
 import { useTranslation } from "react-i18next";
@@ -80,26 +81,11 @@ export function GameItem({ game }: GameItemProps) {
     });
   }, [game.genres, language, steamGenres]);
 
-  const libraryImage = useMemo(() => {
-    if (game.libraryImageUrl) {
-      return (
-        <img
-          className="game-item__cover"
-          src={game.libraryImageUrl}
-          alt={game.title}
-          width={200}
-          height={103}
-          loading="lazy"
-        />
-      );
-    }
-
-    return (
-      <div className="game-item__cover-placeholder">
-        <Icon name="question" size={28} />
-      </div>
-    );
-  }, [game.libraryImageUrl, game.title]);
+  const [coverFailed, setCoverFailed] = useState(false);
+  const remoteCover = getShowcaseArt(game, "cover") ?? game.libraryImageUrl;
+  const cover = !coverFailed && remoteCover ? remoteCover : CoverPlaceholder;
+  const visibleSources = game.downloadSources.slice(0, 2);
+  const hiddenSourcesCount = game.downloadSources.length - visibleSources.length;
 
   const rawProtonValue =
     game.tier ??
@@ -118,9 +104,14 @@ export function GameItem({ game }: GameItemProps) {
 
   return (
     <article className="game-item">
-      <Link to={buildGameDetailsPath(game)} className="game-item__content-link">
-        <div className="game-item__cover-wrapper">
-          {libraryImage}
+      <Link to={buildGameDetailsPath(game)} className="game-item__link">
+        <div className="game-item__cover">
+          <img
+            src={cover}
+            alt=""
+            loading="lazy"
+            onError={() => setCoverFailed(true)}
+          />
 
           {shouldShowProtonFeatures && protonBadge && (
             <Suspense fallback={null}>
@@ -129,34 +120,40 @@ export function GameItem({ game }: GameItemProps) {
           )}
         </div>
 
-        <div className="game-item__details">
-          <span>{game.title}</span>
-          {genres && genres.length > 0 ? (
-            <span className="game-item__genres">{genres.join(", ")}</span>
-          ) : (
-            <span className="game-item__genres game-item__genres--empty">
-              {t("no_genres", { ns: "catalogue" })}
-            </span>
-          )}
+        <div className="game-item__text">
+          <span className="game-item__title">{game.title}</span>
+          <span className="game-item__genres">
+            {genres && genres.length > 0
+              ? genres.slice(0, 3).join(", ")
+              : t("no_genres", { ns: "catalogue" })}
+          </span>
 
-          <div className="game-item__repackers">
-            {game.downloadSources.map((sourceName) => (
-              <Badge key={sourceName}>{sourceName}</Badge>
-            ))}
-          </div>
+          {visibleSources.length > 0 && (
+            <div className="game-item__sources">
+              {visibleSources.map((sourceName) => (
+                <span key={sourceName} className="game-item__source">
+                  {sourceName}
+                </span>
+              ))}
+              {hiddenSourcesCount > 0 && (
+                <span className="game-item__source">+{hiddenSourcesCount}</span>
+              )}
+            </div>
+          )}
         </div>
       </Link>
+
       <button
         type="button"
-        className={cn("game-item__plus-wrapper", {
-          "game-item__plus-wrapper--added": added,
+        className={cn("game-item__add", {
+          "game-item__add--added": added,
         })}
         onClick={addGameToLibrary}
         title={added ? t("already_in_library") : t("add_to_library")}
         aria-label={added ? t("already_in_library") : t("add_to_library")}
         disabled={added || isAddingToLibrary}
       >
-        {added ? <Icon name="check" size={16} /> : <Icon name="plus" size={16} />}
+        <Icon name={added ? "check" : "plus"} size={16} />
       </button>
     </article>
   );

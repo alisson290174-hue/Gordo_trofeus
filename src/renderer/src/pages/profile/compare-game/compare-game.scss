@@ -1,0 +1,315 @@
+@use "../../../scss/ps5.scss";
+
+.cg {
+  position: relative;
+  width: 100%;
+  font-family: ps5.$font;
+  color: ps5.$text;
+  font-weight: 300;
+
+  &__backdrop {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -76px;
+    height: 380px;
+    overflow: hidden;
+    pointer-events: none;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 30%;
+      filter: blur(22px) brightness(0.55);
+      transform: scale(1.15);
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(0deg, ps5.$bg 0%, rgba(7, 11, 22, 0.4) 60%, rgba(7, 11, 22, 0.2) 100%);
+    }
+  }
+
+  &__content {
+    position: relative;
+    padding: 26px ps5.$page-gutter 40px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+
+  &__back {
+    align-self: flex-start;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    color: rgba(233, 238, 247, 0.75);
+    cursor: pointer;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+
+  &__head {
+    display: flex;
+    align-items: flex-end;
+    gap: 26px;
+    flex-wrap: wrap;
+  }
+
+  &__cover {
+    width: 120px;
+    height: 180px;
+    flex: none;
+    border-radius: 16px;
+    overflow: hidden;
+    background: #1a2233;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.55);
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__title-block {
+    flex: 1;
+    min-width: 260px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-bottom: 8px;
+  }
+
+  &__eyebrow {
+    font-size: 13px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(233, 238, 247, 0.6);
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 52px;
+    font-weight: 200;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    overflow-wrap: anywhere;
+  }
+
+  &__scores {
+    display: flex;
+    gap: 12px;
+    padding-bottom: 8px;
+    flex-wrap: wrap;
+  }
+
+  &__chips {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  &__empty {
+    color: ps5.$text-55;
+    font-size: 15px;
+    padding: 12px 22px;
+  }
+}
+
+.cg-chip {
+  @include ps5.chip(38px);
+
+  &__count {
+    opacity: 0.55;
+  }
+}
+
+.cg-score {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 22px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  min-width: 230px;
+
+  &--platinum {
+    background: linear-gradient(135deg, rgba(150, 220, 215, 0.2), rgba(150, 220, 215, 0.04));
+    border-color: rgba(190, 240, 235, 0.4);
+
+    .cg-score__label {
+      color: ps5.$tier-platinum;
+    }
+  }
+
+  &__avatar {
+    width: 46px;
+    height: 46px;
+    flex: none;
+    box-sizing: border-box;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1f4fa8, #0a1f45);
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    overflow: hidden;
+    text-transform: uppercase;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__label {
+    font-size: 12px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(233, 238, 247, 0.6);
+  }
+
+  &__value {
+    font-size: 36px;
+    font-weight: 200;
+    line-height: 1;
+  }
+
+  &__badge {
+    width: 44px;
+    height: 44px;
+    margin-left: auto;
+  }
+}
+
+.cg-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  &__head,
+  &__row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 190px 190px;
+    gap: 20px;
+    align-items: center;
+    padding: 0 22px 0 16px;
+  }
+
+  &__head {
+    font-size: 12px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: ps5.$text-50;
+  }
+
+  &__center {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+  }
+
+  &__row {
+    padding-top: 14px;
+    padding-bottom: 14px;
+    border-radius: 20px;
+    background: ps5.$card;
+    border: 1px solid ps5.$card-border;
+
+    &--skeleton {
+      height: 84px;
+      box-sizing: border-box;
+    }
+  }
+}
+
+.cg-trophy {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+
+  &__icon {
+    width: 54px;
+    height: 54px;
+    flex: none;
+    border-radius: 50%;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: ps5.$tier-gold;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  &__name {
+    font-size: 16.5px;
+    font-weight: 400;
+  }
+
+  &__desc {
+    font-size: 13.5px;
+    color: ps5.$text-55;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.cg-status {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+
+  &__dot {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(233, 238, 247, 0.45);
+
+    &--on {
+      background: rgba(0, 112, 243, 0.9);
+      color: #fff;
+    }
+  }
+
+  &__date {
+    font-size: 12px;
+    color: ps5.$text-55;
+  }
+}

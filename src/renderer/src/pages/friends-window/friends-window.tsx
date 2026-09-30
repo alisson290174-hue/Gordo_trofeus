@@ -3,7 +3,8 @@ import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 
 
-import { Avatar } from "@renderer/components";
+import { Avatar, Img } from "@renderer/components";
+import GameIconPlaceholder from "@renderer/assets/icons/game-icon-placeholder.png";
 import { useAppSelector, useUserDetails } from "@renderer/hooks";
 import SteamLogo from "@renderer/assets/steam-logo.svg?react";
 import AppIcon from "@renderer/assets/icons/app-icon-refresh.png";
@@ -337,12 +338,13 @@ export default function FriendsWindow() {
   const getGameIcon = (game: { iconUrl: string | null; title: string }) => {
     if (game.iconUrl) {
       return (
-        <img
+        <Img
           className="friends-window__game-icon"
           alt={game.title}
           width={16}
           height={16}
           src={game.iconUrl}
+          fallback={GameIconPlaceholder}
         />
       );
     }
@@ -370,6 +372,9 @@ export default function FriendsWindow() {
             loading="lazy"
             decoding="async"
             className="friends-window__friend-bg"
+            onError={(event) => {
+              event.currentTarget.style.display = "none";
+            }}
           />
         )}
         <button
@@ -478,6 +483,9 @@ export default function FriendsWindow() {
             src={profileBackgroundImageUrl}
             alt=""
             className="friends-window__header-bg"
+            onError={(event) => {
+              event.currentTarget.style.display = "none";
+            }}
           />
         )}
 

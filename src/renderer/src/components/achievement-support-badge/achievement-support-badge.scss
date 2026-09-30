@@ -1,0 +1,53 @@
+.achievement-support-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  backdrop-filter: blur(4px);
+
+  &--chip {
+    padding: 4px 8px;
+  }
+
+  &--dot {
+    padding: 4px;
+    border-radius: 50%;
+  }
+
+  &__label {
+    letter-spacing: 0.01em;
+  }
+
+  // Tones — semantic status colours, independent of the brand accent.
+  &--working {
+    color: #7ee2a8;
+    background: rgba(67, 209, 122, 0.16);
+    box-shadow: inset 0 0 0 1px rgba(67, 209, 122, 0.3);
+  }
+
+  &--ready {
+    color: #6fd0ff;
+    background: rgba(111, 208, 255, 0.16);
+    box-shadow: inset 0 0 0 1px rgba(111, 208, 255, 0.3);
+  }
+
+  &--warning {
+    color: #ffcf6b;
+    background: rgba(244, 165, 16, 0.16);
+    box-shadow: inset 0 0 0 1px rgba(244, 165, 16, 0.3);
+  }
+
+  &--muted {
+    color: #aab2c5;
+    background: rgba(120, 130, 150, 0.18);
+    box-shadow: inset 0 0 0 1px rgba(120, 130, 150, 0.28);
+  }
+
+  img {
+    display: block;
+  }
+}

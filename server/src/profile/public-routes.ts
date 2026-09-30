@@ -3,6 +3,7 @@ import { db } from "../db.js";
 import { verifyAccessToken } from "../auth/jwt.js";
 import { getUserById, type UserRow } from "../users.js";
 import { getOrCacheSteamGame } from "../catalogue/steam-lookup.js";
+import { getPs2Metadata } from "../catalogue/ps2-index.js";
 
 interface RelationRow {
   a_id: string;
@@ -48,6 +49,8 @@ interface ProfileGameRow {
 async function toUserGame(row: ProfileGameRow) {
   const appid = Number(row.object_id);
   const game = row.shop === "steam" ? await getOrCacheSteamGame(appid) : null;
+  // Classics: real title and art from the PS2 index instead of "rom-sku-SCES50959".
+  const ps2 = row.shop === "launchbox" ? getPs2Metadata(row.object_id) : null;
   const downloadSourceIds =
     row.shop === "steam"
       ? (downloadSourceNamesForGameStatement.all(appid) as { name: string | null }[])
@@ -66,12 +69,12 @@ async function toUserGame(row: ProfileGameRow) {
   return {
     objectId: row.object_id,
     shop: row.shop,
-    title: game?.title ?? row.object_id,
+    title: game?.title ?? ps2?.title ?? row.object_id,
     iconUrl: game?.logo_url ?? null,
-    libraryHeroImageUrl: game?.hero_url ?? null,
-    libraryImageUrl: game?.cover_url ?? null,
-    logoImageUrl: game?.logo_url ?? null,
-    coverImageUrl: game?.cover_url ?? null,
+    libraryHeroImageUrl: game?.hero_url ?? ps2?.heroUrl ?? null,
+    libraryImageUrl: game?.cover_url ?? ps2?.coverUrl ?? null,
+    logoImageUrl: game?.logo_url ?? ps2?.logoUrl ?? null,
+    coverImageUrl: game?.cover_url ?? ps2?.coverUrl ?? null,
     downloadSources: downloadSourceIds,
     playTimeInSeconds: Math.trunc(row.play_time_ms / 1000),
     lastTimePlayed: row.last_time_played,
@@ -242,6 +245,98 @@ export function registerPublicProfileRoutes(app: FastifyInstance) {
     const games = await Promise.all(platinumRows.map(toUserGame));
 
     reply.send({ games, total: games.length });
+  });
+
+  // Trophy summary for the profile (Conceito 1 "Perfil de troféus"): per-tier counts across
+  // the whole library plus per-game tier breakdowns and dates, so the client can draw the
+  // level/tier band, the platinum showcase, the activity feed and the side-by-side compare
+  // without one request per game. Tiers follow the client's rule (shared/achievement-tier.ts):
+  // gold < 10% global unlock, silver < 40%, bronze otherwise (unknown rarity = bronze).
+  // Online-only achievements are left out, like everywhere else platinum is computed.
+  app.get<{ Params: { id: string } }>("/users/:id/trophy-summary", async (request, reply) => {
+    const owner = getUserById(request.params.id);
+    if (!owner) return reply.code(404).send({ message: "User not found" });
+
+    const viewer = tryGetViewer(request);
+    const isSelf = viewer?.id === owner.id;
+    const viewerIsFriend = viewer ? isFriend(viewer.id, owner.id) : false;
+    const canSeeDetails =
+      isSelf || owner.profile_visibility === "PUBLIC" || (owner.profile_visibility === "FRIENDS" && viewerIsFriend);
+
+    const emptyCounts = { platinum: 0, gold: 0, silver: 0, bronze: 0, total: 0 };
+    if (!canSeeDetails) return reply.send({ counts: emptyCounts, games: [] });
+
+    type Tier = "gold" | "silver" | "bronze";
+    const tierOf = (pct: number | null): Tier =>
+      pct == null ? "bronze" : pct < 10 ? "gold" : pct < 40 ? "silver" : "bronze";
+
+    const rows = db
+      .prepare("SELECT * FROM profile_games WHERE user_id = ?")
+      .all(owner.id) as unknown as ProfileGameRow[];
+
+    const catalogueStatement = db.prepare(
+      `SELECT name, global_unlock_percent AS pct FROM achievement_catalogue
+       WHERE shop = ? AND object_id = ? AND COALESCE(is_online, 0) = 0`
+    );
+    const unlocksStatement = db.prepare(
+      "SELECT achievement_name AS name, unlock_time AS time FROM user_achievements WHERE profile_game_id = ?"
+    );
+
+    const counts = { ...emptyCounts };
+    const games = [];
+
+    for (const row of rows) {
+      const catalogue = catalogueStatement.all(row.shop, row.object_id) as {
+        name: string;
+        pct: number | null;
+      }[];
+      if (catalogue.length === 0) continue;
+
+      const unlockTimes = new Map(
+        (unlocksStatement.all(row.id) as { name: string; time: number }[]).map((u) => [u.name, u.time])
+      );
+
+      const tiers = {
+        gold: { earned: 0, total: 0 },
+        silver: { earned: 0, total: 0 },
+        bronze: { earned: 0, total: 0 },
+      };
+      let unlocked = 0;
+      let lastUnlockAt = 0;
+
+      for (const achievement of catalogue) {
+        const tier = tierOf(achievement.pct);
+        tiers[tier].total += 1;
+        const time = unlockTimes.get(achievement.name);
+        if (time != null) {
+          tiers[tier].earned += 1;
+          unlocked += 1;
+          if (time > lastUnlockAt) lastUnlockAt = time;
+        }
+      }
+
+      const isPlatinum = unlocked === catalogue.length;
+      counts.gold += tiers.gold.earned;
+      counts.silver += tiers.silver.earned;
+      counts.bronze += tiers.bronze.earned;
+      if (isPlatinum) counts.platinum += 1;
+
+      const base = await toUserGame(row);
+      games.push({
+        ...base,
+        achievementCount: catalogue.length,
+        unlockedAchievementCount: unlocked,
+        tiers,
+        isPlatinum,
+        lastUnlockAt: lastUnlockAt || null,
+        platinumAt: isPlatinum ? lastUnlockAt || null : null,
+      });
+    }
+
+    counts.total = counts.platinum + counts.gold + counts.silver + counts.bronze;
+    games.sort((a, b) => (b.lastUnlockAt ?? 0) - (a.lastUnlockAt ?? 0));
+
+    reply.send({ counts, games });
   });
 
   app.get<{ Params: { id: string } }>("/users/:id/stats", async (request, reply) => {

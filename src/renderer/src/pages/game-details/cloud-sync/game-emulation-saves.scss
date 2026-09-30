@@ -8,7 +8,7 @@
 
     h2 {
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 500;
       color: #fafafa;
       margin: 0;
     }
@@ -56,7 +56,7 @@
 
   &__group-title {
     font-size: 13px;
-    font-weight: 600;
+    font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.04em;
     color: #8e919b;
@@ -73,7 +73,7 @@
 
     h3 {
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 500;
       color: #fafafa;
       margin: 0;
     }
@@ -120,7 +120,7 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
-    background: #0d0d0d;
+    background: #070b16;
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 8px;
     padding: 10px 16px 12px;
@@ -149,18 +149,14 @@
   }
 
   &__card-flag {
-    width: 20px;
+    width: 40px;
     height: auto;
-    border-radius: 2px;
     flex-shrink: 0;
-    image-rendering: pixelated;
-    image-rendering: -moz-crisp-edges;
-    image-rendering: crisp-edges;
   }
 
   &__card-title {
     font-size: 15px;
-    font-weight: 600;
+    font-weight: 500;
     color: #fafafa;
     overflow: hidden;
     text-overflow: ellipsis;

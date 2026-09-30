@@ -1,0 +1,27 @@
+.trophy-sprite {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+.trophy-cup {
+  display: block;
+
+  // The classic cup inherits its metal from here so one <symbol> serves every tier.
+  &--bronze {
+    fill: url(#baloi-cup-bronze);
+    stroke: url(#baloi-cup-bronze);
+  }
+
+  &--silver {
+    fill: url(#baloi-cup-silver);
+    stroke: url(#baloi-cup-silver);
+  }
+
+  &--gold {
+    fill: url(#baloi-cup-gold);
+    stroke: url(#baloi-cup-gold);
+  }
+  // platinum colours are baked into its own symbol.
+}

@@ -1,5 +1,7 @@
 import type { ComparedAchievements } from "@types";
 import { Icon } from "@renderer/components/icon/icon";
+import { Img } from "@renderer/components";
+import { getTierFallbackIconUrl } from "@renderer/helpers/achievement-fallback-icon";
 import "./achievements.scss";
 
 import { useDate } from "@renderer/hooks";
@@ -25,9 +27,10 @@ export function ComparedAchievementList({
           }`}
         >
           <div className="achievements__item-main">
-            <img
+            <Img
               className="achievements__item-image"
               src={achievement.icon}
+              fallback={getTierFallbackIconUrl(false, null)}
               alt={achievement.displayName}
               loading="lazy"
             />

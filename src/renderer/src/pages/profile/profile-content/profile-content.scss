@@ -1,10 +1,12 @@
 @use "../../../scss/globals.scss";
+@use "../../../scss/ps5.scss";
 
 .profile-content {
   &__section {
     display: flex;
-    gap: calc(globals.$spacing-unit * 3);
-    padding: calc(globals.$spacing-unit * 3);
+    gap: 28px;
+    padding: 18px ps5.$page-gutter 32px;
+    font-family: ps5.$font;
   }
 
   &__library-filters {
@@ -80,7 +82,7 @@
     padding: 4px 8px;
     border-radius: 6px;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 500;
     min-width: 24px;
     text-align: center;
     flex-shrink: 0;
@@ -107,9 +109,8 @@
 
   &__tabs {
     display: flex;
-    gap: calc(globals.$spacing-unit);
-    margin-bottom: calc(globals.$spacing-unit * 2);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    gap: 8px;
+    margin-bottom: 20px;
     position: relative;
   }
 
@@ -118,20 +119,35 @@
   }
 
   &__tab {
-    background: none;
-    border: none;
-    color: rgba(255, 255, 255, 0.6);
-    padding: calc(globals.$spacing-unit) calc(globals.$spacing-unit * 2);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 19px;
+    height: 38px;
+    color: ps5.$text-80;
+    padding: 0 18px;
     cursor: pointer;
+    font-family: inherit;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 400;
     transition: color ease 0.2s;
     display: flex;
     align-items: center;
     gap: calc(globals.$spacing-unit * 0.5);
 
-    &--active {
-      color: globals.$brand-orange;
+    &:hover {
+      background: rgba(255, 255, 255, 0.09);
+    }
+
+    &--active,
+    &--active:hover {
+      background: #ffffff;
+      border-color: #ffffff;
+      color: ps5.$bg;
+
+      .profile-content__tab-badge {
+        background-color: rgba(7, 11, 22, 0.12);
+        color: ps5.$bg;
+      }
     }
   }
 
@@ -145,7 +161,7 @@
     background-color: rgba(255, 255, 255, 0.15);
     border-radius: 9px;
     font-size: 11px;
-    font-weight: 600;
+    font-weight: 500;
     color: rgba(255, 255, 255, 0.9);
     line-height: 1;
   }
@@ -155,14 +171,14 @@
     bottom: -1px;
     left: 0;
     right: 0;
-    height: 2px;
-    background: globals.$brand-orange;
+    height: 0;
+    display: none;
   }
 
   &__game-skeleton {
     width: 100%;
     aspect-ratio: 2 / 3;
-    border-radius: 4px;
+    border-radius: 16px;
     display: block;
   }
 
@@ -408,7 +424,7 @@
       margin: 0;
       overflow: hidden;
       font-size: 16px;
-      font-weight: 600;
+      font-weight: 500;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
@@ -420,7 +436,7 @@
       background-color: rgba(255, 255, 255, 0.1);
       color: globals.$body-color;
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 500;
       text-align: center;
     }
   }
@@ -444,8 +460,8 @@
     background-color: globals.$background-color;
 
     &--rare {
-      border-color: rgba(244, 165, 16, 0.85);
-      box-shadow: 0 0 12px rgba(244, 165, 16, 0.2);
+      border-color: rgba(0, 112, 243, 0.85);
+      box-shadow: 0 0 12px rgba(0, 112, 243, 0.2);
     }
 
     &--platinum {
@@ -711,7 +727,7 @@
     margin: 0;
     padding: 0;
     display: grid;
-    gap: calc(globals.$spacing-unit * 2);
+    gap: 22px;
     grid-template-columns: repeat(2, 1fr);
 
     @container #{globals.$app-container} (min-width: 900px) {
@@ -855,7 +871,7 @@
   background: none;
   border: none;
   color: rgba(255, 255, 255, 0.9);
-  font-weight: 600;
+  font-weight: 500;
   cursor: pointer;
   text-align: left;
 
@@ -1006,4 +1022,12 @@
     border-color: rgba(244, 67, 54, 0.4);
     color: #ff7961;
   }
+}
+
+// Trophy band sits right under the hero (design "Perfil de troféus").
+.profile-content__band {
+  position: relative;
+  z-index: 3;
+  padding: 0 56px;
+  margin-top: -6px;
 }

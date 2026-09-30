@@ -1,4 +1,5 @@
 @use "../../scss/globals.scss";
+@use "../../scss/ps5.scss";
 
 .game-details {
   &__wrapper {
@@ -135,7 +136,7 @@
   // Skeleton-specific styles
   &__skeleton {
     .react-loading-skeleton {
-      background: linear-gradient(90deg, #1c1c1c 25%, #2a2a2a 50%, #1c1c1c 75%);
+      background: linear-gradient(90deg, #121a2c 25%, #1f2a42 50%, #121a2c 75%);
       background-size: 200% 100%;
       animation: skeleton-loading 1.5s infinite;
     }
@@ -178,5 +179,269 @@
   }
   100% {
     background-position: -200% 0;
+  }
+}
+
+// ---- Conceito 1 — Detalhes do jogo ----
+.gd5-hero {
+  position: relative;
+  min-height: 78vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  overflow: hidden;
+  font-family: ps5.$font;
+  font-weight: 300;
+  color: ps5.$text;
+
+  &__art {
+    position: absolute;
+    inset: 0;
+    background-color: ps5.$bg-2;
+
+    .game-details__hero-image {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 25%;
+    }
+  }
+
+  &__classics-backdrop {
+    position: absolute;
+    inset: 0;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      filter: blur(28px);
+      transform: scale(1.12);
+    }
+  }
+
+  &__shade-x {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      rgba(6, 9, 18, 0.9) 0%,
+      rgba(6, 9, 18, 0.45) 50%,
+      rgba(6, 9, 18, 0.05) 100%
+    );
+  }
+
+  &__shade-y {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      0deg,
+      ps5.$bg 0%,
+      rgba(7, 11, 22, 0.55) 30%,
+      rgba(7, 11, 22, 0) 60%
+    );
+  }
+
+  .game-details__hero-bookmark {
+    z-index: 1;
+  }
+
+  &__content {
+    position: relative;
+    z-index: 2;
+    padding: 120px ps5.$page-gutter 44px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+  }
+
+  &__back {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    align-self: flex-start;
+    font-family: ps5.$font;
+    font-size: 14px;
+    color: rgba(233, 238, 247, 0.7);
+    cursor: pointer;
+    transition: color 0.15s ease;
+
+    &:hover {
+      color: #fff;
+    }
+  }
+
+  &__logo {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .game-details__game-logo {
+      width: 460px;
+      max-width: 100%;
+      height: 160px;
+      max-height: none;
+      align-self: flex-start;
+      object-fit: contain;
+      object-position: left bottom;
+      filter: drop-shadow(0 6px 24px rgba(0, 0, 0, 0.6));
+    }
+
+    .game-details__game-logo-text {
+      width: auto;
+      max-width: 900px;
+      align-self: flex-start;
+      font-size: 68px;
+      font-weight: 200;
+      letter-spacing: -0.02em;
+      line-height: 1;
+      text-shadow: none;
+    }
+  }
+
+  &__classics {
+    display: flex;
+    align-items: flex-end;
+    gap: 28px;
+  }
+
+  &__classics-cover {
+    width: 150px;
+    max-height: 210px;
+    object-fit: contain;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+  }
+
+  &__classics-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    min-width: 0;
+  }
+
+  &__title-text {
+    margin: 0;
+    font-size: 56px;
+    font-weight: 200;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    overflow-wrap: anywhere;
+  }
+
+  &__meta {
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: ps5.$text-62;
+    font-weight: 400;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  &__round {
+    @include ps5.round-glass-button(54px);
+  }
+
+  &__cloud {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 54px;
+    padding: 0 22px;
+    border-radius: 27px;
+    @include ps5.glass(16px);
+    color: #fff;
+    font-family: ps5.$font;
+    font-size: 15px;
+    cursor: pointer;
+
+    img {
+      width: 22px;
+      height: 22px;
+    }
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.18);
+    }
+  }
+
+  &__progress {
+    width: 100%;
+    max-width: 560px;
+    height: 4px;
+    border-radius: 4px;
+    background: rgba(255, 255, 255, 0.14);
+    overflow: hidden;
+  }
+
+  &__progress-fill {
+    display: block;
+    height: 100%;
+    background: ps5.$accent;
+    transition: width 0.4s ease;
+
+    &--paused {
+      background: rgba(255, 255, 255, 0.4);
+    }
+  }
+}
+
+.gd5-body {
+  padding: 28px ps5.$page-gutter 60px;
+  display: flex;
+  gap: 28px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  font-family: ps5.$font;
+
+  &__main {
+    flex: 1 1 560px;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  &__side {
+    flex: 0 1 360px;
+    min-width: 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+
+    .content-sidebar {
+      height: auto;
+      width: 100%;
+      min-width: 0;
+      max-width: none;
+      padding: 0;
+      border: none;
+      background: transparent;
+      gap: 18px;
+    }
+  }
+}
+
+.gd5-about {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+
+  &__text {
+    font-size: 19px;
+    line-height: 1.6;
+    font-weight: 300;
+    color: rgba(233, 238, 247, 0.86);
+    max-width: 720px;
+    text-wrap: pretty;
   }
 }

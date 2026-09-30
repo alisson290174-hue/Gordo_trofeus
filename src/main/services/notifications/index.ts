@@ -107,7 +107,14 @@ async function getAchievementSoundPath(): Promise<string> {
   return achievementSoundPath;
 }
 
-export const publishDownloadCompleteNotification = async (game: Game) => {
+/** Some downloads start before the game has a title; fall back to the folder name. */
+const notificationTitleOf = (game: Game, fallbackTitle?: string | null) =>
+  game.title?.trim() || fallbackTitle?.trim() || game.objectId;
+
+export const publishDownloadCompleteNotification = async (
+  game: Game,
+  fallbackTitle?: string | null
+) => {
   const userPreferences = await db.get<string, UserPreferences>(
     levelKeys.userPreferences,
     {
@@ -118,7 +125,7 @@ export const publishDownloadCompleteNotification = async (game: Game) => {
   const title = t("download_complete", { ns: "notifications" });
   const body = t("game_ready_to_install", {
     ns: "notifications",
-    title: game.title,
+    title: notificationTitleOf(game, fallbackTitle),
   });
 
   if (userPreferences?.downloadNotificationsEnabled) {
@@ -288,11 +295,14 @@ export const publishCombinedNewAchievementNotification = async (
   }
 };
 
-export const publishExtractionCompleteNotification = async (game: Game) => {
+export const publishExtractionCompleteNotification = async (
+  game: Game,
+  fallbackTitle?: string | null
+) => {
   const title = t("extraction_complete", { ns: "notifications" });
   const body = t("game_extracted", {
     ns: "notifications",
-    title: game.title,
+    title: notificationTitleOf(game, fallbackTitle),
   });
 
   new Notification({

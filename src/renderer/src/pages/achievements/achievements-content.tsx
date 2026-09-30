@@ -10,8 +10,9 @@ import {
 } from "@renderer/helpers";
 
 import { gameDetailsContext } from "@renderer/context";
-import type { ComparedAchievements } from "@types";
-import { Link, ProgressBar } from "@renderer/components";
+import type { ComparedAchievements, UserAchievement } from "@types";
+import { Link, ProgressBar, TrophyCup, TrophySprite } from "@renderer/components";
+import { getAchievementTier, type AchievementTier } from "@shared";
 import { ComparedAchievementList } from "./compared-achievement-list";
 import { AchievementList } from "./achievement-list";
 import { useSubscription } from "@renderer/hooks/use-subscription";
@@ -36,6 +37,35 @@ interface AchievementSummaryProps {
   isComparison?: boolean;
 }
 
+function ProfileAvatarImage({
+  user,
+  className,
+}: {
+  user: Pick<UserInfo, "profileImageUrl" | "displayName">;
+  className: string;
+}) {
+  const [failed, setFailed] = useState(false);
+
+  useEffect(() => {
+    setFailed(false);
+  }, [user.profileImageUrl]);
+
+  return (
+    <div className={className}>
+      {user.profileImageUrl && !failed ? (
+        <img
+          className={className}
+          src={user.profileImageUrl}
+          alt={user.displayName}
+          onError={() => setFailed(true)}
+        />
+      ) : (
+        <Icon name="person" size={24} />
+      )}
+    </div>
+  );
+}
+
 function AchievementSummary({ user, isComparison }: AchievementSummaryProps) {
   const { t } = useTranslation("achievement");
   const { userDetails, hasActiveSubscription } = useUserDetails();
@@ -45,17 +75,10 @@ function AchievementSummary({ user, isComparison }: AchievementSummaryProps) {
     user: Pick<UserInfo, "profileImageUrl" | "displayName">
   ) => {
     return (
-      <div className="achievements-content__profile-avatar">
-        {user.profileImageUrl ? (
-          <img
-            className="achievements-content__profile-avatar"
-            src={user.profileImageUrl}
-            alt={user.displayName}
-          />
-        ) : (
-          <Icon name="person" size={24} />
-        )}
-      </div>
+      <ProfileAvatarImage
+        user={user}
+        className="achievements-content__profile-avatar"
+      />
     );
   };
 
@@ -129,6 +152,62 @@ function AchievementSummary({ user, isComparison }: AchievementSummaryProps) {
   );
 }
 
+const TROPHY_TIERS: AchievementTier[] = [
+  "platinum",
+  "gold",
+  "silver",
+  "bronze",
+];
+
+/** PSN-style trophy breakdown: earned / available plus a count per trophy tier. */
+function TrophySummary({ achievements }: { achievements: UserAchievement[] }) {
+  const { t } = useTranslation("achievement");
+
+  const unlocked = achievements.filter((a) => a.unlocked);
+  const counts: Record<AchievementTier, number> = {
+    platinum: 0,
+    gold: 0,
+    silver: 0,
+    bronze: 0,
+  };
+  for (const achievement of unlocked) {
+    counts[
+      getAchievementTier({
+        isPlatinum: false,
+        globalUnlockPercent: achievement.globalUnlockPercent,
+      })
+    ] += 1;
+  }
+  // Platinum is the "everything unlocked" trophy — earned only at 100% coverage.
+  counts.platinum =
+    achievements.length > 0 && unlocked.length === achievements.length ? 1 : 0;
+
+  return (
+    <div className="trophy-summary">
+      <div className="trophy-summary__earned">
+        <div className="trophy-summary__num">
+          <b>{unlocked.length}</b>
+          <span>{t("earned_count")}</span>
+        </div>
+        <div className="trophy-summary__num">
+          <b>{achievements.length}</b>
+          <span>{t("available_count")}</span>
+        </div>
+      </div>
+      <div className="trophy-summary__divider" />
+      <div className="trophy-summary__cups">
+        {TROPHY_TIERS.map((tier) => (
+          <div key={tier} className={`trophy-summary__cup trophy-summary__cup--${tier}`}>
+            <TrophyCup tier={tier} />
+            <b>{counts[tier]}</b>
+            <small>{t(`trophy_${tier}`)}</small>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export function AchievementsContent({
   otherUser,
   comparedAchievements,
@@ -170,17 +249,10 @@ export function AchievementsContent({
     user: Pick<UserInfo, "profileImageUrl" | "displayName">
   ) => {
     return (
-      <div className="achievements-content__comparison__small-avatar">
-        {user.profileImageUrl ? (
-          <img
-            className="achievements-content__comparison__small-avatar"
-            src={user.profileImageUrl}
-            alt={user.displayName}
-          />
-        ) : (
-          <Icon name="person" size={24} />
-        )}
-      </div>
+      <ProfileAvatarImage
+        user={user}
+        className="achievements-content__comparison__small-avatar"
+      />
     );
   };
 
@@ -188,6 +260,7 @@ export function AchievementsContent({
 
   return (
     <div className="achievements-content__achievements-list">
+      <TrophySprite />
       <section
         ref={containerRef}
         onScroll={onScroll}
@@ -202,6 +275,9 @@ export function AchievementsContent({
                 alt=""
                 aria-hidden="true"
                 loading="lazy"
+                onError={(event) => {
+                  event.currentTarget.style.display = "none";
+                }}
               />
             )}
             <div
@@ -221,6 +297,9 @@ export function AchievementsContent({
                       src={logoImage}
                       className="achievements-content__achievements-list__section__container__hero__content__game-logo"
                       alt={gameTitle}
+                      onError={(event) => {
+                        event.currentTarget.style.display = "none";
+                      }}
                     />
                   ) : (
                     <span className="achievements-content__achievements-list__section__container__hero__content__game-title">
@@ -251,6 +330,8 @@ export function AchievementsContent({
             </div>
           </div>
         </div>
+
+        {!otherUser && <TrophySummary achievements={achievements!} />}
 
         {otherUser && (
           <div

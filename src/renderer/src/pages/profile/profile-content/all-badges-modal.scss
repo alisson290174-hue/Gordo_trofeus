@@ -19,7 +19,7 @@
     padding: 4px 8px;
     border-radius: 6px;
     font-size: 12px;
-    font-weight: 600;
+    font-weight: 500;
     min-width: 24px;
     text-align: center;
   }
@@ -76,7 +76,7 @@
 
   &__item-title {
     font-size: globals.$body-font-size;
-    font-weight: 600;
+    font-weight: 500;
     color: globals.$body-color;
     margin: 0;
   }

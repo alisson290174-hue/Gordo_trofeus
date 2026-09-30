@@ -13,8 +13,8 @@
     gap: 12px;
     width: 100%;
     padding: 12px;
-    background-color: #0d0d0d;
-    border: 1px solid #1c1c1c;
+    background-color: #070b16;
+    border: 1px solid #121a2c;
     border-radius: 8px;
     color: #c0c1c7;
     cursor: pointer;
@@ -66,12 +66,8 @@
 
   &__option-flag {
     flex-shrink: 0;
-    width: 24px;
+    width: 40px;
     height: auto;
-    image-rendering: pixelated;
-    image-rendering: -moz-crisp-edges;
-    image-rendering: crisp-edges;
-    border-radius: 2px;
     display: block;
   }
 

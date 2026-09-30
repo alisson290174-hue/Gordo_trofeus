@@ -30,14 +30,43 @@ import { buildGameDetailsPath } from "@renderer/helpers";
 import type { GameShop } from "@types";
 import type { SuggestionShop } from "@renderer/hooks/use-search-suggestions";
 import { debounce } from "lodash-es";
+import AppIcon from "@renderer/assets/icons/app-icon-refresh.png";
+import { NavProfile } from "./nav-profile";
 
-const pathTitle: Record<string, string> = {
-  "/": "home",
-  "/catalogue": "catalogue",
-  "/library": "library",
-  "/downloads": "downloads",
-  "/settings": "settings",
-};
+const NAV_ITEMS: {
+  path: string;
+  labelKey: string;
+  match: (pathname: string) => boolean;
+}[] = [
+  { path: "/", labelKey: "sidebar:home", match: (p) => p === "/" },
+  {
+    path: "/library",
+    labelKey: "sidebar:library",
+    match: (p) => p.startsWith("/library"),
+  },
+  {
+    path: "/catalogue",
+    labelKey: "sidebar:catalogue",
+    match: (p) => p.startsWith("/catalogue"),
+  },
+  {
+    path: "/downloads",
+    labelKey: "sidebar:downloads",
+    match: (p) => p.startsWith("/downloads"),
+  },
+  {
+    path: "/trophies",
+    labelKey: "dashboard:trophies",
+    match: (p) => p.startsWith("/trophies") || p.startsWith("/achievements"),
+  },
+];
+
+/** Routes whose hero runs under the nav, so the nav keeps its fading gradient there. */
+export const isFullBleedPath = (pathname: string) =>
+  pathname === "/" ||
+  pathname.startsWith("/game/") ||
+  pathname.startsWith("/trophies") ||
+  (pathname.startsWith("/profile/") && !pathname.endsWith("/compare"));
 
 export function Header() {
   const inputRef = useRef<HTMLInputElement>(null);
@@ -50,7 +79,7 @@ export function Header() {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const { headerTitle, draggingDisabled } = useAppSelector(
+  const { draggingDisabled } = useAppSelector(
     (state) => state.window
   );
 
@@ -125,17 +154,21 @@ export function Header() {
     3
   );
 
-  const title = useMemo(() => {
-    if (location.pathname.startsWith("/game")) return headerTitle;
-    if (location.pathname.startsWith("/achievements")) return headerTitle;
-    if (location.pathname.startsWith("/profile")) return headerTitle;
-    if (location.pathname.startsWith("/notifications")) return headerTitle;
-    if (location.pathname.startsWith("/library"))
-      return headerTitle || t("library");
-    if (location.pathname.startsWith("/search")) return t("search_results");
+  const isFullBleedRoute = isFullBleedPath(location.pathname);
 
-    return t(pathTitle[location.pathname]);
-  }, [location.pathname, headerTitle, t]);
+  // Over a hero the nav is a see-through gradient; once the page scrolls it turns solid so
+  // content sliding underneath doesn't collide with the menu.
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const scroller = document.getElementById("scrollableDiv");
+    if (!scroller) return;
+
+    const handleScroll = () => setIsScrolled(scroller.scrollTop > 40);
+    handleScroll();
+    scroller.addEventListener("scroll", handleScroll, { passive: true });
+    return () => scroller.removeEventListener("scroll", handleScroll);
+  }, [location.pathname]);
 
   const totalItems = historyItems.length + suggestions.length;
 
@@ -185,10 +218,6 @@ export function Header() {
       setIsDropdownVisible(false);
       setActiveIndex(-1);
     }, 200);
-  };
-
-  const handleBackButtonClick = () => {
-    navigate(-1);
   };
 
   const handleSearch = (value: string) => {
@@ -368,108 +397,136 @@ export function Header() {
 
   return (
     <>
-      <header
-        className={cn("header", {
-          "header--dragging-disabled": draggingDisabled,
-          "header--is-windows": window.electron.platform === "win32",
+      <div
+        className={cn("top-nav", {
+          "top-nav--solid": !isFullBleedRoute || isScrolled,
         })}
       >
-        <section className="header__section header__section--left">
+        <header
+          className={cn("header", {
+            "header--dragging-disabled": draggingDisabled,
+            "header--is-windows": window.electron.platform === "win32",
+          })}
+        >
           <button
             type="button"
-            className={cn("header__back-button", {
-              "header__back-button--enabled": location.key !== "default",
-            })}
-            onClick={handleBackButtonClick}
-            disabled={location.key === "default"}
+            className="header__brand"
+            onClick={() => navigate("/")}
           >
-            <Icon name="arrow-left"  />
+            <img src={AppIcon} alt="" />
+            <span>Balói</span>
           </button>
 
-          <h3
-            className={cn("header__title", {
-              "header__title--has-back-button": location.key !== "default",
+          <nav className="header__nav">
+            {NAV_ITEMS.map((item) => {
+              const isActive = item.match(location.pathname);
+
+              return (
+                <button
+                  key={item.path}
+                  type="button"
+                  className={cn("header__nav-item", {
+                    "header__nav-item--active": isActive,
+                  })}
+                  onClick={() => navigate(item.path)}
+                >
+                  <span>{t(item.labelKey)}</span>
+                  <span className="header__nav-dot" />
+                </button>
+              );
             })}
-          >
-            {title}
-          </h3>
-        </section>
+          </nav>
 
-        <section className="header__section">
-          {isOnLibraryPage && (
-            <button
-              type="button"
-              className="header__action-button header__action-button--outlined"
-              onClick={() => setShowAddGameModal(true)}
-              data-tooltip-id={addCustomGameTooltipId}
-              data-tooltip-content={t("add_custom_game_tooltip", {
-                ns: "sidebar",
-              })}
-              data-tooltip-place="bottom"
-            >
-              <Icon name="plus" size={16} />
-            </button>
-          )}
-
-          {isOnLibraryPage && isLibraryScanSupported && (
-            <button
-              type="button"
-              className={cn(
-                "header__action-button",
-                "header__action-button--outlined",
-                {
-                  "header__action-button--scanning": isScanning,
-                }
-              )}
-              onClick={() => setShowScanModal(true)}
-              data-tooltip-id={scanButtonTooltipId}
-              data-tooltip-content={t("scan_games_tooltip")}
-              data-tooltip-place="bottom"
-            >
-              <Icon name="sync" size={16} />
-            </button>
-          )}
-
-          <div
-            ref={searchContainerRef}
-            className={cn("header__search", {
-              "header__search--focused": isFocused,
-            })}
-          >
-            <button
-              type="button"
-              className="header__action-button"
-              onClick={focusInput}
-            >
-              <Icon name="search"  />
-            </button>
-
-            <input
-              ref={inputRef}
-              type="text"
-              name="search"
-              placeholder={isOnLibraryPage ? t("search_library") : t("search")}
-              value={localSearchValue}
-              className="header__search-input"
-              onChange={(event) => handleInputChange(event.target.value)}
-              onFocus={handleFocus}
-              onBlur={handleBlur}
-              onKeyDown={handleKeyDown}
-            />
-
-            {localSearchValue && (
+          <section className="header__actions">
+            {isOnLibraryPage && (
               <button
                 type="button"
-                onMouseDown={handleClearSearchMouseDown}
-                onClick={handleClearSearch}
-                className="header__action-button"
+                className="header__icon-button"
+                onClick={() => setShowAddGameModal(true)}
+                data-tooltip-id={addCustomGameTooltipId}
+                data-tooltip-content={t("sidebar:add_custom_game_tooltip")}
+                data-tooltip-place="bottom"
               >
-                <Icon name="x"  />
+                <Icon name="plus" size={20} />
               </button>
             )}
-          </div>
-        </section>
-      </header>
+
+            {isOnLibraryPage && isLibraryScanSupported && (
+              <button
+                type="button"
+                className={cn("header__icon-button", {
+                  "header__icon-button--scanning": isScanning,
+                })}
+                onClick={() => setShowScanModal(true)}
+                data-tooltip-id={scanButtonTooltipId}
+                data-tooltip-content={t("scan_games_tooltip")}
+                data-tooltip-place="bottom"
+              >
+                <Icon name="sync" size={20} />
+              </button>
+            )}
+
+            <div
+              ref={searchContainerRef}
+              className={cn("header__search", {
+                "header__search--focused": isFocused,
+                "header__search--filled": Boolean(localSearchValue),
+              })}
+            >
+              <button
+                type="button"
+                className="header__search-icon"
+                onClick={focusInput}
+                aria-label={t("search")}
+              >
+                <Icon name="search" size={20} />
+              </button>
+
+              <input
+                ref={inputRef}
+                type="text"
+                name="search"
+                placeholder={
+                  isOnLibraryPage ? t("search_library") : t("search")
+                }
+                value={localSearchValue}
+                className="header__search-input"
+                onChange={(event) => handleInputChange(event.target.value)}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
+                onKeyDown={handleKeyDown}
+              />
+
+              {localSearchValue && (
+                <button
+                  type="button"
+                  onMouseDown={handleClearSearchMouseDown}
+                  onClick={handleClearSearch}
+                  className="header__search-icon"
+                >
+                  <Icon name="x" size={16} />
+                </button>
+              )}
+            </div>
+
+            <button
+              type="button"
+              className={cn("header__icon-button", {
+                "header__icon-button--active":
+                  location.pathname.startsWith("/settings"),
+              })}
+              onClick={() => navigate("/settings")}
+              title={t("sidebar:settings")}
+            >
+              <Icon name="settings" size={20} />
+            </button>
+
+            <NavProfile />
+          </section>
+        </header>
+
+        <AutoUpdateSubHeader />
+      </div>
 
       {isOnLibraryPage && (
         <Tooltip id={addCustomGameTooltipId} style={{ zIndex: 1 }} />
@@ -478,8 +535,6 @@ export function Header() {
       {isOnLibraryPage && isLibraryScanSupported && (
         <Tooltip id={scanButtonTooltipId} style={{ zIndex: 1 }} />
       )}
-
-      <AutoUpdateSubHeader />
 
       <SearchDropdown
         visible={

@@ -5,6 +5,23 @@ import type { ClassicsDisc } from "./emulator.types";
 
 export type SubscriptionStatus = "active" | "pending" | "cancelled";
 
+/**
+ * Result of scanning an installed game for a crack that records achievements:
+ * - `working`     — an achievement file was found with unlocked achievements in it.
+ * - `supported`   — an achievement file exists but is empty and the game hasn't been played yet
+ *                   (the crack has the system; play once to confirm).
+ * - `not_writing` — an achievement file exists but stays empty after real playtime (the crack has
+ *                   the system but doesn't record this specific game — the Clair Obscur case).
+ * - `unsupported` — the game has playtime but no achievement file ever appeared (DRM-free build).
+ * - `unknown`     — not installed / not yet scanned / never played.
+ */
+export type AchievementSupport =
+  | "working"
+  | "supported"
+  | "not_writing"
+  | "unsupported"
+  | "unknown";
+
 export interface Subscription {
   id: string;
   status: SubscriptionStatus;
@@ -17,7 +34,6 @@ export interface Auth {
   accessToken: string;
   refreshToken: string;
   tokenExpirationTimestamp: number;
-  workwondersJwt: string;
 }
 
 export interface User {
@@ -33,6 +49,8 @@ export interface Game {
   iconUrl: string | null;
   libraryHeroImageUrl: string | null;
   logoImageUrl: string | null;
+  /** Box art kept on the record itself (classics), so profile syncs that reset assets can't lose it. */
+  coverImageUrl?: string | null;
   customIconUrl?: string | null;
   customLogoImageUrl?: string | null;
   customHeroImageUrl?: string | null;
@@ -71,6 +89,10 @@ export interface Game {
   achievementCount?: number;
   unlockedAchievementCount?: number;
   reportedUnlockedAchievementCount?: number;
+  /** Whether this installed game's crack actually records achievements — classified by scanning
+   * the game folder (see classify-achievement-support.ts). Lets the library flag which games will
+   * give trophies before the user wastes time on one whose crack doesn't write them. */
+  achievementSupport?: AchievementSupport;
   pinnedDate?: Date | null;
   automaticCloudSync?: boolean;
   hasManuallyUpdatedPlaytime?: boolean;

@@ -13,14 +13,22 @@ import { registerSouvenirRoutes } from "./souvenirs/routes.js";
 import { registerFriendRoutes } from "./friends/routes.js";
 import { registerPublicProfileRoutes } from "./profile/public-routes.js";
 import { registerCollectionRoutes } from "./collections/routes.js";
+import { registerCloudSaveRoutes } from "./cloud-saves/routes.js";
+import { cleanupStaleCloudSaves } from "./cloud-saves/cleanup.js";
+import { registerRetroAchievementsRoutes } from "./integrations/retroachievements-routes.js";
 import { registerMiscRoutes } from "./misc-routes.js";
+import { registerPs2Routes } from "./catalogue/ps2-routes.js";
+import { scheduleDailyBackup } from "./backup.js";
 import {
+  requeueGamesForReviewCountIfNeeded,
   requeueUntranslatedGamesIfNeeded,
   seedAppIdQueueIfNeeded,
   startSteamCatalogueSyncLoop,
 } from "./catalogue/steam-catalogue-sync.js";
 
-const app = Fastify({ logger: true });
+// maxParamLength defaults to 100, which is shorter than our signed cloud-save blob tokens
+// (~230 chars) — without this the PUT/GET /cloud-blobs/:token routes 404 on every real token.
+const app = Fastify({ logger: true, maxParamLength: 1024 });
 
 // Raw buffer body for image uploads (PUT /uploads/:token); JSON stays the default for everything else.
 app.addContentTypeParser(
@@ -49,7 +57,11 @@ registerSouvenirRoutes(app);
 registerFriendRoutes(app);
 registerPublicProfileRoutes(app);
 registerCollectionRoutes(app);
+registerCloudSaveRoutes(app);
+registerRetroAchievementsRoutes(app);
 registerMiscRoutes(app);
+registerPs2Routes(app);
+scheduleDailyBackup();
 
 app.get("/health", async () => ({ ok: true }));
 
@@ -57,7 +69,9 @@ const HOST = "127.0.0.1"; // Caddy is the only public-facing listener in product
 
 await seedAppIdQueueIfNeeded();
 requeueUntranslatedGamesIfNeeded();
+requeueGamesForReviewCountIfNeeded();
 startSteamCatalogueSyncLoop();
+cleanupStaleCloudSaves();
 
 app
   .listen({ port: config.port, host: HOST })

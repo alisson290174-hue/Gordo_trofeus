@@ -31,7 +31,7 @@ function KarmaLevelRing({ karma }: Readonly<{ karma: number }>) {
           cy="20"
           r={RING_RADIUS}
           fill="none"
-          stroke="#f4a510"
+          stroke="#0070f3"
           strokeWidth="2"
           strokeLinecap="round"
           strokeDasharray={`${progress * RING_CIRCUMFERENCE} ${RING_CIRCUMFERENCE}`}

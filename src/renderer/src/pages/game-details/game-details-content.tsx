@@ -1,4 +1,7 @@
 import { Icon } from "@renderer/components/icon/icon";
+import { Img } from "@renderer/components";
+import HeroPlaceholder from "@renderer/assets/library-catalogue/hero-placeholder.jpg";
+import CoverPlaceholder from "@renderer/assets/library-catalogue/cover-placeholder.png";
 import {
   useContext,
   useEffect,
@@ -9,10 +12,8 @@ import {
 } from "react";
 
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
-
-import { HeroPanel } from "./hero";
-import { DescriptionHeader } from "./description-header/description-header";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { HeroPanelActions } from "./hero/hero-panel-actions";
 import { GallerySlider } from "./gallery-slider/gallery-slider";
 import { Sidebar } from "./sidebar/sidebar";
 import { GameReviews } from "./game-reviews";
@@ -20,6 +21,7 @@ import { ReviewPromptBanner } from "./review-prompt-banner";
 import { useReviewPrompt } from "./use-review-prompt";
 import { useUserReviewStatus } from "./use-user-review-status";
 import { GameLogo } from "./game-logo";
+import { getGenreNames, getHeroArt } from "@renderer/helpers/ps5-game";
 import { CloudSaveWidget } from "./cloud-save-v2";
 import { getCloudSaveVisibility } from "./cloud-save-visibility";
 import { SimilarGames } from "./similar-games/similar-games";
@@ -27,17 +29,21 @@ import { SimilarGames } from "./similar-games/similar-games";
 import { AuthPage, getDisplayedPlayTimeInMilliseconds } from "@shared";
 import { cloudSyncContext, gameDetailsContext } from "@renderer/context";
 
-import cloudIconAnimated from "@renderer/assets/icons/cloud-animated.gif";
-import tvEffectVideo from "@renderer/assets/emulation/tv-effect.mp4";
-import { useUserDetails, useLibrary, useAppSelector } from "@renderer/hooks";
+import {
+  useUserDetails,
+  useLibrary,
+  useAppSelector,
+  useDownload,
+} from "@renderer/hooks";
 import {
   CLASSICS_PS_PLATFORM_LABELS,
   resolveClassicsBadge,
 } from "@renderer/helpers";
 import {
-  EMULATOR_ICONS,
-  RETROARCH_EMULATOR_ICON,
-} from "@renderer/pages/settings/emulation/emulator-icons";
+  Ps5HeroStats,
+  Ps5InfoCard,
+  Ps5TrophiesCard,
+} from "./ps5/ps5-details";
 import "./game-details.scss";
 import "./hero.scss";
 
@@ -77,7 +83,10 @@ const getImageWithCustomPriority = (
 
 export function GameDetailsContent() {
   const { t } = useTranslation("game_details");
+  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const { lastPacket } = useDownload();
+  const extraction = useAppSelector((state) => state.download.extraction);
   const reviewsRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -116,7 +125,6 @@ export function GameDetailsContent() {
     return t("no_shop_details");
   }, [shopDetails, t, game?.shop]);
 
-  const [backdropOpacity, setBackdropOpacity] = useState(1);
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [isDescriptionOverflowing, setIsDescriptionOverflowing] =
     useState(false);
@@ -159,9 +167,6 @@ export function GameDetailsContent() {
     dismissPrompt({ persist: true });
   };
 
-  useEffect(() => {
-    setBackdropOpacity(1);
-  }, [objectId]);
 
   useLayoutEffect(() => {
     const el = descriptionRef.current;
@@ -224,18 +229,34 @@ export function GameDetailsContent() {
   const userPreferences = useAppSelector(
     (state) => state.userPreferences.value
   );
-  const hideClassicsBookmark = userPreferences?.hideClassicsBookmark ?? false;
   const classicsUseHeroLayout = userPreferences?.classicsUseHeroLayout ?? false;
 
   const isCustomGame = game?.shop === "custom";
   const isLaunchboxGame = shop === "launchbox";
-  const renderClassicsHero = isLaunchboxGame && !classicsUseHeroLayout;
+  // Classics with real fanart (PS2 index) get the full hero like PC games; the cover-centric
+  // layout stays for games whose only art is the box scan.
+  const launchboxHero =
+    game?.customHeroImageUrl ||
+    shopDetails?.assets?.libraryHeroImageUrl ||
+    game?.libraryHeroImageUrl ||
+    null;
+  const hasClassicsFanart = Boolean(
+    launchboxHero &&
+      !launchboxHero.includes("xlenore/ps2-covers") &&
+      launchboxHero !== game?.coverImageUrl
+  );
+  const renderClassicsHero =
+    isLaunchboxGame && !classicsUseHeroLayout && !hasClassicsFanart;
 
   const heroImage = isCustomGame
     ? game?.libraryHeroImageUrl || game?.iconUrl || ""
     : getImageWithCustomPriority(
         game?.customHeroImageUrl,
-        shopDetails?.assets?.libraryHeroImageUrl
+        shopDetails?.assets?.libraryHeroImageUrl,
+        // Same chain as Início: vitrine embutida → biblioteca → CDN da Steam.
+        shop && objectId
+          ? getHeroArt({ ...(game ?? {}), shop, objectId })
+          : null
       );
 
   const launchboxCover = isLaunchboxGame
@@ -243,6 +264,8 @@ export function GameDetailsContent() {
       shopDetails?.assets?.coverImageUrl ||
       shopDetails?.assets?.libraryImageUrl ||
       game?.libraryImageUrl ||
+      game?.coverImageUrl ||
+      game?.libraryHeroImageUrl ||
       shopDetails?.assets?.iconUrl ||
       game?.iconUrl ||
       ""
@@ -260,35 +283,17 @@ export function GameDetailsContent() {
     ? (game?.title ?? shopDetails?.name ?? "")
     : "";
 
-  const classicsBadge = resolveClassicsBadge(
-    "launchbox",
-    isLaunchboxGame ? launchboxPlatform : null,
-    CLASSICS_PS_PLATFORM_LABELS,
-    {
-      emulatorIcons: EMULATOR_ICONS,
-      retroarchIcon: RETROARCH_EMULATOR_ICON,
-    }
-  );
-
-  const classicsChipLabel = classicsBadge.label ?? launchboxPlatform;
-
-  const classicsChips =
-    isLaunchboxGame && classicsChipLabel ? (
-      <div className="game-details__hero-classics-chips">
-        <span className="game-details__hero-classics-chip">
-          {classicsChipLabel}
-        </span>
-        {classicsBadge.icon && (
-          <span className="game-details__hero-classics-chip game-details__hero-classics-chip--icon">
-            <img src={classicsBadge.icon} alt="" />
-          </span>
-        )}
-      </div>
-    ) : null;
+  const classicsPlatformLabel = isLaunchboxGame
+    ? (resolveClassicsBadge("launchbox", launchboxPlatform, CLASSICS_PS_PLATFORM_LABELS, {
+        emulatorIcons: {},
+        retroarchIcon: "",
+      }).label ?? launchboxPlatform)
+    : null;
 
   const heroImageContent = resolvedHeroImage ? (
-    <img
+    <Img
       src={resolvedHeroImage}
+      fallback={HeroPlaceholder}
       className="game-details__hero-image"
       alt={game?.title}
     />
@@ -296,176 +301,155 @@ export function GameDetailsContent() {
     <div className="game-details__hero-image game-details__hero-image--placeholder" />
   );
 
+  const metaLine = [
+    classicsPlatformLabel,
+    shopDetails?.developers?.[0],
+    shopDetails?.release_date?.date?.match(/\d{4}/)?.[0],
+    getGenreNames(shopDetails?.genres)[0],
+  ]
+    .filter(Boolean)
+    .join(" · ");
+
+  const shortDescription = useMemo(() => {
+    const html = shopDetails?.short_description;
+    if (!html) return null;
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    return (doc.body.textContent ?? "").replace(/\s+/g, " ").trim() || null;
+  }, [shopDetails?.short_description]);
+
+  const isGameDownloading =
+    game?.download?.status === "active" && lastPacket?.gameId === game?.id;
+  const showDownloadProgress =
+    (game?.download?.status === "active" && game.download.progress < 1) ||
+    game?.download?.status === "paused";
+  const isExtracting = Boolean(game) && extraction?.visibleId === game?.id;
+
   return (
     <div
       className={`game-details__wrapper ${hasNSFWContentBlocked ? "game-details__wrapper--blurred" : ""}`}
     >
       <section className="game-details__container">
-        <div
-          className={`game-details__hero${renderClassicsHero ? " game-details__hero--classics-wrapper" : ""}`}
-        >
-          {renderClassicsHero ? (
-            <>
-              <div className="game-details__hero--classics">
-                <div className="game-details__hero-classics-backdrop">
-                  {launchboxCover && (
-                    <img src={launchboxCover} alt="" aria-hidden="true" />
-                  )}
-                  <div className="game-details__hero-classics-backdrop-overlay" />
+        <div className="gd5-hero">
+          <div className="gd5-hero__art">
+            {renderClassicsHero ? (
+              <div className="gd5-hero__classics-backdrop">
+                {launchboxCover && (
+                  <img
+                    src={launchboxCover}
+                    alt=""
+                    aria-hidden="true"
+                    onError={(event) => {
+                      event.currentTarget.style.display = "none";
+                    }}
+                  />
+                )}
+              </div>
+            ) : (
+              heroImageContent
+            )}
+          </div>
+          <div className="gd5-hero__shade-x" />
+          <div className="gd5-hero__shade-y" />
+
+          <div className="gd5-hero__content">
+            <button
+              type="button"
+              className="gd5-hero__back"
+              onClick={() => navigate(-1)}
+            >
+              <Icon name="arrow-left" size={16} />
+              <span>{t("dashboard:back")}</span>
+            </button>
+
+            {renderClassicsHero ? (
+              <div className="gd5-hero__classics">
+                {launchboxCover && (
+                  <Img
+                    className="gd5-hero__classics-cover"
+                    src={launchboxCover}
+                    fallback={CoverPlaceholder}
+                    alt={game?.title}
+                  />
+                )}
+                <div className="gd5-hero__classics-meta">
+                  <h1 className="gd5-hero__title-text">{launchboxTitle}</h1>
                 </div>
               </div>
-              <div className="game-details__hero-classics-content">
-                <div className="game-details__hero-classics-cover">
-                  {launchboxCover && (
-                    <img src={launchboxCover} alt={game?.title} />
-                  )}
-                </div>
-                <div className="game-details__hero-classics-meta">
-                  <h1 className="game-details__hero-classics-title">
-                    {launchboxTitle}
-                  </h1>
-                  {classicsChips}
-                </div>
+            ) : (
+              <div className="gd5-hero__logo">
+                <GameLogo game={game} shopDetails={shopDetails} />
               </div>
-            </>
-          ) : (
-            heroImageContent
-          )}
+            )}
 
-          {isLaunchboxGame && !hideClassicsBookmark && (
-            <div className="game-details__hero-bookmark" aria-hidden="true">
-              <div className="game-details__hero-classics-rainbow">
-                <span className="game-details__hero-classics-stripe game-details__hero-classics-stripe--shadow game-details__hero-classics-stripe--orange">
-                  <span className="game-details__hero-classics-stripe-band game-details__hero-classics-stripe-band--shadow" />
-                </span>
-                <span className="game-details__hero-classics-stripe game-details__hero-classics-stripe--shadow game-details__hero-classics-stripe--red">
-                  <span className="game-details__hero-classics-stripe-band game-details__hero-classics-stripe-band--shadow" />
-                </span>
-                <span className="game-details__hero-classics-stripe game-details__hero-classics-stripe--shadow game-details__hero-classics-stripe--yellow">
-                  <span className="game-details__hero-classics-stripe-band game-details__hero-classics-stripe-band--shadow" />
-                </span>
-                <span className="game-details__hero-classics-stripe game-details__hero-classics-stripe--shadow game-details__hero-classics-stripe--green">
-                  <span className="game-details__hero-classics-stripe-band game-details__hero-classics-stripe-band--shadow" />
-                </span>
-                <span className="game-details__hero-classics-stripe game-details__hero-classics-stripe--shadow game-details__hero-classics-stripe--blue">
-                  <span className="game-details__hero-classics-stripe-band game-details__hero-classics-stripe-band--shadow" />
-                </span>
+            {metaLine && <div className="gd5-hero__meta">{metaLine}</div>}
 
-                <span className="game-details__hero-classics-stripe game-details__hero-classics-stripe--red">
-                  <span className="game-details__hero-classics-stripe-band game-details__hero-classics-stripe-band--rtl game-details__hero-classics-stripe-band--delay-1">
-                    <video
-                      src={tvEffectVideo}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                    />
-                  </span>
-                </span>
-                <span className="game-details__hero-classics-stripe game-details__hero-classics-stripe--orange">
-                  <span className="game-details__hero-classics-stripe-band game-details__hero-classics-stripe-band--ltr game-details__hero-classics-stripe-band--delay-2">
-                    <video
-                      src={tvEffectVideo}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                    />
-                  </span>
-                </span>
-                <span className="game-details__hero-classics-stripe game-details__hero-classics-stripe--yellow">
-                  <span className="game-details__hero-classics-stripe-band game-details__hero-classics-stripe-band--rtl game-details__hero-classics-stripe-band--delay-3">
-                    <video
-                      src={tvEffectVideo}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                    />
-                  </span>
-                </span>
-                <span className="game-details__hero-classics-stripe game-details__hero-classics-stripe--green">
-                  <span className="game-details__hero-classics-stripe-band game-details__hero-classics-stripe-band--ltr game-details__hero-classics-stripe-band--delay-4">
-                    <video
-                      src={tvEffectVideo}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                    />
-                  </span>
-                </span>
-                <span className="game-details__hero-classics-stripe game-details__hero-classics-stripe--blue">
-                  <span className="game-details__hero-classics-stripe-band game-details__hero-classics-stripe-band--rtl game-details__hero-classics-stripe-band--delay-5">
-                    <video
-                      src={tvEffectVideo}
-                      autoPlay
-                      muted
-                      loop
-                      playsInline
-                    />
-                  </span>
-                </span>
-              </div>
-            </div>
-          )}
+            <div className="gd5-hero__actions">
+              <HeroPanelActions />
 
-          <div
-            className="game-details__hero-logo-backdrop"
-            style={{ opacity: backdropOpacity }}
-          >
-            <div className="game-details__hero-content">
-              {!renderClassicsHero && (
-                <div className="game-details__hero-standard-meta">
-                  <GameLogo game={game} shopDetails={shopDetails} />
-                  {classicsChips}
-                </div>
+              {game && (
+                <button
+                  type="button"
+                  className="gd5-hero__round"
+                  onClick={handleEditGameClick}
+                  title={t("edit_game_modal_button")}
+                >
+                  <Icon name="pencil" size={18} />
+                </button>
               )}
 
-              <div className="game-details__hero-buttons game-details__hero-buttons--right">
-                {game && (
-                  <button
-                    type="button"
-                    className="game-details__edit-custom-game-button"
-                    onClick={handleEditGameClick}
-                    title={t("edit_game_modal_button")}
-                  >
-                    <Icon name="pencil" size={16} />
-                  </button>
-                )}
+              {game && cloudSaveVisibility?.hero === "legacy" && (
+                <button
+                  type="button"
+                  className="gd5-hero__cloud"
+                  onClick={handleLegacyCloudSaveButtonClick}
+                >
+                  <Icon name="cloud" size={20} />
+                  {t("cloud_save")}
+                </button>
+              )}
 
-                {game && cloudSaveVisibility?.hero === "legacy" && (
-                  <button
-                    type="button"
-                    className="game-details__cloud-sync-button"
-                    onClick={handleLegacyCloudSaveButtonClick}
-                  >
-                    <div className="game-details__cloud-icon-container">
-                      <img
-                        src={cloudIconAnimated}
-                        alt=""
-                        className="game-details__cloud-icon"
-                      />
-                    </div>
-                    {t("cloud_save")}
-                  </button>
-                )}
-
-                {game && objectId && cloudSaveVisibility?.hero === "v2" && (
+              {game && objectId && cloudSaveVisibility?.hero === "v2" && (
+                <div className="gd5-hero__cloud-widget">
                   <CloudSaveWidget />
-                )}
-              </div>
+                </div>
+              )}
             </div>
 
-            <div className="game-details__hero-panel">
-              <HeroPanel />
-            </div>
+            {(showDownloadProgress || isExtracting) && (
+              <div className="gd5-hero__progress">
+                <span
+                  className={
+                    game?.download?.status === "paused"
+                      ? "gd5-hero__progress-fill gd5-hero__progress-fill--paused"
+                      : "gd5-hero__progress-fill"
+                  }
+                  style={{
+                    width: `${Math.round(
+                      (isExtracting
+                        ? (extraction?.progress ?? 0)
+                        : isGameDownloading
+                          ? (lastPacket?.progress ?? 0)
+                          : (game?.download?.progress ?? 0)) * 100
+                    )}%`,
+                  }}
+                />
+              </div>
+            )}
+
+            <Ps5HeroStats />
           </div>
         </div>
 
-        <div className="game-details__description-container">
-          <div className="game-details__description-content">
-            <DescriptionHeader />
+        <div className="gd5-body">
+          <div className="gd5-body__main">
+            {shortDescription && (
+              <div className="gd5-about">
+                <span className="ps5-eyebrow">{t("dashboard:about")}</span>
+                <p className="gd5-about__text">{shortDescription}</p>
+              </div>
+            )}
+
+            <Ps5TrophiesCard />
 
             {showPrompt && (
               <ReviewPromptBanner
@@ -519,7 +503,12 @@ export function GameDetailsContent() {
             )}
           </div>
 
-          {shop !== "custom" && <Sidebar />}
+          {shop !== "custom" && (
+            <div className="gd5-body__side">
+              <Ps5InfoCard />
+              <Sidebar />
+            </div>
+          )}
         </div>
       </section>
     </div>

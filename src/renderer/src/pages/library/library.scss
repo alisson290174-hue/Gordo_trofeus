@@ -1,9 +1,12 @@
 @use "../../scss/globals.scss";
+@use "../../scss/ps5.scss";
 
 .library {
   &__content {
-    padding: calc(globals.$spacing-unit * 2) 0 0 calc(globals.$spacing-unit * 2);
+    padding: 36px 0 0 ps5.$page-gutter;
     height: 100%;
+    font-family: ps5.$font;
+    color: ps5.$text;
     width: 100%;
     overflow: hidden;
     display: flex;
@@ -22,8 +25,8 @@
     min-height: 0;
     overflow-y: auto;
     width: 100%;
-    padding: 4px;
-    margin: -4px;
+    padding: 8px (ps5.$page-gutter - 22px) 24px 4px;
+    margin: -8px -4px 0 -4px;
   }
 
   &__scroll-shadow {
@@ -330,5 +333,99 @@
     display: flex;
     justify-content: flex-end;
     gap: calc(globals.$spacing-unit);
+  }
+}
+
+// ---- Conceito 1 header ----
+.library {
+  &__page-header-inner {
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    padding-right: ps5.$page-gutter - 16px;
+    padding-bottom: 8px;
+  }
+
+  &__title-row {
+    display: flex;
+    align-items: flex-end;
+    gap: 18px;
+    flex-wrap: wrap;
+  }
+
+  &__title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__eyebrow {
+    @include ps5.eyebrow;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 44px;
+    font-weight: 200;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: ps5.$text;
+  }
+
+  &__count {
+    font-size: 18px;
+    color: ps5.$text-50;
+    padding-bottom: 4px;
+  }
+
+  &__grow {
+    flex: 1;
+  }
+
+  &__chips-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  &__chip {
+    @include ps5.chip(38px);
+  }
+
+  &__chips-divider {
+    width: 1px;
+    height: 24px;
+    margin: 0 6px;
+    background: rgba(255, 255, 255, 0.12);
+  }
+
+  // Legacy filter widgets restyled as glass pills so they sit next to the chips.
+  .library-category-filter__container,
+  .library-view-options__options {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 19px;
+    padding: 3px;
+  }
+
+  .library-category-filter__option,
+  .library-view-options__option {
+    border-radius: 16px;
+    border-color: transparent;
+    background: transparent;
+    color: ps5.$text-80;
+
+    &--active,
+    &.active {
+      background: #fff;
+      color: ps5.$bg;
+    }
+  }
+
+  .library-filter-options__label {
+    display: none;
   }
 }

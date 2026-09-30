@@ -146,9 +146,9 @@
 
   &__drop-zone--active {
     border-color: globals.$brand-orange !important;
-    background-color: rgba(244, 165, 16, 0.1) !important;
+    background-color: rgba(0, 112, 243, 0.1) !important;
     transform: scale(1.02);
-    box-shadow: 0 4px 12px rgba(244, 165, 16, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 112, 243, 0.3);
 
     .game-assets-settings__preview-action-overlay {
       opacity: 0;
@@ -164,7 +164,7 @@
     justify-content: center;
     border-radius: 8px;
     color: #fff;
-    font-weight: 600;
+    font-weight: 500;
     font-size: 14px;
     backdrop-filter: blur(2px);
     z-index: 2;

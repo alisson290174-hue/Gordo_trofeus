@@ -1,10 +1,5 @@
 import { userProfileContext } from "@renderer/context";
-import {
-  getProfileLibraryFilter,
-  readStoredProfilePlatform,
-  readStoredProfileSort,
-  readStoredSouvenirSort,
-} from "@renderer/helpers";
+import { readStoredSouvenirSort } from "@renderer/helpers";
 import {
   useCallback,
   useContext,
@@ -32,26 +27,30 @@ import {
 import { LockedProfile } from "./locked-profile";
 import { ReportProfile } from "../report-profile/report-profile";
 import { BadgesBox } from "./badges-box";
-import { FriendsBox, FriendsBoxAddButton } from "./friends-box";
-import { RecentGamesBox } from "./recent-games-box";
-import { UserStatsBox } from "./user-stats-box";
 import { ProfileSection } from "../profile-section/profile-section";
+import {
+  buildActivity,
+  formatProfilePlaytime,
+  ProfileAboutCard,
+  ProfileActivityList,
+  ProfileFriendsCard,
+  ProfileOverview,
+  ProfileTrophyBand,
+  type TitleResolver,
+} from "../ps5/profile-ps5";
+import { useLibrary, useTrophySummary } from "@renderer/hooks";
 import { DeleteReviewModal } from "@renderer/pages/game-details/modals/delete-review-modal";
-import { GAME_STATS_ANIMATION_DURATION_IN_MS } from "./profile-animations";
 import { MAX_MINUTES_TO_SHOW_IN_PLAYTIME } from "@renderer/constants";
 import { ProfileTabs, type ProfileTabType } from "./profile-tabs";
-import { LibraryTab } from "./library-tab";
 import { ReviewsTab } from "./reviews-tab";
 import { SouvenirsTab } from "./souvenirs-tab";
 import { SouvenirLightbox } from "./souvenir-lightbox";
 import { useSouvenirActions } from "./use-souvenir-actions";
-import type { ProfilePlatform } from "./library-tab";
 import { AnimatePresence } from "framer-motion";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ConfirmationModal } from "@renderer/components";
+import { AddFriendModal } from "./add-friend-modal";
 import "./profile-content.scss";
-
-type SortOption = "playtime" | "achievementCount" | "playedRecently";
 
 interface UserReview {
   id: string;
@@ -106,13 +105,7 @@ export function ProfileContent() {
     userProfile,
     isMe,
     userStats,
-    libraryGames,
-    pinnedGames,
     getUserStats,
-    getUserLibraryGames,
-    loadMoreLibraryGames,
-    hasMoreLibraryGames,
-    isLoadingLibraryGames,
     souvenirs,
     souvenirsTotal,
     hasReachedSouvenirLimit,
@@ -123,7 +116,6 @@ export function ProfileContent() {
     loadMoreSouvenirs,
     updateSouvenir,
     removeSouvenir,
-    loadedLibrarySortBy,
   } = useContext(userProfileContext);
   const { userDetails } = useUserDetails();
   const navigate = useNavigate();
@@ -140,41 +132,34 @@ export function ProfileContent() {
   const disableNsfwAlert = useAppSelector(
     (state) => state.userPreferences.value?.disableNsfwAlert === true
   );
-  const [statsIndex, setStatsIndex] = useState(0);
-  const [sortBy, setSortBy] = useState<SortOption>(readStoredProfileSort);
-
-  const prefetchedSortBy = useRef(readStoredProfileSort()).current;
-
-  const handleSortChange = useCallback((nextSortBy: SortOption) => {
-    setSortBy(nextSortBy);
-    localStorage.setItem("profile-sort-by", nextSortBy);
-  }, []);
-  const [platform, setPlatform] = useState<ProfilePlatform>(
-    readStoredProfilePlatform
-  );
-
-  const handlePlatformChange = useCallback((nextPlatform: ProfilePlatform) => {
-    setPlatform(nextPlatform);
-    localStorage.setItem("profile-platform", nextPlatform);
-  }, []);
-  const effectiveSortBy =
-    !userProfile?.hasActiveSubscription && sortBy === "achievementCount"
-      ? "playedRecently"
-      : sortBy;
-
-  const isCorrectingPrefetchedSort =
-    Boolean(userProfile) &&
-    sortBy === prefetchedSortBy &&
-    effectiveSortBy !== prefetchedSortBy &&
-    loadedLibrarySortBy !== effectiveSortBy;
-
-  const libraryFilter = useMemo(
-    () => getProfileLibraryFilter(platform),
-    [platform]
-  );
 
   const [activeTab, setActiveTab] = useState<ProfileTabType>(
-    requestedTab === "souvenirs" ? "souvenirs" : "library"
+    requestedTab === "souvenirs" ? "souvenirs" : "overview"
+  );
+  const [showAddFriendModal, setShowAddFriendModal] = useState(false);
+  const { summary: trophySummary } = useTrophySummary(userProfile?.id);
+  const { library } = useLibrary();
+  // Classics come back from the server with their disc serial as title; the local library
+  // knows the real name.
+  const resolveTitle = useCallback<TitleResolver>(
+    (shop, objectId, fallback) => {
+      const local = library.find(
+        (game) => game.shop === shop && game.objectId === objectId
+      );
+      // Steam names carry trademark marks ("BioShock™ Remastered") — noise in a trophy list.
+      const title = local?.title || fallback;
+      return title ? title.replace(/[™®©]/g, "").trim() : title;
+    },
+    [library]
+  );
+
+  const titledSouvenirs = useMemo(
+    () =>
+      souvenirs.map((item) => ({
+        ...item,
+        gameTitle: resolveTitle(item.shop, item.objectId, item.gameTitle),
+      })),
+    [souvenirs, resolveTitle]
   );
 
   // User reviews state
@@ -187,7 +172,7 @@ export function ProfileContent() {
 
   const dispatch = useAppDispatch();
 
-  const { t } = useTranslation("user_profile");
+  const { t, i18n } = useTranslation("user_profile");
   const { numberFormatter } = useFormat();
   const {
     likingKeys,
@@ -288,55 +273,20 @@ export function ProfileContent() {
     }
   }, [userProfile, dispatch]);
 
-  useEffect(() => {
-    if (userProfile) {
-      getUserLibraryGames(effectiveSortBy, true, libraryFilter);
-    }
-  }, [effectiveSortBy, libraryFilter, getUserLibraryGames, userProfile]);
 
   useEffect(() => {
     if (userProfile) {
-      getUserStats(libraryFilter);
+      getUserStats();
     }
-  }, [libraryFilter, getUserStats, userProfile]);
+  }, [getUserStats, userProfile]);
 
-  const handleLoadMore = useCallback(() => {
-    if (
-      activeTab === "library" &&
-      hasMoreLibraryGames &&
-      !isLoadingLibraryGames
-    ) {
-      loadMoreLibraryGames(effectiveSortBy, libraryFilter);
-    }
-  }, [
-    activeTab,
-    hasMoreLibraryGames,
-    isLoadingLibraryGames,
-    loadMoreLibraryGames,
-    effectiveSortBy,
-    libraryFilter,
-  ]);
-
-  useEffect(() => {
-    const handlePinToggled = () => {
-      if (userProfile) {
-        getUserLibraryGames(effectiveSortBy, true, libraryFilter);
-      }
-    };
-
-    window.addEventListener("hydra:game-pin-toggled", handlePinToggled);
-    return () => {
-      window.removeEventListener("hydra:game-pin-toggled", handlePinToggled);
-    };
-  }, [getUserLibraryGames, effectiveSortBy, libraryFilter, userProfile]);
 
   // Clear reviews state and reset tab when switching users
   useEffect(() => {
     setReviews([]);
     setReviewsTotalCount(0);
     setIsLoadingReviews(false);
-    setActiveTab(requestedTab === "souvenirs" ? "souvenirs" : "library");
-    setPlatform(readStoredProfilePlatform());
+    setActiveTab(requestedTab === "souvenirs" ? "souvenirs" : "overview");
   }, [requestedTab, userProfile?.id]);
 
   const fetchUserReviews = useCallback(async () => {
@@ -499,16 +449,6 @@ export function ProfileContent() {
     }
   };
 
-  useEffect(() => {
-    const interval = window.setInterval(
-      () => setStatsIndex((index) => index + 1),
-      GAME_STATS_ANIMATION_DURATION_IN_MS
-    );
-
-    return () => {
-      window.clearInterval(interval);
-    };
-  }, []);
 
   const usersAreFriends = useMemo(() => {
     return userProfile?.relation?.status === "ACCEPTED";
@@ -525,12 +465,35 @@ export function ProfileContent() {
       return <LockedProfile />;
     }
 
-    const hasGames = libraryGames.length > 0;
-    const hasPinnedGames = pinnedGames.length > 0;
-    const hasAnyGames = hasGames || hasPinnedGames;
+    const activity = buildActivity(
+      trophySummary,
+      userProfile.recentGames ?? [],
+      souvenirs,
+      resolveTitle
+    );
 
-    const shouldShowRightContent =
-      hasAnyGames || userProfile.friends.length > 0 || isMe;
+    const aboutRows = [
+      userStats?.totalPlayTimeInSeconds?.value
+        ? {
+            label: t("playtime", { ns: "dashboard" }),
+            value: formatProfilePlaytime(
+              userStats.totalPlayTimeInSeconds.value,
+              i18n.language
+            ),
+          }
+        : null,
+      userStats
+        ? {
+            label: t("library_games", { ns: "dashboard" }),
+            value: String(userStats.libraryCount),
+          }
+        : null,
+      {
+        label: t("user_reviews"),
+        value: String(reviewsTotalCount),
+      },
+      { label: t("karma", { ns: "dashboard" }), value: String(userProfile.karma) },
+    ].filter(Boolean) as { label: string; value: string }[];
 
     return (
       <section className="profile-content__section">
@@ -544,24 +507,22 @@ export function ProfileContent() {
 
           <div className="profile-content__tab-panels">
             <AnimatePresence mode="wait">
-              {activeTab === "library" && (
-                <LibraryTab
-                  sortBy={effectiveSortBy}
-                  onSortChange={handleSortChange}
-                  platform={platform}
-                  onPlatformChange={handlePlatformChange}
-                  pinnedGames={pinnedGames}
-                  libraryGames={libraryGames}
-                  hasMoreLibraryGames={hasMoreLibraryGames}
-                  isAwaitingInitialLibrary={isCorrectingPrefetchedSort}
-                  statsIndex={statsIndex}
-                  userStats={userStats}
-                  onLoadMore={handleLoadMore}
+              {activeTab === "overview" && (
+                <ProfileOverview
+                  summary={trophySummary}
+                  souvenirs={souvenirs}
+                  souvenirsTotal={souvenirsTotal}
+                  recentGames={userProfile.recentGames ?? []}
                   isMe={isMe}
-                  hasActiveSubscription={Boolean(
-                    userProfile.hasActiveSubscription
-                  )}
+                  onSeeSouvenirs={() => setActiveTab("souvenirs")}
+                  onOpenSouvenir={requestOpenSouvenir}
+                  onSeeActivity={() => setActiveTab("activity")}
+                  resolveTitle={resolveTitle}
                 />
+              )}
+
+              {activeTab === "activity" && (
+                <ProfileActivityList items={activity} />
               )}
 
               {activeTab === "reviews" && (
@@ -579,7 +540,7 @@ export function ProfileContent() {
 
               {activeTab === "souvenirs" && (
                 <SouvenirsTab
-                  achievements={souvenirs}
+                  achievements={titledSouvenirs}
                   hasReachedLimit={hasReachedSouvenirLimit}
                   hiddenReason={souvenirsHiddenReason}
                   canLike={Boolean(userDetails)}
@@ -609,40 +570,26 @@ export function ProfileContent() {
           </div>
         </div>
 
-        {shouldShowRightContent && (
-          <div className="profile-content__right-content">
-            {userStats && (
-              <ProfileSection title={t("stats")} defaultOpen={true}>
-                <UserStatsBox />
-              </ProfileSection>
-            )}
-            {userProfile?.badges.length > 0 && (
-              <ProfileSection
-                title={t("badges")}
-                count={userProfile.badges.length}
-                defaultOpen={true}
-              >
-                <BadgesBox />
-              </ProfileSection>
-            )}
-            {userProfile?.recentGames.length > 0 && (
-              <ProfileSection title={t("activity")} defaultOpen={true}>
-                <RecentGamesBox />
-              </ProfileSection>
-            )}
-            {(userProfile?.friends.length > 0 || isMe) && (
-              <ProfileSection
-                title={t("friends")}
-                count={userStats?.friendsCount || userProfile.friends.length}
-                action={<FriendsBoxAddButton />}
-                defaultOpen={true}
-              >
-                <FriendsBox />
-              </ProfileSection>
-            )}
-            <ReportProfile />
-          </div>
-        )}
+        <div className="profile-content__right-content">
+          <ProfileFriendsCard
+            friends={userProfile.friends}
+            total={userStats?.friendsCount || userProfile.friends.length}
+            isMe={isMe}
+            onAdd={() => setShowAddFriendModal(true)}
+            canCompare={Boolean(userDetails)}
+          />
+          <ProfileAboutCard rows={aboutRows} />
+          {userProfile.badges.length > 0 && (
+            <ProfileSection
+              title={t("badges")}
+              count={userProfile.badges.length}
+              defaultOpen={true}
+            >
+              <BadgesBox />
+            </ProfileSection>
+          )}
+          <ReportProfile />
+        </div>
 
         <DeleteReviewModal
           visible={deleteModalVisible}
@@ -657,11 +604,31 @@ export function ProfileContent() {
     <div>
       <ProfileHero />
 
+      {userProfile && (
+        <div className="profile-content__band">
+          <ProfileTrophyBand summary={trophySummary} />
+        </div>
+      )}
+
       {content}
 
+      <AddFriendModal
+        visible={showAddFriendModal}
+        onClose={() => setShowAddFriendModal(false)}
+      />
+
       <SouvenirLightbox
-        souvenir={souvenir}
-        items={souvenirs}
+        souvenir={
+          souvenir && {
+            ...souvenir,
+            gameTitle: resolveTitle(
+              souvenir.shop,
+              souvenir.objectId,
+              souvenir.gameTitle
+            ),
+          }
+        }
+        items={titledSouvenirs}
         index={openSouvenirIndex}
         isOwner={isMe}
         canLike={Boolean(userDetails)}

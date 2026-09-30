@@ -15,6 +15,21 @@ export interface AchievementCatalogueRow {
   retroachievements_game_id: number | null;
   cached_at: string;
   lang: string | null;
+  is_online: number;
+}
+
+// Steam describes online/multiplayer achievements in their text; hiding them lets a "platinum" be
+// earned offline (see db.ts). Kept in sync with the SQL re-classification that runs on boot.
+const ONLINE_ACHIEVEMENT_REGEX =
+  /online|multiplayer|multijogador|pvp/i;
+
+function isOnlineAchievement(achievement: {
+  displayName?: string;
+  description?: string;
+}): boolean {
+  return ONLINE_ACHIEVEMENT_REGEX.test(
+    `${achievement.description ?? ""} ${achievement.displayName ?? ""}`
+  );
 }
 
 // Rows cached before Portuguese support was added have lang = NULL, which is treated as stale.
@@ -72,17 +87,19 @@ async function fetchGlobalAchievementPercentages(
   );
 }
 
+// Online/multiplayer achievements (is_online = 1) are excluded so the catalogue — and therefore
+// the unlocked count and "platinum" — reflects only offline-earnable trophies.
 const listCatalogueStatement = db.prepare(
-  "SELECT * FROM achievement_catalogue WHERE shop = ? AND object_id = ?"
+  "SELECT * FROM achievement_catalogue WHERE shop = ? AND object_id = ? AND is_online = 0"
 );
 const upsertAchievementStatement = db.prepare(`
-  INSERT INTO achievement_catalogue (shop, object_id, name, display_name, description, icon, icongray, hidden, global_unlock_percent, cached_at, lang)
-  VALUES ($shop, $objectId, $name, $displayName, $description, $icon, $icongray, $hidden, $globalUnlockPercent, $cachedAt, $lang)
+  INSERT INTO achievement_catalogue (shop, object_id, name, display_name, description, icon, icongray, hidden, global_unlock_percent, cached_at, lang, is_online)
+  VALUES ($shop, $objectId, $name, $displayName, $description, $icon, $icongray, $hidden, $globalUnlockPercent, $cachedAt, $lang, $isOnline)
   ON CONFLICT(shop, object_id, name) DO UPDATE SET
     display_name = excluded.display_name, description = excluded.description,
     icon = excluded.icon, icongray = excluded.icongray, hidden = excluded.hidden,
     global_unlock_percent = excluded.global_unlock_percent, cached_at = excluded.cached_at,
-    lang = excluded.lang
+    lang = excluded.lang, is_online = excluded.is_online
 `);
 const updateGlobalUnlockPercentStatement = db.prepare(
   "UPDATE achievement_catalogue SET global_unlock_percent = ? WHERE shop = ? AND object_id = ? AND name = ?"
@@ -137,6 +154,7 @@ export async function getOrCacheAchievementCatalogue(
       globalUnlockPercent: percentages.get(achievement.name) ?? null,
       cachedAt: now,
       lang: CATALOGUE_LANG,
+      isOnline: isOnlineAchievement(achievement) ? 1 : 0,
     });
   }
 

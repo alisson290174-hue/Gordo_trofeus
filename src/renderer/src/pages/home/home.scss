@@ -1,115 +1,340 @@
-@use "../../scss/globals.scss";
+@use "../../scss/ps5.scss";
 
 .home {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  font-family: ps5.$font;
+  font-weight: 300;
+  color: ps5.$text;
+}
+
+.home-hero {
+  position: relative;
+  min-height: calc(100vh - 35px);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  &__art {
+    position: absolute;
+    inset: 0;
+    background-color: ps5.$bg-2;
+    background-size: cover;
+    background-position: center 30%;
+    transform: scale(1.04);
+    animation: home-hero-fade 0.6s ease;
+
+    &--from-cover {
+      filter: blur(36px) brightness(0.7) saturate(1.2);
+      transform: scale(1.2);
+    }
+  }
+
+  &__shade-x {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      rgba(6, 9, 18, 0.94) 0%,
+      rgba(6, 9, 18, 0.62) 42%,
+      rgba(6, 9, 18, 0.08) 100%
+    );
+  }
+
+  &__shade-y {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      0deg,
+      ps5.$bg 0%,
+      rgba(7, 11, 22, 0.7) 22%,
+      rgba(7, 11, 22, 0) 55%
+    );
+  }
+
   &__content {
-    width: 100%;
-    height: 100%;
+    position: relative;
+    flex: 1;
     display: flex;
     flex-direction: column;
-    gap: calc(globals.$spacing-unit * 2);
-    padding: 0;
-    flex: 1;
-    overflow-y: auto;
+    padding: 100px ps5.$page-gutter 150px;
+    gap: 36px;
   }
+
+  &__tiles {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: nowrap;
+    overflow: hidden;
+    min-height: 124px;
+  }
+
+  &__tile-wrap {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+  }
+
+  &__tile {
+    width: 86px;
+    height: 86px;
+    border-radius: 18px;
+    background-color: #1a2233;
+    background-size: cover;
+    background-position: center 20%;
+    cursor: pointer;
+    flex: none;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
+    transition:
+      width 280ms ease,
+      height 280ms ease,
+      box-shadow 280ms ease;
+
+    &--focused {
+      width: 124px;
+      height: 124px;
+      box-shadow: 0 18px 44px rgba(0, 0, 0, 0.6);
+    }
+  }
+
+  // Same box for every game: fixed width, up to two lines, so long names don't push the row.
+  &__tile-label {
+    width: 220px;
+    padding-right: 8px;
+    animation: home-hero-fade 0.3s ease;
+  }
+
+  &__tile-name {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.3;
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.6);
+  }
+
+  &__spacer {
+    flex: 1;
+  }
+
+  &__info {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    max-width: 580px;
+    animation: home-hero-fade 0.5s ease;
+  }
+
+  &__logo {
+    width: 440px;
+    max-width: 100%;
+    height: 150px;
+    object-fit: contain;
+    object-position: left bottom;
+    filter: drop-shadow(0 6px 24px rgba(0, 0, 0, 0.6));
+
+    &--text {
+      font-size: 64px;
+      font-weight: 200;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  }
+
+  &__meta {
+    font-size: 14px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: ps5.$text-62;
+    font-weight: 400;
+  }
+
+  &__desc {
+    font-size: 18px;
+    line-height: 1.55;
+    color: rgba(233, 238, 247, 0.86);
+    text-wrap: pretty;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  &__primary {
+    @include ps5.primary-pill(52px);
+  }
+
+  &__round {
+    @include ps5.round-glass-button(52px);
+  }
+
+  &__trophy-pill {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    height: 52px;
+    padding: 0 22px;
+    border-radius: 26px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid ps5.$glass-border;
+    backdrop-filter: blur(16px);
+    font-size: 15px;
+    font-weight: 400;
+  }
+
+  &__trophy-icon {
+    color: #fff;
+
+    &--platinum {
+      color: ps5.$tier-platinum;
+    }
+  }
+
+  &__trophy-bar {
+    width: 90px;
+    @include ps5.progress-track(3px);
+    background: rgba(255, 255, 255, 0.16);
+  }
+}
+
+.home-discover {
+  position: relative;
+  margin-top: -40px;
+  padding: 0 ps5.$page-gutter 60px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
 
   &__header {
     display: flex;
-    gap: globals.$spacing-unit;
-    justify-content: space-between;
     align-items: center;
-    padding: calc(globals.$spacing-unit * 3);
+    gap: 28px;
+    flex-wrap: wrap;
   }
 
-  &__buttons-list {
+  &__tab {
     display: flex;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    gap: globals.$spacing-unit;
-  }
+    align-items: center;
+    gap: 10px;
+    font-family: ps5.$font;
+    font-size: 22px;
+    font-weight: 300;
+    color: ps5.$text-45;
+    cursor: pointer;
+    transition: color 0.15s ease;
 
-  &__card-skeleton {
-    width: 100%;
-    height: 180px;
-    box-shadow: 0px 0px 15px 0px #000000;
-    overflow: hidden;
-    border-radius: 4px;
-    transition: all ease 0.2s;
-    z-index: 1;
+    &:hover {
+      color: ps5.$text-80;
+    }
 
-    &:active {
-      opacity: globals.$active-opacity;
+    &--active,
+    &--active:hover {
+      color: #fff;
+      font-weight: 400;
     }
   }
 
-  &__no-results {
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-direction: column;
-    gap: 16px;
-    grid-column: 1 / -1;
+  &__grow {
+    flex: 1;
   }
 
-  &__flame-icon {
-    width: 30px;
-    top: -10px;
-    left: -5px;
-    position: absolute;
+  &__surprise {
+    @include ps5.outline-pill(42px);
   }
 
-  &__stars-icon {
-    width: 70px;
-    position: absolute;
-    top: -28px;
-    left: -27px;
-  }
-
-  &__icon-wrapper {
-    width: 16px;
-    height: 16px;
-    position: relative;
-  }
-
-  &__title-icon {
-    width: 24px;
-    height: 24px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  &__title-flame-icon {
-    width: 32px;
-    height: 32px;
-    object-fit: contain;
-  }
-
-  &__title {
-    display: flex;
-    gap: globals.$spacing-unit;
-    padding: 0 calc(globals.$spacing-unit * 3);
-  }
-
-  &__cards {
+  &__grid {
     display: grid;
-    grid-template-columns: repeat(1, 1fr);
-    gap: calc(globals.$spacing-unit * 2);
-    transition: all ease 0.2s;
-    padding: 0 calc(globals.$spacing-unit * 3) calc(globals.$spacing-unit * 3);
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 18px;
+  }
 
-    @media (min-width: 768px) {
-      grid-template-columns: repeat(2, 1fr);
-    }
+  &__card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    cursor: pointer;
+    text-align: left;
+    color: ps5.$text;
+    font-family: ps5.$font;
+    transition: transform 0.2s ease;
 
-    @media (min-width: 1250px) {
-      grid-template-columns: repeat(3, 1fr);
+    &:hover {
+      transform: translateY(-3px);
     }
+  }
 
-    @media (min-width: 1600px) {
-      grid-template-columns: repeat(4, 1fr);
-    }
+  &__art {
+    aspect-ratio: 460 / 215;
+    border-radius: 16px;
+    background-color: #1a2233;
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    border: 1px solid ps5.$row-line;
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding: 0 4px;
+    min-width: 0;
+  }
+
+  &__name {
+    font-size: 16px;
+    font-weight: 400;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__sub {
+    font-size: 13px;
+    color: ps5.$text-55;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  &__skeleton-line {
+    height: 14px;
+    width: 60%;
+    border-radius: 7px;
+  }
+
+  &__empty {
+    color: ps5.$text-55;
+    font-size: 15px;
+  }
+}
+
+@keyframes home-hero-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }

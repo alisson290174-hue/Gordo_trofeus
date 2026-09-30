@@ -1,16 +1,18 @@
 @use "../../scss/globals.scss";
+@use "../../scss/ps5.scss";
 
 .notification-item {
   display: flex;
   align-items: center;
   gap: calc(globals.$spacing-unit * 2);
-  padding: calc(globals.$spacing-unit * 2);
-  background-color: globals.$dark-background-color;
-  border: 1px solid globals.$border-color;
-  border-radius: 8px;
+  padding: 14px 16px;
+  background-color: ps5.$card;
+  border: 1px solid ps5.$card-border;
+  border-radius: 20px;
+  font-family: ps5.$font;
   transition: all ease 0.2s;
   position: relative;
-  opacity: 0.4;
+  opacity: 0.55;
   width: 100%;
   text-align: left;
 
@@ -19,9 +21,23 @@
     opacity: 0.6;
   }
 
+  // Unread: brighter card with a blue dot instead of the old side stripe.
   &--unread {
-    border-left: 3px solid globals.$brand-orange;
+    background-color: rgba(255, 255, 255, 0.055);
+    border-color: rgba(0, 112, 243, 0.35);
     opacity: 1;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 14px;
+      left: 8px;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: globals.$brand-orange;
+      box-shadow: 0 0 8px rgba(0, 112, 243, 0.8);
+    }
 
     &:hover {
       opacity: 1;
@@ -36,7 +52,7 @@
     flex-shrink: 0;
     width: 48px;
     height: 48px;
-    border-radius: 8px;
+    border-radius: 12px;
     overflow: hidden;
     display: flex;
     align-items: center;
@@ -52,6 +68,12 @@
 
     svg {
       color: inherit;
+    }
+
+    &--cover {
+      width: 44px;
+      height: 64px;
+      border-radius: 10px;
     }
   }
 
@@ -89,7 +111,7 @@
 
   &__title {
     font-size: globals.$body-font-size;
-    font-weight: 600;
+    font-weight: 500;
     color: globals.$muted-color;
   }
 

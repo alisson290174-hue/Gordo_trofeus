@@ -15,7 +15,7 @@ const POSTER_MAX_SIZE = 600;
 const MAX_SOURCE_BYTES = 1024 * 1024 * 64;
 const MAX_REDIRECTS = 3;
 const TRUSTED_REMOTE_URL_PATTERN =
-  /^https:\/\/(?:[a-z0-9-]+\.)*(?:steamgriddb\.com|losbroxas\.org|steamstatic\.com|akamaihd\.net|launchbox-app\.com)(?::443)?\/[^\s]*$/i;
+  /^https:\/\/(?:[a-z0-9-]+\.)*(?:steamgriddb\.com|steamstatic\.com|akamaihd\.net|launchbox-app\.com)(?::443)?\/[^\s]*$/i;
 
 const inflightPosters = new Map<string, Promise<string | null>>();
 

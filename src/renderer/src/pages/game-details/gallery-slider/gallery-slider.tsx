@@ -276,6 +276,9 @@ export function GallerySlider() {
               src={media.thumbnail}
               className="gallery-slider__preview-image"
               alt={t("screenshot", { number: String(i + 1) })}
+              onError={(event) => {
+                event.currentTarget.style.display = "none";
+              }}
             />
             {media.type === "video" && (
               <div className="gallery-slider__play-overlay">

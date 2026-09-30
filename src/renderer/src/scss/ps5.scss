@@ -1,0 +1,174 @@
+// Design tokens for the "Conceito 1 — PS5" redesign (design_handoff_baloi_dashboard).
+// Values are copied 1:1 from the handoff prototype; keep them in sync with it rather than
+// eyeballing new shades.
+
+$bg: #070b16;
+$bg-2: #0a0f1e;
+$bg-3: #0b1222;
+$accent: #0070f3;
+$accent-hover: #1a82ff;
+$accent-text: #4d9bff;
+$text: #e9eef7;
+$text-80: rgba(233, 238, 247, 0.8);
+$text-62: rgba(233, 238, 247, 0.62);
+$text-55: rgba(233, 238, 247, 0.55);
+$text-50: rgba(233, 238, 247, 0.5);
+$text-45: rgba(233, 238, 247, 0.45);
+
+$glass: rgba(255, 255, 255, 0.06);
+$glass-strong: rgba(255, 255, 255, 0.1);
+$glass-border: rgba(255, 255, 255, 0.1);
+$card: rgba(255, 255, 255, 0.035);
+$card-border: rgba(255, 255, 255, 0.07);
+$row-line: rgba(255, 255, 255, 0.06);
+
+$tier-platinum: #cfe6ea;
+$tier-gold: #f4b43a;
+$tier-silver: #c0c5ce;
+$tier-bronze: #c9854a;
+
+$nav-height: 76px;
+$page-gutter: 56px;
+
+$font: "Outfit", system-ui, sans-serif;
+
+$page-background: linear-gradient(160deg, $bg-2 0%, $bg 45%, $bg-3 100%);
+
+@mixin glass($blur: 16px, $bg: $glass-strong, $border: rgba(255, 255, 255, 0.14)) {
+  background: $bg;
+  border: 1px solid $border;
+  backdrop-filter: blur($blur);
+}
+
+@mixin eyebrow {
+  font-size: 13px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: $text-50;
+  font-weight: 400;
+}
+
+@mixin card {
+  border-radius: 22px;
+  background: $card;
+  border: 1px solid $card-border;
+}
+
+// Circular glass action button (favorite / pin / more) — 52–54px in the prototype.
+@mixin round-glass-button($size: 54px) {
+  width: $size;
+  height: $size;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  cursor: pointer;
+  flex: none;
+  @include glass(16px);
+  transition: background-color 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.18);
+  }
+}
+
+@mixin primary-pill($height: 52px) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  height: $height;
+  padding: 0 34px;
+  border-radius: calc($height / 2);
+  background: $accent;
+  border: 1px solid $accent;
+  color: #fff;
+  font-family: $font;
+  font-size: 17px;
+  font-weight: 500;
+  cursor: pointer;
+  box-shadow: 0 10px 30px rgba(0, 112, 243, 0.35);
+  transition: background-color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: $accent-hover;
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.6;
+  }
+}
+
+@mixin outline-pill($height: 42px) {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: $height;
+  padding: 0 20px;
+  border-radius: calc($height / 2);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: $text;
+  font-family: $font;
+  font-size: 15px;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+
+  &:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.08);
+  }
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.5;
+  }
+}
+
+// Filter chip: white when active, glass otherwise (Biblioteca / Conquistas filters).
+@mixin chip($height: 38px) {
+  height: $height;
+  padding: 0 18px;
+  border-radius: calc($height / 2);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: $font;
+  font-size: 14px;
+  font-weight: 400;
+  cursor: pointer;
+  background: rgba(255, 255, 255, 0.05);
+  color: $text-80;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.09);
+  }
+
+  &--active,
+  &--active:hover {
+    background: #fff;
+    color: $bg;
+    border-color: #fff;
+  }
+
+  &-count {
+    opacity: 0.55;
+  }
+}
+
+@mixin progress-track($height: 3px) {
+  height: $height;
+  border-radius: $height;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+
+  > span {
+    display: block;
+    height: 100%;
+    background: #fff;
+  }
+}

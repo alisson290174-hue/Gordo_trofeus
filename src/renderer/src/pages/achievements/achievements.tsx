@@ -74,7 +74,7 @@ export default function Achievements() {
             (otherUserId && comparedAchievements === null);
 
           return (
-            <SkeletonTheme baseColor="#1c1c1c" highlightColor="#444">
+            <SkeletonTheme baseColor="#121a2c" highlightColor="#1e2940">
               {showSkeleton ? (
                 <AchievementsSkeleton />
               ) : (

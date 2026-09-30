@@ -9,6 +9,8 @@ import type { GameShop } from "@types";
 import { getReviewTranslationLanguage, sanitizeHtml } from "@shared";
 import { useDate } from "@renderer/hooks";
 import { buildGameDetailsPath } from "@renderer/helpers";
+import { Img } from "@renderer/components";
+import GameIconPlaceholder from "@renderer/assets/icons/game-icon-placeholder.png";
 import "./profile-content.scss";
 
 interface UserReview {
@@ -102,8 +104,9 @@ export function ProfileReviewItem({
           <div className="user-reviews__review-game">
             <div className="user-reviews__game-info">
               <div className="user-reviews__game-details">
-                <img
+                <Img
                   src={review.game.iconUrl}
+                  fallback={GameIconPlaceholder}
                   alt={review.game.title}
                   className="user-reviews__game-icon"
                 />

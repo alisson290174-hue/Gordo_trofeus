@@ -75,7 +75,7 @@ function CloudSaveSnapshotSkeleton({ label }: Readonly<{ label: string }>) {
       aria-busy="true"
       aria-label={label}
     >
-      <SkeletonTheme baseColor="#1c1c1c" highlightColor="#444">
+      <SkeletonTheme baseColor="#121a2c" highlightColor="#1e2940">
         <article className="cloud-save-v2__snapshot cloud-save-v2__snapshot--active cloud-save-v2__snapshot--skeleton">
           <div className="cloud-save-v2__snapshot-header">
             <Skeleton width={120} height={16} />
