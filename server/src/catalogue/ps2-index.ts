@@ -68,10 +68,26 @@ export interface Ps2Metadata {
   screenshots: string[];
 }
 
+/**
+ * ROM hacks carry a made-up serial no database knows. Each one borrows the art and info of the
+ * game it was built on, under its own name.
+ */
+const ROM_HACKS: Record<string, { base: string; title: string }> = {
+  // "naruto6" — hack of Naruto Shippuden: Ultimate Ninja 5.
+  "SLUS-55606": { base: "SLES-55605", title: "Naruto Shippuden: Ultimate Ninja 6" },
+};
+
 /** Metadata for a launchbox-shop objectId ("rom-sku-…" serial or a LaunchBox database id). */
 export function getPs2Metadata(objectId: string): Ps2Metadata | null {
   const { games, serials } = load();
   const serial = serialFromObjectId(objectId);
+
+  const hack = serial ? ROM_HACKS[serial] : undefined;
+  if (hack) {
+    const base = getPs2Metadata(`rom-sku-${hack.base.replace("-", "")}`);
+    // No logo: the base game's logo spells the wrong name/number.
+    return base ? { ...base, serial, title: hack.title, logoUrl: null } : null;
+  }
 
   let game: Ps2Game | null = null;
   let indexName: string | null = null;
