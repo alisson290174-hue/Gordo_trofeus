@@ -1,6 +1,6 @@
 import { HydraApi } from "../hydra-api";
 import type { GameShop, SteamAchievement } from "@types";
-import { UserNotLoggedInError } from "@shared";
+import { UserNotLoggedInError, isLocalOnlyShop } from "@shared";
 import { logger } from "../logger";
 import { db, levelKeys } from "@main/level";
 import { AchievementMemoryStore } from "./achievement-memory-store";
@@ -10,7 +10,7 @@ export const getGameAchievementData = async (
   shop: GameShop,
   useCachedData: boolean
 ) => {
-  if (shop === "custom") {
+  if (isLocalOnlyShop(shop)) {
     return [];
   }
 

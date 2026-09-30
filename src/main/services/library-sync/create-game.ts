@@ -1,9 +1,10 @@
 import type { Game } from "@types";
+import { isLocalOnlyShop } from "@shared";
 import { HydraApi } from "../hydra-api";
 import { gamesSublevel, levelKeys } from "@main/level";
 
 export const createGame = async (game: Game) => {
-  if (game.shop === "custom") {
+  if (isLocalOnlyShop(game.shop)) {
     return;
   }
 

@@ -1,4 +1,6 @@
 import crypto from "node:crypto";
+import { requireAuth } from "../auth/require-auth.js";
+import { assertSafePublicUrl, safeFetchJson } from "./safe-fetch.js";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db.js";
 import { matchRepackTitleToSteamGame } from "./matcher.js";
@@ -69,10 +71,7 @@ async function processDownloadSource(sourceId: string, url: string) {
   setStatusStatement.run("MATCHING", sourceId);
 
   try {
-    const response = await fetch(url, { signal: AbortSignal.timeout(30_000) });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
-    const feed = await response.json();
+    const feed = await safeFetchJson(url);
     if (!isValidFeed(feed)) throw new Error("Feed does not match the expected schema");
 
     setNameStatement.run(feed.name, sourceId);
@@ -107,20 +106,39 @@ async function processDownloadSource(sourceId: string, url: string) {
   }
 }
 
+// At most 10 new sources per user per hour (each one triggers thousands of Steam lookups).
+const recentAdds = new Map<string, number[]>();
+const allowNewSource = (userId: string) => {
+  const hourAgo = Date.now() - 3_600_000;
+  const times = (recentAdds.get(userId) ?? []).filter((time) => time > hourAgo);
+  if (times.length >= 10) return false;
+  times.push(Date.now());
+  recentAdds.set(userId, times);
+  return true;
+};
+
 export function registerDownloadSourceRoutes(app: FastifyInstance) {
   app.post<{ Body: { url?: string } }>("/download-sources", async (request, reply) => {
-    const url = request.body?.url;
-    if (!url) return reply.code(400).send({ message: "url is required" });
+    const user = requireAuth(request, reply);
+    if (!user) return;
 
+    const url = request.body?.url;
+    if (!url || url.length > 2048) return reply.code(400).send({ message: "url is required" });
+
+    // SSRF guard: https only, public addresses only (the server fetches this URL).
     try {
-      new URL(url);
-    } catch {
-      return reply.code(400).send({ message: "Invalid URL" });
+      await assertSafePublicUrl(url);
+    } catch (error) {
+      return reply.code(400).send({ message: (error as Error).message || "Invalid URL" });
     }
 
     // Sources are shared/global (matching work is expensive) — reuse an existing entry for the same URL.
     const existing = getSourceByUrlStatement.get(url) as unknown as DownloadSourceRow | undefined;
     if (existing) return reply.send(toDownloadSourceResponse(existing));
+
+    if (!allowNewSource(user.id)) {
+      return reply.code(429).send({ message: "Too many new sources, try again later" });
+    }
 
     const id = crypto.randomUUID();
     insertSourceStatement.run(id, url, null, new Date().toISOString());
@@ -132,12 +150,14 @@ export function registerDownloadSourceRoutes(app: FastifyInstance) {
     reply.send(toDownloadSourceResponse(row));
   });
 
-  app.get("/download-sources", async (_request, reply) => {
+  app.get("/download-sources", async (request, reply) => {
+    if (!requireAuth(request, reply)) return;
     const rows = listSourcesStatement.all() as unknown as DownloadSourceRow[];
     reply.send(rows.map(toDownloadSourceResponse));
   });
 
   app.get<{ Params: { id: string } }>("/download-sources/:id", async (request, reply) => {
+    if (!requireAuth(request, reply)) return;
     const row = getSourceStatement.get(request.params.id) as unknown as DownloadSourceRow | undefined;
     if (!row) return reply.code(404).send({ message: "Download source not found" });
     reply.send(toDownloadSourceResponse(row));

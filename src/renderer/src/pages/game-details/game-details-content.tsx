@@ -26,7 +26,12 @@ import { CloudSaveWidget } from "./cloud-save-v2";
 import { getCloudSaveVisibility } from "./cloud-save-visibility";
 import { SimilarGames } from "./similar-games/similar-games";
 
-import { AuthPage, getDisplayedPlayTimeInMilliseconds } from "@shared";
+import {
+  AuthPage,
+  getDisplayedPlayTimeInMilliseconds,
+  isLocalOnlyShop,
+  sanitizeRichHtml,
+} from "@shared";
 import { cloudSyncContext, gameDetailsContext } from "@renderer/context";
 
 import {
@@ -115,10 +120,12 @@ export function GameDetailsContent() {
 
       processMediaElements(document);
 
-      return document.body.outerHTML;
+      // Store HTML is untrusted: no scripts/handlers, only http(s) media and links.
+      return sanitizeRichHtml(document.body.outerHTML);
     }
 
-    if (game?.shop === "custom") {
+    // Local-only games (custom, Epic) have no server details — no error message for them.
+    if (isLocalOnlyShop(game?.shop)) {
       return "";
     }
 
@@ -484,11 +491,11 @@ export function GameDetailsContent() {
               </button>
             )}
 
-            {shop && objectId && (
+            {shop && objectId && !isLocalOnlyShop(shop) && (
               <SimilarGames objectId={objectId} shop={shop} />
             )}
 
-            {shop !== "custom" && shop && objectId && (
+            {!isLocalOnlyShop(shop) && shop && objectId && (
               <div ref={reviewsRef}>
                 <GameReviews
                   shop={shop}

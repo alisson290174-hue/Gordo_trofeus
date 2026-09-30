@@ -39,3 +39,18 @@
     }
   }
 }
+
+// Monogram for Epic (no official logo is bundled).
+.library-category-filter__epic {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  box-sizing: border-box;
+  border: 1.5px solid currentColor;
+  border-radius: 3px;
+  font-size: 8.5px;
+  font-weight: 500;
+  line-height: 1;
+}

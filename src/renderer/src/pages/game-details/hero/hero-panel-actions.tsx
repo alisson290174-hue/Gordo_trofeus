@@ -1,4 +1,5 @@
 
+import { useEpicInstalls } from "@renderer/hooks/use-epic-installs";
 import { Button, ConfirmationModal } from "@renderer/components";
 import { Icon } from "@renderer/components/icon/icon";
 import {
@@ -58,6 +59,7 @@ export function HeroPanelActions() {
   } | null>(null);
 
   const { t } = useTranslation("game_details");
+  const epicInstalls = useEpicInstalls();
 
   useEffect(() => {
     const onOpenDiscSelection = (event: Event) => {
@@ -346,6 +348,70 @@ export function HeroPanelActions() {
 
     const isPlayableClassics =
       game?.shop === "launchbox" && (game?.discs?.length ?? 0) > 0;
+
+    // Steam account game with no copy of its own: install / play through the Steam client.
+    if (game?.shop === "steam" && game.hasActiveSteamImport && !game.executablePath) {
+      if (game.steamInstalled) {
+        return (
+          <Button
+            onClick={openGame}
+            theme="outline"
+            disabled={deleting || isGameRunning}
+            className="hero-panel-actions__action hero-panel-actions__primary"
+          >
+            <Icon name="play" size={18} />
+            {t("play")}
+          </Button>
+        );
+      }
+      return (
+        <Button
+          onClick={() => window.electron.installThroughSteam(game.objectId)}
+          theme="outline"
+          disabled={deleting}
+          className="hero-panel-actions__action hero-panel-actions__primary"
+        >
+          <Icon name="download" size={18} />
+          {t("dashboard:steam_install")}
+        </Button>
+      );
+    }
+
+    // Epic: install/update through Legendary straight from Balói.
+    if (game?.shop === "epic" && !game.executablePath) {
+      const install = epicInstalls[game.objectId];
+      if (install && install.status !== "error") {
+        const percent = Math.round(install.percent);
+        return (
+          <Button
+            theme="outline"
+            className="hero-panel-actions__action hero-panel-actions__primary hero-panel-actions__primary--muted"
+            onClick={() => window.electron.cancelEpicInstall(game.objectId)}
+            title={t("dashboard:epic_cancel_install")}
+          >
+            <span className="hero-panel-actions__fill" style={{ width: `${percent}%` }} />
+            <Icon name="download" size={18} />
+            <span>
+              {install.status === "downloading"
+                ? t("dashboard:epic_installing", { percent })
+                : t("dashboard:epic_preparing")}
+            </span>
+          </Button>
+        );
+      }
+
+      return (
+        <Button
+          onClick={() => window.electron.installEpicGame(game.objectId, game.title)}
+          theme="outline"
+          disabled={deleting}
+          className="hero-panel-actions__action hero-panel-actions__primary"
+        >
+          <Icon name="download" size={18} />
+          {install?.status === "error" ? t("dashboard:epic_retry_install") : t("dashboard:epic_install")}
+        </Button>
+      );
+    }
 
     if (game?.executablePath || isPlayableClassics) {
       return (

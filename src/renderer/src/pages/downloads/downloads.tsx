@@ -1,4 +1,6 @@
 import { useTranslation } from "react-i18next";
+import { EpicInstallsSection } from "./epic-installs-section";
+import { useEpicInstalls } from "@renderer/hooks/use-epic-installs";
 
 import {
   useAppSelector,
@@ -168,6 +170,9 @@ export default function Downloads() {
     },
   ];
 
+  const epicInstalls = useEpicInstalls();
+  const epicInstallList = Object.values(epicInstalls);
+
   const hasItemsInLibrary = useMemo(() => {
     return Object.values(libraryGroup).some((group) => group.length > 0);
   }, [libraryGroup]);
@@ -185,7 +190,7 @@ export default function Downloads() {
         deleteGame={handleDeleteGame}
       />
 
-      {hasItemsInLibrary ? (
+      {hasItemsInLibrary || epicInstallList.length > 0 ? (
         <section className="downloads__container">
           <div className="downloads__page-header">
             <span className="downloads__eyebrow">
@@ -196,6 +201,7 @@ export default function Downloads() {
             </h1>
           </div>
           <div className="downloads__groups">
+            <EpicInstallsSection installs={epicInstallList} />
             {downloadGroups.map((group) => (
               <DownloadGroup
                 key={group.title}

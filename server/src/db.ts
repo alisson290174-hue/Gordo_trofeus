@@ -254,3 +254,17 @@ try {
   db.exec("ROLLBACK");
   throw error;
 }
+
+// Indexes for the queries that actually run (audit 2026-09-30: the DB had none besides PKs).
+// IF NOT EXISTS keeps boot idempotent; each one is created once, in the background of startup.
+db.exec(`
+  CREATE INDEX IF NOT EXISTS idx_appid_queue_status ON steam_appid_sync_queue(status);
+  CREATE INDEX IF NOT EXISTS idx_steam_games_review_count ON steam_games(review_count);
+  CREATE INDEX IF NOT EXISTS idx_profile_games_shop_object ON profile_games(shop, object_id);
+  CREATE INDEX IF NOT EXISTS idx_relations_a ON relations(a_id, status);
+  CREATE INDEX IF NOT EXISTS idx_relations_b ON relations(b_id, status);
+  CREATE INDEX IF NOT EXISTS idx_souvenirs_user ON souvenirs(user_id, captured_at);
+  CREATE INDEX IF NOT EXISTS idx_game_repacks_appid ON game_repacks(appid);
+  CREATE INDEX IF NOT EXISTS idx_cloud_snapshots_user ON cloud_snapshots(user_id);
+  CREATE INDEX IF NOT EXISTS idx_cloud_snapshot_files_snapshot ON cloud_snapshot_files(snapshot_id);
+`);

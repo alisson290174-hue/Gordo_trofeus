@@ -21,8 +21,8 @@ export function sanitizeHtml(html: string): string {
     return "";
   }
 
-  const tempDiv = document.createElement("div");
-  tempDiv.innerHTML = html;
+  // Inert document: an <img onerror> would fire if parsed into the live document first.
+  const tempDiv = new DOMParser().parseFromString(html, "text/html").body;
 
   const disallowedSelectors = [
     "script",
@@ -76,11 +76,57 @@ export function stripHtml(html: string): string {
     return "";
   }
 
-  const tempDiv = document.createElement("div");
-  tempDiv.innerHTML = html;
+  // Inert document: an <img onerror> would fire if parsed into the live document first.
+  const tempDiv = new DOMParser().parseFromString(html, "text/html").body;
   let cleanText = tempDiv.textContent || tempDiv.innerText || "";
 
   cleanText = removeZalgoText(cleanText);
 
   return cleanText;
+}
+
+/**
+ * For store-provided rich HTML (game descriptions, system requirements): keeps images, videos and
+ * links but only with http(s) URLs, and drops scripts, frames, styles and event handlers. Parsing
+ * happens in an inert DOMParser document, so nothing loads or runs while sanitizing.
+ */
+export function sanitizeRichHtml(html: string): string {
+  if (!html || typeof html !== "string") return "";
+
+  const doc = new DOMParser().parseFromString(html, "text/html");
+
+  for (const el of doc.querySelectorAll(
+    "script, style, iframe, frame, frameset, object, embed, link, meta, base, form, input, button, textarea, select, svg, math, template"
+  )) {
+    el.remove();
+  }
+
+  const isSafeUrl = (value: string) => {
+    try {
+      return ["http:", "https:"].includes(new URL(value, "https://invalid.local").protocol) &&
+        !/^\s*(javascript|data|vbscript|file):/i.test(value);
+    } catch {
+      return false;
+    }
+  };
+
+  for (const el of doc.body.querySelectorAll("*")) {
+    for (const attr of Array.from(el.attributes)) {
+      const name = attr.name.toLowerCase();
+      if (name.startsWith("on") || name === "style" || name === "srcdoc" || name === "formaction") {
+        el.removeAttribute(attr.name);
+        continue;
+      }
+      if (["src", "href", "poster", "srcset", "data", "action", "xlink:href"].includes(name)) {
+        const values = name === "srcset" ? attr.value.split(",").map((part) => part.trim().split(/\s+/)[0]) : [attr.value];
+        if (!values.every(isSafeUrl)) el.removeAttribute(attr.name);
+      }
+    }
+    if (el.tagName === "A") {
+      el.setAttribute("rel", "noopener noreferrer");
+      el.setAttribute("target", "_blank");
+    }
+  }
+
+  return doc.body.innerHTML;
 }

@@ -1,4 +1,5 @@
 import axios, { AxiosError, AxiosInstance } from "axios";
+import { readAuth, writeAuth } from "@main/services/auth-store";
 import { WindowManager } from "./window-manager";
 import url from "url";
 import { uploadGamesBatch } from "./library-sync";
@@ -9,7 +10,7 @@ import { appVersion } from "@main/constants";
 import { getUserData } from "./user/get-user-data";
 import { db } from "@main/level";
 import { levelKeys } from "@main/level/sublevels";
-import type { Auth, User } from "@types";
+import type { User } from "@types";
 import { SSEClient } from "./sse";
 import { sanitizeNetworkLogPayload } from "./network-log-payload";
 
@@ -111,15 +112,11 @@ export class HydraApi {
       tokenExpirationTimestamp
     );
 
-    db.put<string, Auth>(
-      levelKeys.auth,
-      {
-        accessToken,
-        refreshToken,
-        tokenExpirationTimestamp,
-      },
-      { valueEncoding: "json" }
-    );
+    await writeAuth({
+      accessToken,
+      refreshToken,
+      tokenExpirationTimestamp,
+    });
 
     await getUserData().then((userDetails) => {
       if (userDetails?.subscription) {
@@ -259,12 +256,12 @@ export class HydraApi {
       );
     }
 
-    const result = await db.getMany<string>([levelKeys.auth, levelKeys.user], {
-      valueEncoding: "json",
-    });
-
-    const userAuth = result.at(0) as Auth | undefined;
-    const user = result.at(1) as User | undefined;
+    const [userAuth, user] = await Promise.all([
+      readAuth().then((auth) => auth ?? undefined),
+      db
+        .get<string, User>(levelKeys.user, { valueEncoding: "json" })
+        .catch(() => undefined),
+    ]);
 
     this.userAuth = {
       authToken: userAuth?.accessToken ?? "",
@@ -304,19 +301,13 @@ export class HydraApi {
       this.userAuth.expirationTimestamp
     );
 
-    await db
-      .get<string, Auth>(levelKeys.auth, { valueEncoding: "json" })
-      .then((auth) => {
-        return db.put<string, Auth>(
-          levelKeys.auth,
-          {
-            ...auth,
-            accessToken,
-            tokenExpirationTimestamp,
-          },
-          { valueEncoding: "json" }
-        );
-      });
+    await readAuth().then((auth) =>
+      writeAuth({
+        refreshToken: auth?.refreshToken ?? this.userAuth.refreshToken,
+        accessToken,
+        tokenExpirationTimestamp,
+      })
+    );
 
     return { accessToken, expiresIn };
   }

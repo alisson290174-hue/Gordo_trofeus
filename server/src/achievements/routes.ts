@@ -8,6 +8,7 @@ import { upsertProfileGame, type ProfileGameRow } from "../library/routes.js";
 import { addKarma, KARMA } from "../karma.js";
 import { config } from "../config.js";
 import { getPs2Metadata } from "../catalogue/ps2-index.js";
+import { canViewUserData } from "../profile/public-routes.js";
 
 interface UserAchievementRow {
   profile_game_id: string;
@@ -264,6 +265,10 @@ export function registerAchievementRoutes(app: FastifyInstance) {
     Params: { userId: string };
     Querystring: { shop: string; objectId: string; language?: string };
   }>("/users/:userId/games/achievements", async (request, reply) => {
+    // Private profiles don't expose their unlocks (was readable by anyone before).
+    if (!canViewUserData(request, request.params.userId)) {
+      return reply.code(403).send({ message: "This profile is private" });
+    }
     const { shop, objectId } = request.query;
     const profileGame = findProfileGameStatement.get(request.params.userId, shop, objectId) as
       | ProfileGameRow

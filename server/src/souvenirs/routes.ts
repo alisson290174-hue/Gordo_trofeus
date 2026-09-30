@@ -138,14 +138,19 @@ export function registerSouvenirRoutes(app: FastifyInstance) {
       }
 
       const token = crypto.randomBytes(24).toString("base64url");
-      const extension = (request.body?.imageExt ?? "jpg").replace(/[^a-zA-Z0-9]/g, "") || "jpg";
+      // Same image-only rule as avatars: /files must never serve html/svg/js.
+      const cleanedExt = (request.body?.imageExt ?? "jpg").replace(/[^a-zA-Z0-9]/g, "").toLowerCase();
+      const extension = cleanedExt === "jpeg" ? "jpg" : cleanedExt;
+      if (!["jpg", "png", "webp", "gif"].includes(extension)) {
+        return reply.code(415).send({ message: "Only PNG, JPEG, GIF or WebP images are accepted" });
+      }
       const imageKey = `${token}.${extension}`;
 
       insertTokenStatement.run(token, user.id, MAX_SOUVENIR_BYTES, new Date().toISOString());
 
       reply.send({
         imageKey,
-        presignedUrl: `${config.publicBaseUrl}/uploads/${token}`,
+        presignedUrl: `${config.publicBaseUrl}/uploads/${token}?ext=${extension}`,
         status: "pending",
         expiresAt: Date.now() + 10 * 60 * 1000,
       });

@@ -12,7 +12,7 @@ export const migrateDownloadSources = async () => {
         {
           url: value.url,
         },
-        { needsAuth: false }
+        { needsAuth: true }
       );
 
       await downloadSourcesSublevel.put(downloadSource.id, {

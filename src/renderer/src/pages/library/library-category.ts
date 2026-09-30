@@ -1,4 +1,21 @@
-export type LibraryCategory = "all" | "pc" | "steam_library" | "classics";
+// "pc" / "steam_library" stay for the profile filters; the library page uses the store split.
+export type LibraryCategory =
+  | "all"
+  | "pc"
+  | "steam_library"
+  | "classics"
+  | "steam"
+  | "epic"
+  | "torrent";
+
+/** Filters shown on the library page, in order. */
+export const LIBRARY_PAGE_CATEGORIES: LibraryCategory[] = [
+  "all",
+  "steam",
+  "epic",
+  "torrent",
+  "classics",
+];
 
 export interface LibraryCategoryGame {
   shop: string;
@@ -38,6 +55,24 @@ export const filterLibraryGamesByCategory = <T extends LibraryCategoryGame>(
 
   if (category === "classics") {
     return games.filter((game) => game.shop === "launchbox");
+  }
+
+  // Games owned on the Steam account (imported), installed through the Steam client.
+  if (category === "steam") {
+    return games.filter(isSteamLibraryGame);
+  }
+
+  if (category === "epic") {
+    return games.filter((game) => game.shop === "epic");
+  }
+
+  // Everything added from the catalogue (torrents / repacks) or by executable.
+  if (category === "torrent") {
+    return games.filter(
+      (game) =>
+        (game.shop === "steam" && !isSteamLibraryGame(game)) ||
+        game.shop === "custom"
+    );
   }
 
   return games;

@@ -39,6 +39,7 @@ import { LibraryGameCardLarge } from "./library-game-card-large";
 import { ViewOptions, ViewMode } from "./view-options";
 import { FilterOptions, SortOption } from "./filter-options";
 import { CategoryFilter, LibraryCategory } from "./category-filter";
+import { LIBRARY_PAGE_CATEGORIES } from "./library-category";
 import { AchievementsFilter } from "./achievements-filter";
 import { PlatformFilter } from "./platform-filter";
 import { CollectionsFilter } from "./collections-filter";
@@ -177,16 +178,9 @@ export default function Library() {
     useState(false);
 
   const [category, setCategory] = useState<LibraryCategory>(() => {
-    const saved = localStorage.getItem("library-category");
-    if (
-      saved === "all" ||
-      saved === "pc" ||
-      saved === "steam_library" ||
-      saved === "classics"
-    ) {
-      return saved;
-    }
-    return "all";
+    const saved = localStorage.getItem("library-category") as LibraryCategory | null;
+    // Old choices ("PC", "Biblioteca Steam") no longer exist on this page → "Todos".
+    return saved && LIBRARY_PAGE_CATEGORIES.includes(saved) ? saved : "all";
   });
   const [selectedPlatforms, setSelectedPlatforms] =
     useState<string[]>(readStoredPlatforms);
@@ -290,7 +284,8 @@ export default function Library() {
     (next: LibraryCategory) => {
       setCategory(next);
       localStorage.setItem("library-category", next);
-      if (next === "pc" || next === "steam_library") {
+      // The console selector only applies to emulated games.
+      if (next !== "all" && next !== "classics") {
         handlePlatformsChange([]);
       }
     },
@@ -696,8 +691,8 @@ export default function Library() {
                 showAchievementsOnly={showAchievementsOnly}
                 onShowAchievementsOnlyChange={handleShowAchievementsOnlyChange}
               />
-              {effectiveCategory !== "pc" &&
-                effectiveCategory !== "steam_library" && (
+              {(effectiveCategory === "all" ||
+                effectiveCategory === "classics") && (
                   <PlatformFilter
                     selectedPlatforms={selectedPlatforms}
                     platforms={uniquePlatforms}

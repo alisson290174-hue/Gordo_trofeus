@@ -1,4 +1,5 @@
 import { HydraApi } from "./hydra-api";
+import { isLocalOnlyShop } from "@shared";
 import {
   gamesSublevel,
   getDownloadSourcesCheckBaseline,
@@ -120,7 +121,7 @@ export class DownloadSourcesChecker {
       // Get all installed games (excluding custom games)
       const installedGames = await gamesSublevel.values().all();
       const nonCustomGames = installedGames.filter(
-        (game: Game) => game.shop !== "custom"
+        (game: Game) => !isLocalOnlyShop(game.shop)
       );
       logger.info(
         `Found ${installedGames.length} total games, ${nonCustomGames.length} non-custom games`

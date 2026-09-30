@@ -33,6 +33,9 @@ win:
   extraResources:
     - from: binaries/7z.exe
     - from: binaries/7z.dll
+    # Epic Games integration — Legendary 0.21.1 (GPL-3.0), unmodified, with its LICENSE.
+    - from: binaries/legendary
+      to: legendary
   target:
     - nsis
     - portable

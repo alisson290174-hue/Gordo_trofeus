@@ -65,6 +65,8 @@ export interface Game {
   playTimeInMilliseconds: number;
   steamPlayTimeInMilliseconds?: number;
   hasActiveSteamImport?: boolean;
+  /** Owned on Steam and installed by the Steam client (appmanifest found); plays via steam://. */
+  steamInstalled?: boolean;
   enableHydraPlaytimeTracking?: boolean;
   unsyncedDeltaPlayTimeInMilliseconds?: number;
   lastTimePlayed: Date | null;

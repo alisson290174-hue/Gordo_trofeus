@@ -6,7 +6,7 @@ import {
   gamesShopAssetsSublevel,
   levelKeys,
 } from "@main/level";
-import { composeAssetsWithArtwork } from "@shared";
+import { composeAssetsWithArtwork, isLocalOnlyShop } from "@shared";
 
 const LOCAL_CACHE_EXPIRATION = 1000 * 60 * 60 * 8; // 8 hours
 
@@ -26,7 +26,7 @@ export const getGameAssets = async (
   shop: GameShop,
   options?: { forceFresh?: boolean }
 ) => {
-  if (shop === "custom") {
+  if (isLocalOnlyShop(shop)) {
     return null;
   }
 

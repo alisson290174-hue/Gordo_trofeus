@@ -1,4 +1,5 @@
 import { registerEvent } from "../register-event";
+import { isLocalOnlyShop } from "@shared";
 import { createGame } from "@main/services/library-sync";
 import { gamesSublevel, levelKeys } from "@main/level";
 import { HydraApi, logger } from "@main/services";
@@ -27,7 +28,7 @@ const assignGameToCollection = async (
   }
 
   try {
-    if (shop !== "custom") {
+    if (!isLocalOnlyShop(shop)) {
       const syncCollection = () =>
         HydraApi.put(`/profile/games/${shop}/${objectId}/collection`, {
           collectionIds,

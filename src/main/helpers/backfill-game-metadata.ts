@@ -1,4 +1,5 @@
 import type { Game } from "@types";
+import { isLocalOnlyShop } from "@shared";
 import { gamesSublevel } from "@main/level";
 import { getGameAssets } from "@main/events/catalogue/get-game-assets";
 import { logger } from "@main/services/logger";
@@ -25,7 +26,7 @@ export const backfillMissingGameMetadata = async () => {
   let repaired = 0;
 
   for (const [key, game] of entries) {
-    if (!game || game.isDeleted || game.shop === "custom") continue;
+    if (!game || game.isDeleted || isLocalOnlyShop(game.shop)) continue;
     // A record added before the catalogue knew this game has no title — that's the one thing we fix.
     if (game.title) continue;
 

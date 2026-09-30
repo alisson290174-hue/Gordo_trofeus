@@ -1,4 +1,7 @@
-import type { AuthPage } from "@shared";
+import type {
+  EpicGame,
+  EpicInstallState,
+  EpicStatus, AuthPage } from "@shared";
 import type {
   AppUpdaterEvent,
   GameShop,
@@ -1098,7 +1101,7 @@ declare global {
     restartAndInstallUpdate: () => Promise<void>;
 
     /* Auth */
-    getAuth: () => Promise<Auth | null>;
+    getAuth: () => Promise<{ isLoggedIn: boolean; tokenExpirationTimestamp: number } | null>;
     signOut: () => Promise<void>;
     openAuthWindow: (page: AuthPage) => Promise<void>;
     minimizeAuthWindow: () => Promise<void>;
@@ -1148,6 +1151,20 @@ declare global {
     resetRetroAchievementsAchievements: (
       pendingSouvenirsOnly?: boolean
     ) => Promise<void>;
+    /* Steam account games (via our server) */
+    syncSteamOwnedLibrary: () => Promise<{ visible: boolean; total: number; installed: number }>;
+    installThroughSteam: (appId: string) => Promise<void>;
+    /* Epic Games (Legendary) */
+    getEpicStatus: () => Promise<EpicStatus>;
+    loginToEpic: () => Promise<{ ok: boolean; status: EpicStatus }>;
+    logoutFromEpic: () => Promise<EpicStatus>;
+    listEpicGames: () => Promise<EpicGame[]>;
+    syncEpicLibrary: () => Promise<number>;
+    getEpicInstalls: () => Promise<EpicInstallState[]>;
+    installEpicGame: (appName: string, title: string) => Promise<void>;
+    cancelEpicInstall: (appName: string) => Promise<void>;
+    uninstallEpicGame: (appName: string) => Promise<void>;
+    onEpicInstallProgress: (cb: (state: EpicInstallState) => void) => () => Electron.IpcRenderer;
     openRetroAchievementsConnectionWindow: () => Promise<void>;
     minimizeRetroAchievementsConnectionWindow: () => Promise<void>;
     closeRetroAchievementsConnectionWindow: () => Promise<void>;

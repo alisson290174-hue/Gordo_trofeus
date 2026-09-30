@@ -233,11 +233,14 @@ const mergeExistingGame = (
   ),
   platform: remoteGame.platform ?? localGame.platform,
   source: resolveLibrarySource(localGame.source, remoteGame.source),
-  hasActiveSteamImport: remoteGame.hasActiveSteamImport === true,
+  // Balói: the Steam import flag is owned locally (steam-owned-library sync); our server
+  // doesn't store it, so a missing remote flag must not wipe the local one.
+  hasActiveSteamImport:
+    remoteGame.hasActiveSteamImport === true || localGame.hasActiveSteamImport === true,
   isDeleted: resolveLibraryIsDeleted(
     localGame.isDeleted,
     remoteGame.source,
-    remoteGame.hasActiveSteamImport === true
+    remoteGame.hasActiveSteamImport === true || localGame.hasActiveSteamImport === true
   ),
   ...(canReconcileCustomArtwork
     ? {

@@ -21,3 +21,4 @@ export * from "./use-cover-poster";
 export * from "./use-processed-image";
 export * from "./use-social-counts";
 export * from "./use-trophy-summary";
+export * from "./use-epic-installs";

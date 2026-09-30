@@ -28,10 +28,16 @@ export const resolveLibraryIsDeleted = (
 ): boolean =>
   remoteSource === "steam" || hasActiveSteamImport ? false : localIsDeleted;
 
+const BALOI_LOCAL_STEAM_IMPORT = true;
+
 export const resolveMissingSteamImport = (
   game: { shop: string; hasActiveSteamImport?: boolean },
   existsRemotely: boolean
 ) => {
+  // Balói: Steam imports come from our own owned-games sync, not from the server's game list,
+  // so "not on the server" doesn't mean "left the Steam account" — that sync handles removals.
+  if (BALOI_LOCAL_STEAM_IMPORT) return null;
+
   if (
     game.shop !== "steam" ||
     game.hasActiveSteamImport !== true ||

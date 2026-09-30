@@ -1,0 +1,23 @@
+.settings-epic {
+  &__badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 18px;
+    padding: 0 5px;
+    border-radius: 5px;
+    background: #fff;
+    color: #111;
+    font-size: 9px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    line-height: 1;
+  }
+
+  &__description {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: rgba(233, 238, 247, 0.65);
+  }
+}

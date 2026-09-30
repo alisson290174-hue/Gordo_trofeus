@@ -108,6 +108,24 @@ function isFriend(viewerId: string, ownerId: string): boolean {
   return relation?.status === "ACCEPTED";
 }
 
+/**
+ * Profile privacy rule shared by every route that exposes a user's data (profile, library,
+ * achievements, friends): self, PUBLIC profiles, or FRIENDS profiles seen by an accepted friend.
+ */
+export function canViewUserData(
+  request: { headers: { authorization?: string } },
+  ownerId: string
+): boolean {
+  const owner = getUserById(ownerId);
+  if (!owner) return false;
+  const viewer = tryGetViewer(request);
+  if (viewer?.id === owner.id) return true;
+  if (owner.profile_visibility === "PUBLIC") return true;
+  return (
+    owner.profile_visibility === "FRIENDS" && Boolean(viewer) && isFriend(viewer!.id, owner.id)
+  );
+}
+
 export function registerPublicProfileRoutes(app: FastifyInstance) {
   app.get<{ Params: { id: string } }>("/users/:id", async (request, reply) => {
     const owner = getUserById(request.params.id);

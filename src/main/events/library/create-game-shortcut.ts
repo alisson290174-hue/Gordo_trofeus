@@ -5,7 +5,7 @@ import fs from "node:fs";
 import axios from "axios";
 import sharp from "sharp";
 import pngToIco from "png-to-ico";
-import { removeSymbolsFromName } from "@shared";
+import { removeSymbolsFromName, isLocalOnlyShop } from "@shared";
 import { GameShop, ShortcutLocation } from "@types";
 import { gamesSublevel, levelKeys } from "@main/level";
 import { SystemPath } from "@main/services/system-path";
@@ -232,7 +232,7 @@ const createGameShortcut = async (
 
   fs.mkdirSync(outputPath, { recursive: true });
 
-  const assets = shop === "custom" ? null : await getGameAssets(objectId, shop);
+  const assets = isLocalOnlyShop(shop) ? null : await getGameAssets(objectId, shop);
   const iconPath = await downloadIcon(shop, objectId, [
     game.customIconUrl,
     assets?.iconUrl,

@@ -30,6 +30,8 @@ import "./library/transfer-game-files";
 import "./library/generate-goldberg-achievements";
 import "./emulators";
 import "./retroarch";
+import "./epic";
+import "./steam-owned";
 
 ipcMain.handle("ping", () => "pong");
 ipcMain.handle("getVersion", () => appVersion);

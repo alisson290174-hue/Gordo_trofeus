@@ -1,7 +1,7 @@
 import type { ChildProcess } from "node:child_process";
 
 import { gamesSublevel, levelKeys } from "@main/level";
-import { EMULATOR_SYSTEMS } from "@shared";
+import { EMULATOR_SYSTEMS, isLocalOnlyShop } from "@shared";
 import type { EmulatorSystem, Game, GameShop, RetroArchPlatform } from "@types";
 
 import { trackGamePlaytime } from "../library-sync";
@@ -45,7 +45,7 @@ const PRESENCE_HEARTBEAT_INTERVAL_MS = 60_000;
 
 const sendPresencePing = async (gameKey: string): Promise<void> => {
   const game = await gamesSublevel.get(gameKey);
-  if (!game || game.shop === "custom") return;
+  if (!game || isLocalOnlyShop(game.shop)) return;
 
   await trackGamePlaytime(game, 0, new Date()).catch((error) => {
     logger.error("Failed to send emulator presence ping", error);
@@ -91,7 +91,7 @@ export const startEmulatorSession = async ({
 
   emulatorSessions.set(gameKey, session);
 
-  if (game.shop !== "custom") {
+  if (!isLocalOnlyShop(game.shop)) {
     void sendPresencePing(gameKey);
     session.heartbeat = setInterval(() => {
       void sendPresencePing(gameKey);
@@ -212,7 +212,7 @@ const finalizeEmulatorSession = async (gameKey: string): Promise<void> => {
 
   await gamesSublevel.put(gameKey, updated);
 
-  if (game.shop === "custom") return;
+  if (isLocalOnlyShop(game.shop)) return;
 
   const pendingDelta =
     deltaMs + (game.unsyncedDeltaPlayTimeInMilliseconds ?? 0);

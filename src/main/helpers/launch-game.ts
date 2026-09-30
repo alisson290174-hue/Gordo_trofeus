@@ -1,4 +1,6 @@
 import { shell } from "electron";
+import { launchEpicGame } from "@main/services/epic/epic-installer";
+import { launchThroughSteam } from "@main/services/steam-owned/steam-owned-library";
 import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
@@ -866,6 +868,24 @@ const hasLaunchableExecutable = (executablePath: string) => {
 };
 
 export const launchGame = async (options: LaunchGameOptions) => {
+  // Epic games start through Legendary, which handles Epic's online auth/DRM. The process
+  // watcher still tracks playtime through the game's executablePath.
+  if (options.shop === "epic") {
+    await launchEpicGame(options.objectId);
+    return null;
+  }
+
+  // Steam account games installed by the Steam client (no own executable): play via Steam.
+  if (options.shop === "steam" && !hasLaunchableExecutable(options.executablePath)) {
+    const record = await gamesSublevel
+      .get(levelKeys.game("steam", options.objectId))
+      .catch(() => null);
+    if (record?.hasActiveSteamImport && record.steamInstalled) {
+      await launchThroughSteam(options.objectId);
+      return null;
+    }
+  }
+
   if (!hasLaunchableExecutable(options.executablePath)) {
     logger.warn("Game executable not found", {
       shop: options.shop,

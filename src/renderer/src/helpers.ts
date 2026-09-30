@@ -399,6 +399,8 @@ const getMostPlayedDifference = (a: LibraryGame, b: LibraryGame): number =>
 
 export const isGameInstalled = (game: LibraryGame): boolean =>
   Boolean(game.executablePath) ||
+  // Owned on Steam and installed by the Steam client — plays through Steam.
+  (game.hasActiveSteamImport === true && game.steamInstalled === true) ||
   game.installedSizeInBytes != null ||
   (game.shop === "launchbox" && (game.discs?.length ?? 0) > 0);
 

@@ -1,4 +1,5 @@
 import { is } from "@electron-toolkit/utils";
+import { openExternalSafe } from "@main/helpers/open-external-safe";
 import { isStaging } from "@main/constants";
 import { db, gamesSublevel, levelKeys } from "@main/level";
 import icon from "@resources/icon.png?asset";
@@ -427,7 +428,7 @@ export class WindowManager {
     });
 
     mainWindow.webContents.setWindowOpenHandler((handler) => {
-      shell.openExternal(handler.url);
+      void openExternalSafe(handler.url);
       return { action: "deny" };
     });
   }

@@ -1,4 +1,5 @@
 import type { GameShop, GameStats } from "@types";
+import { isLocalOnlyShop } from "@shared";
 import { registerEvent } from "../register-event";
 import { HydraApi } from "@main/services";
 import { gamesStatsCacheSublevel, levelKeys } from "@main/level";
@@ -10,7 +11,7 @@ const getGameStats = async (
   objectId: string,
   shop: GameShop
 ) => {
-  if (shop === "custom") {
+  if (isLocalOnlyShop(shop)) {
     return null;
   }
 

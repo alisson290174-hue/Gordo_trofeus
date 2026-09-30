@@ -1,8 +1,8 @@
 import { shell } from "electron";
+import { readAuth } from "@main/services/auth-store";
 import { registerEvent } from "../register-event";
 import { HydraApi } from "@main/services";
-import { db, levelKeys } from "@main/level";
-import type { Auth, OpenCheckoutOptions } from "@types";
+import type { OpenCheckoutOptions } from "@types";
 
 const isAllowedPath = (path: string) =>
   path === "/" || path === "/gift" || /^\/gifts\/[A-Za-z0-9]{8}$/.test(path);
@@ -13,9 +13,7 @@ const openCheckout = async (
   _event: Electron.IpcMainInvokeEvent,
   options?: OpenCheckoutOptions
 ) => {
-  const auth = await db.get<string, Auth>(levelKeys.auth, {
-    valueEncoding: "json",
-  });
+  const auth = await readAuth();
 
   if (!auth) {
     return;

@@ -19,7 +19,7 @@ import {
   gamesShopCacheSublevel,
   levelKeys,
 } from "@main/level";
-import { composeAssetsWithArtwork } from "@shared";
+import { composeAssetsWithArtwork, isLocalOnlyShop } from "@shared";
 
 const applyArtworkToAssets = async (
   shop: GameShop,
@@ -227,7 +227,7 @@ const getGameShopDetails = async (
   shop: GameShop,
   language: string
 ): Promise<ShopDetailsWithAssets | null> => {
-  if (shop === "custom") return null;
+  if (isLocalOnlyShop(shop)) return null;
 
   if (shop === "launchbox") {
     const details = await getLaunchboxShopDetails(objectId, shop, language);

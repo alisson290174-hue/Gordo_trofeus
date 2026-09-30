@@ -12,7 +12,7 @@ import type {
   UserPreferences,
 } from "@types";
 import { achievementsLogger } from "../logger";
-import { Cracker } from "@shared";
+import { Cracker, isLocalOnlyShop } from "@shared";
 import { publishCombinedNewAchievementNotification } from "../notifications";
 import { db, gamesSublevel, levelKeys } from "@main/level";
 import { setTimeout } from "node:timers/promises";
@@ -224,7 +224,7 @@ export class AchievementWatcherManager {
     shop: GameShop,
     objectId: string
   ) {
-    if (shop === "custom") return;
+    if (isLocalOnlyShop(shop)) return;
 
     const gameKey = levelKeys.game(shop, objectId);
     if (this.alreadySyncedGames.get(gameKey)) return;

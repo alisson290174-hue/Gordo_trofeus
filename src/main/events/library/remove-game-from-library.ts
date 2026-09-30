@@ -1,4 +1,5 @@
 import { registerEvent } from "../register-event";
+import { isLocalOnlyShop } from "@shared";
 import { HydraApi, logger } from "@main/services";
 import {
   gamesSublevel,
@@ -14,7 +15,7 @@ const collectAssetPathsToDelete = (game: Game): string[] => {
   const assetPathsToDelete: string[] = [];
 
   const assetUrls =
-    game.shop === "custom"
+    isLocalOnlyShop(game.shop)
       ? [
           game.iconUrl,
           game.logoImageUrl,
@@ -44,7 +45,7 @@ const updateGameAsDeleted = async (
   const updatedGame = {
     ...updateGameExecutablePath(game, null),
     isDeleted: true,
-    ...(game.shop !== "custom" && {
+    ...(!isLocalOnlyShop(game.shop) && {
       customIconUrl: null,
       customLogoImageUrl: null,
       customHeroImageUrl: null,
@@ -96,7 +97,7 @@ const removeGameFromLibrary = async (
 
   await updateGameAsDeleted(game, gameKey);
 
-  if (game.shop !== "custom") {
+  if (!isLocalOnlyShop(game.shop)) {
     await resetShopAssets(gameKey);
   }
 

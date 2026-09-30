@@ -4,7 +4,7 @@ import { Icon } from "@renderer/components/icon/icon";
 import { SteamIcon } from "@renderer/components/steam-library-badge/steam-library-badge";
 import "./category-filter.scss";
 
-import type { LibraryCategory } from "./library-category";
+import { LIBRARY_PAGE_CATEGORIES, type LibraryCategory } from "./library-category";
 export type { LibraryCategory } from "./library-category";
 
 export function ClassicsIcon({
@@ -63,28 +63,19 @@ export function CategoryFilter({
 }: Readonly<CategoryFilterProps>) {
   const { t } = useTranslation("library");
 
-  const options: {
-    value: LibraryCategory;
-    label: string;
-    icon: JSX.Element;
-  }[] = [
-    { value: "all", label: t("category_all"), icon: <Icon name="stack" size={14} /> },
-    {
-      value: "pc",
-      label: t("category_pc"),
-      icon: <Icon name="device-desktop" size={14} />,
-    },
-    {
-      value: "steam_library",
-      label: t("category_steam_library"),
-      icon: <SteamIcon size={14} />,
-    },
-    {
-      value: "classics",
-      label: t("category_classics"),
-      icon: <ClassicsIcon size={16} />,
-    },
-  ];
+  const icons: Partial<Record<LibraryCategory, JSX.Element>> = {
+    all: <Icon name="stack" size={14} />,
+    steam: <SteamIcon size={14} />,
+    epic: <span className="library-category-filter__epic">E</span>,
+    torrent: <Icon name="download" size={14} />,
+    classics: <ClassicsIcon size={16} />,
+  };
+
+  const options = LIBRARY_PAGE_CATEGORIES.map((value) => ({
+    value,
+    label: t(`category_${value}`),
+    icon: icons[value] ?? null,
+  }));
 
   return (
     <div className="library-category-filter__container">

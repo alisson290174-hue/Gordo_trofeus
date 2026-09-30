@@ -197,6 +197,16 @@ interface PendingManifest {
   customPathRawPaths: string[];
 }
 
+const MAX_SNAPSHOT_BYTES = 2 * 1024 ** 3;
+const MAX_USER_BYTES = 10 * 1024 ** 3;
+// Bytes of the user's committed saves for every other game (this game's save gets replaced).
+const selectUserUsageExcludingGame = db.prepare(
+  `SELECT SUM(f.size_bytes) AS used
+     FROM cloud_snapshot_files f
+     JOIN cloud_snapshots s ON s.id = f.snapshot_id
+    WHERE s.user_id = ? AND NOT (s.shop = ? AND s.object_id = ?)`
+);
+
 export function registerCloudSaveRoutes(app: FastifyInstance) {
   // 1. Prepare: the client proposes a manifest; we hand back per-file upload URLs (or "skip"
   //    when we already hold that blob) plus a pending id it commits with.
@@ -228,6 +238,18 @@ export function registerCloudSaveRoutes(app: FastifyInstance) {
         : [];
     } catch {
       return reply.code(400).send({ message: "Invalid snapshot manifest" });
+    }
+
+    // Storage limits (audit 2026-09-30): one save ≤ 2 GB, all of a user's saves ≤ 10 GB.
+    const snapshotBytes = files.reduce((sum, file) => sum + (file.sizeBytes || 0), 0);
+    if (snapshotBytes > MAX_SNAPSHOT_BYTES) {
+      return reply.code(413).send({ message: "Save too large for cloud sync (max 2 GB)" });
+    }
+    const { used } = selectUserUsageExcludingGame.get(user.id, body.shop, body.objectId) as {
+      used: number | null;
+    };
+    if ((used ?? 0) + snapshotBytes > MAX_USER_BYTES) {
+      return reply.code(413).send({ message: "Cloud save storage full (max 10 GB per user)" });
     }
 
     const pendingSnapshotId = crypto.randomUUID();

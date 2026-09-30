@@ -1,3 +1,4 @@
+import { isLocalOnlyShop, sanitizeRichHtml } from "@shared";
 import { lazy, Suspense, useContext, useEffect, useState } from "react";
 import { getGenreNames } from "@renderer/helpers/ps5-game";
 import type {
@@ -349,7 +350,7 @@ export function Sidebar() {
 
       <ControllerSupportSection />
 
-      {shop !== "launchbox" && (
+      {shop !== "launchbox" && !isLocalOnlyShop(shop) && (
         <SidebarSection title={t("requirements")}>
           <div className="requirement__button-container">
             <Button
@@ -374,11 +375,12 @@ export function Sidebar() {
           <div
             className="requirement__details"
             dangerouslySetInnerHTML={{
-              __html:
+              __html: sanitizeRichHtml(
                 shopDetails?.pc_requirements?.[activeRequirement] ??
                 t(`no_${activeRequirement}_requirements`, {
                   gameTitle,
-                }),
+                })
+              ),
             }}
           />
         </SidebarSection>

@@ -1,4 +1,5 @@
 import path from "node:path";
+import { isLocalOnlyShop } from "@shared";
 import fs from "node:fs";
 import { t } from "i18next";
 import { chunk } from "lodash-es";
@@ -950,7 +951,7 @@ const runScan = async (
     .then((results) =>
       results
         .filter(
-          ([_key, game]) => game.isDeleted === false && game.shop !== "custom"
+          ([_key, game]) => game.isDeleted === false && !isLocalOnlyShop(game.shop)
         )
         .map(([key, game]) => ({ key, game }))
     );

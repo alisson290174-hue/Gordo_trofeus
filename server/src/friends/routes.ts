@@ -1,4 +1,5 @@
 import type { FastifyInstance } from "fastify";
+import { canViewUserData } from "../profile/public-routes.js";
 import { db } from "../db.js";
 import { requireAuth } from "../auth/require-auth.js";
 import { getUserById, type UserRow } from "../users.js";
@@ -170,8 +171,12 @@ export function registerFriendRoutes(app: FastifyInstance) {
     "/users/:id/friends",
     async (request, reply) => {
       const targetId = request.params.id;
-      const take = Number(request.query.take ?? 50);
-      const skip = Number(request.query.skip ?? 0);
+      // A user's friend list follows the same privacy rule as the rest of the profile.
+      if (!canViewUserData(request, targetId)) {
+        return reply.code(403).send({ message: "This profile is private" });
+      }
+      const take = Math.min(Math.max(Number(request.query.take ?? 50) || 50, 1), 100);
+      const skip = Math.max(Number(request.query.skip ?? 0) || 0, 0);
 
       const rows = acceptedForUserStatement.all(
         targetId,

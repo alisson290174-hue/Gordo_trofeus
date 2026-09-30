@@ -1,4 +1,5 @@
 import { chunk } from "lodash-es";
+import { isLocalOnlyShop } from "@shared";
 import { HydraApi } from "../hydra-api";
 import { mergeWithRemoteGames } from "./merge-with-remote-games";
 import { WindowManager } from "../window-manager";
@@ -12,7 +13,7 @@ export const uploadGamesBatch = async () => {
     .then((results) => {
       return results.filter(
         (game) =>
-          !game.isDeleted && game.remoteId === null && game.shop !== "custom"
+          !game.isDeleted && game.remoteId === null && !isLocalOnlyShop(game.shop)
       );
     });
 

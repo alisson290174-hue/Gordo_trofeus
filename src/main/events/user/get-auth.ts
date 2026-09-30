@@ -1,11 +1,12 @@
-import { db, levelKeys } from "@main/level";
-import type { Auth } from "@types";
-
 import { registerEvent } from "../register-event";
+import { readAuth } from "@main/services/auth-store";
 
-const getAuth = async (_event: Electron.IpcMainInvokeEvent) =>
-  db.get<string, Auth>(levelKeys.auth, {
-    valueEncoding: "json",
-  });
+// The renderer never gets the tokens themselves — only whether a session exists and until when.
+const getAuth = async (_event: Electron.IpcMainInvokeEvent) => {
+  const auth = await readAuth();
+  return auth
+    ? { isLoggedIn: true, tokenExpirationTimestamp: auth.tokenExpirationTimestamp }
+    : null;
+};
 
 registerEvent("getAuth", getAuth);

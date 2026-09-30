@@ -37,6 +37,9 @@ import { startSteamSyncOnStartup } from "./services/steam-integration/steam-star
 import { backfillMissingGameMetadata } from "./helpers/backfill-game-metadata";
 import { backfillPs2Covers } from "./helpers/backfill-ps2-covers";
 import { backfillPs2Metadata } from "./helpers/backfill-ps2-metadata";
+import { getEpicStatus } from "./services/epic/epic-account";
+import { syncEpicLibrary } from "./services/epic/epic-library";
+import { syncSteamOwnedLibrary } from "./services/steam-owned/steam-owned-library";
 
 const hasMissingSeedFiles = async (download: Download): Promise<boolean> => {
   if (!download.folderName) return false;
@@ -122,6 +125,14 @@ export const loadState = async () => {
     // Then real titles, fanart and logos from the server's PS2 index (after covers so it can
     // replace the box art that stands in as background).
     void backfillPs2Covers().then(() => backfillPs2Metadata());
+    // Epic account (if connected): refresh owned games and installed state. Local only.
+    void getEpicStatus()
+      .then((status) => (status.connected ? syncEpicLibrary() : 0))
+      .catch((error) => logger.error("[epic] boot sync failed", error));
+    // Steam account games (list from our server, installed state from Steam's files).
+    void syncSteamOwnedLibrary().catch((error) =>
+      logger.warn("[steam-owned] boot sync skipped", error?.message ?? error)
+    );
 
     const { syncDownloadSourcesFromApi } = await import("./services/user");
     void syncDownloadSourcesFromApi();

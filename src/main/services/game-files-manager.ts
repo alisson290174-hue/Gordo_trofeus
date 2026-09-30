@@ -9,6 +9,7 @@ import {
   Downloader,
   FILE_EXTENSIONS_TO_EXTRACT,
   removeSymbolsFromName,
+  isLocalOnlyShop,
 } from "@shared";
 import type {
   ClassicsDisc,
@@ -527,7 +528,7 @@ export class GameFilesManager {
   }
 
   private async downloadGameIcon(): Promise<string | null> {
-    if (this.shop === "custom") {
+    if (isLocalOnlyShop(this.shop)) {
       return null;
     }
 

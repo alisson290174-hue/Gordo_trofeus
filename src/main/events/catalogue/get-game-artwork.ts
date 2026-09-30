@@ -1,6 +1,6 @@
 import { registerEvent } from "../register-event";
 import { fetchGameArtwork, logger } from "@main/services";
-import { UserNotLoggedInError } from "@shared";
+import { UserNotLoggedInError, isLocalOnlyShop } from "@shared";
 import type { ArtworkKind, ArtworkPage, GameShop } from "@types";
 
 const getGameArtwork = async (
@@ -10,7 +10,7 @@ const getGameArtwork = async (
   kind: ArtworkKind,
   page = 0
 ): Promise<ArtworkPage | null> => {
-  if (shop === "custom") return null;
+  if (isLocalOnlyShop(shop)) return null;
 
   try {
     return await fetchGameArtwork(shop, objectId, kind, page);

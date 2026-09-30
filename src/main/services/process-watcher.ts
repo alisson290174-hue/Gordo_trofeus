@@ -1,4 +1,5 @@
 import { WindowManager } from "./window-manager";
+import { isLocalOnlyShop } from "@shared";
 import { updateGameExecutablePath } from "@main/helpers/update-executable-path";
 import { createGame, trackGamePlaytime } from "./library-sync";
 import type { Game, UserPreferences } from "@types";
@@ -397,8 +398,10 @@ async function onOpenGame(game: Game, matchedPath: string) {
             { signal }
           );
         } catch (error) {
+          // Balói's server doesn't track Steam imports (the owned-games sync does), so a 404
+          // means "unknown here", not "left the account": keep the local flag.
           if (axios.isAxiosError(error) && error.response?.status === 404) {
-            return { hasActiveSteamImport: false };
+            return { hasActiveSteamImport: game.hasActiveSteamImport === true };
           }
           throw error;
         }
@@ -450,7 +453,7 @@ async function onOpenGame(game: Game, matchedPath: string) {
     })
     .catch(() => {});
 
-  if (game.shop === "custom") return;
+  if (isLocalOnlyShop(game.shop)) return;
 
   AchievementWatcherManager.syncGameAchievementFiles(game.shop, game.objectId);
 
@@ -532,7 +535,7 @@ function onTickGame(game: Game) {
     lastTick: now,
   });
 
-  if (currentTick % TICKS_TO_UPDATE_API === 0 && game.shop !== "custom") {
+  if (currentTick % TICKS_TO_UPDATE_API === 0 && !isLocalOnlyShop(game.shop)) {
     logPlaytimeTrace("periodic-sync-request", game, {
       method: game.remoteId ? "track" : "create",
       deltaToSync,
@@ -622,7 +625,7 @@ const onCloseGame = (game: Game) => {
 
   void persistGamePlaytime(gameKey, updatedGame);
 
-  if (game.shop === "custom") return;
+  if (isLocalOnlyShop(game.shop)) return;
 
   void runAutomaticCloudSaveOnClose(game).catch((error: unknown) => {
     handleAutomaticCloudSaveLifecycleError("close", game, error);

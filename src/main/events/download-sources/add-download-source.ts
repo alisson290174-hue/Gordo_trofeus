@@ -21,7 +21,7 @@ const addDownloadSource = async (
       {
         url,
       },
-      { needsAuth: false }
+      { needsAuth: true }
     );
 
     if (HydraApi.isLoggedIn() && HydraApi.hasActiveSubscription()) {

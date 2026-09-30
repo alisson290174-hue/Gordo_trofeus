@@ -1,4 +1,5 @@
 import type { Game } from "@types";
+import { isLocalOnlyShop } from "@shared";
 import { HydraApi } from "../hydra-api";
 
 export const trackGamePlaytime = async (
@@ -6,7 +7,7 @@ export const trackGamePlaytime = async (
   deltaInMillis: number,
   lastTimePlayed: Date
 ) => {
-  if (game.shop === "custom") {
+  if (isLocalOnlyShop(game.shop)) {
     return;
   }
 

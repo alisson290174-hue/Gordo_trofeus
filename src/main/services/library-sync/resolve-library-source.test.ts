@@ -48,13 +48,15 @@ describe("resolveLibraryIsDeleted", () => {
 });
 
 describe("resolveMissingSteamImport", () => {
-  it("hides an imported Steam game missing from a successful remote merge", () => {
-    assert.deepEqual(
+  // Balói: Steam imports come from our own owned-games sync, so a game missing from the server's
+  // list is kept; the owned-games sync is what removes games that left the account.
+  it("keeps an imported Steam game even when the server doesn't list it", () => {
+    assert.equal(
       resolveMissingSteamImport(
         { shop: "steam", hasActiveSteamImport: true },
         false
       ),
-      { hasActiveSteamImport: false, isDeleted: true }
+      null
     );
   });
 

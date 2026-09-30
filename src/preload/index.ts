@@ -1,6 +1,7 @@
 // See the Electron documentation for details on how to use preload scripts:
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
 import { contextBridge, ipcRenderer } from "electron";
+import type { EpicInstallState } from "@types";
 import { randomUUID } from "node:crypto";
 
 import type {
@@ -1633,6 +1634,29 @@ contextBridge.exposeInMainWorld("electron", {
       "resetRetroAchievementsAchievements",
       pendingSouvenirsOnly
     ),
+  /* Steam account games (via our server) */
+  syncSteamOwnedLibrary: () => ipcRenderer.invoke("syncSteamOwnedLibrary"),
+  installThroughSteam: (appId: string) =>
+    ipcRenderer.invoke("installThroughSteam", appId),
+  /* Epic Games (Legendary) */
+  getEpicStatus: () => ipcRenderer.invoke("getEpicStatus"),
+  loginToEpic: () => ipcRenderer.invoke("loginToEpic"),
+  logoutFromEpic: () => ipcRenderer.invoke("logoutFromEpic"),
+  listEpicGames: () => ipcRenderer.invoke("listEpicGames"),
+  syncEpicLibrary: () => ipcRenderer.invoke("syncEpicLibrary"),
+  getEpicInstalls: () => ipcRenderer.invoke("getEpicInstalls"),
+  installEpicGame: (appName: string, title: string) =>
+    ipcRenderer.invoke("installEpicGame", appName, title),
+  cancelEpicInstall: (appName: string) =>
+    ipcRenderer.invoke("cancelEpicInstall", appName),
+  uninstallEpicGame: (appName: string) =>
+    ipcRenderer.invoke("uninstallEpicGame", appName),
+  onEpicInstallProgress: (cb: (state: EpicInstallState) => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, state: EpicInstallState) =>
+      cb(state);
+    ipcRenderer.on("on-epic-install-progress", listener);
+    return () => ipcRenderer.removeListener("on-epic-install-progress", listener);
+  },
   openRetroAchievementsConnectionWindow: () =>
     ipcRenderer.invoke("openRetroAchievementsConnectionWindow"),
   minimizeRetroAchievementsConnectionWindow: () =>

@@ -104,6 +104,7 @@ export type UserGame = {
   achievementsPointsEarnedSum: number;
   hasManuallyUpdatedPlaytime: boolean;
   hasActiveSteamImport?: boolean;
+  steamInstalled?: boolean;
   isFavorite: boolean;
   isPinned: boolean;
   pinnedDate?: Date | null;
@@ -726,3 +727,32 @@ export * from "./souvenir.types";
 export type ExtractionFailure =
   | { reason: "unsupported-format"; format: string }
   | { reason: "file-not-found" };
+
+/** Epic Games account connected through Legendary (session stays on this PC only). */
+export interface EpicStatus {
+  connected: boolean;
+  displayName: string | null;
+  gamesAvailable: number | null;
+  gamesInstalled: number | null;
+}
+
+export interface EpicGame {
+  appName: string;
+  title: string;
+  installed: boolean;
+  coverUrl: string | null;
+  wideUrl: string | null;
+  isDlc: boolean;
+}
+
+export interface EpicInstallState {
+  appName: string;
+  title: string;
+  status: "preparing" | "downloading" | "verifying" | "done" | "error" | "cancelled";
+  percent: number;
+  downloadedBytes: number;
+  totalBytes: number | null;
+  speedBytes: number;
+  etaSeconds: number | null;
+  error: string | null;
+}
