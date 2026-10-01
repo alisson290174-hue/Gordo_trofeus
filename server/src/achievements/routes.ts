@@ -63,14 +63,20 @@ function applyAchievementUnlocks(
     listUserAchievementsStatement.all(profileGame.id) as unknown as UserAchievementRow[]
   ).length;
 
+  // Clients upper-case names ("ACHIEVEMENT_1") while Steam's catalogue keeps its own casing
+  // ("Achievement_1"); everything that reads unlocks matches the catalogue name exactly, so store
+  // the catalogue's spelling.
+  const catalogueNameByUpper = new Map([...catalogue.keys()].map((name) => [name.toUpperCase(), name]));
+
   for (const achievement of achievements) {
-    const existing = getUserAchievementStatement.get(profileGame.id, achievement.name) as
+    const name = catalogueNameByUpper.get(achievement.name.toUpperCase()) ?? achievement.name;
+    const existing = getUserAchievementStatement.get(profileGame.id, name) as
       | UserAchievementRow
       | undefined;
 
     upsertUserAchievementStatement.run({
       profileGameId: profileGame.id,
-      name: achievement.name,
+      name,
       unlockTime: achievement.unlockTime,
       hardcoreUnlockTime: achievement.hardcoreUnlockTime ?? null,
       source,

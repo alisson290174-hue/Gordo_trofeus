@@ -67,6 +67,8 @@ export interface Game {
   hasActiveSteamImport?: boolean;
   /** Owned on Steam and installed by the Steam client (appmanifest found); plays via steam://. */
   steamInstalled?: boolean;
+  /** Steam's "last played" whose Steam achievements already reached the profile (skip until it changes). */
+  steamAchievementsCheckedFor?: number;
   enableHydraPlaytimeTracking?: boolean;
   unsyncedDeltaPlayTimeInMilliseconds?: number;
   lastTimePlayed: Date | null;

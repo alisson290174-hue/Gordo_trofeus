@@ -50,6 +50,7 @@ import "./toggle-game-pin";
 import "./update-custom-game";
 import "./update-executable-path";
 import "./update-game-custom-assets";
+import "./find-game-artwork";
 import "./get-game-artwork-selection";
 import "./set-game-artwork-selection";
 import "./update-launch-options";

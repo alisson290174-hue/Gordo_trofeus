@@ -18,6 +18,7 @@ import { cleanupStaleCloudSaves } from "./cloud-saves/cleanup.js";
 import { registerRetroAchievementsRoutes } from "./integrations/retroachievements-routes.js";
 import { registerMiscRoutes } from "./misc-routes.js";
 import { registerPs2Routes } from "./catalogue/ps2-routes.js";
+import { registerArtworkLookupRoutes } from "./catalogue/artwork-lookup-routes.js";
 import { scheduleDailyBackup } from "./backup.js";
 import { registerSteamOwnedRoutes } from "./profile/steam-owned-routes.js";
 import {
@@ -88,6 +89,7 @@ registerCloudSaveRoutes(app);
 registerRetroAchievementsRoutes(app);
 registerMiscRoutes(app);
 registerPs2Routes(app);
+registerArtworkLookupRoutes(app);
 registerSteamOwnedRoutes(app);
 scheduleDailyBackup();
 

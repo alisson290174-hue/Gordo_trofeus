@@ -350,6 +350,15 @@ declare global {
       deletedCount: number;
       errors: string[];
     }>;
+    findGameArtwork: (
+      shop: GameShop,
+      objectId: string
+    ) => Promise<
+      | { status: "applied"; matchedTitle: string; applied: ("cover" | "hero" | "logo" | "icon")[] }
+      | { status: "complete"; matchedTitle: string }
+      | { status: "not-found" }
+      | { status: "unsupported" }
+    >;
     updateGameCustomAssets: (params: {
       shop: GameShop;
       objectId: string;

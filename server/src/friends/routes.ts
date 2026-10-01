@@ -2,7 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { canViewUserData } from "../profile/public-routes.js";
 import { db } from "../db.js";
 import { requireAuth } from "../auth/require-auth.js";
-import { getUserById, type UserRow } from "../users.js";
+import { getUserById, getUserBySteamId, type UserRow } from "../users.js";
 
 interface RelationRow {
   a_id: string;
@@ -89,11 +89,19 @@ export function registerFriendRoutes(app: FastifyInstance) {
       const user = requireAuth(request, reply);
       if (!user) return;
 
-      const friendCode = request.body?.data?.friendCode;
-      if (!friendCode || friendCode === user.id) {
+      // The friend code is the account id, but a 17-digit Steam ID is accepted too — it's what
+      // people usually have at hand. Either way the friend must have signed in once already.
+      const rawCode = request.body?.data?.friendCode?.trim();
+      const target = rawCode
+        ? /^\d{17}$/.test(rawCode)
+          ? getUserBySteamId(rawCode)
+          : getUserById(rawCode)
+        : undefined;
+      if (!rawCode || target?.id === user.id) {
         return reply.code(400).send({ message: "Invalid friend code" });
       }
-      if (!getUserById(friendCode)) return reply.code(404).send({ message: "User not found" });
+      if (!target) return reply.code(404).send({ message: "User not found" });
+      const friendCode = target.id;
 
       const existing = getRelationBetweenStatement.get(
         user.id,

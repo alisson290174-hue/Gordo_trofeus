@@ -5,6 +5,7 @@ import { HydraApi } from "../hydra-api";
 import { logger } from "../logger";
 import { WindowManager } from "../window-manager";
 import { getSteamAppInstallDirectories } from "../steam-integration/steam-installation";
+import { syncSteamOwnedAchievements } from "./steam-owned-achievements";
 
 /**
  * Steam account games in the Balói library. The list comes from our server (Steam ID from the
@@ -75,12 +76,26 @@ export function syncSteamOwnedLibrary(): Promise<SteamOwnedSyncResult> {
 
     logger.info(`[steam-owned] synced ${games.length} game(s), ${installDirs.size} installed via Steam`);
     WindowManager.sendToAppWindows("on-library-batch-complete");
+    // Trophies for the games played on Steam — in the background, the library is ready already.
+    void syncSteamOwnedAchievements(games).catch((error) =>
+      logger.warn("[steam-achievements] sync skipped", error?.message ?? error)
+    );
     return { visible: true, total: games.length, installed: installDirs.size };
   })().finally(() => {
     syncing = null;
   });
 
   return syncing;
+}
+
+/**
+ * Periodic check while the app is open: picks up achievements from games just played on Steam
+ * (only games whose "last played" changed are asked again; the server caches the list 10 min).
+ */
+export async function refreshSteamOwnedAchievements() {
+  const data = await HydraApi.get<OwnedGamesResponse>("/profile/steam/owned-games");
+  if (!data.visible) return 0;
+  return syncSteamOwnedAchievements(data.games.filter((game) => isAppId(game.appId)));
 }
 
 /** Opens Steam's own install dialog for the game. */

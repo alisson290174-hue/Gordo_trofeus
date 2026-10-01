@@ -39,7 +39,10 @@ import { backfillPs2Covers } from "./helpers/backfill-ps2-covers";
 import { backfillPs2Metadata } from "./helpers/backfill-ps2-metadata";
 import { getEpicStatus } from "./services/epic/epic-account";
 import { syncEpicLibrary } from "./services/epic/epic-library";
-import { syncSteamOwnedLibrary } from "./services/steam-owned/steam-owned-library";
+import {
+  refreshSteamOwnedAchievements,
+  syncSteamOwnedLibrary,
+} from "./services/steam-owned/steam-owned-library";
 
 const hasMissingSeedFiles = async (download: Download): Promise<boolean> => {
   if (!download.folderName) return false;
@@ -132,6 +135,14 @@ export const loadState = async () => {
     // Steam account games (list from our server, installed state from Steam's files).
     void syncSteamOwnedLibrary().catch((error) =>
       logger.warn("[steam-owned] boot sync skipped", error?.message ?? error)
+    );
+    // Trophies from games played on Steam while the app is open.
+    setInterval(
+      () =>
+        void refreshSteamOwnedAchievements().catch((error) =>
+          logger.warn("[steam-achievements] refresh skipped", error?.message ?? error)
+        ),
+      30 * 60 * 1000
     );
 
     const { syncDownloadSourcesFromApi } = await import("./services/user");

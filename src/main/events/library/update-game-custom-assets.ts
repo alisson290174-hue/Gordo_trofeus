@@ -165,7 +165,7 @@ const updateArtworkSelections = async (
   }
 };
 
-interface UpdateGameCustomAssetsParams {
+export interface UpdateGameCustomAssetsParams {
   shop: GameShop;
   objectId: string;
   title: string;
@@ -201,10 +201,8 @@ const syncCustomAssetsToCloud = (
   }
 };
 
-const updateGameCustomAssets = async (
-  _event: Electron.IpcMainInvokeEvent,
-  params: UpdateGameCustomAssetsParams
-) => {
+/** Same path as the "Customize" screen — also used by "Find cover and info". */
+export const applyGameCustomAssets = async (params: UpdateGameCustomAssetsParams) => {
   const {
     shop,
     objectId,
@@ -259,5 +257,10 @@ const updateGameCustomAssets = async (
 
   return updatedGame;
 };
+
+const updateGameCustomAssets = async (
+  _event: Electron.IpcMainInvokeEvent,
+  params: UpdateGameCustomAssetsParams
+) => applyGameCustomAssets(params);
 
 registerEvent("updateGameCustomAssets", updateGameCustomAssets);

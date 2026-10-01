@@ -255,6 +255,36 @@ try {
   throw error;
 }
 
+// Unlocks saved with a different letter case than the catalogue ("ACHIEVEMENT_1" vs
+// "Achievement_1") never matched and didn't count. Rename them to the catalogue spelling; OR IGNORE
+// leaves a row alone when the right spelling is already there. Idempotent — a no-op once fixed.
+db.exec(`
+  UPDATE OR IGNORE user_achievements
+  SET achievement_name = (
+    SELECT ac.name FROM achievement_catalogue ac
+    JOIN profile_games pg ON pg.id = user_achievements.profile_game_id
+    WHERE ac.shop = pg.shop AND ac.object_id = pg.object_id
+      AND UPPER(ac.name) = UPPER(user_achievements.achievement_name)
+    LIMIT 1
+  )
+  WHERE EXISTS (
+    SELECT 1 FROM achievement_catalogue ac
+    JOIN profile_games pg ON pg.id = user_achievements.profile_game_id
+    WHERE ac.shop = pg.shop AND ac.object_id = pg.object_id
+      AND UPPER(ac.name) = UPPER(user_achievements.achievement_name)
+      AND ac.name <> user_achievements.achievement_name
+  );
+  -- What's left with the wrong spelling is a duplicate of a row that already has the right one.
+  DELETE FROM user_achievements
+  WHERE EXISTS (
+    SELECT 1 FROM achievement_catalogue ac
+    JOIN profile_games pg ON pg.id = user_achievements.profile_game_id
+    WHERE ac.shop = pg.shop AND ac.object_id = pg.object_id
+      AND UPPER(ac.name) = UPPER(user_achievements.achievement_name)
+      AND ac.name <> user_achievements.achievement_name
+  );
+`);
+
 // Indexes for the queries that actually run (audit 2026-09-30: the DB had none besides PKs).
 // IF NOT EXISTS keeps boot idempotent; each one is created once, in the background of startup.
 db.exec(`

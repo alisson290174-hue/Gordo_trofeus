@@ -135,6 +135,22 @@ export function GameContextMenu({
     }
   };
 
+  const handleFindArtwork = async () => {
+    showSuccessToast(t("find_artwork_searching"));
+    try {
+      const result = await window.electron.findGameArtwork(game.shop, game.objectId);
+      if (result.status === "applied") {
+        showSuccessToast(t("find_artwork_applied", { title: result.matchedTitle }));
+      } else if (result.status === "complete") {
+        showSuccessToast(t("find_artwork_complete"));
+      } else {
+        showErrorToast(t("find_artwork_not_found"));
+      }
+    } catch {
+      showErrorToast(t("find_artwork_not_found"));
+    }
+  };
+
   const handleToggleFavoriteStatus = async () => {
     if (isFavoritePending || pendingCollectionId) return;
 
@@ -341,6 +357,17 @@ export function GameContextMenu({
           onClick: () => handleOpenGameOptions("assets"),
           disabled: isDeleting,
         },
+        ...(game.shop !== "launchbox"
+          ? [
+              {
+                id: "find-artwork",
+                label: t("find_artwork"),
+                icon: <Icon name="search" size={16} />,
+                onClick: () => void handleFindArtwork(),
+                disabled: isDeleting,
+              },
+            ]
+          : []),
         ...(game.executablePath
           ? [
               {

@@ -928,6 +928,8 @@ contextBridge.exposeInMainWorld("electron", {
     originalHeroPath?: string;
     customOriginalCoverPath?: string;
   }) => ipcRenderer.invoke("updateCustomGame", params),
+  findGameArtwork: (shop: GameShop, objectId: string) =>
+    ipcRenderer.invoke("findGameArtwork", shop, objectId),
   updateGameCustomAssets: (params: {
     shop: GameShop;
     objectId: string;
