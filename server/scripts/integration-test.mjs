@@ -119,6 +119,27 @@ check("long /cloud-blobs token reaches the handler", blob.statusCode !== 404 || 
 check("updates without login → 401", (await req("GET", "/updates/latest.yml")).statusCode === 401);
 check("updates traversal → 400", (await req("GET", "/updates/..%2F..%2F.env", { token: A })).statusCode === 400);
 
+// --- RetroAchievements (PS2 disc hash → RA game), no network: list + catalogue pre-seeded
+const raHash = "30c52b2ae3f3654890a1c850b9b84333";
+const raBody = { shop: "launchbox", objectId: "rom-sku-SLUS21004", hash: raHash };
+check("RA resolve without RA account → 409", (await req("POST", "/profile/retroachievements/resolve", { token: A, json: raBody })).statusCode === 409);
+check("RA resolve rejects bad hash → 400", (await req("POST", "/profile/retroachievements/resolve", { token: A, json: { ...raBody, hash: "x" } })).statusCode === 400);
+check("RA resolve rejects other shops → 400", (await req("POST", "/profile/retroachievements/resolve", { token: A, json: { ...raBody, shop: "steam" } })).statusCode === 400);
+check("RA resolve requires login → 401", (await req("POST", "/profile/retroachievements/resolve", { json: raBody })).statusCode === 401);
+const seededAt = new Date().toISOString();
+db.prepare("INSERT OR REPLACE INTO retroachievements_integrations (user_id, username, web_api_key, ra_user_id, connected_at) VALUES (?,?,?,?,?)").run(alice.id, "alice", "fake-key", null, seededAt);
+db.prepare("INSERT OR REPLACE INTO ra_hash_lists (console_id, fetched_at) VALUES (21, ?)").run(seededAt);
+db.prepare("INSERT OR REPLACE INTO ra_game_hashes (hash, ra_game_id, title, console_id) VALUES (?, 2801, 'Def Jam: Fight for NY', 21)").run(raHash);
+db.prepare("INSERT OR REPLACE INTO achievement_catalogue (shop, object_id, name, display_name, description, icon, icongray, hidden, points, retroachievements_game_id, cached_at, lang) VALUES ('launchbox','rom-sku-SLUS21004','12345','First Blood','Win a fight','','',0,5,2801,?,'english')").run(seededAt);
+const unknownHash = await req("POST", "/profile/retroachievements/resolve", { token: A, json: { ...raBody, hash: "0".repeat(32) } });
+check("RA unknown hash → no mapping", unknownHash.statusCode === 200 && unknownHash.json().retroAchievementsGameId === null, unknownHash.body);
+const resolved = await req("POST", "/profile/retroachievements/resolve", { token: A, json: raBody });
+check("RA known hash → game 2801", resolved.statusCode === 200 && resolved.json().retroAchievementsGameId === 2801, resolved.body);
+const linked = await req("GET", "/games/launchbox/rom-sku-SLUS21004");
+check("game lookup returns the RA id", linked.json().retroAchievementsGameId === 2801, linked.body.slice(0, 200));
+const raCatalogue = await req("GET", "/games/launchbox/rom-sku-SLUS21004/achievements");
+check("RA trophies listed in the catalogue", raCatalogue.json()[0]?.displayName === "First Blood", raCatalogue.body.slice(0, 200));
+
 // --- privacy
 db.prepare("UPDATE users SET profile_visibility = 'PRIVATE' WHERE id = ?").run(bob.id);
 const stranger = upsertUserFromSteamLogin("76561198000000033", "Carol", null);

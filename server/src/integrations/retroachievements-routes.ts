@@ -1,6 +1,11 @@
 import type { FastifyInstance } from "fastify";
 import { db } from "../db.js";
 import { requireAuth } from "../auth/require-auth.js";
+import { createLimiter } from "../rate-limit.js";
+import { RaNotConnectedError, resolveRaGameByHash } from "./retroachievements-games.js";
+
+// Each resolve may call RetroAchievements with the user's key; a library scan stays well below this.
+const resolveBudget = createLimiter(300, 10 * 60_000);
 
 /**
  * RetroAchievements account integration. The client's connect modal was failing because these
@@ -116,6 +121,44 @@ export function registerRetroAchievementsRoutes(app: FastifyInstance) {
       retroAchievementsAccountStatus: "active",
     });
   });
+
+  // Links a library game to its RetroAchievements game from the disc hash the app computed
+  // (same algorithm as PCSX2). Only hashes on RA's official list ever create a link.
+  app.post<{ Body: { shop?: string; objectId?: string; hash?: string } }>(
+    "/profile/retroachievements/resolve",
+    async (request, reply) => {
+      const user = requireAuth(request, reply);
+      if (!user) return;
+
+      const { shop, objectId, hash } = request.body ?? {};
+      if (
+        shop !== "launchbox" ||
+        typeof objectId !== "string" ||
+        !/^[\w.-]{1,128}$/.test(objectId) ||
+        typeof hash !== "string" ||
+        !/^[0-9a-f]{32}$/i.test(hash)
+      ) {
+        return reply.code(400).send({ message: "Invalid resolve request" });
+      }
+      if (!resolveBudget(user.id)) {
+        return reply.code(429).send({ message: "Too many requests" });
+      }
+
+      try {
+        const match = await resolveRaGameByHash(user.id, shop, objectId, hash);
+        reply.send({
+          retroAchievementsGameId: match?.raGameId ?? null,
+          title: match?.title ?? null,
+        });
+      } catch (error) {
+        if (error instanceof RaNotConnectedError) {
+          return reply.code(409).send({ message: "RetroAchievements not connected" });
+        }
+        request.log.warn({ err: error }, "RetroAchievements resolve failed");
+        reply.code(502).send({ message: "RetroAchievements unavailable" });
+      }
+    }
+  );
 
   app.delete("/profile/integrations/retroachievements", async (request, reply) => {
     const user = requireAuth(request, reply);

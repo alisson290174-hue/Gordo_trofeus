@@ -9,6 +9,7 @@ import { addKarma, KARMA } from "../karma.js";
 import { config } from "../config.js";
 import { getPs2Metadata } from "../catalogue/ps2-index.js";
 import { canViewUserData } from "../profile/public-routes.js";
+import { fetchRaUnlocks, getLinkedRaGameId } from "../integrations/retroachievements-games.js";
 
 interface UserAchievementRow {
   profile_game_id: string;
@@ -163,13 +164,8 @@ export function registerAchievementRoutes(app: FastifyInstance) {
   app.get<{ Params: { shop: string; objectId: string } }>(
     "/games/:shop/:objectId",
     async (request, reply) => {
-      const row = db
-        .prepare("SELECT retroachievements_game_id FROM achievement_catalogue WHERE shop = ? AND object_id = ? LIMIT 1")
-        .get(request.params.shop, request.params.objectId) as
-        | { retroachievements_game_id: number | null }
-        | undefined;
-      // RetroAchievements matching isn't implemented yet — always "no mapping" for now, which the
-      // client already treats as a valid, non-error state.
+      // Set once a disc hash matched RetroAchievements (see /profile/retroachievements/resolve).
+      const raGameId = getLinkedRaGameId(request.params.shop, request.params.objectId);
       const ps2 =
         request.params.shop === "launchbox" ? getPs2Metadata(request.params.objectId) : null;
       reply.send({
@@ -187,7 +183,7 @@ export function registerAchievementRoutes(app: FastifyInstance) {
               releaseYear: ps2.releaseYear,
             }
           : {}),
-        retroAchievementsGameId: row?.retroachievements_game_id ?? null,
+        retroAchievementsGameId: raGameId,
       });
     }
   );
@@ -376,14 +372,21 @@ export function registerAchievementRoutes(app: FastifyInstance) {
 
   app.post<{
     Params: { shop: string; objectId: string };
-    Body: { achievements?: { name: string; unlockTime: number; hardcoreUnlockTime?: number }[] };
   }>("/profile/games/:shop/:objectId/retroachievements/sync", async (request, reply) => {
     const user = requireAuth(request, reply);
     if (!user) return;
 
     const { shop, objectId } = request.params;
+    // Unlocks come from RetroAchievements itself (user's own key), not from the client.
+    let unlocks: Awaited<ReturnType<typeof fetchRaUnlocks>>;
+    try {
+      unlocks = await fetchRaUnlocks(user.id, shop, objectId);
+    } catch (error) {
+      request.log.warn({ err: error }, "RetroAchievements sync failed");
+      return reply.code(502).send({ message: "RetroAchievements unavailable" });
+    }
     const profileGame = upsertProfileGame(user.id, shop, objectId, 0, null);
-    applyAchievementUnlocks(user.id, profileGame, request.body.achievements ?? [], "retroachievements");
+    applyAchievementUnlocks(user.id, profileGame, unlocks, "retroachievements");
 
     reply.send({
       objectId,

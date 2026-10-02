@@ -7,7 +7,7 @@ import type {
 } from "@types";
 import { UserNotLoggedInError } from "@shared";
 
-import { db, gamesShopCacheSublevel, levelKeys } from "@main/level";
+import { db, gamesShopCacheSublevel, gamesSublevel, levelKeys } from "@main/level";
 import { HydraApi } from "../hydra-api";
 import { logger } from "../logger";
 import { getGameAchievementData } from "../achievements/get-game-achievement-data";
@@ -18,6 +18,7 @@ import {
 import { AchievementMemoryStore } from "../achievements/achievement-memory-store";
 import { AchievementSouvenirStore } from "../achievements/achievement-souvenir-store";
 import { getAchievementSouvenirs } from "../achievements/get-achievement-souvenirs";
+import { computePs2DiscHash } from "./ps2-disc-hash";
 
 const toMillis = (date?: string) => {
   if (!date) return null;
@@ -115,7 +116,51 @@ export const resolveRetroAchievementsGameId = async (
     () => null
   );
 
-  return game?.retroAchievementsGameId ?? null;
+  return game?.retroAchievementsGameId ?? resolveByDiscHash(objectId, shop);
+};
+
+// Disc hashes already sent this session (hit or miss), so reopening a game page never re-hashes.
+const discHashAttempts = new Map<string, Promise<number | null>>();
+
+/**
+ * PS2 discs: hash the disc like PCSX2 does and let the server match it against RetroAchievements'
+ * official list. Original dumps match; patched discs (translations, Bomba Patch…) have their own
+ * hash and simply have no RetroAchievements set.
+ */
+const resolveByDiscHash = (objectId: string, shop: GameShop) => {
+  if (shop !== "launchbox") return null;
+  const key = `${shop}:${objectId}`;
+  let attempt = discHashAttempts.get(key);
+  if (!attempt) {
+    attempt = (async () => {
+      const game = await gamesSublevel.get(levelKeys.game(shop, objectId)).catch(() => null);
+      const discPath = game?.selectedDiscPath ?? game?.discs?.[0]?.path ?? game?.executablePath;
+      if (!discPath) return null;
+
+      const hash = await computePs2DiscHash(discPath).catch((error) => {
+        logger.warn("[retroachievements] could not hash disc", { discPath, error: String(error) });
+        return null;
+      });
+      if (!hash) return null;
+
+      const result = await HydraApi.post<{ retroAchievementsGameId: number | null }>(
+        "/profile/retroachievements/resolve",
+        { shop, objectId, hash }
+      ).catch((error) => {
+        logger.warn("[retroachievements] resolve failed", String(error));
+        discHashAttempts.delete(key); // transient (offline, not connected yet): retry later
+        return null;
+      });
+      logger.info("[retroachievements] disc hash resolved", {
+        objectId,
+        hash,
+        raGameId: result?.retroAchievementsGameId ?? null,
+      });
+      return result?.retroAchievementsGameId ?? null;
+    })();
+    discHashAttempts.set(key, attempt);
+  }
+  return attempt;
 };
 
 interface SyncRetroAchievementsParams {

@@ -239,6 +239,28 @@ db.exec(`
   )
 `);
 
+// RetroAchievements: lista oficial de hashes por console (renovada semanalmente) e o vínculo
+// jogo da biblioteca → jogo do RA, criado quando um hash de disco confere com a lista.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS ra_game_hashes (
+    hash TEXT PRIMARY KEY,
+    ra_game_id INTEGER NOT NULL,
+    title TEXT,
+    console_id INTEGER NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS ra_hash_lists (
+    console_id INTEGER PRIMARY KEY,
+    fetched_at TEXT NOT NULL
+  );
+  CREATE TABLE IF NOT EXISTS ra_game_links (
+    shop TEXT NOT NULL,
+    object_id TEXT NOT NULL,
+    ra_game_id INTEGER NOT NULL,
+    linked_at TEXT NOT NULL,
+    PRIMARY KEY (shop, object_id)
+  );
+`);
+
 // Seed da allowlist a partir do .env — idempotente, roda a cada boot.
 const seedAllowedSteamId = db.prepare(
   `INSERT INTO allowed_steam_ids (steam_id, note, added_at)
