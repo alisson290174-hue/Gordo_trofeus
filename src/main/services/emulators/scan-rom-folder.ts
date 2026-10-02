@@ -5,6 +5,7 @@ import path from "node:path";
 import type { KnownBinary } from "./known-binaries";
 import { resolveSniffTarget, sniffDiscImage } from "./sniff-disc-platform";
 import { logger } from "../logger";
+import { applyPairedRules, type GameGroup } from "./rom-pairing";
 import type { EmulatorSystem } from "@types";
 
 const MAX_COLLECTED_FILES = 50_000;
@@ -53,10 +54,6 @@ const extOf = (name: string): string => {
   return dot > 0 ? name.slice(dot).toLowerCase() : "";
 };
 
-const basenameNoExt = (name: string): string => {
-  const dot = name.lastIndexOf(".");
-  return dot > 0 ? name.slice(0, dot) : name;
-};
 
 const PS1_PRIMARY_EXTS = new Set([
   ".cue",
@@ -230,68 +227,6 @@ const classifyForSystem = async (
   const detected = await sniffDiscImage(target);
   if (detected === "unknown") return "ok";
   return detected === system ? "ok" : "wrong-platform";
-};
-
-interface GameGroup {
-  primary: Candidate;
-  sidecars: Candidate[];
-}
-
-const buildSidecarMap = (
-  group: Candidate[],
-  pairRules: Record<string, string[]>
-): { sidecarOf: Map<string, Candidate[]>; skipped: Set<string> } => {
-  const sidecarOf = new Map<string, Candidate[]>();
-  const skipped = new Set<string>();
-  for (const f of group) {
-    const sidecarExts = pairRules[extOf(f.name)];
-    if (!sidecarExts) continue;
-    const base = basenameNoExt(f.name);
-    const matched: Candidate[] = [];
-    for (const other of group) {
-      if (other === f || basenameNoExt(other.name) !== base) continue;
-      if (sidecarExts.includes(extOf(other.name))) {
-        matched.push(other);
-        skipped.add(other.fullPath);
-      }
-    }
-    sidecarOf.set(f.fullPath, matched);
-  }
-  return { sidecarOf, skipped };
-};
-
-const collectSidecarExts = (
-  pairRules: Record<string, string[]>
-): Set<string> => {
-  const exts = new Set<string>();
-  for (const list of Object.values(pairRules)) {
-    for (const ext of list) exts.add(ext);
-  }
-  return exts;
-};
-
-const applyPairedRules = (
-  group: Candidate[],
-  primaryExts: Set<string>,
-  pairRules: Record<string, string[]>
-): GameGroup[] => {
-  const m3u = group.filter((f) => extOf(f.name) === ".m3u");
-  if (m3u.length > 0) return m3u.map((primary) => ({ primary, sidecars: [] }));
-
-  const { sidecarOf, skipped } = buildSidecarMap(group, pairRules);
-  const sidecarExts = collectSidecarExts(pairRules);
-
-  const out: GameGroup[] = [];
-  for (const f of group) {
-    if (skipped.has(f.fullPath)) continue;
-    const ext = extOf(f.name);
-    if (primaryExts.has(ext)) {
-      out.push({ primary: f, sidecars: sidecarOf.get(f.fullPath) ?? [] });
-    } else if (sidecarExts.has(ext)) {
-      out.push({ primary: f, sidecars: [] });
-    }
-  }
-  return out;
 };
 
 const applyPs3Rules = (group: Candidate[]): GameGroup[] =>

@@ -10,7 +10,7 @@ import {
 } from "./classics-import-state";
 import { isWithin } from "./rom-path-utils";
 import { entryMatchesSystemPlatform } from "./catalogue-platforms";
-import { bandPercent, baseNameWithoutExt } from "./import-progress-utils";
+import { bandPercent, baseNameWithoutExt, cleanRomTitle } from "./import-progress-utils";
 import {
   HydraApi,
   WindowManager,
@@ -785,14 +785,27 @@ const persistMatchedEntries = async (
 // Box art for a PS2 disc serial from the community xlenore/ps2-covers repo (served via jsDelivr).
 // The extracted serial is already in the repo's `XXXX-NNNNN` shape, so the match is exact; a serial
 // with no cover in the repo just 404s and the UI falls back to its placeholder.
-const ps2CoverUrl = (serial: string | null | undefined): string | null =>
-  serial
-    ? `https://cdn.jsdelivr.net/gh/xlenore/ps2-covers@main/covers/default/${serial}.jpg`
+// Community box-art repos keyed by disc serial ("SLUS-01042").
+const COVER_REPOS: Partial<Record<EmulatorSystem, string>> = {
+  ps1: "xlenore/psx-covers",
+  ps2: "xlenore/ps2-covers",
+};
+
+const discCoverUrl = (
+  system: EmulatorSystem,
+  serial: string | null | undefined
+): string | null => {
+  const repo = COVER_REPOS[system];
+  return repo && serial && /^[A-Z]{4}-\d{5}$/.test(serial)
+    ? `https://cdn.jsdelivr.net/gh/${repo}@main/covers/default/${serial}.jpg`
     : null;
+};
 
 const persistUnmatchedGame = async (
   objectId: string,
   title: string,
+  /** The file-name title older scans stored; replaced by the clean one, user edits are kept. */
+  rawTitle: string,
   discs: ClassicsDisc[],
   system: EmulatorSystem,
   romSizeBytes: number | null,
@@ -823,7 +836,7 @@ const persistUnmatchedGame = async (
     await clearFinishedDownload(shop, objectId);
     existing.isDeleted = false;
     existing.addedToLibraryAt ??= new Date();
-    if (!existing.title) existing.title = title;
+    if (!existing.title || existing.title === rawTitle) existing.title = title;
     if (platform && !existing.platform) existing.platform = platform;
     if (coverUrl) existing.libraryHeroImageUrl = coverUrl;
     existing.discs = discs;
@@ -860,7 +873,8 @@ const persistUnmatchedGames = async (
   unmatchedGroups: UnmatchedGroups,
   system: EmulatorSystem,
   signal: CancelSignal
-) => {
+): Promise<Set<string>> => {
+  const persistedIds = new Set<string>();
   for (const [groupKey, group] of unmatchedGroups) {
     if (signal.cancelled) break;
     if (group.files.length === 0) continue;
@@ -873,13 +887,16 @@ const persistUnmatchedGames = async (
     const objectId = serial
       ? `rom-sku-${normalizeSku(serial)}`
       : `rom-${createHash("sha1").update(groupKey).digest("hex").slice(0, 16)}`;
-    const title = baseNameWithoutExt(group.files[0].name);
-    // PS2 box art by serial from the community cover repo; other systems have no such source yet.
-    const coverUrl = system === "ps2" ? ps2CoverUrl(serial) : null;
+    const rawTitle = baseNameWithoutExt(group.files[0].name);
+    const title = cleanRomTitle(group.files[0].name);
+    persistedIds.add(objectId);
+    // Box art by serial from the community cover repos (PS1/PS2).
+    const coverUrl = discCoverUrl(system, serial);
 
     await persistUnmatchedGame(
       objectId,
       title,
+      rawTitle,
       discs,
       system,
       group.sizeBytes || null,
@@ -888,6 +905,7 @@ const persistUnmatchedGames = async (
       logger.error("Failed to persist unmatched rom locally", err)
     );
   }
+  return persistedIds;
 };
 
 const persistFolderRollups = async (
@@ -915,7 +933,9 @@ const persistFolderRollups = async (
 const reconcileDeletedGames = async (
   system: EmulatorSystem,
   folders: FolderInput[],
-  signal: CancelSignal
+  signal: CancelSignal,
+  /** Every game this scan produced; null skips the check (e.g. a partial scan). */
+  scannedIds: Set<string> | null = null
 ) => {
   for await (const [key, game] of gamesSublevel.iterator()) {
     if (signal.cancelled) break;
@@ -930,7 +950,15 @@ const reconcileDeletedGames = async (
     if (!inScannedFolders) continue;
 
     const stillOnDisk = discs.some((disc) => existsSync(disc.path));
-    if (stillOnDisk) continue;
+    // Entries an older scan created from files that aren't games on their own (a cue's
+    // "Track 2.bin", a duplicate "Game.cue.cue") stay on disk but no scan produces them anymore.
+    // Hidden, never removed from disk; anything with playtime is left alone.
+    const orphaned =
+      scannedIds !== null &&
+      !scannedIds.has(game.objectId) &&
+      !(game.playTimeInMilliseconds > 0) &&
+      discs.every((disc) => folders.some((folder) => isWithin(disc.path, folder.path)));
+    if (stillOnDisk && !orphaned) continue;
 
     game.isDeleted = true;
     await gamesSublevel.put(key, game).catch((err) => {
@@ -1084,7 +1112,7 @@ export async function runLaunchboxImport(
 
   // Add every ROM that matched no catalogue entry to the library under its filename, so bootlegs
   // and mods (which no catalogue has) still show up instead of silently vanishing after a scan.
-  await persistUnmatchedGames(unmatchedGroups, system, signal);
+  const unmatchedIds = await persistUnmatchedGames(unmatchedGroups, system, signal);
   if (signal.cancelled) {
     return cancelledResult(
       totalFileCount,
@@ -1106,7 +1134,12 @@ export async function runLaunchboxImport(
     );
   }
 
-  await reconcileDeletedGames(system, folders, signal);
+  await reconcileDeletedGames(
+    system,
+    folders,
+    signal,
+    new Set([...matchedEntries.keys(), ...unmatchedIds])
+  );
   if (signal.cancelled) {
     return cancelledResult(
       totalFileCount,

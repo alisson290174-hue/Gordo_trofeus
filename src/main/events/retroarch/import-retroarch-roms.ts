@@ -1,4 +1,4 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
 import { stat } from "node:fs/promises";
 
@@ -16,6 +16,7 @@ import {
 import {
   bandPercent,
   baseNameWithoutExt,
+  cleanRomTitle,
 } from "../emulators/import-progress-utils";
 import {
   persistEntryLocally,
@@ -25,6 +26,7 @@ import type { LaunchboxShopDetailsEntry } from "@main/services/emulators";
 import { WindowManager, logger, retroarch } from "@main/services";
 import { platformToRetroArchPlatform } from "@main/helpers";
 import { gamesSublevel } from "@main/level";
+import { findRetroArchBoxart } from "@main/services/retroarch/boxart-index";
 import type { ClassicsDisc, Game, RetroArchPlatform, RomFolder } from "@types";
 
 interface FolderInput {
@@ -384,6 +386,23 @@ const recordMatchedRom = (
   }
 };
 
+/**
+ * Balói's server has no CRC database for cartridge systems yet, so a ROM it can't name still
+ * becomes a library game under a clean file-name title (like unmatched PS1/PS2 discs) instead of
+ * silently vanishing. The id is stable across rescans: the CRC32 when there is one, else the path.
+ */
+const buildLocalRomEntry = (rom: HashedRom): LaunchboxShopDetailsEntry => {
+  const platform = retroarch.PLATFORM_TO_LAUNCHBOX_NAME[rom.platform] ?? null;
+  return {
+    objectId: rom.crc32
+      ? `rom-crc-${rom.platform}-${rom.crc32}`
+      : `rom-${createHash("sha1").update(rom.primaryPath).digest("hex").slice(0, 16)}`,
+    shop: "launchbox",
+    platform,
+    data: { title: cleanRomTitle(rom.name), platform },
+  };
+};
+
 const aggregateMatches = (
   hashed: HashedRom[],
   lookup: Map<string, LaunchboxShopDetailsEntry>,
@@ -413,6 +432,7 @@ const aggregateMatches = (
       recordMatchedRom(aggregated, rom, entry);
       matchedSizeBytes += rom.sizeBytes;
     } else {
+      recordMatchedRom(aggregated, rom, buildLocalRomEntry(rom));
       aggregated.unmatchedFiles.push({ name: rom.name, reason: "unmatched" });
     }
 
@@ -461,10 +481,30 @@ const computeFolderRollups = (
   return { folderRollup, totalFileCount, totalSizeBytes };
 };
 
+/** Box art for the games built from file names (they come with no assets). */
+const attachLocalBoxart = async (aggregated: AggregatedMatches): Promise<void> => {
+  for (const entry of aggregated.matchedEntries.values()) {
+    const info = aggregated.titleInfo.get(entry.objectId);
+    if (!info || !entry.data || entry.data.assets || !entry.objectId.startsWith("rom-")) continue;
+    const cover = await findRetroArchBoxart(info.platform, entry.data.title).catch(() => null);
+    if (!cover) continue;
+    entry.data.assets = {
+      objectId: entry.objectId,
+      shop: "launchbox",
+      title: entry.data.title,
+      iconUrl: null,
+      libraryImageUrl: cover,
+      libraryHeroImageUrl: cover,
+      logoImageUrl: null,
+    };
+  }
+};
+
 const persistMatchedTitles = async (
   aggregated: AggregatedMatches,
   language: string
 ): Promise<void> => {
+  await attachLocalBoxart(aggregated);
   for (const entry of aggregated.matchedEntries.values()) {
     const titleDiscs = aggregated.discsByTitle.get(entry.objectId) ?? [];
     const discs = buildRomDiscList(titleDiscs);

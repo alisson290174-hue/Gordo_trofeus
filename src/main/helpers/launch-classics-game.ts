@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { prepareDuckStationForLaunch } from "@main/services/emulators/duckstation-launch-config";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { db, gamesSublevel, levelKeys } from "@main/level";
@@ -193,6 +194,14 @@ export const launchClassicsGame = async (
   // emulator is spawned detached with stdio "ignore" so its own error never
   // reaches us. Detect the missing BIOS up front and block the launch instead.
   await assertBiosInstalled(system, config);
+
+  if (config.binary === "duckstation") {
+    try {
+      prepareDuckStationForLaunch(config.biosPath);
+    } catch (error) {
+      logger.warn("Could not prepare DuckStation settings before launch", error);
+    }
+  }
 
   const gameKey = levelKeys.game(shop, objectId);
   const game = await gamesSublevel.get(gameKey);
