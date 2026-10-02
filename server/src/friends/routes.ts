@@ -83,7 +83,7 @@ export function registerFriendRoutes(app: FastifyInstance) {
     reply.send(requests);
   });
 
-  app.post<{ Body: { data?: { friendCode?: string } } }>(
+  app.post<{ Body: { friendCode?: string; data?: { friendCode?: string } } }>(
     "/profile/friend-requests",
     async (request, reply) => {
       const user = requireAuth(request, reply);
@@ -91,7 +91,8 @@ export function registerFriendRoutes(app: FastifyInstance) {
 
       // The friend code is the account id, but a 17-digit Steam ID is accepted too — it's what
       // people usually have at hand. Either way the friend must have signed in once already.
-      const rawCode = request.body?.data?.friendCode?.trim();
+      // The app's IPC bridge sends the payload unwrapped; older callers wrap it in `data`.
+      const rawCode = (request.body?.data?.friendCode ?? request.body?.friendCode)?.trim();
       const target = rawCode
         ? /^\d{17}$/.test(rawCode)
           ? getUserBySteamId(rawCode)
@@ -116,19 +117,25 @@ export function registerFriendRoutes(app: FastifyInstance) {
     }
   );
 
-  app.patch<{ Params: { userId: string }; Body: { data?: { requestState?: string } } }>(
+  app.patch<{
+    Params: { userId: string };
+    Body: { requestState?: string; data?: { requestState?: string } };
+  }>(
     "/profile/friend-requests/:userId",
     async (request, reply) => {
       const user = requireAuth(request, reply);
       if (!user) return;
 
       const senderId = request.params.userId;
-      const requestState = request.body?.data?.requestState;
+      const requestState = request.body?.data?.requestState ?? request.body?.requestState;
 
       if (requestState === "ACCEPTED") {
         acceptRelationStatement.run(senderId, user.id);
-      } else {
+      } else if (requestState === "REFUSED") {
         deleteRelationStatement.run(senderId, user.id, user.id, senderId);
+      } else {
+        // An unreadable body must never silently drop the request.
+        return reply.code(400).send({ message: "Invalid request state" });
       }
       reply.code(204).send();
     }

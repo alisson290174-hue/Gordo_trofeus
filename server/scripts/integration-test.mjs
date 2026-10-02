@@ -77,6 +77,19 @@ const received = (await req("GET", "/profile/friend-requests", { token: B })).js
 check("Bob sees RECEIVED request", received.some((r) => r.id === alice.id && r.type === "RECEIVED"), JSON.stringify(received));
 const accept = await req("PATCH", `/profile/friend-requests/${alice.id}`, { token: B, json: { data: { requestState: "ACCEPTED" } } });
 check("Bob accepts → 204", accept.statusCode === 204, `${accept.statusCode}`);
+// The app's IPC bridge sends the body unwrapped — this is the shape real clients use.
+const carol0 = upsertUserFromSteamLogin("76561198000000044", "Dave", null);
+const D = tokenOf(carol0);
+const frRaw = await req("POST", "/profile/friend-requests", { token: D, json: { friendCode: alice.id } });
+check("friend request, unwrapped body (app shape) → 201", frRaw.statusCode === 201, `${frRaw.statusCode} ${frRaw.body}`);
+const noState = await req("PATCH", `/profile/friend-requests/${carol0.id}`, { token: A, json: {} });
+check("PATCH without state → 400 (request kept)", noState.statusCode === 400, `${noState.statusCode}`);
+const stillThere = (await req("GET", "/profile/friend-requests", { token: A })).json();
+check("request survives a bad PATCH", stillThere.some((r) => r.id === carol0.id), JSON.stringify(stillThere));
+const acceptRaw = await req("PATCH", `/profile/friend-requests/${carol0.id}`, { token: A, json: { requestState: "ACCEPTED" } });
+check("accept, unwrapped body → 204", acceptRaw.statusCode === 204, `${acceptRaw.statusCode}`);
+const aliceFriends = (await req("GET", "/profile/friends", { token: A })).json();
+check("Alice now has Bob and Dave as friends", aliceFriends.totalFriends === 2, JSON.stringify(aliceFriends).slice(0, 200));
 const self = await req("POST", "/profile/friend-requests", { token: A, json: { data: { friendCode: alice.id } } });
 check("friend request to self → 400", self.statusCode === 400, `${self.statusCode}`);
 

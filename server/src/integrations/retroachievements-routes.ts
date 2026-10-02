@@ -78,14 +78,18 @@ export function registerRetroAchievementsRoutes(app: FastifyInstance) {
 
   app.post<{
     Body: {
+      username?: string;
+      webApiKey?: string;
       data?: { username?: string; password?: string; webApiKey?: string };
     };
   }>("/profile/integrations/retroachievements/connect", async (request, reply) => {
     const user = requireAuth(request, reply);
     if (!user) return;
 
-    const username = (request.body?.data?.username ?? "").trim();
-    const webApiKey = (request.body?.data?.webApiKey ?? "").trim();
+    // Accept both the unwrapped body (IPC bridge) and the legacy `data` wrapper.
+    const fields = request.body?.data ?? request.body;
+    const username = (fields?.username ?? "").trim();
+    const webApiKey = (fields?.webApiKey ?? "").trim();
     if (!username || !webApiKey) {
       return reply.code(400).send({ message: "username and webApiKey required" });
     }
