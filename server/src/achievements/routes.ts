@@ -8,6 +8,7 @@ import { upsertProfileGame, type ProfileGameRow } from "../library/routes.js";
 import { addKarma, KARMA } from "../karma.js";
 import { config } from "../config.js";
 import { getPs2Metadata } from "../catalogue/ps2-index.js";
+import { getCachedSwitchMetadata } from "../catalogue/switch-titles.js";
 import { canViewUserData } from "../profile/public-routes.js";
 import {
   fetchRaUnlocks,
@@ -177,7 +178,10 @@ export function registerAchievementRoutes(app: FastifyInstance) {
       // Set once a disc hash matched RetroAchievements (see /profile/retroachievements/resolve).
       const raGameId = getLinkedRaGameId(request.params.shop, request.params.objectId);
       const ps2 =
-        request.params.shop === "launchbox" ? getPs2Metadata(request.params.objectId) : null;
+        request.params.shop === "launchbox"
+          ? (getPs2Metadata(request.params.objectId) ??
+            getCachedSwitchMetadata(request.params.objectId))
+          : null;
       reply.send({
         ...(ps2
           ? {

@@ -26,6 +26,7 @@ import ps3Art from "@renderer/assets/emulation/ps3.png";
 import pspArt from "@renderer/assets/emulation/psp.png";
 import gameCubeArt from "@renderer/assets/emulation/gamecube.png";
 import wiiArt from "@renderer/assets/emulation/wii.png";
+import switchArt from "@renderer/assets/emulation/switch.png";
 import retroArchArt from "@renderer/assets/emulation/retroarch.png";
 import {
   ClassicsOnboardingModal,
@@ -40,7 +41,7 @@ import {
 
 import "./settings-context-emulation.scss";
 
-const SYSTEMS: EmulatorSystem[] = ["ps1", "ps2", "ps3", "psp", "dolphin"];
+const SYSTEMS: EmulatorSystem[] = ["ps1", "ps2", "ps3", "psp", "dolphin", "switch"];
 
 type EmulationView =
   | { kind: "grid" }
@@ -70,6 +71,7 @@ const SYSTEM_LABELS: Record<EmulatorSystem, string> = {
   ps3: "PlayStation 3",
   psp: "PlayStation Portable",
   dolphin: "GameCube & Wii",
+  switch: "Nintendo Switch",
 };
 
 const SYSTEM_ART: Record<EmulatorSystem, string | readonly string[]> = {
@@ -78,6 +80,7 @@ const SYSTEM_ART: Record<EmulatorSystem, string | readonly string[]> = {
   ps3: ps3Art,
   psp: pspArt,
   dolphin: [gameCubeArt, wiiArt],
+  switch: switchArt,
 };
 
 const SYSTEM_REQUIREMENTS: Partial<

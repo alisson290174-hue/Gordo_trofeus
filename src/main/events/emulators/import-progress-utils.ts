@@ -14,7 +14,7 @@ export const baseNameWithoutExt = (fileName: string): string => {
 };
 
 const ROM_EXTENSION =
-  /\.(?:cue|bin|iso|img|ccd|sub|mds|mdf|chd|cso|zso|pbp|ecm|gz|nrg|m3u|smc|sfc|gba|gbc|gb|nes|z64|n64|v64|zip|7z)$/i;
+  /\.(?:cue|bin|iso|img|ccd|sub|mds|mdf|chd|cso|zso|pbp|ecm|gz|nrg|m3u|smc|sfc|gba|gbc|gb|nes|z64|n64|v64|zip|7z|nsp|xci|nsz|xcz)$/i;
 
 /**
  * A readable title for a ROM no catalogue knows, from its file name:
@@ -27,10 +27,22 @@ export const cleanRomTitle = (fileName: string): string => {
   const cleaned = title
     .replace(/\s*[([][^()[\]]*[)\]]/g, "")
     .replace(/\bwww\.\S+/gi, "")
-    .replace(/_/g, " ")
+    .replace(/[_+]/g, " ")
+    .replace(/\b(?:switch\s+)?(?:nsp|xci)\s+base\s+game\b/gi, "")
     .replace(/\s*-?\s*\b(?:cd|disc|disk)\s*\d+\s*$/i, "")
     .replace(/\s{2,}/g, " ")
-    .replace(/[\s.-]+$/, "")
+    .replace(/[\s.+-]+$/, "")
     .trim();
   return cleaned || baseNameWithoutExt(fileName);
 };
+
+/**
+ * Whether a stored title was derived from the ROM's file name by some scan (raw, cleaned, or an
+ * older cleaner that left the extension) rather than typed by the user or taken from a catalogue
+ * — only those get replaced by a better title on the next scan.
+ */
+export const isFileNameTitle = (title: string | null | undefined, fileName: string): boolean =>
+  !title ||
+  title === baseNameWithoutExt(fileName) ||
+  title === cleanRomTitle(fileName) ||
+  ROM_EXTENSION.test(title.trim());

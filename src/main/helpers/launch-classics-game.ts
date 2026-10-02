@@ -136,6 +136,9 @@ const buildEmulatorArgs = (
       return ["--pause-menu-exit", "--fullscreen", discPath];
     case "dolphin":
       return ["--batch", "--exec", discPath];
+    case "eden":
+      // yuzu-family CLI: -f fullscreen, -g game file.
+      return ["-f", "-g", discPath];
   }
 };
 

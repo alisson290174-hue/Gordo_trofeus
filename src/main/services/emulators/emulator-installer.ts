@@ -75,6 +75,7 @@ const BINARY_TO_SYSTEM: Record<EmulatorBinary, EmulatorSystem> = {
   rpcs3: "ps3",
   ppsspp: "psp",
   dolphin: "dolphin",
+  eden: "switch",
 };
 
 const emulatorInstallDirectory = async (

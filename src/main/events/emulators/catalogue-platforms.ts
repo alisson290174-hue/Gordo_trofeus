@@ -14,6 +14,7 @@ export const SYSTEM_CATALOGUE_PLATFORMS: Record<EmulatorSystem, string[]> = {
   ps3: ["Sony Playstation 3", "PlayStation 3"],
   psp: ["Sony PSP", "PlayStation Portable", "PSP"],
   dolphin: ["Nintendo GameCube", "Nintendo Wii", "GameCube", "Wii"],
+  switch: ["Nintendo Switch", "Switch"],
 };
 
 const normalizePlatformName = (value: string): string =>

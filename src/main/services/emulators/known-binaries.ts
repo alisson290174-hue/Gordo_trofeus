@@ -125,6 +125,21 @@ export const KNOWN_BINARIES: Record<EmulatorSystem, KnownBinary> = {
     ],
     romDirectoryMarkers: [],
   },
+  switch: {
+    system: "switch",
+    // Eden is a maintained yuzu fork; it keeps yuzu's command line (-f -g <file>), so other
+    // forks with the same CLI (citron, sudachi, yuzu) are recognised too.
+    binary: "eden",
+    displayName: "Eden",
+    linuxNames: ["eden", "eden-cli", "citron", "sudachi", "yuzu"],
+    windowsNames: ["eden.exe", "citron.exe", "sudachi.exe", "yuzu.exe"],
+    macosBundleNames: ["Eden.app"],
+    flatpakIds: ["dev.eden_emu.eden"],
+    // The Eden/yuzu GUI opens its main window even with --version, so the version isn't probed.
+    versionFlags: [],
+    romExtensions: [".nsp", ".xci", ".nsz", ".xcz"],
+    romDirectoryMarkers: [],
+  },
 };
 
 const EMULATOR_BINARIES: readonly EmulatorBinary[] = Array.from(

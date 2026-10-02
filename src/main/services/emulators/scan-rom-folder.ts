@@ -6,6 +6,7 @@ import type { KnownBinary } from "./known-binaries";
 import { resolveSniffTarget, sniffDiscImage } from "./sniff-disc-platform";
 import { logger } from "../logger";
 import { applyPairedRules, type GameGroup } from "./rom-pairing";
+import { contentKindFromName } from "./switch-title";
 import type { EmulatorSystem } from "@types";
 
 const MAX_COLLECTED_FILES = 50_000;
@@ -271,6 +272,14 @@ const dedupGames = (binary: KnownBinary, files: Candidate[]): GameGroup[] => {
       case "psp":
       case "dolphin":
         games.push(...applySimpleRules(group));
+        break;
+      case "switch":
+        // Updates and DLC sit next to the base dumps but aren't games of their own.
+        games.push(
+          ...applySimpleRules(group).filter(
+            (game) => contentKindFromName(game.primary.name) === "base"
+          )
+        );
         break;
     }
   }

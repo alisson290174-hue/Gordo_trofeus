@@ -1,11 +1,12 @@
-export type EmulatorSystem = "ps1" | "ps2" | "ps3" | "psp" | "dolphin";
+export type EmulatorSystem = "ps1" | "ps2" | "ps3" | "psp" | "dolphin" | "switch";
 
 export type EmulatorBinary =
   | "duckstation"
   | "pcsx2"
   | "rpcs3"
   | "ppsspp"
-  | "dolphin";
+  | "dolphin"
+  | "eden";
 
 export interface RomFolder {
   id: string;

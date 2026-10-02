@@ -8,6 +8,7 @@ import { readChdLeadingData } from "./chd-reader";
 import { readCsoLeadingData } from "./cso-reader";
 import { extractDolphinGameId } from "./dolphin-disc-reader";
 import { normalize } from "./sku-normalize";
+import { extractSwitchTitleId } from "./switch-title";
 import { parseParamSfo, parseParamSfoValue } from "./param-sfo";
 import {
   BOOT_SKU_RE,
@@ -495,5 +496,7 @@ export const extractDiscSku = async (
       return extractPspDiscId(primaryPath);
     case "dolphin":
       return extractDolphinGameId(primaryPath);
+    case "switch":
+      return extractSwitchTitleId(primaryPath);
   }
 };

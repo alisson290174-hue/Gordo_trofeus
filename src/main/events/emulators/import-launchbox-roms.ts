@@ -10,7 +10,13 @@ import {
 } from "./classics-import-state";
 import { isWithin } from "./rom-path-utils";
 import { entryMatchesSystemPlatform } from "./catalogue-platforms";
-import { bandPercent, baseNameWithoutExt, cleanRomTitle } from "./import-progress-utils";
+import { contentKindOfTitleId } from "@main/services/emulators/switch-title";
+import {
+  bandPercent,
+  baseNameWithoutExt,
+  cleanRomTitle,
+  isFileNameTitle,
+} from "./import-progress-utils";
 import {
   HydraApi,
   WindowManager,
@@ -169,6 +175,7 @@ const SYSTEM_DEFAULT_PLATFORM: Record<EmulatorSystem, string | null> = {
   ps3: "PlayStation 3",
   psp: "PlayStation Portable",
   dolphin: null,
+  switch: "Nintendo Switch",
 };
 
 export const persistEntryLocally = async (
@@ -219,6 +226,12 @@ export const persistEntryLocally = async (
     existing.addedToLibraryAt ??= new Date();
     if (platform && !existing.platform) {
       existing.platform = platform;
+    }
+    // A game first imported under its file name gets the catalogue title once it's recognised.
+    const catalogueTitle = entry.data?.title;
+    const fileName = discs[0]?.fileName;
+    if (catalogueTitle && fileName && isFileNameTitle(existing.title, fileName)) {
+      existing.title = catalogueTitle;
     }
     existing.discs = discs;
     if (
@@ -537,6 +550,12 @@ const resolveSkus = async (
         source: fromYml ? "games.yml" : "disc",
       });
     }
+    // A Switch dump named without tags can still turn out to be an update/DLC once its
+    // ticket is read; those never become games.
+    if (system === "switch" && sku && contentKindOfTitleId(sku) !== "base") {
+      onExtract?.(i + 1, collected.length, game.name);
+      continue;
+    }
     gameSkus.push({ game, sku });
     onExtract?.(i + 1, collected.length, game.name);
   }
@@ -804,8 +823,8 @@ const discCoverUrl = (
 const persistUnmatchedGame = async (
   objectId: string,
   title: string,
-  /** The file-name title older scans stored; replaced by the clean one, user edits are kept. */
-  rawTitle: string,
+  /** The ROM file name: titles older scans derived from it are replaced, user edits are kept. */
+  sourceFileName: string,
   discs: ClassicsDisc[],
   system: EmulatorSystem,
   romSizeBytes: number | null,
@@ -836,7 +855,7 @@ const persistUnmatchedGame = async (
     await clearFinishedDownload(shop, objectId);
     existing.isDeleted = false;
     existing.addedToLibraryAt ??= new Date();
-    if (!existing.title || existing.title === rawTitle) existing.title = title;
+    if (isFileNameTitle(existing.title, sourceFileName)) existing.title = title;
     if (platform && !existing.platform) existing.platform = platform;
     if (coverUrl) existing.libraryHeroImageUrl = coverUrl;
     existing.discs = discs;
@@ -887,8 +906,8 @@ const persistUnmatchedGames = async (
     const objectId = serial
       ? `rom-sku-${normalizeSku(serial)}`
       : `rom-${createHash("sha1").update(groupKey).digest("hex").slice(0, 16)}`;
-    const rawTitle = baseNameWithoutExt(group.files[0].name);
-    const title = cleanRomTitle(group.files[0].name);
+    const sourceFileName = group.files[0].name;
+    const title = cleanRomTitle(sourceFileName);
     persistedIds.add(objectId);
     // Box art by serial from the community cover repos (PS1/PS2).
     const coverUrl = discCoverUrl(system, serial);
@@ -896,7 +915,7 @@ const persistUnmatchedGames = async (
     await persistUnmatchedGame(
       objectId,
       title,
-      rawTitle,
+      sourceFileName,
       discs,
       system,
       group.sizeBytes || null,

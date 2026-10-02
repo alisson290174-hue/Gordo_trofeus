@@ -4,6 +4,7 @@ import { verifyAccessToken } from "../auth/jwt.js";
 import { getUserById, type UserRow } from "../users.js";
 import { getOrCacheSteamGame } from "../catalogue/steam-lookup.js";
 import { getPs2Metadata } from "../catalogue/ps2-index.js";
+import { getCachedSwitchMetadata } from "../catalogue/switch-titles.js";
 
 interface RelationRow {
   a_id: string;
@@ -50,7 +51,10 @@ async function toUserGame(row: ProfileGameRow) {
   const appid = Number(row.object_id);
   const game = row.shop === "steam" ? await getOrCacheSteamGame(appid) : null;
   // Classics: real title and art from the PS2 index instead of "rom-sku-SCES50959".
-  const ps2 = row.shop === "launchbox" ? getPs2Metadata(row.object_id) : null;
+  const ps2 =
+    row.shop === "launchbox"
+      ? (getPs2Metadata(row.object_id) ?? getCachedSwitchMetadata(row.object_id))
+      : null;
   const downloadSourceIds =
     row.shop === "steam"
       ? (downloadSourceNamesForGameStatement.all(appid) as { name: string | null }[])

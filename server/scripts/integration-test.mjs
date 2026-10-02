@@ -169,6 +169,19 @@ check("emulation relabel", relabel.statusCode === 200 && relabel.json().label ==
 check("emulation delete", (await req("DELETE", `/profile/emulation-saves/${saveId}`, { token: A })).statusCode === 204);
 check("emulation list empty after delete", (await req("GET", "/profile/emulation-saves?platform=ps2", { token: A })).json().length === 0);
 
+// --- Nintendo Switch titles (cache seeded: no network)
+db.prepare("INSERT OR REPLACE INTO switch_titles (title_id, data, fetched_at) VALUES (?, ?, ?)").run(
+  "0100152000022000",
+  JSON.stringify({ serial: "0100152000022000", title: "Mario Kart 8 Deluxe", releaseYear: 2017, developers: [], publishers: ["Nintendo"], genres: ["Racing"], description: "x", coverUrl: "https://api.nlib.cc/nx/0100152000022000/icon", heroUrl: "https://api.nlib.cc/nx/0100152000022000/banner", logoUrl: null, headerUrl: null, screenshots: [] }),
+  new Date().toISOString()
+);
+const nx = (await req("POST", "/games/shop-details", { json: { shop: "launchbox", skus: ["0100152000022000"] } })).json();
+check("Switch title by Title ID", nx[0]?.objectId === "rom-sku-0100152000022000" && nx[0]?.platform === "Nintendo Switch" && nx[0]?.data?.title === "Mario Kart 8 Deluxe", JSON.stringify(nx).slice(0, 200));
+const nxUpdate = (await req("POST", "/games/shop-details", { json: { shop: "launchbox", skus: ["0100152000022800"] } })).json();
+check("Switch update Title ID is not a game", Array.isArray(nxUpdate) && nxUpdate.length === 0, JSON.stringify(nxUpdate));
+const nxPage = (await req("GET", "/games/launchbox/rom-sku-0100152000022000")).json();
+check("Switch game page lookup uses the cache", nxPage.title === "Mario Kart 8 Deluxe", JSON.stringify(nxPage).slice(0, 160));
+
 // --- privacy
 db.prepare("UPDATE users SET profile_visibility = 'PRIVATE' WHERE id = ?").run(bob.id);
 const stranger = upsertUserFromSteamLogin("76561198000000033", "Carol", null);
