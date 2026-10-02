@@ -19,6 +19,8 @@ interface ConsoleCardProps {
   executablePath: string | null;
   romFoldersCount: number;
   totalFiles: number;
+  /** Games in the library (multi-disc sets count once); falls back to totalFiles. */
+  totalGames?: number;
   lastScanAt: number | null;
   requirement?: ConsoleCardRequirement;
   checkExecutable: () => Promise<{ exists: boolean }>;
@@ -37,6 +39,7 @@ export function ConsoleCard({
   executablePath,
   romFoldersCount,
   totalFiles,
+  totalGames,
   lastScanAt,
   requirement,
   checkExecutable,
@@ -151,10 +154,10 @@ export function ConsoleCard({
           <div className="console-card__stats">
             <div className="console-card__stat-row">
               <span className="console-card__stat-dot" />
-              <span className="console-card__stat-number">{totalFiles}</span>
+              <span className="console-card__stat-number">{totalGames ?? totalFiles}</span>
               <span className="console-card__stat-label">
-                {t("games_found_other", { count: totalFiles })
-                  .replace(`${totalFiles}`, "")
+                {t("games_found_other", { count: totalGames ?? totalFiles })
+                  .replace(`${totalGames ?? totalFiles}`, "")
                   .trim()}
               </span>
             </div>

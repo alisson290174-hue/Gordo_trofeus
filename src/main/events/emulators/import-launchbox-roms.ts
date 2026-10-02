@@ -9,6 +9,7 @@ import {
   updateActiveClassicsImport,
 } from "./classics-import-state";
 import { isWithin } from "./rom-path-utils";
+import { entryMatchesSystemPlatform } from "./catalogue-platforms";
 import { bandPercent, baseNameWithoutExt } from "./import-progress-utils";
 import {
   HydraApi,
@@ -359,29 +360,6 @@ export type LaunchboxImportProgress = {
 
 const SCAN_BAND = 15;
 const EXTRACT_BAND = 70;
-
-const SYSTEM_CATALOGUE_PLATFORMS: Record<EmulatorSystem, string[]> = {
-  ps1: ["Sony Playstation"],
-  ps2: ["Sony Playstation 2"],
-  ps3: ["Sony Playstation 3"],
-  psp: ["Sony PSP"],
-  dolphin: ["Nintendo GameCube", "Nintendo Wii"],
-};
-
-const normalizePlatformName = (value: string): string =>
-  value.trim().toLowerCase().replace(/\s+/g, " ");
-
-const entryMatchesSystemPlatform = (
-  entry: LaunchboxShopDetailsEntry,
-  system: EmulatorSystem
-): boolean => {
-  const raw = entry.platform ?? entry.data?.platform ?? "";
-  if (!raw) return true;
-  const normalized = normalizePlatformName(raw);
-  return SYSTEM_CATALOGUE_PLATFORMS[system].some(
-    (platform) => normalizePlatformName(platform) === normalized
-  );
-};
 
 export interface LaunchboxImportResult {
   fileCount: number;

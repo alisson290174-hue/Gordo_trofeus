@@ -28,6 +28,7 @@ import { CloudSavesSection } from "./cloud-saves-section";
 import { LocalEmulatorSavesSection } from "./local-emulator-saves-section";
 import { RomsDetectedSection } from "./roms-detected-section";
 import { formatRelativeShort } from "./relative-time";
+import { useEmulatorGameCounts } from "./use-emulator-game-counts";
 import {
   availableEmulatorTabs,
   supportsEmulatorSaves,
@@ -74,6 +75,8 @@ export function EmulatorDetail({
   const [busy, setBusy] = useState(false);
   const [cloudNonce, setCloudNonce] = useState(0);
   const [romsNonce, setRomsNonce] = useState(0);
+  const system = config.system;
+  const gameCounts = useEmulatorGameCounts([system], `${romsNonce}:${config.lastScanAt}`);
   const [folderToRemove, setFolderToRemove] = useState<RomFolder | null>(null);
   const [removeOpen, setRemoveOpen] = useState(false);
   const [executableExists, setExecutableExists] = useState<boolean>(true);
@@ -321,6 +324,7 @@ export function EmulatorDetail({
         isConfigured={isConfigured}
         detectedVersion={config.detectedVersion}
         totalFiles={config.totalFiles}
+        totalGames={gameCounts[system]}
         rescanDisabled={busy || scan.active}
         rescanSpinning={scan.active}
         onBack={onBack}
@@ -424,6 +428,7 @@ export function EmulatorDetail({
             <LibraryStatsGrid
               systemLabel={systemLabel}
               totalFiles={config.totalFiles}
+              totalGames={gameCounts[system]}
               storageLabel={storageLabel}
               lastScanLabel={lastScanLabel}
               romFoldersCount={config.romFolders.length}

@@ -12,6 +12,7 @@ import { ConsoleCard, type ConsoleCardRequirement } from "./console-card";
 import { EmulatorDetail } from "./emulator-detail";
 import { EmulatorSetupModal } from "./setup/emulator-setup-modal";
 import { KNOWN_BINARY_LABELS } from "./known-binary-labels";
+import { useEmulatorGameCounts } from "./use-emulator-game-counts";
 import {
   RETROARCH_LABEL,
   RETROARCH_CORE_LIST,
@@ -97,6 +98,7 @@ export function SettingsContextEmulation() {
     useState<RetroArchConfig | null>(null);
   const [view, setView] = useState<EmulationView>(readStoredEmulationView);
   const [configsNonce, setConfigsNonce] = useState(0);
+  const gameCounts = useEmulatorGameCounts(SYSTEMS, configs);
   const [setupSystem, setSetupSystem] = useState<EmulatorSystem | null>(null);
   const [retroArchSetupOpen, setRetroArchSetupOpen] = useState(false);
   const deepLinkAppliedRef = useRef<string | null>(null);
@@ -313,6 +315,7 @@ export function SettingsContextEmulation() {
             executablePath={configs[system].executablePath}
             romFoldersCount={configs[system].romFolders.length}
             totalFiles={configs[system].totalFiles}
+            totalGames={gameCounts[system]}
             lastScanAt={configs[system].lastScanAt}
             checkExecutable={() =>
               window.electron.checkEmulatorExecutable(system)

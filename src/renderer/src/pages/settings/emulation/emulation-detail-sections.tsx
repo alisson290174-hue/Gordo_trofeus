@@ -143,6 +143,8 @@ export function RomFoldersSection({
 interface LibraryStatsGridProps {
   systemLabel: string;
   totalFiles: number;
+  /** Games in the library (multi-disc sets count once); falls back to totalFiles. */
+  totalGames?: number;
   storageLabel: string;
   lastScanLabel: string;
   romFoldersCount: number;
@@ -151,6 +153,7 @@ interface LibraryStatsGridProps {
 export function LibraryStatsGrid({
   systemLabel,
   totalFiles,
+  totalGames,
   storageLabel,
   lastScanLabel,
   romFoldersCount,
@@ -173,7 +176,7 @@ export function LibraryStatsGrid({
           <span className="emulator-detail__stat-label">{t("stat_games")}</span>
         </div>
         <span className="emulator-detail__stat-value">
-          {formatNumber(totalFiles)}
+          {formatNumber(totalGames ?? totalFiles)}
         </span>
         <span className="emulator-detail__stat-caption">
           {t("stat_games_caption", { system: systemLabel })}
@@ -220,6 +223,7 @@ interface DetailHeaderProps {
   isConfigured: boolean;
   detectedVersion: string | null;
   totalFiles: number;
+  totalGames?: number;
   rescanDisabled: boolean;
   rescanSpinning: boolean;
   onBack: () => void;
@@ -233,6 +237,7 @@ export function DetailHeader({
   isConfigured,
   detectedVersion,
   totalFiles,
+  totalGames,
   rescanDisabled,
   rescanSpinning,
   onBack,
@@ -276,7 +281,7 @@ export function DetailHeader({
             <span className="emulator-detail__dot" />
             <span className="emulator-detail__hero-count">
               <span className="emulator-detail__hero-count-dot" />
-              {t("games_found_other", { count: totalFiles })}
+              {t("games_found_other", { count: totalGames ?? totalFiles })}
             </span>
           </div>
         </div>
