@@ -228,6 +228,8 @@ export interface ResolvedInstallOption {
   htmlUrl: string | null;
   linkUrl: string | null;
   linkKind: EmulatorInstallLinkKind | null;
+  /** SHA-256 GitHub publishes for the asset; the installer refuses GitHub files without it. */
+  sha256?: string | null;
 }
 
 export type EmulatorInstallPhase =

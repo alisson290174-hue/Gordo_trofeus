@@ -18,6 +18,7 @@ import { SevenZip } from "../7zip";
 import { SystemPath } from "../system-path";
 import { WindowManager } from "../window-manager";
 import { downloadToFile, removeFileQuietly } from "../download-to-file";
+import { assertDownloadIntegrity, assertTrustedDownloadUrl } from "../verified-download";
 import { getRetroArchVersion } from "./detect-retroarch";
 import { swapCoreLibrary } from "./swap-core-library";
 import { removeDirectoryQuietly, swapDirectory } from "./swap-directory";
@@ -130,6 +131,7 @@ export const downloadAndInstallCore = async (
   };
 
   try {
+    assertTrustedDownloadUrl(downloadUrl);
     sendCoreProgress({ core, phase: "downloading", loaded: 0 });
     const { lastModified } = await downloadToFile(
       downloadUrl,
@@ -257,6 +259,7 @@ export const downloadAndInstallRetroArch = async (
   };
 
   try {
+    assertTrustedDownloadUrl(option.downloadUrl);
     sendInstallProgress({ optionId, phase: "downloading", loaded: 0 });
     await downloadToFile(option.downloadUrl, archivePath, (loaded, total) => {
       sendInstallProgress({
@@ -266,6 +269,7 @@ export const downloadAndInstallRetroArch = async (
         total: total ?? undefined,
       });
     });
+    await assertDownloadIntegrity(option.downloadUrl, archivePath, null);
 
     sendInstallProgress({ optionId, phase: "extracting" });
     await removeDirectoryQuietly(stagingDir);

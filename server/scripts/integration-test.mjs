@@ -140,6 +140,35 @@ check("game lookup returns the RA id", linked.json().retroAchievementsGameId ===
 const raCatalogue = await req("GET", "/games/launchbox/rom-sku-SLUS21004/achievements");
 check("RA trophies listed in the catalogue", raCatalogue.json()[0]?.displayName === "First Blood", raCatalogue.body.slice(0, 200));
 
+// --- emulation cloud saves (PS2 memory-card save), exactly the app's 3-step flow
+const saveBytes = Buffer.alloc(2 * 1024 * 1024, 7); // > Fastify's default 1MB body limit
+const uploadReq = await req("POST", "/profile/emulation-saves/upload-url", { token: A, json: { platform: "ps2", emulator: "pcsx2", saveKind: "game_save", shop: "launchbox", objectId: "rom-sku-SLUS21004", saveIdentity: "BASLUS-21004DJ", artifactLengthInBytes: saveBytes.length } });
+check("emulation upload-url", uploadReq.statusCode === 200 && uploadReq.json().uploadUrl, `${uploadReq.statusCode} ${uploadReq.body}`);
+check("emulation upload-url requires login", (await req("POST", "/profile/emulation-saves/upload-url", { json: {} })).statusCode === 401);
+check("emulation upload-url rejects bad platform", (await req("POST", "/profile/emulation-saves/upload-url", { token: A, json: { platform: "x", emulator: "pcsx2", saveIdentity: "a", artifactLengthInBytes: 10 } })).statusCode === 400);
+const { id: saveId, uploadUrl } = uploadReq.json();
+const putPath = new URL(uploadUrl).pathname;
+const wrongSize = await req("PUT", putPath, { headers: { "content-type": "application/octet-stream" }, body: Buffer.alloc(10) });
+check("emulation upload rejects wrong size", wrongSize.statusCode === 400, `${wrongSize.statusCode}`);
+check("emulation upload rejects forged token", (await req("PUT", putPath.replace(/.$/, "x"), { headers: { "content-type": "application/octet-stream" }, body: saveBytes })).statusCode === 403);
+const put = await req("PUT", putPath, { headers: { "content-type": "application/octet-stream" }, body: saveBytes });
+check("emulation upload 2MB bytes → 204", put.statusCode === 204, `${put.statusCode} ${put.body.slice(0, 100)}`);
+check("emulation commit by another user → 404", (await req("POST", `/profile/emulation-saves/${saveId}/commit`, { token: B, json: { fileName: "x.psu" } })).statusCode === 404);
+check("emulation commit rejects path in fileName", (await req("POST", `/profile/emulation-saves/${saveId}/commit`, { token: A, json: { fileName: "../x.psu" } })).statusCode === 400);
+const commit = await req("POST", `/profile/emulation-saves/${saveId}/commit`, { token: A, json: { saveKind: "game_save", artifactLengthInBytes: saveBytes.length, fileName: "Def Jam.psu", hostname: "PC", localLastModifiedAt: new Date().toISOString(), label: "Antes da luta final" } });
+check("emulation commit", commit.statusCode === 200 && commit.json().label === "Antes da luta final", `${commit.statusCode} ${commit.body}`);
+const listed = (await req("GET", "/profile/emulation-saves?platform=ps2&emulator=pcsx2&saveKind=game_save&shop=launchbox&objectId=rom-sku-SLUS21004", { token: A })).json();
+check("emulation list shows the save", listed.length === 1 && listed[0].id === saveId, JSON.stringify(listed).slice(0, 200));
+check("emulation list is per user", (await req("GET", "/profile/emulation-saves?platform=ps2", { token: B })).json().length === 0);
+const dl = await req("POST", `/profile/emulation-saves/${saveId}/download-url`, { token: A });
+const got = await req("GET", new URL(dl.json().downloadUrl).pathname);
+check("emulation download returns the same bytes", got.statusCode === 200 && Buffer.compare(got.rawPayload, saveBytes) === 0, `${got.statusCode} ${got.rawPayload?.length}`);
+check("emulation download-url for another user → 404", (await req("POST", `/profile/emulation-saves/${saveId}/download-url`, { token: B })).statusCode === 404);
+const relabel = await req("PUT", `/profile/emulation-saves/${saveId}`, { token: A, json: { label: "Zerado" } });
+check("emulation relabel", relabel.statusCode === 200 && relabel.json().label === "Zerado", relabel.body);
+check("emulation delete", (await req("DELETE", `/profile/emulation-saves/${saveId}`, { token: A })).statusCode === 204);
+check("emulation list empty after delete", (await req("GET", "/profile/emulation-saves?platform=ps2", { token: A })).json().length === 0);
+
 // --- privacy
 db.prepare("UPDATE users SET profile_visibility = 'PRIVATE' WHERE id = ?").run(bob.id);
 const stranger = upsertUserFromSteamLogin("76561198000000033", "Carol", null);

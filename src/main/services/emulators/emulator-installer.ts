@@ -18,6 +18,11 @@ import { SevenZip } from "../7zip";
 import { SystemPath } from "../system-path";
 import { WindowManager } from "../window-manager";
 import { downloadToFile, removeFileQuietly } from "../download-to-file";
+import {
+  assertDownloadIntegrity,
+  assertTrustedDownloadUrl,
+  UntrustedDownloadError,
+} from "../verified-download";
 import { resolveInstallOptions } from "./emulator-install-sources";
 import {
   findManagedEmulatorExecutable,
@@ -170,6 +175,7 @@ export const downloadAndInstallEmulator = async (
   };
 
   try {
+    assertTrustedDownloadUrl(option.downloadUrl);
     if (isAppImage) {
       await fs.promises.mkdir(installDirectory, { recursive: true });
     }
@@ -183,6 +189,8 @@ export const downloadAndInstallEmulator = async (
         total: total ?? undefined,
       });
     });
+    // Nothing downloaded is extracted or run before its integrity is confirmed.
+    await assertDownloadIntegrity(option.downloadUrl, dest, option.sha256);
 
     if (option.kind === "windows-installer") {
       sendProgress({ binary, optionId, phase: "running" });
@@ -234,12 +242,9 @@ export const downloadAndInstallEmulator = async (
   } catch (error) {
     logger.error("Failed to install emulator", error);
     await removeFileQuietly(dest);
-    sendProgress({
-      binary,
-      optionId,
-      phase: "error",
-      reason: "install_failed",
-    });
-    return { ok: false, reason: "install_failed" };
+    const reason =
+      error instanceof UntrustedDownloadError ? "integrity_failed" : "install_failed";
+    sendProgress({ binary, optionId, phase: "error", reason });
+    return { ok: false, reason };
   }
 };

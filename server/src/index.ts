@@ -2,6 +2,7 @@ import { config } from "./config.js";
 import "./db.js"; // side-effect: creates schema + seeds allowlist
 import { buildApp } from "./app.js";
 import { cleanupStaleCloudSaves } from "./cloud-saves/cleanup.js";
+import { cleanupStaleEmulationSaves } from "./emulation-saves/routes.js";
 import { scheduleDailyBackup } from "./backup.js";
 import {
   requeueGamesForReviewCountIfNeeded,
@@ -20,6 +21,7 @@ requeueUntranslatedGamesIfNeeded();
 requeueGamesForReviewCountIfNeeded();
 startSteamCatalogueSyncLoop();
 cleanupStaleCloudSaves();
+cleanupStaleEmulationSaves();
 
 app
   .listen({ port: config.port, host: HOST })

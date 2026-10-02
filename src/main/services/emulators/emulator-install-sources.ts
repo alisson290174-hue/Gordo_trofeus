@@ -1,4 +1,5 @@
 import axios from "axios";
+import { parseSha256Digest } from "../verified-download";
 
 import type {
   EmulatorBinary,
@@ -128,8 +129,13 @@ const pcsx2Entries = (
         repo: "PCSX2/pcsx2",
         channel: "prerelease",
         channelLabel: "prerelease",
-        assetPattern,
-        kind,
+        // Windows nightlies ship only as a portable "pcsx2-v2.9.94-windows-x64-Qt.7z".
+        assetPattern: isWindows
+          ? arch === "arm64"
+            ? /windows-arm64-Qt\.7z$/i
+            : /windows-x64-Qt\.7z$/i
+          : assetPattern,
+        kind: isWindows ? "windows-archive" : kind,
       }
     );
   }
@@ -169,7 +175,8 @@ const rpcs3Entries = (
         repo: "RPCS3/rpcs3-binaries-win",
         channel: "latest",
         channelLabel: null,
-        assetPattern: /_win64\.7z$/i,
+        // Builds are named "rpcs3-v0.0.43-20183-b1f51cfa_win64_msvc.7z" (older ones "_win64.7z").
+        assetPattern: /_win64(?:_msvc)?\.7z$/i,
         kind: "windows-archive",
       },
     ];
@@ -350,6 +357,8 @@ const githubEntries = (
 interface GithubAsset {
   name: string;
   browser_download_url: string;
+  /** "sha256:<hex>", published by GitHub for release assets. */
+  digest?: string | null;
 }
 
 interface GithubRelease {
@@ -454,6 +463,7 @@ const resolveGithubOption = async (
     htmlUrl: release.html_url,
     linkUrl: null,
     linkKind: null,
+    sha256: parseSha256Digest(asset.digest),
   };
 };
 

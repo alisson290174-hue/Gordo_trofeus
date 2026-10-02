@@ -14,6 +14,7 @@ import { registerPublicProfileRoutes } from "./profile/public-routes.js";
 import { registerCollectionRoutes } from "./collections/routes.js";
 import { registerCloudSaveRoutes } from "./cloud-saves/routes.js";
 import { registerRetroAchievementsRoutes } from "./integrations/retroachievements-routes.js";
+import { registerEmulationSaveRoutes } from "./emulation-saves/routes.js";
 import { registerMiscRoutes } from "./misc-routes.js";
 import { registerPs2Routes } from "./catalogue/ps2-routes.js";
 import { registerArtworkLookupRoutes } from "./catalogue/artwork-lookup-routes.js";
@@ -90,6 +91,7 @@ export async function buildApp() {
   registerCollectionRoutes(app);
   registerCloudSaveRoutes(app);
   registerRetroAchievementsRoutes(app);
+  registerEmulationSaveRoutes(app);
   registerMiscRoutes(app);
   registerPs2Routes(app);
   registerArtworkLookupRoutes(app);
