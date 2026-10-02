@@ -4,6 +4,7 @@ import { AppUpdaterEvent, UserPreferences } from "@types";
 import { app } from "electron";
 import { publishNotificationUpdateReadyToInstall } from "@main/services/notifications";
 import { db, levelKeys } from "@main/level";
+import { HydraApi } from "./hydra-api";
 
 const { autoUpdater } = updater;
 const sendEventsForDebug = false;
@@ -60,10 +61,21 @@ export class UpdateManager {
     const isAutoInstallAvailable = await this.isAutoInstallEnabled();
 
     if (app.isPackaged) {
+      // Our update feed is for signed-in users only; without a session there is nothing to check.
+      const token = await HydraApi.getFreshAccessToken();
+      if (!token) return isAutoInstallAvailable;
+
+      autoUpdater.requestHeaders = { Authorization: `Bearer ${token}` };
       autoUpdater.autoDownload = isAutoInstallAvailable;
-      autoUpdater.checkForUpdates().then((result) => {
-        logger.log(`Check for updates result: ${result}`);
-      });
+      autoUpdater
+        .checkForUpdates()
+        .then((result) => {
+          logger.log(`Check for updates: latest ${result?.updateInfo?.version ?? "unknown"}`);
+        })
+        .catch((error) => {
+          // Used to fail silently (unhandled) — keep it visible in the log.
+          logger.error("Check for updates failed", error instanceof Error ? error.message : error);
+        });
     } else if (sendEventsForDebug) {
       this.mockValuesForDebug();
     }

@@ -39,6 +39,8 @@ import { backfillPs2Covers } from "./helpers/backfill-ps2-covers";
 import { backfillPs2Metadata } from "./helpers/backfill-ps2-metadata";
 import { getEpicStatus } from "./services/epic/epic-account";
 import { syncEpicLibrary } from "./services/epic/epic-library";
+import { sealEpicSessionAtRest } from "./services/epic/legendary";
+import { findInstalledDownloadedGames } from "./services/installed-game-finder";
 import {
   refreshSteamOwnedAchievements,
   syncSteamOwnedLibrary,
@@ -128,6 +130,8 @@ export const loadState = async () => {
     // Then real titles, fanart and logos from the server's PS2 index (after covers so it can
     // replace the box art that stands in as background).
     void backfillPs2Covers().then(() => backfillPs2Metadata());
+    // An Epic session left in plaintext (app closed while Legendary ran) is encrypted again.
+    sealEpicSessionAtRest();
     // Epic account (if connected): refresh owned games and installed state. Local only.
     void getEpicStatus()
       .then((status) => (status.connected ? syncEpicLibrary() : 0))
@@ -136,6 +140,10 @@ export const loadState = async () => {
     void syncSteamOwnedLibrary().catch((error) =>
       logger.warn("[steam-owned] boot sync skipped", error?.message ?? error)
     );
+    // Downloaded games installed while Balói was closed: learn their executable from Windows.
+    void findInstalledDownloadedGames()
+      .then((found) => found && logger.info(`[installed-game-finder] ${found} game(s) found installed`))
+      .catch((error) => logger.warn("[installed-game-finder] boot check skipped", error?.message ?? error));
     // Trophies from games played on Steam while the app is open.
     setInterval(
       () =>
@@ -215,19 +223,26 @@ export const loadState = async () => {
   }
 
   // Torrents use the native service; HTTP downloads use the JS downloader.
+  // A torrent start-up failure (e.g. the native addon missing) must never keep the main loop —
+  // process, download and achievement watchers — from starting: up to v1.0.14 it did, so live
+  // achievement notifications and playtime tracking silently never ran in installed builds.
   const isTorrent = downloadToResume?.downloader === Downloader.Torrent;
-  if (downloadToResume && !isTorrent) {
-    // Initialize torrent seeding, then resume the HTTP download with JS.
-    await DownloadManager.initializeTorrentService(undefined, downloadsToSeed);
-    await DownloadManager.startDownload(downloadToResume).catch((err) => {
-      // If resume fails, just log it - user can manually retry
-      logger.error("Failed to auto-resume download:", err);
-    });
-  } else {
-    await DownloadManager.initializeTorrentService(
-      downloadToResume ?? undefined,
-      downloadsToSeed
-    );
+  try {
+    if (downloadToResume && !isTorrent) {
+      // Initialize torrent seeding, then resume the HTTP download with JS.
+      await DownloadManager.initializeTorrentService(undefined, downloadsToSeed);
+      await DownloadManager.startDownload(downloadToResume).catch((err) => {
+        // If resume fails, just log it - user can manually retry
+        logger.error("Failed to auto-resume download:", err);
+      });
+    } else {
+      await DownloadManager.initializeTorrentService(
+        downloadToResume ?? undefined,
+        downloadsToSeed
+      );
+    }
+  } catch (error) {
+    logger.error("[Startup] Torrent service failed to start; continuing without it", error);
   }
 
   WindowManager.sendDownloadsUpdated();

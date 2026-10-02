@@ -1686,7 +1686,8 @@ export class DownloadManager {
         return {
           action: "start",
           game_id: downloadId,
-          url: download.uri,
+          // Some sources ship HTML-escaped magnets ("&#038;tr=…") — the trackers would be lost.
+          url: download.uri.replace(/&(?:#0*38|amp);/gi, "&"),
           save_path: download.downloadPath,
           file_indices: hasSelectedFileIndices
             ? download.fileIndices

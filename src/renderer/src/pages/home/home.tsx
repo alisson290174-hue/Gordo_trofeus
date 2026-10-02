@@ -210,9 +210,10 @@ export default function Home() {
   const discoverGames = useMemo(() => {
     if (discoverTab === "almost") {
       return orderBy(
+        // Same rule as the library's "Em andamento": started and not platinum yet.
         libraryGames.filter((game) => {
           const progress = getTrophyProgress(game);
-          return progress.total > 0 && !progress.isPlatinum;
+          return progress.unlocked > 0 && !progress.isPlatinum;
         }),
         [(game) => getTrophyProgress(game).percent],
         ["desc"]

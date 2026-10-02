@@ -2,7 +2,6 @@
 // https://www.electronjs.org/docs/latest/tutorial/process-model#preload-scripts
 import { contextBridge, ipcRenderer } from "electron";
 import type { EpicInstallState } from "@types";
-import { randomUUID } from "node:crypto";
 
 import type {
   GameShop,
@@ -91,7 +90,8 @@ const invokeCloudSaveOperation = async <TResult = SyncGameCloudSaveResult>(
   args: unknown[],
   onProgress?: (progress: CloudSaveSyncProgressPayload) => void
 ) => {
-  const operationId = randomUUID();
+  // Sandboxed preload: no Node modules — the Web Crypto API provides the same UUIDs.
+  const operationId = globalThis.crypto.randomUUID();
   const listener = (
     _event: Electron.IpcRendererEvent,
     progress: CloudSaveSyncIpcProgressPayload
@@ -111,7 +111,8 @@ const invokeGameArtifactExport = async (
   suggestedName: string,
   onProgress?: (progress: LegacySaveExportProgress) => void
 ): Promise<LegacySaveExportResult> => {
-  const operationId = randomUUID();
+  // Sandboxed preload: no Node modules — the Web Crypto API provides the same UUIDs.
+  const operationId = globalThis.crypto.randomUUID();
   const listener = (
     _event: Electron.IpcRendererEvent,
     progress: LegacySaveExportIpcProgress
@@ -1647,8 +1648,9 @@ contextBridge.exposeInMainWorld("electron", {
   listEpicGames: () => ipcRenderer.invoke("listEpicGames"),
   syncEpicLibrary: () => ipcRenderer.invoke("syncEpicLibrary"),
   getEpicInstalls: () => ipcRenderer.invoke("getEpicInstalls"),
-  installEpicGame: (appName: string, title: string) =>
-    ipcRenderer.invoke("installEpicGame", appName, title),
+  getEpicInstallPlan: (appName: string) => ipcRenderer.invoke("getEpicInstallPlan", appName),
+  installEpicGame: (appName: string, title: string, folder?: string) =>
+    ipcRenderer.invoke("installEpicGame", appName, title, folder),
   cancelEpicInstall: (appName: string) =>
     ipcRenderer.invoke("cancelEpicInstall", appName),
   uninstallEpicGame: (appName: string) =>

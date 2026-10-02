@@ -3,6 +3,7 @@ import { requireAuth } from "../auth/require-auth.js";
 import { assertSafePublicUrl, safeFetchJson } from "./safe-fetch.js";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db.js";
+import { decodeDownloadUri } from "./download-uri.js";
 import { matchRepackTitleToSteamGame } from "./matcher.js";
 
 interface SourceEntry {
@@ -38,6 +39,14 @@ const setNameStatement = db.prepare("UPDATE download_sources SET name = ? WHERE 
 const insertRepackStatement = db.prepare(`
   INSERT INTO game_repacks (id, appid, title, file_size, uris, upload_date, download_source_id, created_at)
   VALUES ($id, $appid, $title, $fileSize, $uris, $uploadDate, $downloadSourceId, $createdAt)
+`);
+
+const changedRepacksStatement = db.prepare(`
+  SELECT appid, download_source_id, COUNT(*) AS total FROM game_repacks
+  WHERE created_at > ?
+    AND download_source_id IN (SELECT value FROM json_each(?))
+    AND appid IN (SELECT value FROM json_each(?))
+  GROUP BY appid, download_source_id
 `);
 
 function toDownloadSourceResponse(row: DownloadSourceRow) {
@@ -89,7 +98,7 @@ async function processDownloadSource(sourceId: string, url: string) {
           appid,
           title: entry.title,
           fileSize: entry.fileSize ?? null,
-          uris: JSON.stringify(entry.uris),
+          uris: JSON.stringify(entry.uris.map(decodeDownloadUri)),
           uploadDate: entry.uploadDate ?? null,
           downloadSourceId: sourceId,
           createdAt: new Date().toISOString(),
@@ -154,6 +163,58 @@ export function registerDownloadSourceRoutes(app: FastifyInstance) {
     if (!requireAuth(request, reply)) return;
     const rows = listSourcesStatement.all() as unknown as DownloadSourceRow[];
     reply.send(rows.map(toDownloadSourceResponse));
+  });
+
+  /**
+   * "New download options" badge: which of the caller's library games got repacks from the given
+   * sources since the client's last start. Only Steam app ids are catalogued, other shops are
+   * ignored. Inputs are bounded and passed as JSON params (no string-built SQL).
+   */
+  app.post<{
+    Body: { downloadSourceIds?: unknown; games?: unknown; since?: unknown };
+  }>("/download-sources/changes", async (request, reply) => {
+    if (!requireAuth(request, reply)) return;
+
+    const sourceIds = Array.isArray(request.body?.downloadSourceIds)
+      ? request.body.downloadSourceIds.map(String).slice(0, 100)
+      : [];
+    const games = Array.isArray(request.body?.games) ? request.body.games.slice(0, 5000) : [];
+    const appIds = [
+      ...new Set(
+        games
+          .filter((game: { shop?: unknown }) => game?.shop === "steam")
+          .map((game: { objectId?: unknown }) => String(game?.objectId ?? ""))
+          .filter((id: string) => /^\d{1,10}$/.test(id))
+          .map(Number)
+      ),
+    ];
+    const since = new Date(String(request.body?.since ?? ""));
+    if (sourceIds.length === 0 || appIds.length === 0 || Number.isNaN(since.getTime())) {
+      return reply.send([]);
+    }
+
+    const rows = changedRepacksStatement.all(
+      since.toISOString(),
+      JSON.stringify(sourceIds),
+      JSON.stringify(appIds)
+    ) as { appid: number; download_source_id: string; total: number }[];
+
+    const byGame = new Map<number, { count: number; sources: string[] }>();
+    for (const row of rows) {
+      const entry = byGame.get(row.appid) ?? { count: 0, sources: [] };
+      entry.count += row.total;
+      entry.sources.push(row.download_source_id);
+      byGame.set(row.appid, entry);
+    }
+
+    reply.send(
+      [...byGame].map(([appid, entry]) => ({
+        shop: "steam",
+        objectId: String(appid),
+        newDownloadOptionsCount: entry.count,
+        downloadSourceIds: entry.sources,
+      }))
+    );
   });
 
   app.get<{ Params: { id: string } }>("/download-sources/:id", async (request, reply) => {

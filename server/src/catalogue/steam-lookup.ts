@@ -1,5 +1,8 @@
 import { db } from "../db.js";
 import { normalizeGenres } from "./genres.js";
+import { createLimiter } from "../rate-limit.js";
+
+const ingestBudget = createLimiter(20, 60_000);
 
 export interface SteamGameRow {
   appid: number;
@@ -33,7 +36,7 @@ async function searchStoreByTitle(title: string): Promise<SteamSearchItem[]> {
   url.searchParams.set("cc", "us");
   url.searchParams.set("l", "english");
 
-  const response = await fetch(url).catch(() => null);
+  const response = await fetch(url, { signal: AbortSignal.timeout(10_000) }).catch(() => null);
   if (!response?.ok) return [];
 
   const data = (await response.json().catch(() => null)) as { items?: SteamSearchItem[] } | null;
@@ -149,6 +152,9 @@ export async function ingestSteamGamesByTitle(
 ): Promise<number> {
   const key = title.trim().toLowerCase();
   if (!key) return 0;
+  // The catalogue search is public: cap live Steam store lookups for everyone together, so nobody
+  // can make the VPS hammer the store (each ingestion is up to 13 requests).
+  if (!ingestBudget("global")) return 0;
 
   const last = recentIngestTerms.get(key);
   if (last && Date.now() - last < INGEST_TERM_TTL_MS) return 0;

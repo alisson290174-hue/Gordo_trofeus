@@ -75,7 +75,7 @@ async function fetchGlobalAchievementPercentages(
   );
   url.searchParams.set("gameid", String(appid));
 
-  const response = await fetch(url).catch(() => null);
+  const response = await fetch(url, { signal: AbortSignal.timeout(10_000) }).catch(() => null);
   if (!response?.ok) return new Map();
 
   const data = (await response.json()) as {

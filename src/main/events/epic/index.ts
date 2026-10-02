@@ -9,6 +9,7 @@ import {
 import { syncEpicLibrary } from "@main/services/epic/epic-library";
 import {
   cancelEpicInstall,
+  getEpicInstallPlan,
   getEpicInstalls,
   installEpicGame,
   uninstallEpicGame,
@@ -33,8 +34,9 @@ registerEvent("logoutFromEpic", async () => {
 registerEvent("listEpicGames", () => listEpicGames());
 registerEvent("syncEpicLibrary", () => syncEpicLibrary());
 registerEvent("getEpicInstalls", () => getEpicInstalls());
-registerEvent("installEpicGame", (_event, appName: string, title: string) =>
-  installEpicGame(appName, title)
+registerEvent("getEpicInstallPlan", (_event, appName: string) => getEpicInstallPlan(appName));
+registerEvent("installEpicGame", (_event, appName: string, title: string, folder?: string) =>
+  installEpicGame(appName, title, folder)
 );
 registerEvent("cancelEpicInstall", (_event, appName: string) => cancelEpicInstall(appName));
 registerEvent("uninstallEpicGame", (_event, appName: string) => uninstallEpicGame(appName));

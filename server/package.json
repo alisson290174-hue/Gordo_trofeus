@@ -10,9 +10,9 @@
     "seed-friend": "tsx scripts/add-friend.ts"
   },
   "dependencies": {
-    "@fastify/static": "^7.0.4",
+    "@fastify/static": "^10.1.5",
     "dotenv": "^16.4.5",
-    "fastify": "^4.28.1",
+    "fastify": "^5",
     "jsonwebtoken": "^9.0.2",
     "openid": "^2.0.11"
   },

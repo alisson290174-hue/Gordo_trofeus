@@ -6,6 +6,7 @@ import { Icon } from "@renderer/components/icon/icon";
 import { useLibrary, useToast, useUserDetails } from "@renderer/hooks";
 import { countPlatinums } from "@renderer/helpers/ps5-game";
 import TierBadgePlatinum from "@renderer/assets/achievements/tier-badge-platinum.png";
+import SteamLogo from "@renderer/assets/steam-logo.svg?react";
 
 export function NavProfile() {
   const navigate = useNavigate();
@@ -60,6 +61,22 @@ export function NavProfile() {
   };
 
   const initial = (userDetails?.displayName ?? "B").charAt(0).toUpperCase();
+
+  // Signed out (a friend's first run): say so plainly instead of a bare "B" avatar.
+  if (!userDetails) {
+    return (
+      <div className="nav-profile" ref={containerRef}>
+        <button
+          type="button"
+          className="nav-profile__sign-in"
+          onClick={() => window.electron.openAuthWindow(AuthPage.SignIn)}
+        >
+          <SteamLogo aria-hidden="true" />
+          <span>{t("sidebar:sign_in_with_steam")}</span>
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="nav-profile" ref={containerRef}>

@@ -1,5 +1,5 @@
-import { app } from "electron";
-import { execFile } from "node:child_process";
+import { app, safeStorage } from "electron";
+import { execFile, type ChildProcess } from "node:child_process";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -14,6 +14,9 @@ import { logger } from "../logger";
  * - Its config and the Epic session live in the Balói user folder (LEGENDARY_CONFIG_PATH),
  *   never in a shared location and never sent to our server.
  * - Its own update checks are disabled, so it only talks to Epic.
+ * - The Epic session (Legendary's user.json, with the account tokens) is kept encrypted at rest
+ *   with Windows DPAPI (safeStorage), like Balói's own session: it is decrypted only while a
+ *   Legendary process runs and sealed again — with any refreshed token — when the last one ends.
  */
 const LEGENDARY_VERSION = "0.21.1";
 const LEGENDARY_SHA256 =
@@ -60,6 +63,78 @@ const ensureConfig = () => {
   }
 };
 
+// --- Epic session at rest -------------------------------------------------------------------
+const sessionFile = () => path.join(legendaryConfigPath(), "user.json");
+const sealedFile = () => path.join(legendaryConfigPath(), "user.json.enc");
+let openSessions = 0;
+
+const canEncrypt = () => {
+  try {
+    return safeStorage.isEncryptionAvailable();
+  } catch {
+    return false;
+  }
+};
+
+/** Encrypts user.json into user.json.enc and removes the plaintext (or drops a stale seal). */
+function sealSession() {
+  if (!canEncrypt()) return;
+  try {
+    if (fs.existsSync(sessionFile())) {
+      const sealed = safeStorage.encryptString(fs.readFileSync(sessionFile(), "utf8"));
+      const temp = `${sealedFile()}.tmp`;
+      fs.writeFileSync(temp, sealed, { mode: 0o600 });
+      fs.renameSync(temp, sealedFile());
+      fs.rmSync(sessionFile(), { force: true });
+    } else {
+      // Legendary removed the session (logout): the sealed copy must go too.
+      fs.rmSync(sealedFile(), { force: true });
+    }
+  } catch (error) {
+    logger.error("[legendary] could not seal the Epic session", error);
+  }
+}
+
+/** Writes user.json back from the sealed copy for a Legendary run. */
+function unsealSession() {
+  if (!canEncrypt() || fs.existsSync(sessionFile()) || !fs.existsSync(sealedFile())) return;
+  try {
+    const plain = safeStorage.decryptString(fs.readFileSync(sealedFile()));
+    fs.writeFileSync(sessionFile(), plain, { mode: 0o600 });
+  } catch (error) {
+    logger.error("[legendary] could not open the sealed Epic session", error);
+  }
+}
+
+/** Marks the start of a Legendary run; the session stays readable until every run has ended. */
+export function openEpicSession() {
+  ensureConfig();
+  if (openSessions === 0) unsealSession();
+  openSessions += 1;
+}
+
+export function closeEpicSession() {
+  openSessions = Math.max(0, openSessions - 1);
+  if (openSessions === 0) sealSession();
+}
+
+/** For long-running Legendary children (install, launch): close the session when it exits. */
+export function trackEpicSession(child: ChildProcess) {
+  let closed = false;
+  const close = () => {
+    if (closed) return;
+    closed = true;
+    closeEpicSession();
+  };
+  child.once("exit", close);
+  child.once("error", close);
+}
+
+/** At start-up: a session left in plaintext (app closed mid-run) is sealed right away. */
+export function sealEpicSessionAtRest() {
+  if (openSessions === 0) sealSession();
+}
+
 export interface LegendaryResult {
   stdout: string;
   stderr: string;
@@ -71,9 +146,9 @@ export async function runLegendary(
   { timeoutMs = 120_000 }: { timeoutMs?: number } = {}
 ): Promise<LegendaryResult> {
   await verifyBinary();
-  ensureConfig();
+  openEpicSession();
 
-  return new Promise((resolve, reject) => {
+  return new Promise<LegendaryResult>((resolve, reject) => {
     execFile(
       binaryPath,
       args,
@@ -98,7 +173,7 @@ export async function runLegendary(
         resolve({ stdout, stderr });
       }
     );
-  });
+  }).finally(closeEpicSession);
 }
 
 export const legendaryInfo = () => ({

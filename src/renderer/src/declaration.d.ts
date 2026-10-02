@@ -1,5 +1,6 @@
 import type {
   EpicGame,
+  EpicInstallPlan,
   EpicInstallState,
   EpicStatus, AuthPage } from "@shared";
 import type {
@@ -1170,7 +1171,8 @@ declare global {
     listEpicGames: () => Promise<EpicGame[]>;
     syncEpicLibrary: () => Promise<number>;
     getEpicInstalls: () => Promise<EpicInstallState[]>;
-    installEpicGame: (appName: string, title: string) => Promise<void>;
+    getEpicInstallPlan: (appName: string) => Promise<EpicInstallPlan>;
+    installEpicGame: (appName: string, title: string, folder?: string) => Promise<void>;
     cancelEpicInstall: (appName: string) => Promise<void>;
     uninstallEpicGame: (appName: string) => Promise<void>;
     onEpicInstallProgress: (cb: (state: EpicInstallState) => void) => () => Electron.IpcRenderer;

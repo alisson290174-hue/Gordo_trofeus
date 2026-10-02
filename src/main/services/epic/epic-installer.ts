@@ -1,11 +1,19 @@
+import fs from "node:fs";
+import path from "node:path";
 import { execFile, spawn, type ChildProcess } from "node:child_process";
-import type { EpicInstallState } from "@types";
-import { gamesSublevel, levelKeys } from "@main/level";
+import type { EpicInstallPlan, EpicInstallState } from "@types";
+import { db, gamesSublevel, levelKeys } from "@main/level";
 import { getDownloadsPath } from "@main/events/helpers/get-downloads-path";
 import { logger } from "../logger";
 import { WindowManager } from "../window-manager";
 import { LocalNotificationManager } from "../notifications/local-notifications";
-import { legendaryConfigPath, legendaryInfo, runLegendary } from "./legendary";
+import {
+  legendaryConfigPath,
+  legendaryInfo,
+  openEpicSession,
+  runLegendary,
+  trackEpicSession,
+} from "./legendary";
 import { epicExecutablePath, getEpicInstalled } from "./epic-library";
 
 /**
@@ -41,14 +49,61 @@ async function markInstalled(appName: string) {
   WindowManager.sendToAppWindows("on-library-batch-complete");
 }
 
-export async function installEpicGame(appName: string, title: string): Promise<void> {
+const EPIC_INSTALL_PATH_KEY = "baloi:epicInstallPath";
+const isValidAppName = (appName: string) => /^[\w.-]+$/.test(appName);
+
+/** Where Epic games go unless the user picks another folder: the last one used, else Downloads. */
+async function defaultEpicInstallPath() {
+  const saved = await db
+    .get<string, string>(EPIC_INSTALL_PATH_KEY, { valueEncoding: "utf8" })
+    .catch(() => null);
+  if (typeof saved === "string" && saved && fs.existsSync(saved)) return saved;
+  return getDownloadsPath();
+}
+
+/** Sizes from Epic's manifest (via Legendary) + the suggested folder, for the install dialog. */
+export async function getEpicInstallPlan(appName: string): Promise<EpicInstallPlan> {
+  if (!isValidAppName(appName)) throw new Error("invalid Epic app name");
+  const defaultPath = await defaultEpicInstallPath();
+  try {
+    const { stdout } = await runLegendary(["info", appName, "--json"], { timeoutMs: 60_000 });
+    const info = JSON.parse(stdout) as { manifest?: { download_size?: number; disk_size?: number } };
+    return {
+      defaultPath,
+      downloadBytes: info.manifest?.download_size ?? null,
+      installBytes: info.manifest?.disk_size ?? null,
+    };
+  } catch {
+    // Sizes are a nicety — the install still works without them.
+    return { defaultPath, downloadBytes: null, installBytes: null };
+  }
+}
+
+/** The chosen folder must be a real, absolute, writable directory (created if missing). */
+function resolveInstallFolder(folder: string) {
+  if (!folder || !path.isAbsolute(folder)) throw new Error("invalid install folder");
+  const resolved = path.resolve(folder);
+  fs.mkdirSync(resolved, { recursive: true });
+  fs.accessSync(resolved, fs.constants.W_OK);
+  return resolved;
+}
+
+export async function installEpicGame(
+  appName: string,
+  title: string,
+  folder?: string
+): Promise<void> {
   if (installs.has(appName)) return;
-  if (!/^[\w.-]+$/.test(appName)) throw new Error("invalid Epic app name");
+  if (!isValidAppName(appName)) throw new Error("invalid Epic app name");
 
   // Integrity check + private config happen inside runLegendary; a cheap call triggers both.
   await runLegendary(["--version"], { timeoutMs: 20_000 });
 
-  const basePath = await getDownloadsPath();
+  const basePath = folder ? resolveInstallFolder(folder) : await defaultEpicInstallPath();
+  if (folder) {
+    await db.put(EPIC_INSTALL_PATH_KEY, basePath, { valueEncoding: "utf8" }).catch(() => {});
+  }
+  openEpicSession();
   const child = spawn(
     legendaryInfo().binaryPath,
     ["install", appName, "--base-path", basePath, "-y", "--skip-sdl"],
@@ -73,6 +128,7 @@ export async function installEpicGame(appName: string, title: string): Promise<v
     etaSeconds: null,
     error: null,
   };
+  trackEpicSession(child);
   installs.set(appName, { state, child });
   emit(state);
 
@@ -155,11 +211,13 @@ export async function uninstallEpicGame(appName: string) {
 export async function launchEpicGame(appName: string) {
   if (!/^[\w.-]+$/.test(appName)) throw new Error("invalid Epic app name");
   await runLegendary(["--version"], { timeoutMs: 20_000 });
+  openEpicSession();
   const child = spawn(legendaryInfo().binaryPath, ["launch", appName], {
     windowsHide: true,
     detached: true,
     stdio: "ignore",
     env: { ...process.env, LEGENDARY_CONFIG_PATH: legendaryConfigPath() },
   });
+  trackEpicSession(child);
   child.unref();
 }

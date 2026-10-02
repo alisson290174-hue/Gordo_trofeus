@@ -96,17 +96,20 @@ export function syncSteamOwnedAchievements(played: SteamPlayedGame[]): Promise<n
         if (!game) continue;
 
         const unlocks = data.games[appId] ?? [];
+        let merged = true;
         if (unlocks.length > 0) {
           // No pop-up or screenshot: these were unlocked earlier, inside Steam.
           unlockedTotal += await mergeAchievements(game, unlocks, false).catch((error) => {
+            merged = false;
             logger.warn(`[steam-achievements] merge failed for ${appId}`, error?.message ?? error);
             return 0;
           });
         }
 
         // Only marked done once the unlocks could reach the profile: a game still without its
-        // profile entry (remoteId) keeps them locally and is tried again on the next run.
-        const reachedProfile = Boolean(game.remoteId) && AchievementWatcherManager.hasFinishedPreSearch;
+        // profile entry (remoteId), or whose merge failed, is tried again on the next run.
+        const reachedProfile =
+          merged && Boolean(game.remoteId) && AchievementWatcherManager.hasFinishedPreSearch;
         const latest = await gamesSublevel.get(key).catch(() => null);
         if (latest && reachedProfile) {
           await gamesSublevel.put(key, { ...latest, steamAchievementsCheckedFor: syncedFor });

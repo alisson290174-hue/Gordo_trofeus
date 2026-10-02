@@ -1,6 +1,7 @@
 import type { FastifyInstance } from "fastify";
 import { genreAliases, normalizeGenre, normalizeGenres } from "./genres.js";
 import { db } from "../db.js";
+import { decodeDownloadUri } from "./download-uri.js";
 import {
   getOrCacheSteamGame,
   ingestSteamGamesByTitle,
@@ -35,7 +36,7 @@ function toCatalogueSearchResult(game: SteamGameRow, downloadSourceIds: string[]
   return {
     id: String(game.appid),
     objectId: String(game.appid),
-    title: game.title,
+    title: game.title.trim(),
     shop: "steam",
     genres: normalizeGenres(parseJsonArray(game.genres)),
     developers: parseJsonArray(game.developers),
@@ -79,12 +80,31 @@ const mostAchievementsGamesStatement = db.prepare(`
 const distinctFieldStatement = (column: "genres" | "developers" | "publishers") =>
   db.prepare(`SELECT ${column} FROM steam_games WHERE ${column} IS NOT NULL`);
 
+// Release year unless it's impossible (more than a year ahead) — Steam has 2999/9998 placeholders.
+const PLAUSIBLE_YEAR = `(CASE WHEN sg.release_year > CAST(strftime('%Y', 'now') AS INTEGER) + 1 THEN NULL ELSE sg.release_year END)`;
+
+// One collator for all sorts: localeCompare(…, options) rebuilt the rules on every comparison and
+// took ~30 s for the 100k+ publishers/developers, blocking every other request meanwhile.
+const nameCollator = new Intl.Collator("pt-BR", { sensitivity: "base" });
+// The lists only change as the catalogue grows; rebuilding them on each catalogue visit is waste.
+const DISTINCT_TTL_MS = 30 * 60 * 1000;
+const distinctCache = new Map<string, { at: number; values: string[] }>();
+
 function distinctValues(column: "genres" | "developers" | "publishers"): string[] {
+  const cached = distinctCache.get(column);
+  if (cached && Date.now() - cached.at < DISTINCT_TTL_MS) return cached.values;
+
   const rows = distinctFieldStatement(column).all() as Record<string, string>[];
   const values = new Set<string>();
   for (const row of rows)
-    for (const v of parseJsonArray(row[column])) values.add(column === "genres" ? normalizeGenre(v) : v);
-  return [...values].sort();
+    for (const v of parseJsonArray(row[column])) {
+      // Steam data has stray padding ("  Milestone S.r.l.", "\t2D is enough") — list clean names.
+      const clean = (column === "genres" ? normalizeGenre(v) : v).trim();
+      if (clean) values.add(clean);
+    }
+  const sorted = [...values].sort(nameCollator.compare);
+  distinctCache.set(column, { at: Date.now(), values: sorted });
+  return sorted;
 }
 
 const similarGamesStatement = db.prepare(`
@@ -132,7 +152,7 @@ export function registerCatalogueRoutes(app: FastifyInstance) {
         id: r.id,
         title: r.title,
         fileSize: r.file_size,
-        uris: parseJsonArray(r.uris),
+        uris: parseJsonArray(r.uris).map(decodeDownloadUri),
         unavailableUris: [],
         uploadDate: r.upload_date,
         downloadSourceId: r.download_source_id,
@@ -227,8 +247,9 @@ export function registerCatalogueRoutes(app: FastifyInstance) {
     const params: string[] = [];
     if (titleTokens.length > 0) {
       for (const token of titleTokens) {
-        conditions.push("sg.title LIKE ?");
-        params.push(`%${token}%`);
+        // "%" and "_" typed by the user are literal characters, not LIKE wildcards.
+        conditions.push("sg.title LIKE ? ESCAPE '\\'");
+        params.push(`%${token.replace(/[\\%_]/g, "\\$&")}%`);
       }
     } else {
       conditions.push("sg.title LIKE ?");
@@ -242,10 +263,17 @@ export function registerCatalogueRoutes(app: FastifyInstance) {
       for (const value of values ?? []) {
         // Genres may be stored in English or Portuguese: match any spelling of the same genre.
         const spellings = column === "genres" ? genreAliases(value) : [value.trim()];
+        // LIKE is only a fast pre-filter; the JSON check below keeps exact list items, so
+        // "Violência" no longer brings "Violência detalhada" and "SEGA" no longer "SHINSEGAE".
         conditions.push(`(${spellings.map(() => `sg.${column} LIKE ?`).join(" OR ")})`);
         for (const spelling of spellings) {
           params.push(`%${JSON.stringify(spelling).slice(1, -1)}%`);
         }
+        conditions.push(
+          `EXISTS (SELECT 1 FROM json_each(CASE WHEN json_valid(sg.${column}) THEN sg.${column} ELSE '[]' END)
+             WHERE TRIM(value) IN (${spellings.map(() => "?").join(", ")}))`
+        );
+        params.push(...spellings);
       }
     }
     const whereClause = conditions.join(" AND ");
@@ -257,10 +285,11 @@ export function registerCatalogueRoutes(app: FastifyInstance) {
     let orderClause: string;
     switch (body.sortBy) {
       case "alphabetical":
-        orderClause = `sg.title COLLATE NOCASE ${direction}`;
+        orderClause = `TRIM(sg.title) COLLATE NOCASE ${direction}`;
         break;
       case "releaseDate":
-        orderClause = `sg.release_year IS NULL ASC, sg.release_year ${direction}, sg.title COLLATE NOCASE ASC`;
+        // Placeholder years (2999, 9998…) sort with the undated games, not first.
+        orderClause = `${PLAUSIBLE_YEAR} IS NULL ASC, ${PLAUSIBLE_YEAR} ${direction}, TRIM(sg.title) COLLATE NOCASE ASC`;
         break;
       // popularity / reviewScore / hydraScore (default) — most reviewed first. Until the
       // background sync backfills review_count for the whole catalogue, games still at NULL fall

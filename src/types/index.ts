@@ -20,6 +20,13 @@ export type HydraCloudFeature =
   | "customization"
   | "vikingfile";
 
+/** What the Epic install dialog shows before installing. Sizes are null when Epic didn't say. */
+export interface EpicInstallPlan {
+  defaultPath: string;
+  downloadBytes: number | null;
+  installBytes: number | null;
+}
+
 export interface DiskUsage {
   free: number;
   total: number;
@@ -692,6 +699,8 @@ export type LibraryGame = Game &
     download: Download | null;
     unlockedAchievementCount?: number;
     achievementCount?: number;
+    /** executablePath is set but the file is gone (deleted, or an unplugged drive). */
+    executableMissing?: boolean;
   };
 
 export type UserGameDetails = ShopAssets & {

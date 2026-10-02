@@ -96,8 +96,8 @@ export const achievementNotificationPresenter =
         x,
         y,
         webPreferences: {
-          preload: path.join(__dirname, "../preload/index.mjs"),
-          sandbox: false,
+          preload: path.join(__dirname, "../preload/index.cjs"),
+          sandbox: true,
           // The window stays hidden until its content reports ready, and that
           // handshake runs on requestAnimationFrame, which Chromium throttles
           // for hidden windows.

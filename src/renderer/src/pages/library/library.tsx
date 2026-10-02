@@ -99,9 +99,10 @@ const STATUS_FILTERS: {
   {
     value: "in_progress",
     labelKey: "dashboard:status_in_progress",
+    // Started (at least one trophy) and not platinum yet — untouched games aren't "in progress".
     test: (game) => {
       const progress = getTrophyProgress(game);
-      return progress.total > 0 && !progress.isPlatinum;
+      return progress.unlocked > 0 && !progress.isPlatinum;
     },
   },
   {
@@ -473,9 +474,13 @@ export default function Library() {
       );
     }
 
+    // "Com conquistas": trophies actually work for this game — the crack writes them, or at
+    // least one was already earned from any source (Steam account, RetroAchievements, crack).
     if (showAchievementsOnly) {
       filtered = filtered.filter(
-        (game) => game.achievementSupport === "working"
+        (game) =>
+          game.achievementSupport === "working" ||
+          getTrophyProgress(game).unlocked > 0
       );
     }
 

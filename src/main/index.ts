@@ -13,6 +13,7 @@ import url from "node:url";
 import { electronApp, optimizer } from "@electron-toolkit/utils";
 import {
   logger,
+  startMainLoop,
   clearGamesPlaytime,
   WindowManager,
   Lock,
@@ -39,6 +40,8 @@ import {
   parseSteamOpenIdReturn,
 } from "./services/steam-integration/steam-openid-return";
 import { steamSyncOrchestrator } from "./services/steam-integration/steam-sync-orchestrator";
+import { repairStartMenuShortcutIcon } from "./helpers/repair-start-menu-shortcut";
+import { applyElectronHardening } from "./helpers/electron-hardening";
 
 crashReporter.start({
   uploadToServer: false,
@@ -46,13 +49,18 @@ crashReporter.start({
 
 const { autoUpdater } = updater;
 
+// Updates come from our own server (the GitHub repo is private, so its release feed answered 404
+// and no install ever auto-updated). /updates/ only answers signed-in users: UpdateManager sends
+// the access token with each check. Each installer is still checked against its SHA-512.
 autoUpdater.setFeedURL({
-  provider: "github",
-  owner: "alisson290174-hue",
-  repo: "Gordo_trofeus",
+  provider: "generic",
+  url: `${import.meta.env.MAIN_VITE_API_URL}/updates`,
 });
 
 autoUpdater.logger = logger;
+
+// Deny web permission prompts, keep app windows from navigating to remote sites, block <webview>.
+applyElectronHardening();
 
 const gotTheLock = app.requestSingleInstanceLock();
 if (!gotTheLock) app.quit();
@@ -101,6 +109,8 @@ if (process.defaultApp) {
 const initializeApp = async () => {
   refreshPortableShortcutLauncher();
   electronApp.setAppUserModelId("com.baloilauncher.app");
+  // Blank taskbar icon after some updates: the Start Menu shortcut lost its icon path.
+  repairStartMenuShortcutIcon();
 
   logger.info("Crash dumps directory", app.getPath("crashDumps"));
 
@@ -178,6 +188,9 @@ const initializeApp = async () => {
     await loadState();
   } catch (error) {
     logger.error("Failed to load app state during startup", error);
+    // Whatever failed (offline API, torrent service…), the watchers — achievements, playtime,
+    // downloads — must still run.
+    void startMainLoop();
   }
 
   // Suspend can outlive the 60s stall watchdog; reconnect right away instead

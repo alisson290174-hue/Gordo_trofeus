@@ -397,11 +397,12 @@ const getPlayTimeDifference = (a: LibraryGame, b: LibraryGame): number => {
 const getMostPlayedDifference = (a: LibraryGame, b: LibraryGame): number =>
   getDisplayedPlayTimeInMilliseconds(b) - getDisplayedPlayTimeInMilliseconds(a);
 
+// Installed = playable from Balói. A finished download alone (an installer or archive still to be
+// set up — installedSizeInBytes) is not; its page offers "Instalar" instead.
 export const isGameInstalled = (game: LibraryGame): boolean =>
-  Boolean(game.executablePath) ||
+  (Boolean(game.executablePath) && game.executableMissing !== true) ||
   // Owned on Steam and installed by the Steam client — plays through Steam.
   (game.hasActiveSteamImport === true && game.steamInstalled === true) ||
-  game.installedSizeInBytes != null ||
   (game.shop === "launchbox" && (game.discs?.length ?? 0) > 0);
 
 export const isGameReadyToPlay = (game: LibraryGame): boolean =>

@@ -54,7 +54,7 @@ export async function fetchSteamPersona(steamId64: string): Promise<SteamPersona
   url.searchParams.set("key", config.steamApiKey);
   url.searchParams.set("steamids", steamId64);
 
-  const response = await fetch(url).catch(() => null);
+  const response = await fetch(url, { signal: AbortSignal.timeout(10_000) }).catch(() => null);
   if (!response?.ok) return null;
 
   const data = (await response.json()) as {

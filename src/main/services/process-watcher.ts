@@ -60,6 +60,10 @@ import {
 } from "./linux-game-capture-session";
 import { updateGameRecord } from "./game-record-updater";
 import { GameExecutables } from "./game-executables";
+import {
+  matchSteamGamesToRunningProcesses,
+  needsSteamExecutable,
+} from "./steam-owned/steam-install-process-match";
 
 export { gamesPlaytime };
 export { isGameRunning } from "./game-running-state";
@@ -300,6 +304,21 @@ export const watchProcesses = async () => {
   const pidToProcess = new Map<number, LinuxProcessInfo>(
     linuxProcesses.map((process) => [process.pid, process])
   );
+
+  // Steam account games carry no executable and our server has no executables catalogue: learn
+  // the path from the Steam install folder the first time the game is seen running.
+  const steamMatches = await matchSteamGamesToRunningProcesses(games, processMap).catch(
+    () => new Map<Game, string>()
+  );
+  for (const [steamGame, foundPath] of steamMatches) {
+    const steamGameKey = levelKeys.game(steamGame.shop, steamGame.objectId);
+    const latest = await gamesSublevel.get(steamGameKey).catch(() => null);
+    if (!latest || !needsSteamExecutable(latest)) continue;
+    const updated = updateGameExecutablePath(latest, foundPath);
+    await gamesSublevel.put(steamGameKey, updated);
+    Object.assign(steamGame, updated);
+    logger.info("Set game path from Steam install folder", steamGameKey, foundPath);
+  }
 
   for (const game of games) {
     const gameKey = levelKeys.game(game.shop, game.objectId);

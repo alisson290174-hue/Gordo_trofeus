@@ -1,6 +1,7 @@
 import { shell } from "electron";
 import { launchEpicGame } from "@main/services/epic/epic-installer";
 import { launchThroughSteam } from "@main/services/steam-owned/steam-owned-library";
+import { isInsideSteamLibrary } from "@main/services/steam-owned/steam-install-process-match";
 import { spawn } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
@@ -875,8 +876,12 @@ export const launchGame = async (options: LaunchGameOptions) => {
     return null;
   }
 
-  // Steam account games installed by the Steam client (no own executable): play via Steam.
-  if (options.shop === "steam" && !hasLaunchableExecutable(options.executablePath)) {
+  // Steam account games installed by the Steam client play via Steam — also once the process
+  // watcher has learned their .exe inside steamapps/common (that path is only for tracking).
+  if (
+    options.shop === "steam" &&
+    (!hasLaunchableExecutable(options.executablePath) || isInsideSteamLibrary(options.executablePath))
+  ) {
     const record = await gamesSublevel
       .get(levelKeys.game("steam", options.objectId))
       .catch(() => null);

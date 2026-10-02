@@ -100,8 +100,8 @@ export class WindowManager {
       icon,
       trafficLightPosition: { x: 16, y: 16 },
       webPreferences: {
-        preload: path.join(__dirname, "../preload/index.mjs"),
-        sandbox: false,
+        preload: path.join(__dirname, "../preload/index.cjs"),
+        sandbox: true,
       },
       show: false,
       ...(process.platform === "linux"
@@ -462,8 +462,8 @@ export class WindowManager {
       frame: false,
       show: false,
       webPreferences: {
-        preload: path.join(__dirname, "../preload/index.mjs"),
-        sandbox: false,
+        preload: path.join(__dirname, "../preload/index.cjs"),
+        sandbox: true,
       },
     });
 
@@ -529,8 +529,8 @@ export class WindowManager {
       frame: false,
       icon,
       webPreferences: {
-        preload: path.join(__dirname, "../preload/index.mjs"),
-        sandbox: false,
+        preload: path.join(__dirname, "../preload/index.cjs"),
+        sandbox: true,
       },
       show: false,
     });
@@ -655,9 +655,10 @@ export class WindowManager {
       maximizable: false,
       resizable: false,
       minimizable: false,
+      // Shows remote pages (our sign-in → Steam): fully sandboxed, no Node anywhere.
       webPreferences: {
-        sandbox: false,
-        nodeIntegrationInSubFrames: true,
+        sandbox: true,
+        contextIsolation: true,
       },
     });
 
@@ -699,8 +700,8 @@ export class WindowManager {
       icon,
       backgroundColor: "#1c1c1c",
       webPreferences: {
-        preload: path.join(__dirname, "../preload/index.mjs"),
-        sandbox: false,
+        preload: path.join(__dirname, "../preload/index.cjs"),
+        sandbox: true,
       },
     });
 
@@ -709,9 +710,10 @@ export class WindowManager {
     authWindow.removeMenu();
 
     const authView = new WebContentsView({
+      // Shows remote pages (our sign-in → Steam): fully sandboxed, no Node anywhere.
       webPreferences: {
-        sandbox: false,
-        nodeIntegrationInSubFrames: true,
+        sandbox: true,
+        contextIsolation: true,
       },
     });
 
@@ -782,8 +784,8 @@ export class WindowManager {
       frame: layout.frame,
       icon,
       webPreferences: {
-        preload: path.join(__dirname, "../preload/index.mjs"),
-        sandbox: false,
+        preload: path.join(__dirname, "../preload/index.cjs"),
+        sandbox: true,
       },
     });
 
@@ -874,8 +876,8 @@ export class WindowManager {
       icon,
       skipTaskbar: false,
       webPreferences: {
-        preload: path.join(__dirname, "../preload/index.mjs"),
-        sandbox: false,
+        preload: path.join(__dirname, "../preload/index.cjs"),
+        sandbox: true,
       },
       show: false,
     });

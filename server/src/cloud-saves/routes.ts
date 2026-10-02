@@ -112,10 +112,10 @@ const distinctHashes = (files: { hash: string }[]) =>
   new Set(files.map((file) => file.hash));
 
 const fileTotals = (files: FileRow[]) => {
-  // De-dupe by content: identical blobs referenced by several paths count once toward size.
-  const byHash = new Map<string, number>();
-  for (const file of files) byHash.set(file.hash, file.size_bytes);
-  const totalSizeBytes = [...byHash.values()].reduce((a, b) => a + b, 0);
+  // Per file, like the client checks it (sum of every manifest file). Blobs are still stored once
+  // by hash; de-duping the reported size made restores of games that keep identical copies
+  // (Elden Ring's ER0000.sl2 + .bak) fail with "manifest does not match its snapshot summary".
+  const totalSizeBytes = files.reduce((total, file) => total + file.size_bytes, 0);
   return { fileCount: files.length, totalSizeBytes };
 };
 

@@ -136,6 +136,12 @@ const getLibrary = async (): Promise<LibraryGame[]> => {
                       game.libraryHeroImageUrl,
                   }
                 : {}),
+              // A saved executable whose file is gone must not count as installed. The path is
+              // kept (an external drive may just be unplugged).
+              executableMissing: Boolean(
+                game.executablePath &&
+                  !fs.existsSync(game.executablePath.replace(/^"(.*)"$/, "$1"))
+              ),
               // ROM dump tags ("(U) [SLUS-21879]", "(www.…)") never reach the UI.
               title: displayGameTitle(composedAssets?.title || game.title, game.shop),
               platform: game.platform ?? null,

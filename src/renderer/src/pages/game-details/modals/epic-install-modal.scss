@@ -1,0 +1,55 @@
+@use "../../../scss/globals.scss";
+
+.epic-install-modal {
+  display: flex;
+  flex-direction: column;
+  gap: calc(globals.$spacing-unit * 2);
+  min-width: 480px;
+
+  &__sizes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: globals.$spacing-unit;
+    margin: 0;
+
+    div {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    dt {
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: globals.$body-color;
+    }
+
+    dd {
+      margin: 0;
+      font-size: 16px;
+      font-variant-numeric: tabular-nums;
+      color: #fff;
+    }
+  }
+
+  &__low {
+    color: #ff7a7a !important;
+  }
+
+  &__hint {
+    margin: -8px 0 0;
+    font-size: 12px;
+    color: globals.$body-color;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: globals.$spacing-unit;
+  }
+}

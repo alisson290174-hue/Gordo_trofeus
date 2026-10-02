@@ -8,6 +8,7 @@ import { registerEvent } from "../register-event";
 import { downloadsSublevel, gamesSublevel, levelKeys } from "@main/level";
 import { GameShop } from "@types";
 import { logger, Umu, Wine } from "@main/services";
+import { watchGameInstallation } from "@main/services/installed-game-finder";
 
 const launchInstallerWithWine = async (filePath: string): Promise<boolean> => {
   return await new Promise<boolean>((resolve) => {
@@ -116,6 +117,14 @@ const openGameInstaller = async (
 
   if (!fs.existsSync(gamePath)) {
     return true;
+  }
+
+  // Snapshot Windows' installed apps before the installer runs, then pick up the game's .exe
+  // once it registers (also when the user runs the setup by hand from the opened folder).
+  if (game && !game.executablePath) {
+    await watchGameInstallation(game).catch((error) =>
+      logger.warn("[installed-game-finder] could not start watching", error)
+    );
   }
 
   if (process.platform === "darwin") {

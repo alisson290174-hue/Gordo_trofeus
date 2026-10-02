@@ -40,7 +40,7 @@ win:
     - nsis
     - portable
 nsis:
-  artifactName: ${productName}-${version}-setup.${ext}
+  artifactName: Baloi-Launcher-${version}-setup.${ext}
   shortcutName: ${productName}
   uninstallDisplayName: ${productName}
   createDesktopShortcut: always
@@ -48,13 +48,25 @@ nsis:
   allowToChangeInstallationDirectory: true
   include: installer.nsh
 portable:
-  artifactName: ${productName}-${version}-portable.${ext}
+  artifactName: Baloi-Launcher-${version}-portable.${ext}
   unpackDirName: false
+# Electron fuses, flipped in the shipped executable: it can't be reused as a plain Node runtime
+# (ELECTRON_RUN_AS_NODE / NODE_OPTIONS / --inspect), cookies are encrypted at rest, and the app
+# code must come from the integrity-checked app.asar.
+electronFuses:
+  runAsNode: false
+  enableNodeOptionsEnvironmentVariable: false
+  enableNodeCliInspectArguments: false
+  enableCookieEncryption: true
+  enableEmbeddedAsarIntegrityValidation: true
+  onlyLoadAppFromAsar: true
 npmRebuild: false
+# Fails the build when the native addon, Ludusavi or Legendary are missing or not the pinned ones.
+beforePack: scripts/check-bundled-binaries.cjs
+# Auto-update feed on our own server (signed-in users only); the GitHub repo is private and its
+# release feed is unreachable for installed apps. Release files go to /opt/hydra-server/updates.
 publish:
-  provider: github
-  owner: alisson290174-hue
-  repo: Gordo_trofeus
-  releaseType: release
+  provider: generic
+  url: https://gordotrofeus.duckdns.org/updates
 electronDownload:
   mirror: https://npmmirror.com/mirrors/electron/

@@ -57,16 +57,19 @@ type CompatibilityThreshold<Value extends string> = {
   color?: string;
 };
 
+// One accent for every filter (PS5 redesign): the Hydra-era per-category colours (purple genres,
+// orange year, pink publishers…) clashed with the rest of the app.
+const FILTER_ACCENT = "#0070f3";
 const filterCategoryColors = {
-  genres: "hsl(262deg 50% 47%)",
-  tags: "hsl(95deg 50% 20%)",
-  downloadSourceFingerprints: "hsl(27deg 50% 40%)",
-  developers: "hsl(340deg 50% 46%)",
-  publishers: "hsl(200deg 50% 30%)",
-  protondbSupportBadges: "#F50057",
-  deckCompatibility: "#F50057",
-  releaseYear: "hsl(38deg 50% 40%)",
-  platforms: "hsl(170deg 50% 36%)",
+  genres: FILTER_ACCENT,
+  tags: FILTER_ACCENT,
+  downloadSourceFingerprints: FILTER_ACCENT,
+  developers: FILTER_ACCENT,
+  publishers: FILTER_ACCENT,
+  protondbSupportBadges: FILTER_ACCENT,
+  deckCompatibility: FILTER_ACCENT,
+  releaseYear: FILTER_ACCENT,
+  platforms: FILTER_ACCENT,
 };
 
 const classicsPlatformGroups = [

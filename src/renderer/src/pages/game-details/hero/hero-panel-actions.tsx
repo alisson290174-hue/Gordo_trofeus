@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { gameDetailsContext } from "@renderer/context";
 import { handleClassicsLaunchError } from "@renderer/helpers";
 import { DiscSelectionModal } from "../modals/disc-selection-modal";
+import { EpicInstallModal } from "../modals/epic-install-modal";
 
 import "./hero-panel-actions.scss";
 import { useEffect } from "react";
@@ -54,6 +55,7 @@ export function HeroPanelActions() {
   const navigate = useNavigate();
 
   const [showDiscSelectionModal, setShowDiscSelectionModal] = useState(false);
+  const [showEpicInstallModal, setShowEpicInstallModal] = useState(false);
   const [pendingClassicsLaunch, setPendingClassicsLaunch] = useState<{
     discPath: string | undefined;
   } | null>(null);
@@ -402,7 +404,12 @@ export function HeroPanelActions() {
 
       return (
         <Button
-          onClick={() => window.electron.installEpicGame(game.objectId, game.title)}
+          onClick={() =>
+            install?.status === "error"
+              ? // Retry resumes in the folder chosen before (Legendary keeps the partial download).
+                window.electron.installEpicGame(game.objectId, game.title)
+              : setShowEpicInstallModal(true)
+          }
           theme="outline"
           disabled={deleting}
           className="hero-panel-actions__action hero-panel-actions__primary"
@@ -423,6 +430,26 @@ export function HeroPanelActions() {
         >
           <Icon name="play" size={18} />
           {t("play")}
+        </Button>
+      );
+    }
+
+    // Downloaded but not set up yet (an installer or archive, no executable): run the installer
+    // or open the folder — same action as on the Downloads page, instead of "Download" again.
+    if (game?.download?.status === "complete" && !isGameDownloading) {
+      return (
+        <Button
+          onClick={() => {
+            void window.electron.openGameInstaller(game.shop, game.objectId).then((opened) => {
+              if (!opened) showErrorToast(t("executable_not_found_title"));
+            });
+          }}
+          theme="outline"
+          disabled={deleting}
+          className="hero-panel-actions__action hero-panel-actions__primary"
+        >
+          <Icon name="download" size={18} />
+          {t("install")}
         </Button>
       );
     }
@@ -502,6 +529,15 @@ export function HeroPanelActions() {
         >
           <Icon name="kebab-horizontal" size={20} />
         </Button>
+
+        {game.shop === "epic" && (
+          <EpicInstallModal
+            visible={showEpicInstallModal}
+            appName={game.objectId}
+            title={game.title}
+            onClose={() => setShowEpicInstallModal(false)}
+          />
+        )}
 
         {game.shop === "launchbox" && (
           <DiscSelectionModal

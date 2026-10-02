@@ -158,6 +158,19 @@ describe("Steam game page sync", () => {
     assert.equal(logError.mock.callCount(), 1);
   });
 
+  it("does not log a missing Steam session as an error", async () => {
+    const sessionError = new Error("steam-session-required");
+    sessionError.name = "SteamSessionRequiredError";
+    const { pageSync, logError } = setup({
+      collect: async () => {
+        throw sessionError;
+      },
+    });
+
+    assert.equal(await pageSync.sync("620"), false);
+    assert.equal(logError.mock.callCount(), 0);
+  });
+
   it("keeps simultaneous requests for different games independent", async () => {
     const { pageSync, collect, publish } = setup();
 

@@ -11,6 +11,9 @@ export const getDownloadSourcesCheckBaseline = async (): Promise<
       valueEncoding: "utf8",
     });
 
+    // Newer abstract-level returns undefined for a missing key instead of throwing NotFoundError.
+    if (typeof timestamp !== "string") return null;
+
     // Value was wrapped in quotes for some reason, remove them if they exist
     return timestamp.replaceAll('"', "");
   } catch (error) {
@@ -44,7 +47,7 @@ export const getDownloadSourcesSinceValue = async (): Promise<
     const timestamp = await db.get(levelKeys.downloadSourcesSinceValue, {
       valueEncoding: "utf8",
     });
-    return timestamp;
+    return typeof timestamp === "string" ? timestamp : null;
   } catch (error) {
     if (error instanceof Error && error.name === "NotFoundError") {
       logger.debug("Download sources since value not found, returning null");

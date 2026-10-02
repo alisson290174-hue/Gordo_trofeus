@@ -143,6 +143,13 @@ export class HydraApi {
       await clearGamesRemoteIds();
       void uploadGamesBatch();
 
+      // A first sign-in must bring the Steam account games (and their trophies) right away, not
+      // only on the next app start.
+      const { syncSteamOwnedLibrary } = await import("./steam-owned/steam-owned-library");
+      void syncSteamOwnedLibrary().catch((error) =>
+        logger.warn("[steam-owned] sync after sign-in skipped", error?.message ?? error)
+      );
+
       SSEClient.close();
       SSEClient.connect();
 
@@ -310,6 +317,13 @@ export class HydraApi {
     );
 
     return { accessToken, expiresIn };
+  }
+
+  /** A valid access token for requests made outside axios (e.g. the auto-updater), or null. */
+  public static async getFreshAccessToken(): Promise<string | null> {
+    if (!this.isLoggedIn()) return null;
+    await this.revalidateAccessTokenIfExpired();
+    return this.isLoggedIn() ? this.userAuth.authToken : null;
   }
 
   private static async revalidateAccessTokenIfExpired() {

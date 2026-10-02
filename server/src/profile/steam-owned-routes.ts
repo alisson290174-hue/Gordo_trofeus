@@ -1,6 +1,10 @@
 import type { FastifyInstance } from "fastify";
 import { requireAuth } from "../auth/require-auth.js";
 import { config } from "../config.js";
+import { createLimiter } from "../rate-limit.js";
+
+// The app asks 2–3 times on start-up (25 games per call) and every 30 min after.
+const achievementsBudget = createLimiter(20, 10 * 60_000);
 
 /**
  * Games the signed-in user owns on Steam. Uses the Steam ID from the Steam sign-in and the
@@ -32,7 +36,7 @@ export function registerSteamOwnedRoutes(app: FastifyInstance) {
     url.searchParams.set("include_played_free_games", "1");
     url.searchParams.set("format", "json");
 
-    const response = await fetch(url).catch(() => null);
+    const response = await fetch(url, { signal: AbortSignal.timeout(15_000) }).catch(() => null);
     if (!response?.ok) {
       return reply.code(502).send({ message: "Steam is unavailable right now" });
     }
@@ -68,6 +72,9 @@ export function registerSteamOwnedRoutes(app: FastifyInstance) {
     async (request, reply) => {
       const user = requireAuth(request, reply);
       if (!user) return;
+      if (!achievementsBudget(user.id)) {
+        return reply.code(429).send({ message: "Too many requests, try again in a few minutes" });
+      }
 
       const appIds = Array.isArray(request.body?.appIds)
         ? [...new Set(request.body.appIds.map(String))].filter((id) => /^\d{1,10}$/.test(id))
@@ -101,7 +108,7 @@ export function registerSteamOwnedRoutes(app: FastifyInstance) {
 
 const MAX_ACHIEVEMENT_APPS = 25;
 const ACHIEVEMENTS_CACHE_MS = 5 * 60 * 1000;
-const achievementsCache = new Map<string, { at: number; unlocks: SteamUnlock[] | null }>();
+const achievementsCache = new Map<string, { at: number; unlocks: SteamUnlock[] | null | "private" }>();
 
 interface SteamUnlock {
   name: string;
@@ -127,7 +134,7 @@ async function getPlayerAchievements(
   if (!response) return null;
   // 403 = the profile's game details are private; 400 = the game has no achievements/stats.
   if (response.status === 403) {
-    achievementsCache.set(cacheKey, { at: Date.now(), unlocks: null });
+    achievementsCache.set(cacheKey, { at: Date.now(), unlocks: "private" });
     return "private";
   }
   if (!response.ok) {

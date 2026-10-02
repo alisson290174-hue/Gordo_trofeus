@@ -2,6 +2,9 @@ import type { FastifyInstance } from "fastify";
 import { db } from "../db.js";
 import { requireAuth } from "../auth/require-auth.js";
 import { ingestSteamGamesByTitle } from "./steam-lookup.js";
+import { createLimiter } from "../rate-limit.js";
+
+const artworkBudget = createLimiter(60, 10 * 60_000);
 
 /**
  * "Find cover and info" for a library game. Steam keeps newer art at hashed paths
@@ -46,9 +49,10 @@ export interface ArtworkLookup {
 /** Lowercase, no accents/marks/punctuation, single spaces — "Watch_Dogs™ 2" → "watch dogs 2". */
 export function normalizeTitle(title: string) {
   return title
+    // Before NFKD, which would turn "™" into the letters "TM" ("Dogs™" → "dogstm").
+    .replace(/[™®©]/g, "")
     .normalize("NFKD")
     .replace(/[̀-ͯ]/g, "")
-    .replace(/[™®©]/g, "")
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
@@ -62,8 +66,9 @@ const findByTitleStatement = db.prepare(
 function matchAppIdByTitle(title: string): string | null {
   const wanted = normalizeTitle(title);
   if (wanted.length < 2) return null;
-  const firstWord = wanted.split(" ")[0];
-  const rows = findByTitleStatement.all(`%${firstWord}%`) as { appid: number; title: string }[];
+  // The longest word narrows the LIKE scan best ("the witcher 3" → "witcher", not "the").
+  const keyword = wanted.split(" ").reduce((a, b) => (b.length > a.length ? b : a), "");
+  const rows = findByTitleStatement.all(`%${keyword}%`) as { appid: number; title: string }[];
   const exact = rows.find((row) => normalizeTitle(row.title) === wanted);
   return exact ? String(exact.appid) : null;
 }
@@ -128,6 +133,9 @@ export function registerArtworkLookupRoutes(app: FastifyInstance) {
     async (request, reply) => {
       const user = requireAuth(request, reply);
       if (!user) return;
+      if (!artworkBudget(user.id)) {
+        return reply.code(429).send({ message: "Too many requests, try again in a few minutes" });
+      }
 
       const shop = String(request.body?.shop ?? "");
       const objectId = String(request.body?.objectId ?? "");
