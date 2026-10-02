@@ -124,7 +124,8 @@ export function getLinkedRaGameId(shop: string, objectId: string): number | null
 }
 
 const catalogueAgeStatement = db.prepare(
-  "SELECT MIN(cached_at) AS cached_at, COUNT(*) AS total FROM achievement_catalogue WHERE shop = ? AND object_id = ?"
+  `SELECT MIN(cached_at) AS cached_at, COUNT(*) AS total, COUNT(global_unlock_percent) AS withRarity
+   FROM achievement_catalogue WHERE shop = ? AND object_id = ?`
 );
 const upsertRaAchievementStatement = db.prepare(`
   INSERT INTO achievement_catalogue (shop, object_id, name, display_name, description, icon, icongray, hidden, points, global_unlock_percent, retroachievements_game_id, cached_at, lang)
@@ -136,10 +137,16 @@ const upsertRaAchievementStatement = db.prepare(`
 `);
 
 async function ensureCatalogue(shop: string, objectId: string, raGameId: number, webApiKey: string) {
-  const age = catalogueAgeStatement.get(shop, objectId) as { cached_at: string | null; total: number };
-  if (age.total > 0 && age.cached_at && Date.now() - new Date(age.cached_at).getTime() < CATALOGUE_TTL_MS) {
-    return;
-  }
+  const age = catalogueAgeStatement.get(shop, objectId) as {
+    cached_at: string | null;
+    total: number;
+    withRarity: number;
+  };
+  const ageMs = age.cached_at ? Date.now() - new Date(age.cached_at).getTime() : Infinity;
+  // A list cached without rarity (older server, or a brand-new set nobody has played yet) is
+  // refreshed hourly so trophies get their gold/silver/bronze tier as soon as data exists.
+  const ttl = age.withRarity > 0 ? CATALOGUE_TTL_MS : 60 * 60 * 1000;
+  if (age.total > 0 && ageMs < ttl) return;
 
   const game = await raGet<{
     NumDistinctPlayers?: number;
