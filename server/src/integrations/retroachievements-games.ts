@@ -24,6 +24,7 @@ interface RaApiAchievement {
   Points?: number;
   BadgeName?: string;
   DisplayOrder?: number;
+  NumAwarded?: number;
   DateEarned?: string | null;
   DateEarnedHardcore?: string | null;
 }
@@ -126,12 +127,12 @@ const catalogueAgeStatement = db.prepare(
   "SELECT MIN(cached_at) AS cached_at, COUNT(*) AS total FROM achievement_catalogue WHERE shop = ? AND object_id = ?"
 );
 const upsertRaAchievementStatement = db.prepare(`
-  INSERT INTO achievement_catalogue (shop, object_id, name, display_name, description, icon, icongray, hidden, points, retroachievements_game_id, cached_at, lang)
-  VALUES ($shop, $objectId, $name, $displayName, $description, $icon, $icongray, 0, $points, $raGameId, $cachedAt, 'english')
+  INSERT INTO achievement_catalogue (shop, object_id, name, display_name, description, icon, icongray, hidden, points, global_unlock_percent, retroachievements_game_id, cached_at, lang)
+  VALUES ($shop, $objectId, $name, $displayName, $description, $icon, $icongray, 0, $points, $percent, $raGameId, $cachedAt, 'english')
   ON CONFLICT(shop, object_id, name) DO UPDATE SET
     display_name = excluded.display_name, description = excluded.description, icon = excluded.icon,
     icongray = excluded.icongray, points = excluded.points,
-    retroachievements_game_id = excluded.retroachievements_game_id, cached_at = excluded.cached_at
+    global_unlock_percent = excluded.global_unlock_percent, retroachievements_game_id = excluded.retroachievements_game_id, cached_at = excluded.cached_at
 `);
 
 async function ensureCatalogue(shop: string, objectId: string, raGameId: number, webApiKey: string) {
@@ -140,7 +141,10 @@ async function ensureCatalogue(shop: string, objectId: string, raGameId: number,
     return;
   }
 
-  const game = await raGet<{ Achievements?: Record<string, RaApiAchievement> }>(
+  const game = await raGet<{
+    NumDistinctPlayers?: number;
+    Achievements?: Record<string, RaApiAchievement>;
+  }>(
     "API_GetGameExtended.php",
     { i: raGameId, y: webApiKey }
   );
@@ -148,6 +152,13 @@ async function ensureCatalogue(shop: string, objectId: string, raGameId: number,
     (a, b) => (a.DisplayOrder ?? 0) - (b.DisplayOrder ?? 0) || a.ID - b.ID
   );
   if (achievements.length === 0) return;
+
+  // Rarity drives the profile's gold/silver/bronze split, same as Steam's global percentages.
+  const players = Number(game.NumDistinctPlayers) || 0;
+  const percentOf = (achievement: RaApiAchievement) =>
+    players > 0 && typeof achievement.NumAwarded === "number"
+      ? Math.min(100, (achievement.NumAwarded / players) * 100)
+      : null;
 
   const now = new Date().toISOString();
   db.exec("BEGIN");
@@ -163,6 +174,7 @@ async function ensureCatalogue(shop: string, objectId: string, raGameId: number,
         $icon: badge ? `${RA_MEDIA}/${badge}.png` : "",
         $icongray: badge ? `${RA_MEDIA}/${badge}_lock.png` : "",
         $points: achievement.Points ?? null,
+        $percent: percentOf(achievement),
         $raGameId: raGameId,
         $cachedAt: now,
       });
