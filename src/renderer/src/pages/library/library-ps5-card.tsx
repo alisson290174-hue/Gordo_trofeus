@@ -88,6 +88,15 @@ export const LibraryPs5Card = memo(function LibraryPs5Card({
           <img className="ps5-card__platinum" src={TierBadgePlatinum} alt="" />
         )}
 
+        {!progress.isPlatinum && progress.total > 0 && (
+          <span
+            className="ps5-card__platinable"
+            title={t("platinable", { count: progress.total })}
+          >
+            <img src={TierBadgePlatinum} alt="" />
+          </span>
+        )}
+
         {!isReady && (
           <div className="ps5-card__pill">
             <Icon name="download" size={12} />

@@ -54,8 +54,23 @@ export function upsertProfileGame(
   return findGameStatement.get(userId, shop, objectId) as unknown as ProfileGameRow;
 }
 
+// Offline trophies only — the same set the platinum is measured against.
+const achievementCountStatement = db.prepare(
+  "SELECT COUNT(*) AS total FROM achievement_catalogue WHERE shop = ? AND object_id = ? AND is_online = 0"
+);
+const unlockedCountStatement = db.prepare(
+  "SELECT COUNT(*) AS total FROM user_achievements WHERE profile_game_id = ?"
+);
+
 function toProfileGame(row: ProfileGameRow) {
+  const { total: achievementCount } = achievementCountStatement.get(row.shop, row.object_id) as {
+    total: number;
+  };
+  const { total: unlocked } = unlockedCountStatement.get(row.id) as { total: number };
   return {
+    // Lets the library flag games that can be platinumed before their page is ever opened.
+    achievementCount,
+    unlockedAchievementCount: Math.min(unlocked, achievementCount),
     id: row.id,
     shop: row.shop,
     objectId: row.object_id,

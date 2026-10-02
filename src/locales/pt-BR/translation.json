@@ -2374,6 +2374,7 @@
     "almost_empty": "Nenhum jogo com troféus em andamento ainda.",
     "discover_empty": "Nada por aqui agora. Tente de novo em instantes.",
     "platinum_hours": "Platinado · {{hours}}",
+    "platinable": "Platinável · {{count}} troféus",
     "downloading": "Baixando",
     "not_installed": "Não instalado",
     "status_all": "Todos",
