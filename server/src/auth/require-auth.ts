@@ -25,3 +25,14 @@ export function requireAuth(request: FastifyRequest, reply: FastifyReply): UserR
     return null;
   }
 }
+
+/** The acting user when a valid token is present, otherwise null — never replies. */
+export function optionalAuthUser(request: FastifyRequest): UserRow | null {
+  const header = request.headers.authorization;
+  if (!header?.startsWith("Bearer ")) return null;
+  try {
+    return getUserById(verifyAccessToken(header.slice("Bearer ".length)).sub) ?? null;
+  } catch {
+    return null;
+  }
+}

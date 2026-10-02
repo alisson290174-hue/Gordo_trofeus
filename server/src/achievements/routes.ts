@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import type { FastifyInstance } from "fastify";
 import { db } from "../db.js";
-import { requireAuth } from "../auth/require-auth.js";
+import { optionalAuthUser, requireAuth } from "../auth/require-auth.js";
 import { getUserById } from "../users.js";
 import { getOrCacheAchievementCatalogue, type AchievementCatalogueRow } from "./steam-schema.js";
 import { upsertProfileGame, type ProfileGameRow } from "../library/routes.js";
@@ -9,7 +9,11 @@ import { addKarma, KARMA } from "../karma.js";
 import { config } from "../config.js";
 import { getPs2Metadata } from "../catalogue/ps2-index.js";
 import { canViewUserData } from "../profile/public-routes.js";
-import { fetchRaUnlocks, getLinkedRaGameId } from "../integrations/retroachievements-games.js";
+import {
+  fetchRaUnlocks,
+  getLinkedRaGameId,
+  refreshLinkedCatalogue,
+} from "../integrations/retroachievements-games.js";
 
 interface UserAchievementRow {
   profile_game_id: string;
@@ -123,6 +127,12 @@ export function registerAchievementRoutes(app: FastifyInstance) {
     "/games/:shop/:objectId/achievements",
     async (request, reply) => {
       const { shop, objectId } = request.params;
+      const viewer = shop === "launchbox" ? optionalAuthUser(request) : null;
+      if (viewer) {
+        await refreshLinkedCatalogue(viewer.id, shop, objectId).catch((error) =>
+          request.log.warn({ err: error }, "RetroAchievements catalogue refresh failed")
+        );
+      }
       const catalogue = await getOrCacheAchievementCatalogue(shop, objectId);
       reply.send(
         catalogue.map((a) => ({

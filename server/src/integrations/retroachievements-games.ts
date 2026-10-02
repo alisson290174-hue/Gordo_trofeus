@@ -217,6 +217,14 @@ export async function resolveRaGameByHash(
 
 export class RaNotConnectedError extends Error {}
 
+/** Keeps a linked game's trophy list fresh (rarity, new sets) using the viewer's own RA key. */
+export async function refreshLinkedCatalogue(userId: string, shop: string, objectId: string) {
+  const credentials = getRaCredentials(userId);
+  const raGameId = getLinkedRaGameId(shop, objectId);
+  if (!credentials || !raGameId) return;
+  await ensureCatalogue(shop, objectId, raGameId, credentials.web_api_key);
+}
+
 const toMillis = (date?: string | null) => {
   if (!date) return null;
   const time = new Date(`${date.replace(" ", "T")}Z`).getTime();
