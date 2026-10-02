@@ -19,7 +19,7 @@ function toShopDetailsEntry(
     matchedSkus: skus,
     data: {
       title: meta.title,
-      platform: "PlayStation 2",
+      platform,
       description: meta.description,
       releaseDate: meta.releaseYear ? String(meta.releaseYear) : null,
       developers: meta.developers,

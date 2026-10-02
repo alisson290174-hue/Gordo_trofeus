@@ -176,7 +176,7 @@ db.prepare("INSERT OR REPLACE INTO switch_titles (title_id, data, fetched_at) VA
   new Date().toISOString()
 );
 const nx = (await req("POST", "/games/shop-details", { json: { shop: "launchbox", skus: ["0100152000022000"] } })).json();
-check("Switch title by Title ID", nx[0]?.objectId === "rom-sku-0100152000022000" && nx[0]?.platform === "Nintendo Switch" && nx[0]?.data?.title === "Mario Kart 8 Deluxe", JSON.stringify(nx).slice(0, 200));
+check("Switch title by Title ID", nx[0]?.objectId === "rom-sku-0100152000022000" && nx[0]?.platform === "Nintendo Switch" && nx[0]?.data?.title === "Mario Kart 8 Deluxe" && nx[0]?.data?.platform === "Nintendo Switch", JSON.stringify(nx).slice(0, 200));
 const nxUpdate = (await req("POST", "/games/shop-details", { json: { shop: "launchbox", skus: ["0100152000022800"] } })).json();
 check("Switch update Title ID is not a game", Array.isArray(nxUpdate) && nxUpdate.length === 0, JSON.stringify(nxUpdate));
 const nxPage = (await req("GET", "/games/launchbox/rom-sku-0100152000022000")).json();
