@@ -10,6 +10,16 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.26",
+    date: "03/10/2026",
+    items: [
+      "Pente fino: uma pasta de tradução sem nome reconhecível não é mais instalada no jogo errado.",
+      "Controle no 3DS funciona também em instalações novas do Azahar.",
+      "O resumo de novidades aparece mesmo para quem atualiza de versões antigas.",
+      "Pastas de tradução do Switch com nome sem acento, e o Big Picture não faz mais consultas de Linux no Windows.",
+    ],
+  },
+  {
     version: "1.0.25",
     date: "03/10/2026",
     items: [

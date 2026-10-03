@@ -16,6 +16,7 @@ import {
   parseXInputHardwareId,
   PCSX2_PAD,
   RPCS3_XINPUT_PLAYER1,
+  setQtIniValue,
   shouldWriteDolphinPad,
   shouldWriteRpcs3Input,
   type XInputPad,
@@ -135,9 +136,14 @@ const configureAzahar = (executablePath: string, pad: XInputPad) => {
   const bindings = Object.fromEntries(
     Object.entries(azahar).map(([key, value]) => [`profiles\\1\\${key}`, value])
   );
-  return writeIfChanged(qtEmulatorConfig(executablePath, "Azahar"), (content) =>
-    applyQtPadBindings(content, "Controls", "profiles\\1\\button_a", bindings)
-  );
+  return writeIfChanged(qtEmulatorConfig(executablePath, "Azahar"), (content) => {
+    const next = applyQtPadBindings(content, "Controls", "profiles\\1\\button_a", bindings);
+    if (next === content) return content;
+    // A fresh Azahar config has no profile array yet; declare the one profile we filled in.
+    return /^profiles\\size=/m.test(next)
+      ? next
+      : setQtIniValue(setQtIniValue(next, "Controls", "profiles\\size", "1"), "Controls", "profile", "0");
+  });
 };
 
 const configureEden = (executablePath: string, pad: XInputPad) =>

@@ -30,6 +30,9 @@ export type TranslationInstallResult =
 
 const ARCHIVE_RE = /\.(zip|7z|rar)$/i;
 
+/** Eden lists each folder in load/<TitleID> as a mod; plain ASCII keeps it safe in any path API. */
+export const EDEN_MOD_NAME = "Traducao PT-BR";
+
 const listFiles = async (dir: string, base = dir): Promise<string[]> => {
   const out: string[] = [];
   for (const entry of await fs.promises.readdir(dir, { withFileTypes: true })) {
@@ -63,7 +66,7 @@ const modTarget = (system: EmulatorSystem, executablePath: string, titleId: stri
   if (system === "3ds") {
     return path.join(qtEmulatorDataDir(executablePath, "Azahar"), "load", "mods", titleId);
   }
-  return path.join(qtEmulatorDataDir(executablePath, "eden"), "load", titleId, "Tradução PT-BR");
+  return path.join(qtEmulatorDataDir(executablePath, "eden"), "load", titleId, EDEN_MOD_NAME);
 };
 
 /**
@@ -189,8 +192,18 @@ export const installTranslationsFromFolder = async (params: {
         candidates = byName ? [byName] : [];
       }
     } else {
-      const byName = matchGameByName(file, games);
-      candidates = byName ? [byName] : candidates;
+      const inside = await listFiles(sourcePath).catch(() => [] as string[]);
+      const ids = new Set(
+        findModRoots(inside)
+          .map((root) => root.titleId)
+          .filter((id): id is string => Boolean(id))
+          .map((id) => (system === "switch" ? `${id.slice(0, 13)}000` : id))
+      );
+      if (ids.size > 0) candidates = games.filter((game) => ids.has(game.titleId.toUpperCase()));
+      else {
+        const byName = matchGameByName(file, games);
+        candidates = byName ? [byName] : [];
+      }
     }
 
     const game = candidates.find((g) => !done.has(g.titleId.toUpperCase()));

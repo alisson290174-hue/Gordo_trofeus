@@ -144,12 +144,17 @@ export function useGameDetails(objectId: string, shop: GameShop) {
         .then((data) => setHowLongToBeat(Array.isArray(data) ? data : null))
         .catch(() => setHowLongToBeat(null));
 
-      globalThis.window.electron.hydraApi
-        .get<ProtonDBData | null>(`/games/${shop}/${objectId}/protondb`, {
-          needsAuth: false,
-        })
-        .then(setProtonDBData)
-        .catch(() => setProtonDBData(null));
+      // ProtonDB is Linux compatibility; on Windows the route doesn't exist on our server.
+      if (globalThis.window.electron.platform === "linux") {
+        globalThis.window.electron.hydraApi
+          .get<ProtonDBData | null>(`/games/${shop}/${objectId}/protondb`, {
+            needsAuth: false,
+          })
+          .then(setProtonDBData)
+          .catch(() => setProtonDBData(null));
+      } else {
+        setProtonDBData(null);
+      }
     } else {
       setHowLongToBeat(null);
       setProtonDBData(null);

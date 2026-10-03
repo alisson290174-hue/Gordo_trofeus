@@ -30,9 +30,8 @@ export function WhatsNewModal() {
     window.electron
       .getVersion()
       .then((current: string) => {
+        // Nothing recorded (first run, or an update from a version without this summary): show it once.
         const seen = readSeen();
-        // A fresh install has nothing to compare with: start counting from this version.
-        if (!seen) return markSeen(current);
         if (seen !== current && CHANGELOG.some((entry) => entry.version === current)) {
           setVersion(current);
         }
