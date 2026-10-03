@@ -25,3 +25,4 @@ export * from "./emulation-file-saves";
 export * from "./emulator-log-paths";
 export * from "./emulator-souvenir-config";
 export * from "./ppsspp-paths";
+export * from "./emulators-base-dir";

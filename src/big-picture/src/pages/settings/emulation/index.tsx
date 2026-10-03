@@ -346,10 +346,14 @@ export function EmulationSettingsSection({
       },
       switch: {
         left: getItemFocusTarget(EMULATION_OVERVIEW_CARD_FOCUS_IDS.dolphin),
+        right: getItemFocusTarget(EMULATION_OVERVIEW_CARD_FOCUS_IDS["3ds"]),
+      },
+      "3ds": {
+        left: getItemFocusTarget(EMULATION_OVERVIEW_CARD_FOCUS_IDS.switch),
         right: getItemFocusTarget(EMULATION_OVERVIEW_CARD_FOCUS_IDS.retroarch),
       },
       retroarch: {
-        left: getItemFocusTarget(EMULATION_OVERVIEW_CARD_FOCUS_IDS.switch),
+        left: getItemFocusTarget(EMULATION_OVERVIEW_CARD_FOCUS_IDS["3ds"]),
         right: { type: "block" },
       },
     }),

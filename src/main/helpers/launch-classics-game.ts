@@ -139,6 +139,9 @@ const buildEmulatorArgs = (
     case "eden":
       // yuzu-family CLI: -f fullscreen, -g game file.
       return ["-f", "-g", discPath];
+    case "azahar":
+      // Citra-family CLI: -f fullscreen, game file as the positional argument (-g is gdb here).
+      return ["-f", discPath];
   }
 };
 

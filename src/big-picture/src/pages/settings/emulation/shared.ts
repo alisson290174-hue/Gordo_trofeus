@@ -8,6 +8,7 @@ import ps3Art from "@renderer/assets/emulation/ps3.png";
 import pspArt from "@renderer/assets/emulation/icons/ppsspp.png";
 import dolphinArt from "@renderer/assets/emulation/icons/dolphin.png";
 import switchArt from "@renderer/assets/emulation/switch.png";
+import n3dsArt from "@renderer/assets/emulation/3ds.png";
 
 export { EMULATOR_ICONS, KNOWN_BINARY_LABELS };
 
@@ -22,6 +23,7 @@ export const EMULATION_SYSTEMS: EmulatorSystem[] = [
   "psp",
   "dolphin",
   "switch",
+  "3ds",
 ];
 
 export const EMULATION_SYSTEM_LABELS: Record<EmulatorSystem, string> = {
@@ -31,6 +33,7 @@ export const EMULATION_SYSTEM_LABELS: Record<EmulatorSystem, string> = {
   psp: "PlayStation Portable",
   dolphin: "GameCube & Wii",
   switch: "Nintendo Switch",
+  "3ds": "Nintendo 3DS",
 };
 
 export const EMULATION_SYSTEM_ART: Record<EmulatorSystem, string> = {
@@ -40,6 +43,7 @@ export const EMULATION_SYSTEM_ART: Record<EmulatorSystem, string> = {
   psp: pspArt,
   dolphin: dolphinArt,
   switch: switchArt,
+  "3ds": n3dsArt,
 };
 
 export function formatBytes(bytes: number): string {

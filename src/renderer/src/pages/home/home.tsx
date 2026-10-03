@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { PlatformBadge } from "@renderer/components/platform-badge/platform-badge";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { orderBy } from "lodash-es";
@@ -280,6 +281,7 @@ export default function Home() {
                   />
                   {isFocused && (
                     <div className="home-hero__tile-label">
+                      <PlatformBadge game={game.asset} />
                       <span className="home-hero__tile-name">
                         {game.asset.title}
                       </span>

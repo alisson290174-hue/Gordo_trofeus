@@ -271,6 +271,7 @@ const dedupGames = (binary: KnownBinary, files: Candidate[]): GameGroup[] => {
         break;
       case "psp":
       case "dolphin":
+      case "3ds":
         games.push(...applySimpleRules(group));
         break;
       case "switch":

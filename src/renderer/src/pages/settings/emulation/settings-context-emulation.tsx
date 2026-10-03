@@ -13,6 +13,7 @@ import { EmulatorDetail } from "./emulator-detail";
 import { EmulatorSetupModal } from "./setup/emulator-setup-modal";
 import { KNOWN_BINARY_LABELS } from "./known-binary-labels";
 import { useEmulatorGameCounts } from "./use-emulator-game-counts";
+import { EmulatorsAutoSetupPanel } from "./emulators-autosetup-panel";
 import {
   RETROARCH_LABEL,
   RETROARCH_CORE_LIST,
@@ -27,6 +28,7 @@ import pspArt from "@renderer/assets/emulation/psp.png";
 import gameCubeArt from "@renderer/assets/emulation/gamecube.png";
 import wiiArt from "@renderer/assets/emulation/wii.png";
 import switchArt from "@renderer/assets/emulation/switch.png";
+import n3dsArt from "@renderer/assets/emulation/3ds.png";
 import retroArchArt from "@renderer/assets/emulation/retroarch.png";
 import {
   ClassicsOnboardingModal,
@@ -41,7 +43,15 @@ import {
 
 import "./settings-context-emulation.scss";
 
-const SYSTEMS: EmulatorSystem[] = ["ps1", "ps2", "ps3", "psp", "dolphin", "switch"];
+const SYSTEMS: EmulatorSystem[] = [
+  "ps1",
+  "ps2",
+  "ps3",
+  "psp",
+  "dolphin",
+  "switch",
+  "3ds",
+];
 
 type EmulationView =
   | { kind: "grid" }
@@ -72,6 +82,7 @@ const SYSTEM_LABELS: Record<EmulatorSystem, string> = {
   psp: "PlayStation Portable",
   dolphin: "GameCube & Wii",
   switch: "Nintendo Switch",
+  "3ds": "Nintendo 3DS",
 };
 
 const SYSTEM_ART: Record<EmulatorSystem, string | readonly string[]> = {
@@ -81,6 +92,7 @@ const SYSTEM_ART: Record<EmulatorSystem, string | readonly string[]> = {
   psp: pspArt,
   dolphin: [gameCubeArt, wiiArt],
   switch: switchArt,
+  "3ds": n3dsArt,
 };
 
 const SYSTEM_REQUIREMENTS: Partial<
@@ -306,6 +318,13 @@ export function SettingsContextEmulation() {
           {t("emulation_description")}
         </p>
       </header>
+
+      <EmulatorsAutoSetupPanel
+        onChanged={() => {
+          void refresh();
+          void refreshRetroArch();
+        }}
+      />
 
       <div className="settings-emulation__cards">
         {SYSTEMS.map((system) => (

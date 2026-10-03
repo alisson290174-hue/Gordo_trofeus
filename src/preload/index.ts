@@ -27,6 +27,7 @@ import type {
   EmulatorSystem,
   EmulatorBinary,
   EmulatorInstallProgress,
+  EmulatorAutoSetupProgress,
   RetroArchCoreName,
   RetroArchCoreInstallProgress,
   RetroArchInstallProgress,
@@ -503,6 +504,17 @@ contextBridge.exposeInMainWorld("electron", {
     ipcRenderer.on("on-emulator-install-progress", listener);
     return () =>
       ipcRenderer.removeListener("on-emulator-install-progress", listener);
+  },
+  autoSetupEmulators: () => ipcRenderer.invoke("autoSetupEmulators"),
+  getEmulatorsBaseDir: (): Promise<string> => ipcRenderer.invoke("getEmulatorsBaseDir"),
+  setEmulatorsBaseDir: (dir: string): Promise<string> =>
+    ipcRenderer.invoke("setEmulatorsBaseDir", dir),
+  onEmulatorAutoSetupProgress: (
+    cb: (payload: EmulatorAutoSetupProgress) => void
+  ) => {
+    const listener = (_event: unknown, payload: EmulatorAutoSetupProgress) => cb(payload);
+    ipcRenderer.on("on-emulator-autosetup-progress", listener);
+    return () => ipcRenderer.removeListener("on-emulator-autosetup-progress", listener);
   },
   /* RetroArch */
   getRetroArchConfig: () => ipcRenderer.invoke("getRetroArchConfig"),

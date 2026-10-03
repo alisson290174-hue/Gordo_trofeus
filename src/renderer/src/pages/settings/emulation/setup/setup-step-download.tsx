@@ -31,6 +31,7 @@ const OFFICIAL_WEBSITES: Record<EmulatorBinary, string> = {
   ppsspp: "https://www.ppsspp.org/",
   dolphin: "https://dolphin-emu.org/",
   eden: "https://eden-emu.dev/",
+  azahar: "https://azahar-emu.org/",
 };
 
 const SEMVER_RE = /v?\d{1,9}\.\d{1,9}(?:\.\d{1,9})?/;

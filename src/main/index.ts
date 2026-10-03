@@ -114,9 +114,15 @@ const initializeApp = async () => {
 
   logger.info("Crash dumps directory", app.getPath("crashDumps"));
 
+  // local: shows on-disk images (custom covers, souvenirs, game icons) — only media files, so a
+  // compromised page can't use it to read arbitrary files from the user's disk.
+  const LOCAL_MEDIA = /\.(png|jpe?g|webp|gif|bmp|ico|avif|apng|mp4|webm)$/i;
   protocol.handle("local", (request) => {
-    const filePath = request.url.slice("local:".length);
-    return net.fetch(url.pathToFileURL(decodeURI(filePath)).toString());
+    const filePath = decodeURI(request.url.slice("local:".length));
+    if (!LOCAL_MEDIA.test(filePath.split(/[?#]/)[0])) {
+      return new Response("Forbidden", { status: 403 });
+    }
+    return net.fetch(url.pathToFileURL(filePath).toString());
   });
 
   protocol.handle("gradient", (request) => {

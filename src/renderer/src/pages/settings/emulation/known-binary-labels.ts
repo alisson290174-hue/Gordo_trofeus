@@ -7,4 +7,5 @@ export const KNOWN_BINARY_LABELS: Record<EmulatorBinary, string> = {
   ppsspp: "PPSSPP",
   dolphin: "Dolphin",
   eden: "Eden",
+  azahar: "Azahar",
 };

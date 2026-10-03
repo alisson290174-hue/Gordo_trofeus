@@ -140,6 +140,21 @@ export const KNOWN_BINARIES: Record<EmulatorSystem, KnownBinary> = {
     romExtensions: [".nsp", ".xci", ".nsz", ".xcz"],
     romDirectoryMarkers: [],
   },
+  "3ds": {
+    system: "3ds",
+    // Azahar is the maintained Citra successor (same CLI); Citra/Lime3DS builds are recognised too.
+    binary: "azahar",
+    displayName: "Azahar",
+    linuxNames: ["azahar", "citra-qt", "lime3ds-gui"],
+    windowsNames: ["azahar.exe", "citra-qt.exe", "lime3ds-gui.exe", "lime3ds.exe"],
+    macosBundleNames: ["Azahar.app"],
+    flatpakIds: ["org.azahar_emu.Azahar"],
+    // The Qt GUI opens its window even for --version, so the version isn't probed.
+    versionFlags: [],
+    // .cia are installers (installed into the emulator's NAND), not bootable files.
+    romExtensions: [".3ds", ".cci", ".cxi", ".3dsx", ".app"],
+    romDirectoryMarkers: [],
+  },
 };
 
 const EMULATOR_BINARIES: readonly EmulatorBinary[] = Array.from(

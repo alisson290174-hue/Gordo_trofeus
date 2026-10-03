@@ -14,21 +14,25 @@ const findKeyOffset = (
 const readStringValue = (
   data: Buffer,
   valueStart: number,
-  dataUsedSize: number
+  dataUsedSize: number,
+  asText = false
 ): string | null => {
   const valueEnd = valueStart + dataUsedSize;
   if (valueEnd > data.length) return null;
 
-  const decoded = data.subarray(valueStart, valueEnd).toString("ascii");
+  const decoded = data.subarray(valueStart, valueEnd).toString(asText ? "utf8" : "ascii");
   const nullOffset = decoded.indexOf("\0");
   const rawValue = nullOffset === -1 ? decoded : decoded.slice(0, nullOffset);
   const normalizedValue = rawValue.trim();
-  return normalizedValue ? normalize(normalizedValue) : null;
+  if (!normalizedValue) return null;
+  return asText ? normalizedValue : normalize(normalizedValue);
 };
 
 export const parseParamSfoValue = (
   data: Buffer,
-  requestedKey: string
+  requestedKey: string,
+  /** Plain UTF-8 text (TITLE) instead of a serial-normalised value (TITLE_ID → "BLUS-30443"). */
+  asText = false
 ): string | null => {
   if (data.length < 20) return null;
   if (data.readUInt32LE(0) !== 0x46535000) return null;
@@ -49,7 +53,7 @@ export const parseParamSfoValue = (
     const { key } = findKeyOffset(data, keyTableStart, keyOffset);
     if (key === requestedKey) {
       const valueStart = dataTableStart + dataOffset;
-      return readStringValue(data, valueStart, dataUsedSize);
+      return readStringValue(data, valueStart, dataUsedSize, asText);
     }
   }
   return null;

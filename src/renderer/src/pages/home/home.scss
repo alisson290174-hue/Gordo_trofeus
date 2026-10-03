@@ -104,6 +104,10 @@
   &__tile-label {
     width: 220px;
     padding-right: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
     animation: home-hero-fade 0.3s ease;
   }
 

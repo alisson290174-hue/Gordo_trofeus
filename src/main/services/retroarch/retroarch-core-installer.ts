@@ -11,7 +11,7 @@ import type {
   RetroArchInstallResult,
 } from "@types";
 
-import { getDownloadsPath } from "@main/events/helpers/get-downloads-path";
+import { getEmulatorsBaseDir } from "../emulators/emulators-base-dir";
 
 import { logger } from "../logger";
 import { SevenZip } from "../7zip";
@@ -238,7 +238,9 @@ const findExecutableInDir = (
 };
 
 export const downloadAndInstallRetroArch = async (
-  optionId: string
+  optionId: string,
+  /** Automatic setup: no Explorer window. */
+  installOptions: { silent?: boolean } = {}
 ): Promise<RetroArchInstallResult> => {
   const options = await resolveRetroArchInstallOptions();
   const option = options.find((candidate) => candidate.id === optionId);
@@ -250,8 +252,7 @@ export const downloadAndInstallRetroArch = async (
 
   const fileName = path.basename(option.fileName ?? option.downloadUrl);
   const archivePath = path.join(SystemPath.getPath("temp"), fileName);
-  const downloadsRoot = await getDownloadsPath();
-  const extractDir = path.join(downloadsRoot, "RetroArch");
+  const extractDir = path.join(await getEmulatorsBaseDir(), "RetroArch");
   const stagingDir = `${extractDir}-staging`;
 
   const removeArchive = async () => {
@@ -318,7 +319,7 @@ export const downloadAndInstallRetroArch = async (
       }));
     });
 
-    shell.showItemInFolder(executablePath);
+    if (!installOptions.silent) shell.showItemInFolder(executablePath);
     sendInstallProgress({ optionId, phase: "done", path: executablePath });
     return { ok: true, path: executablePath };
   } catch (error) {

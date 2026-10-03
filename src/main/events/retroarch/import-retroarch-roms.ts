@@ -26,6 +26,7 @@ import type { LaunchboxShopDetailsEntry } from "@main/services/emulators";
 import { WindowManager, logger, retroarch } from "@main/services";
 import { platformToRetroArchPlatform } from "@main/helpers";
 import { gamesSublevel } from "@main/level";
+import { autoSetupRetroArch } from "@main/services/emulators/emulator-auto-setup";
 import {
   findLibretroTitleScreen,
   findRetroArchBoxart,
@@ -542,6 +543,9 @@ async function runRetroArchImport(
   signal: AbortSignal,
   onProgress?: ProgressFn
 ): Promise<RetroArchImportResult> {
+  // Linking cartridge games is enough: RetroArch and its cores get set up in the background.
+  void autoSetupRetroArch().catch(() => {});
+
   // Register the folders up front with empty counts. A cancelled scan returns
   // before the rollup is persisted, and the user still expects the folder they
   // picked to be listed - just with no games detected yet.

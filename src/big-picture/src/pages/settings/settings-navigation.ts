@@ -76,6 +76,7 @@ export const EMULATION_OVERVIEW_CARD_FOCUS_IDS = {
   psp: "emulation-overview-psp-card",
   dolphin: "emulation-overview-dolphin-card",
   switch: "emulation-overview-switch-card",
+  "3ds": "emulation-overview-3ds-card",
   retroarch: "emulation-overview-retroarch-card",
 } as const;
 export const EMULATION_DETAIL_CORES_REGION_ID = "emulation-detail-cores-region";

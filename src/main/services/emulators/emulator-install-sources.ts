@@ -40,7 +40,71 @@ interface LinkSource {
   url: string;
 }
 
-type EmulatorSourceEntry = GithubAssetSource | LinkSource;
+/** Release hosted on a Forgejo/Gitea instance (Eden publishes there, not on GitHub). */
+interface ForgejoAssetSource {
+  type: "forgejo";
+  id: string;
+  binary: EmulatorBinary;
+  /** e.g. https://git.eden-emu.dev/api/v1/repos/eden-emu/eden */
+  apiRepo: string;
+  assetPattern: RegExp;
+  kind: Exclude<EmulatorInstallKind, "link">;
+}
+
+type EmulatorSourceEntry = GithubAssetSource | ForgejoAssetSource | LinkSource;
+
+const azaharEntries = (os: InstallOs, arch: InstallArch): EmulatorSourceEntry[] => {
+  if (os === "win32" && arch === "x64") {
+    return [
+      {
+        type: "github",
+        id: "azahar-portable",
+        binary: "azahar",
+        repo: "azahar-emu/azahar",
+        channel: "latest",
+        channelLabel: null,
+        assetPattern: /^azahar-windows-msvc-[\d.]+\.zip$/i,
+        kind: "windows-archive",
+      },
+    ];
+  }
+  return [
+    {
+      type: "link",
+      id: "azahar-releases",
+      binary: "azahar",
+      linkKind: "release_page",
+      url: "https://github.com/azahar-emu/azahar/releases",
+    },
+  ];
+};
+
+const edenEntries = (os: InstallOs, arch: InstallArch): EmulatorSourceEntry[] => {
+  if (os === "win32") {
+    return [
+      {
+        type: "forgejo",
+        id: "eden-portable",
+        binary: "eden",
+        apiRepo: "https://git.eden-emu.dev/api/v1/repos/eden-emu/eden",
+        assetPattern:
+          arch === "arm64"
+            ? /^Eden-Windows-v[\d.]+-arm64-clang-standard\.zip$/i
+            : /^Eden-Windows-v[\d.]+-amd64-msvc-standard\.zip$/i,
+        kind: "windows-archive",
+      },
+    ];
+  }
+  return [
+    {
+      type: "link",
+      id: "eden-releases",
+      binary: "eden",
+      linkKind: "release_page",
+      url: "https://git.eden-emu.dev/eden-emu/eden/releases",
+    },
+  ];
+};
 
 const duckstationEntries = (
   os: InstallOs,
@@ -61,6 +125,19 @@ const duckstationEntries = (
         channelLabel: null,
         assetPattern,
         kind: "windows-installer",
+      },
+      {
+        type: "github",
+        id: "duckstation-portable",
+        binary: "duckstation",
+        repo: "stenzek/duckstation",
+        channel: "rolling",
+        channelLabel: null,
+        assetPattern:
+          arch === "arm64"
+            ? /^duckstation-windows-arm64-release\.zip$/i
+            : /^duckstation-windows-x64-release\.zip$/i,
+        kind: "windows-archive",
       },
     ];
   }
@@ -122,6 +199,21 @@ const pcsx2Entries = (
         assetPattern,
         kind,
       },
+      ...(isWindows
+        ? [
+            {
+              type: "github" as const,
+              id: "pcsx2-portable",
+              binary: "pcsx2" as const,
+              repo: "PCSX2/pcsx2",
+              channel: "release" as const,
+              channelLabel: "release" as const,
+              assetPattern:
+                arch === "arm64" ? /windows-arm64-Qt\.7z$/i : /windows-x64-Qt\.7z$/i,
+              kind: "windows-archive" as const,
+            },
+          ]
+        : []),
       {
         type: "github",
         id: "pcsx2-prerelease",
@@ -351,6 +443,8 @@ const githubEntries = (
   if (binary === "pcsx2") return pcsx2Entries(os, arch);
   if (binary === "rpcs3") return rpcs3Entries(os, arch);
   if (binary === "ppsspp") return ppssppEntries(os, arch);
+  if (binary === "azahar") return azaharEntries(os, arch);
+  if (binary === "eden") return edenEntries(os, arch);
   return [];
 };
 
@@ -467,6 +561,57 @@ const resolveGithubOption = async (
   };
 };
 
+interface ForgejoRelease {
+  tag_name: string;
+  html_url: string;
+  draft: boolean;
+  prerelease: boolean;
+  assets: { name: string; browser_download_url: string }[];
+}
+
+const resolveForgejoOption = async (
+  entry: ForgejoAssetSource
+): Promise<ResolvedInstallOption> => {
+  const fallback: ResolvedInstallOption = {
+    id: entry.id,
+    binary: entry.binary,
+    kind: "link",
+    channel: null,
+    downloadUrl: null,
+    fileName: null,
+    version: null,
+    htmlUrl: null,
+    linkUrl: entry.apiRepo.replace("/api/v1/repos/", "/") + "/releases",
+    linkKind: "release_page",
+  };
+  try {
+    const { data } = await axios.get<ForgejoRelease[]>(`${entry.apiRepo}/releases?limit=10`, {
+      headers: { Accept: "application/json", "User-Agent": "HydraLauncher" },
+      timeout: GITHUB_API_TIMEOUT_MS,
+    });
+    const release = data.find((candidate) => !candidate.draft && !candidate.prerelease);
+    const asset = release?.assets.find((candidate) => entry.assetPattern.test(candidate.name));
+    if (!release || !asset) return fallback;
+    return {
+      id: entry.id,
+      binary: entry.binary,
+      kind: entry.kind,
+      channel: null,
+      downloadUrl: asset.browser_download_url,
+      fileName: asset.name,
+      version: release.tag_name,
+      htmlUrl: release.html_url,
+      linkUrl: null,
+      linkKind: null,
+      // Forgejo publishes no digest: the installer relies on HTTPS + the official host instead.
+      sha256: null,
+    };
+  } catch (error) {
+    logger.error(`Failed to fetch release for ${entry.apiRepo}`, error);
+    return fallback;
+  }
+};
+
 const normalizeArch = (arch: string): InstallArch =>
   arch === "arm64" ? "arm64" : "x64";
 
@@ -507,6 +652,7 @@ export const resolveInstallOptions = async (
           linkKind: entry.linkKind,
         });
       }
+      if (entry.type === "forgejo") return resolveForgejoOption(entry);
       return resolveGithubOption(entry);
     })
   );

@@ -1,4 +1,5 @@
 import path from "node:path";
+import { getEmulatorsBaseDir } from "./emulators-base-dir";
 
 import { getDownloadsPath } from "../../events/helpers/get-downloads-path.js";
 import { SystemPath } from "../system-path.js";
@@ -14,9 +15,11 @@ export const detectEmulatorWithDownloads = async (
 ): Promise<DetectionResult | null> => {
   const configuredDownloads = await getDownloadsPath().catch(() => null);
   const defaultDownloads = SystemPath.getPath("downloads");
+  // Emulators Balói installed itself live under the emulators folder (one subfolder each).
+  const emulatorsBaseDir = await getEmulatorsBaseDir().catch(() => null);
   const downloadDirectories = Array.from(
     new Set(
-      [configuredDownloads, defaultDownloads]
+      [emulatorsBaseDir, configuredDownloads, defaultDownloads]
         .filter((directory): directory is string => Boolean(directory))
         .map((directory) => path.normalize(directory))
     )

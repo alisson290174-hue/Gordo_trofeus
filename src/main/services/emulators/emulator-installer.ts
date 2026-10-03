@@ -11,7 +11,7 @@ import type {
   EmulatorSystem,
   ResolvedInstallOption,
 } from "@types";
-import { getDownloadsPath } from "@main/events/helpers/get-downloads-path";
+import { getEmulatorsBaseDir } from "./emulators-base-dir";
 
 import { logger } from "../logger";
 import { SevenZip } from "../7zip";
@@ -76,14 +76,14 @@ const BINARY_TO_SYSTEM: Record<EmulatorBinary, EmulatorSystem> = {
   ppsspp: "psp",
   dolphin: "dolphin",
   eden: "switch",
+  azahar: "3ds",
 };
 
 const emulatorInstallDirectory = async (
   binary: EmulatorBinary
 ): Promise<string> => {
-  const downloadsRoot = await getDownloadsPath();
   const system = BINARY_TO_SYSTEM[binary];
-  return path.join(downloadsRoot, KNOWN_BINARIES[system].displayName);
+  return path.join(await getEmulatorsBaseDir(), KNOWN_BINARIES[system].displayName);
 };
 
 const installMacosDmg = async (
@@ -151,8 +151,10 @@ const installMacosDmg = async (
  */
 export const downloadAndInstallEmulator = async (
   binary: EmulatorBinary,
-  optionId: string
-): Promise<EmulatorInstallResult> => {
+  optionId: string,
+  /** Automatic setup: no Explorer window, and the executable path is returned for configuring. */
+  installOptions: { silent?: boolean } = {}
+): Promise<EmulatorInstallResult & { executablePath?: string }> => {
   if (!isKnownEmulatorBinary(binary)) {
     return { ok: false, reason: "invalid_binary" };
   }
@@ -213,18 +215,18 @@ export const downloadAndInstallEmulator = async (
       const { mode } = await fs.promises.stat(dest);
       await fs.promises.chmod(dest, mode | 0o100);
       assertValidEmulatorExecutable(dest);
-      shell.showItemInFolder(dest);
+      if (!installOptions.silent) shell.showItemInFolder(dest);
       sendProgress({ binary, optionId, phase: "done", path: dest });
-      return { ok: true, path: dest };
+      return { ok: true, path: dest, executablePath: dest };
     }
 
     if (option.kind === "macos-dmg") {
       sendProgress({ binary, optionId, phase: "extracting" });
       const appBundle = await installMacosDmg(dest, binary, installDirectory);
       await removeTempDownload();
-      shell.showItemInFolder(appBundle);
+      if (!installOptions.silent) shell.showItemInFolder(appBundle);
       sendProgress({ binary, optionId, phase: "done", path: appBundle });
-      return { ok: true, path: appBundle };
+      return { ok: true, path: appBundle, executablePath: appBundle };
     }
 
     sendProgress({ binary, optionId, phase: "extracting" });
@@ -237,9 +239,9 @@ export const downloadAndInstallEmulator = async (
       KNOWN_BINARIES[system]
     );
     await removeTempDownload();
-    shell.showItemInFolder(executable);
+    if (!installOptions.silent) shell.showItemInFolder(executable);
     sendProgress({ binary, optionId, phase: "done", path: extractDir });
-    return { ok: true, path: extractDir };
+    return { ok: true, path: extractDir, executablePath: executable };
   } catch (error) {
     logger.error("Failed to install emulator", error);
     await removeFileQuietly(dest);

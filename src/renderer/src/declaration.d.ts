@@ -54,6 +54,7 @@ import type {
   EmulationBackupProgress,
   EmulatorBinary,
   EmulatorInstallProgress,
+  EmulatorAutoSetupProgress,
   EmulatorInstallResult,
   ResolvedInstallOption,
   DetectedRom,
@@ -641,6 +642,12 @@ declare global {
     ) => Promise<EmulatorInstallResult>;
     onEmulatorInstallProgress: (
       cb: (payload: EmulatorInstallProgress) => void
+    ) => () => void;
+    autoSetupEmulators: () => Promise<EmulatorAutoSetupProgress[]>;
+    getEmulatorsBaseDir: () => Promise<string>;
+    setEmulatorsBaseDir: (dir: string) => Promise<string>;
+    onEmulatorAutoSetupProgress: (
+      cb: (payload: EmulatorAutoSetupProgress) => void
     ) => () => void;
     /* RetroArch */
     getRetroArchConfig: () => Promise<RetroArchConfig>;

@@ -10,7 +10,13 @@ import fs from "node:fs";
  *   without a digest is refused (fail closed).
  * - Official hosts that publish no hashes (Dolphin, libretro buildbot) rely on HTTPS + host.
  */
-const TRUSTED_HOSTS = new Set(["github.com", "dl.dolphin-emu.org", "buildbot.libretro.com"]);
+const TRUSTED_HOSTS = new Set([
+  "github.com",
+  "dl.dolphin-emu.org",
+  "buildbot.libretro.com",
+  // Eden (Switch) publishes its builds on its own server.
+  "stable.eden-emu.dev",
+]);
 
 export class UntrustedDownloadError extends Error {}
 

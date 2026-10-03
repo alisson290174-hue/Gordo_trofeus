@@ -1,4 +1,11 @@
-export type EmulatorSystem = "ps1" | "ps2" | "ps3" | "psp" | "dolphin" | "switch";
+export type EmulatorSystem =
+  | "ps1"
+  | "ps2"
+  | "ps3"
+  | "psp"
+  | "dolphin"
+  | "switch"
+  | "3ds";
 
 export type EmulatorBinary =
   | "duckstation"
@@ -6,7 +13,8 @@ export type EmulatorBinary =
   | "rpcs3"
   | "ppsspp"
   | "dolphin"
-  | "eden";
+  | "eden"
+  | "azahar";
 
 export interface RomFolder {
   id: string;
@@ -248,6 +256,14 @@ export interface EmulatorInstallProgress {
   total?: number;
   reason?: string;
   path?: string;
+}
+
+/** Automatic emulator setup (install + configure), one event per emulator. */
+export interface EmulatorAutoSetupProgress {
+  target: EmulatorSystem | "retroarch";
+  status: "working" | "ready" | "found" | "installed" | "unavailable" | "failed";
+  executablePath?: string | null;
+  reason?: string;
 }
 
 export interface EmulatorInstallResult {

@@ -52,12 +52,19 @@
     height: 30px;
   }
 
-  // "Can be platinumed": the platinum trophy in a glass ring at the bottom-right (box art keeps
-  // its platform logo at the top). The earned platinum stays the bright, unframed one up top.
+  // Console tag (PS2, SWITCH, PC…) in the top-left corner of every cover.
+  &__platform {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+  }
+
+  // "Can be platinumed": the platinum trophy in a glass ring, top-right (where the earned
+  // platinum sits once it's won), so the bottom stays free for the status pills.
   &__platinable {
     position: absolute;
-    right: 10px;
-    bottom: 12px;
+    top: 8px;
+    right: 8px;
     width: 30px;
     height: 30px;
     border-radius: 50%;
@@ -78,7 +85,7 @@
 
   &__pill {
     position: absolute;
-    top: 10px;
+    bottom: 12px;
     left: 10px;
     height: 26px;
     padding: 0 10px;

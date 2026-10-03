@@ -1,6 +1,6 @@
 import axios from "axios";
 import { createHash, randomUUID } from "node:crypto";
-import { existsSync } from "node:fs";
+import { existsSync, promises as fs } from "node:fs";
 import path from "node:path";
 import { chunk } from "lodash-es";
 
@@ -12,6 +12,7 @@ import {
 import { isWithin } from "./rom-path-utils";
 import { entryMatchesSystemPlatform } from "./catalogue-platforms";
 import { contentKindOfTitleId } from "@main/services/emulators/switch-title";
+import { autoSetupEmulator } from "@main/services/emulators/emulator-auto-setup";
 import {
   findLibretroBoxart,
   findLibretroTitleScreen,
@@ -181,6 +182,7 @@ const SYSTEM_DEFAULT_PLATFORM: Record<EmulatorSystem, string | null> = {
   psp: "PlayStation Portable",
   dolphin: null,
   switch: "Nintendo Switch",
+  "3ds": "Nintendo 3DS",
 };
 
 export const persistEntryLocally = async (
@@ -838,6 +840,24 @@ const discCoverUrl = (
     : null;
 };
 
+// libretro-thumbnails folders for systems whose dumps no catalogue names (art matched by title).
+const LIBRETRO_FOLDERS: Partial<Record<EmulatorSystem, string>> = {
+  ps1: "Sony - PlayStation",
+  ps3: "Sony - PlayStation 3",
+  "3ds": "Nintendo - Nintendo 3DS",
+};
+
+/**
+ * PS3 disc folders are found by their "PS3_GAME" marker, whose name says nothing: the real title
+ * is in PS3_GAME/PARAM.SFO, else the game's own folder ("Demon's Souls [BLUS30443]").
+ */
+const ps3GameTitle = async (markerPath: string): Promise<string | null> => {
+  if (!/^ps3_game$/i.test(path.basename(markerPath))) return null;
+  const sfo = await fs.readFile(path.join(markerPath, "PARAM.SFO")).catch(() => null);
+  const title = sfo ? emulators.parseParamSfoValue(sfo, "TITLE", true) : null;
+  return title || cleanRomTitle(path.basename(path.dirname(markerPath)));
+};
+
 const urlResponds = (url: string) =>
   axios
     .head(url, { timeout: 8000, validateStatus: () => true })
@@ -848,13 +868,23 @@ const urlResponds = (url: string) =>
  * Title and art for a ROM no catalogue matched by serial:
  * - Switch dumps the Title ID lookup didn't cover (most .xci have none): official name + art by
  *   exact title (server).
- * - PS1: box art by serial when the cover repo has it, else libretro-thumbnails by title.
+ * - PS1/PS3/3DS: box art by serial when a cover repo has it, else libretro-thumbnails by title,
+ *   plus the title screen for the Início strip.
  * - Others: the serial cover repo, as before.
  */
+/** Art PS3 disc folders ship with: ICON0 (icon) and PIC1 (1920x1080 background). */
+const ps3LocalArt = (markerPath: string | undefined) => {
+  if (!markerPath || !/^ps3_game$/i.test(path.basename(markerPath))) return { icon: null, pic: null };
+  const icon = path.join(markerPath, "ICON0.PNG");
+  const pic = path.join(markerPath, "PIC1.PNG");
+  return { icon: existsSync(icon) ? icon : null, pic: existsSync(pic) ? pic : null };
+};
+
 const resolveUnmatchedArt = async (
   system: EmulatorSystem,
   serial: string | null | undefined,
-  title: string
+  title: string,
+  primaryPath?: string
 ): Promise<{
   title: string;
   coverUrl: string | null;
@@ -873,13 +903,23 @@ const resolveUnmatchedArt = async (
   }
 
   const serialCover = discCoverUrl(system, serial);
-  if (system === "ps1") {
-    // PS1 boxes carry a spine/label that looks off in a square; the title screen doesn't.
-    const tileUrl = await findLibretroTitleScreen("Sony - PlayStation", title).catch(() => null);
+  const libretroFolder = LIBRETRO_FOLDERS[system];
+  if (libretroFolder) {
+    // Boxes carry spines/labels that look off in the Início square; the title screen doesn't.
+    const tileUrl = await findLibretroTitleScreen(libretroFolder, title).catch(() => null);
     if (serialCover && (await urlResponds(serialCover))) {
       return { title, coverUrl: serialCover, heroUrl: null, tileUrl };
     }
-    const fallback = await findLibretroBoxart("Sony - PlayStation", title).catch(() => null);
+    const fallback = await findLibretroBoxart(libretroFolder, title).catch(() => null);
+    if (system === "ps3") {
+      const local = ps3LocalArt(primaryPath);
+      return {
+        title,
+        coverUrl: fallback ?? local.icon,
+        heroUrl: local.pic,
+        tileUrl: tileUrl ?? local.icon,
+      };
+    }
     return { title, coverUrl: fallback, heroUrl: null, tileUrl };
   }
   return { title, coverUrl: serialCover, heroUrl: null, tileUrl: null };
@@ -908,7 +948,7 @@ const persistUnmatchedGame = async (
       shop,
       title,
       iconUrl: null,
-      libraryHeroImageUrl: coverUrl,
+      libraryHeroImageUrl: heroUrl ?? coverUrl,
       libraryImageUrl: coverUrl,
       logoImageUrl: null,
       logoPosition: null,
@@ -981,7 +1021,13 @@ const persistUnmatchedGames = async (
       ? `rom-sku-${normalizeSku(serial)}`
       : `rom-${createHash("sha1").update(groupKey).digest("hex").slice(0, 16)}`;
     const sourceFileName = group.files[0].name;
-    const art = await resolveUnmatchedArt(system, serial, cleanRomTitle(sourceFileName));
+    const art = await resolveUnmatchedArt(
+      system,
+      serial,
+      (system === "ps3" ? await ps3GameTitle(group.files[0].primaryPath) : null) ??
+        cleanRomTitle(sourceFileName),
+      group.files[0].primaryPath
+    );
     const title = art.title;
     persistedIds.add(objectId);
     const { coverUrl, heroUrl, tileUrl } = art;
@@ -1070,6 +1116,10 @@ export async function runLaunchboxImport(
   onProgress?: ProgressFn
 ): Promise<LaunchboxImportResult> {
   const folderInputBy = new Map(folders.map((f) => [f.path, f]));
+
+  // Linking games is all a user has to do: a console without an emulator gets one set up in the
+  // background (official build, checked download) while the games are read.
+  void autoSetupEmulator(system).catch(() => {});
 
   // Register the folders up front with empty counts. A cancelled scan returns
   // before the rollup is persisted, and the user still expects the folder they

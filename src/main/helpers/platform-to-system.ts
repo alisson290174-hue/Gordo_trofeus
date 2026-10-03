@@ -12,5 +12,6 @@ export const platformToSystem = (
   if (/game\s*cube/.test(p)) return "dolphin";
   if (/^(nintendo\s+)?wii$/.test(p.trim())) return "dolphin";
   if (/\bswitch\b/.test(p)) return "switch";
+  if (/\b3ds\b/.test(p)) return "3ds";
   return null;
 };

@@ -1,0 +1,110 @@
+.emulators-autosetup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px 28px;
+  padding: 20px 24px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  background: linear-gradient(135deg, rgba(0, 112, 243, 0.12), rgba(255, 255, 255, 0.02));
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    flex: 1 1 360px;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #f2f4f8;
+  }
+
+  &__description {
+    margin: 0;
+    font-size: 13px;
+    line-height: 20px;
+    color: #8e919b;
+    max-width: 640px;
+  }
+
+  &__folder {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    align-self: flex-start;
+    max-width: 100%;
+    padding: 6px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(6, 9, 18, 0.5);
+    color: #c9cdd6;
+    font-size: 12.5px;
+    cursor: pointer;
+    transition: border-color 0.2s ease;
+
+    &:hover {
+      border-color: rgba(77, 155, 255, 0.6);
+    }
+  }
+
+  &__folder-path {
+    font-family: ui-monospace, "Cascadia Mono", Consolas, monospace;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__folder-change {
+    color: #4d9bff;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  &__actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+  }
+
+  &__results {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 6px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    max-width: 520px;
+  }
+
+  &__chip {
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 11.5px;
+    color: #dfe3ea;
+    background: rgba(255, 255, 255, 0.07);
+
+    &--installed,
+    &--found,
+    &--ready {
+      background: rgba(46, 184, 114, 0.16);
+      color: #7fe0ae;
+    }
+
+    &--failed {
+      background: rgba(230, 70, 70, 0.16);
+      color: #ff9a9a;
+    }
+
+    &--unavailable {
+      background: rgba(255, 255, 255, 0.06);
+      color: #8e919b;
+    }
+  }
+}

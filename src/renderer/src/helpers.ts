@@ -113,6 +113,7 @@ export const SYSTEM_TO_BINARY: Record<EmulatorSystem, EmulatorBinary> = {
   psp: "ppsspp",
   dolphin: "dolphin",
   switch: "eden",
+  "3ds": "azahar",
 };
 
 export {

@@ -1,0 +1,41 @@
+// Each console keeps a recognisable colour; a soft top highlight and shadow make the tag read as
+// a small label printed on the box, legible on any cover.
+.platform-badge {
+  --badge-from: #3a4766;
+  --badge-to: #273249;
+  --badge-text: #ffffff;
+
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 8px;
+  border-radius: 6px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  color: var(--badge-text);
+  background: linear-gradient(180deg, var(--badge-from), var(--badge-to));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    0 2px 8px rgba(0, 0, 0, 0.45);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
+  white-space: nowrap;
+  pointer-events: auto;
+
+  &--ps1 { --badge-from: #b6bdc9; --badge-to: #8a93a3; --badge-text: #1b2130; text-shadow: none; }
+  &--ps2 { --badge-from: #2f6bff; --badge-to: #1a46c9; }
+  &--ps3 { --badge-from: #2b2f38; --badge-to: #0c0e12; --badge-text: #dfe3ea; }
+  &--psp { --badge-from: #4a5060; --badge-to: #2a2e38; }
+  &--switch { --badge-from: #ff3b30; --badge-to: #d1000f; }
+  &--n3ds { --badge-from: #e33b3b; --badge-to: #a5121a; }
+  &--snes { --badge-from: #7a5fd0; --badge-to: #4f37a2; }
+  &--nes { --badge-from: #d64545; --badge-to: #8e1f27; }
+  &--n64 { --badge-from: #2fb35a; --badge-to: #1a7a3a; }
+  &--gb { --badge-from: #8fa33a; --badge-to: #5f6f22; }
+  &--gbc { --badge-from: #9b4fd6; --badge-to: #6a2aa1; }
+  &--gba { --badge-from: #5a4fd6; --badge-to: #3427a6; }
+  &--gamecube { --badge-from: #7a64c4; --badge-to: #4b3a8f; }
+  &--wii { --badge-from: #c9d4df; --badge-to: #93a3b4; --badge-text: #1b2130; text-shadow: none; }
+  &--pc { --badge-from: #3a4658; --badge-to: #1f2633; --badge-text: #cfe0ff; }
+}

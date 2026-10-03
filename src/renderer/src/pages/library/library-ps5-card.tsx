@@ -5,6 +5,7 @@ import type { LibraryGame } from "@types";
 import { getDisplayedPlayTimeInMilliseconds } from "@shared";
 import { Icon } from "@renderer/components/icon/icon";
 import { AchievementSupportBadge } from "@renderer/components/achievement-support-badge/achievement-support-badge";
+import { PlatformBadge } from "@renderer/components/platform-badge/platform-badge";
 import { useGameCard } from "@renderer/hooks";
 import { isGameReadyToPlay } from "@renderer/helpers";
 import {
@@ -83,6 +84,8 @@ export const LibraryPs5Card = memo(function LibraryPs5Card({
           loading="lazy"
           onError={() => setSrc(CoverPlaceholder)}
         />
+
+        <PlatformBadge game={game} className="ps5-card__platform" />
 
         {progress.isPlatinum && (
           <img className="ps5-card__platinum" src={TierBadgePlatinum} alt="" />

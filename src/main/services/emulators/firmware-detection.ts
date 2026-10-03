@@ -39,6 +39,8 @@ export const isPs3FirmwareInstalled = async (
     if (!existsSync(dir)) continue;
     const sysExternal = path.join(dir, "sys", "external");
     if (!existsSync(sysExternal)) continue;
+    // Written last by the installer: a firmware cut off mid-install has modules but no version.
+    if (!existsSync(path.join(dir, "vsh", "etc", "version.txt"))) continue;
     try {
       const entries = await fs.readdir(sysExternal);
       if (entries.length > 0) return true;
