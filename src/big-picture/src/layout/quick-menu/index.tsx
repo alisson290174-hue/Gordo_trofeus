@@ -4,7 +4,14 @@ import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { Backdrop, FocusItem, NavigationLayer, VerticalFocusGroup } from "../../components";
 import { IS_BROWSER, IS_DESKTOP } from "../../constants";
-import { useBigPictureRunningGames, useGamepad, useNavigationScreenActions } from "../../hooks";
+import type { LibraryGame } from "@types";
+import { getTileArt } from "@renderer/helpers/ps5-game";
+import {
+  useBigPictureRunningGames,
+  useGamepad,
+  useLibrary,
+  useNavigationScreenActions,
+} from "../../hooks";
 import { NavigationAudioService } from "../../services";
 import { useNavigationStore, useVirtualKeyboardStore } from "../../stores";
 import { GamepadButtonType } from "../../types";
@@ -35,7 +42,23 @@ export function QuickMenu() {
   const [open, setOpen] = useState(false);
   const navigate = useNavigate();
   const running = Object.values(useBigPictureRunningGames());
-  const current = running[0] ?? null;
+  const { library } = useLibrary();
+  // Running games arrive as "shop:objectId"; title and art come from the library.
+  const current = useMemo(() => {
+    const first = running[0];
+    if (!first) return null;
+    const separator = first.id.indexOf(":");
+    const shop = (first.shop ?? first.id.slice(0, separator)) as LibraryGame["shop"];
+    const objectId = first.objectId ?? first.id.slice(separator + 1);
+    const game = library.find((entry) => entry.shop === shop && entry.objectId === objectId);
+    return {
+      shop,
+      objectId,
+      title: first.title ?? game?.title ?? "",
+      art: game ? getTileArt(game)?.url ?? null : null,
+      sessionDurationInMillis: first.sessionDurationInMillis,
+    };
+  }, [library, running]);
   const { onButtonPressed, isActiveGamepadEvent } = useGamepad();
   const keyboardOpen = useVirtualKeyboardStore((state) => state.target !== null);
 
@@ -60,12 +83,12 @@ export function QuickMenu() {
 
   const actions = useMemo<QuickAction[]>(() => {
     const list: QuickAction[] = [];
-    if (current?.shop && current.objectId) {
+    if (current) {
       list.push({
         label: "Close game",
         meta: "saves and quits",
         run: () => {
-          if (IS_DESKTOP) void globalThis.window.electron.closeGame(current.shop!, current.objectId!);
+          if (IS_DESKTOP) void globalThis.window.electron.closeGame(current.shop, current.objectId);
         },
       });
     }
@@ -100,8 +123,8 @@ export function QuickMenu() {
             <NavigationLayer rootRegionId={QUICK_MENU_REGION_ID} initialFocusId={QUICK_MENU_FIRST_ID}>
               {current ? (
                 <div className="quick-menu__now">
-                  {current.coverImageUrl || current.iconUrl ? (
-                    <img src={current.customIconUrl ?? current.iconUrl ?? current.coverImageUrl ?? ""} alt="" />
+                  {current.art ? (
+                    <img src={current.art} alt="" />
                   ) : (
                     <span className="quick-menu__now-art" />
                   )}

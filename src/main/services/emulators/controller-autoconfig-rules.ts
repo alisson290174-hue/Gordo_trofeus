@@ -113,6 +113,47 @@ export const applySdlPadBindings = (
   return next;
 };
 
+/**
+ * XInput flavour of an SDL pad map: Windows numbers Xbox-class pads 0-3 in plug order and never
+ * shuffles them, while SDL indexes move whenever another HID device is present (a pad bound to
+ * "SDL-2" silently stops working). PCSX2's SDL face names become XInput's A/B/X/Y.
+ */
+const XINPUT_FACE: Record<string, string> = {
+  FaceSouth: "A",
+  FaceEast: "B",
+  FaceWest: "X",
+  FaceNorth: "Y",
+};
+
+export const toXInputBindings = (bindings: Record<string, string>): Record<string, string> =>
+  Object.fromEntries(
+    Object.entries(bindings).map(([key, value]) => [
+      key,
+      value.replace(/^SDL-0\/(.+)$/, (_m, name: string) => `XInput-0/${XINPUT_FACE[name] ?? name}`),
+    ])
+  );
+
+/**
+ * Pure: binds Pad1 to XInput pad 0. Rewrites keyboard / empty maps and SDL maps (whose index
+ * drifts); a map already on XInput is the user's and stays.
+ */
+export const applyXInputPadBindings = (
+  content: string,
+  sdlBindings: Record<string, string>
+): string => {
+  const bindings = toXInputBindings(sdlBindings);
+  const keys = Object.keys(bindings).filter((key) => key !== "Type");
+  const alreadyXInput = keys.some((key) => {
+    const line = getIniLine(content, "Pad1", key);
+    return line !== null && /=\s*XInput-/i.test(line);
+  });
+  if (alreadyXInput) return content;
+  let next = content;
+  for (const [key, value] of Object.entries(bindings)) next = setIniValue(next, "Pad1", key, value);
+  next = setIniValue(next, "InputSources", "XInput", "true");
+  return next;
+};
+
 // ---- RPCS3 ----
 
 export const RPCS3_XINPUT_PLAYER1 = `Player 1 Input:

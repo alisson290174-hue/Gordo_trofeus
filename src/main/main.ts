@@ -83,6 +83,10 @@ export const loadState = async () => {
   Wine.syncUserPreferences(userPreferences);
 
   await import("./events");
+  // Emulators Opus manages follow their latest official release (checked daily).
+  void import("./services/emulators/emulator-updater").then(({ scheduleEmulatorUpdates }) =>
+    scheduleEmulatorUpdates()
+  );
 
   if (userPreferences?.realDebridApiToken) {
     RealDebridClient.authorize(userPreferences.realDebridApiToken);

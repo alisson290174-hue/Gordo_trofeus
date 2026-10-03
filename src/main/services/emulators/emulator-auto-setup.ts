@@ -98,14 +98,17 @@ const withPs3Firmware = async (result: AutoSetupResult): Promise<AutoSetupResult
   return firmware === "installed" && result.status === "ready" ? { ...result, status: "installed" } : result;
 };
 
+/** Controller (Xbox layout), graphics for this PC and achievements: everything but the download. */
+const configureInstalledEmulator = async (system: EmulatorSystem, executablePath: string) => {
+  await configureControllerForEmulator(system, executablePath);
+  await applyGraphicsProfile(system, executablePath);
+  if (system === "ps1") enableEmulatorAchievements("ps1", executablePath);
+};
+
 const setupEmulator = async (system: EmulatorSystem): Promise<AutoSetupResult> => {
   const result = await withPs3Firmware(await setupEmulatorBinary(system));
   // "Instala e configura": the Xbox-layout pad is bound right away, not at the first game.
-  if (result.executablePath) {
-    await configureControllerForEmulator(system, result.executablePath);
-    await applyGraphicsProfile(system, result.executablePath);
-    if (system === "ps1") enableEmulatorAchievements("ps1", result.executablePath);
-  }
+  if (result.executablePath) await configureInstalledEmulator(system, result.executablePath);
   return result;
 };
 
@@ -116,12 +119,13 @@ const setupEmulatorBinary = async (system: EmulatorSystem): Promise<AutoSetupRes
     return { target: system, status: "ready", executablePath: config.executablePath };
   }
 
-  const save = (executablePath: string, version: string | null) =>
+  const save = (executablePath: string, version: string | null, releaseTag: string | null = null) =>
     updateEmulatorConfig(system, (current) => ({
       ...current,
       executablePath,
       detectedVersion: version,
       detectedAt: Date.now(),
+      releaseTag,
     }));
 
   // Already on disk (emulators folder, Downloads, standard install paths)?
@@ -139,7 +143,11 @@ const setupEmulatorBinary = async (system: EmulatorSystem): Promise<AutoSetupRes
   if (!result.ok || !result.executablePath) {
     return { target: system, status: "failed", executablePath: null, reason: result.reason };
   }
-  await save(result.executablePath, getEmulatorVersion(result.executablePath, binary) ?? option.version);
+  await save(
+    result.executablePath,
+    getEmulatorVersion(result.executablePath, binary) ?? option.version,
+    option.version ?? null
+  );
   return { target: system, status: "installed", executablePath: result.executablePath };
 };
 
@@ -242,4 +250,55 @@ export const autoSetupAllEmulators = async (): Promise<AutoSetupResult[]> => {
   for (const system of EMULATOR_SYSTEMS) results.push(await autoSetupEmulator(system));
   results.push(await autoSetupRetroArch());
   return results;
+};
+
+// ---- Separate steps (Configurações → Emulação: "Baixar" and "Configurar" per emulator) ---------
+
+/** Download / install only. */
+export const installEmulatorOnly = async (target: AutoSetupTarget): Promise<AutoSetupResult> => {
+  try {
+    const result =
+      target === "retroarch" ? await setupRetroArch() : await withPs3Firmware(await setupEmulatorBinary(target));
+    sendProgress(result);
+    return result;
+  } catch (error) {
+    logger.error(`[auto-setup] install ${target} failed`, error);
+    const result: AutoSetupResult = { target, status: "failed", executablePath: null };
+    sendProgress(result);
+    return result;
+  }
+};
+
+/** Configure only (the emulator must be installed). */
+export const configureEmulatorOnly = async (target: AutoSetupTarget): Promise<boolean> => {
+  try {
+    if (target === "retroarch") {
+      const config = await getRetroArchConfig();
+      if (!config.executablePath || !existsSync(config.executablePath)) return false;
+      enableEmulatorAchievements("retroarch", config.executablePath);
+      return true;
+    }
+    const config = await getEmulatorConfig(target);
+    if (!config.executablePath || !existsSync(config.executablePath)) return false;
+    await configureInstalledEmulator(target, config.executablePath);
+    return true;
+  } catch (error) {
+    logger.error(`[auto-setup] configure ${target} failed`, error);
+    return false;
+  }
+};
+
+export interface EmulatorVersionInfo {
+  target: AutoSetupTarget;
+  version: string | null;
+}
+
+/** Installed version per emulator, for the cards. */
+export const getEmulatorVersions = async (): Promise<EmulatorVersionInfo[]> => {
+  const versions: EmulatorVersionInfo[] = [];
+  for (const system of EMULATOR_SYSTEMS) {
+    const config = await getEmulatorConfig(system);
+    versions.push({ target: system, version: config.releaseTag ?? config.detectedVersion ?? null });
+  }
+  return versions;
 };

@@ -95,6 +95,15 @@ export function App() {
   const [archivePaths, setArchivePaths] = useState<string[]>([]);
   const [showAddFriendModal, setShowAddFriendModal] = useState(false);
 
+  // Emulators that updated themselves in the background (daily check).
+  useEffect(
+    () =>
+      window.electron.onEmulatorsUpdated((updated) =>
+        showSuccessToast(t("emulators_updated", { ns: "settings", list: updated.join(", ") }))
+      ),
+    [showSuccessToast, t]
+  );
+
   useEffect(() => {
     Promise.all([
       levelDBService.get("userPreferences", null, "json"),

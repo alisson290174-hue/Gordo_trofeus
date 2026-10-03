@@ -1,5 +1,13 @@
 import { registerEvent } from "../register-event";
-import { emulators, launchedGamePids, logger, Wine } from "@main/services";
+import {
+  emulators,
+  getGamesRunning,
+  launchedGamePids,
+  logger,
+  Wine,
+  WindowManager,
+} from "@main/services";
+import { GamepadComboWatcher } from "@main/services/gamepad-combo-watcher";
 import sudo from "sudo-prompt";
 import { app } from "electron";
 import { gamesSublevel, levelKeys } from "@main/level";
@@ -123,3 +131,19 @@ const closeGame = async (
 };
 
 registerEvent("closeGame", closeGame);
+
+// Select + Start on the controller: close whatever is running and come back to Opus.
+GamepadComboWatcher.setHandler(() => {
+  void (async () => {
+    for (const running of getGamesRunning()) {
+      const separator = running.id.indexOf(":");
+      if (separator <= 0) continue;
+      const shop = running.id.slice(0, separator) as GameShop;
+      const objectId = running.id.slice(separator + 1);
+      await closeGame({} as Electron.IpcMainInvokeEvent, shop, objectId).catch((error) =>
+        logger.error("[gamepad] could not close the game", error)
+      );
+    }
+    WindowManager.bringLauncherToFront();
+  })();
+});

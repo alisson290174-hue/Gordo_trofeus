@@ -8,6 +8,7 @@ import { logger } from "../logger";
 import {
   applyQtPadBindings,
   applySdlPadBindings,
+  applyXInputPadBindings,
   azaharBindings,
   DOLPHIN_GCPAD,
   DOLPHIN_WIIMOTE,
@@ -73,18 +74,21 @@ const writeIfChanged = (filePath: string, transform: (content: string) => string
   return true;
 };
 
-const configureDuckStation = () => {
+// An Xbox-class pad goes on XInput-0 (stable index); anything else on the first SDL device.
+const padBinder = (xinput: boolean) => (xinput ? applyXInputPadBindings : applySdlPadBindings);
+
+const configureDuckStation = (xinput: boolean) => {
   const configPath =
     findExistingConfig(duckstationConfigCandidates()) ?? duckstationConfigCandidates()[0];
-  return writeIfChanged(configPath, (content) => applySdlPadBindings(content, DUCKSTATION_PAD));
+  return writeIfChanged(configPath, (content) => padBinder(xinput)(content, DUCKSTATION_PAD));
 };
 
-const configurePcsx2 = (executablePath: string) => {
+const configurePcsx2 = (executablePath: string, xinput: boolean) => {
   const candidates = pcsx2ConfigCandidates(executablePath);
   const configPath = findExistingConfig(candidates);
   // PCSX2 writes its full ini on first run; before that there's nothing to merge into.
   if (!configPath) return false;
-  return writeIfChanged(configPath, (content) => applySdlPadBindings(content, PCSX2_PAD));
+  return writeIfChanged(configPath, (content) => padBinder(xinput)(content, PCSX2_PAD));
 };
 
 // ---- RPCS3 (XInput handler, pad #1) --------------------------------------------------------------
@@ -165,9 +169,9 @@ export const configureControllerForEmulator = async (
   try {
     switch (system) {
       case "ps1":
-        return configureDuckStation();
+        return configureDuckStation((await detectXInputPad()) !== null);
       case "ps2":
-        return configurePcsx2(executablePath);
+        return configurePcsx2(executablePath, (await detectXInputPad()) !== null);
       case "ps3":
         return configureRpcs3(executablePath);
       case "dolphin":

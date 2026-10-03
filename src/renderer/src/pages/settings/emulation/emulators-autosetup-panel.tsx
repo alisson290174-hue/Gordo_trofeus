@@ -41,8 +41,14 @@ export function EmulatorsAutoSetupPanel({ onChanged }: Readonly<Props>) {
   const [baseDir, setBaseDir] = useState<string | null>(null);
   const [rows, setRows] = useState<Partial<Record<Target, RowState>>>({});
   const [runningAll, setRunningAll] = useState(false);
+  const [versions, setVersions] = useState<Partial<Record<Target, string | null>>>({});
+  const [configuring, setConfiguring] = useState<Target | null>(null);
+  const [checkingUpdates, setCheckingUpdates] = useState(false);
+  const [downloadingTranslations, setDownloadingTranslations] = useState(false);
 
   const refreshStates = useCallback(async () => {
+    const versionList = await window.electron.getEmulatorVersions().catch(() => []);
+    setVersions(Object.fromEntries(versionList.map((entry) => [entry.target, entry.version])));
     const states = await window.electron.getEmulatorSetupStates().catch(() => []);
     setRows((previous) => {
       const next = { ...previous };
@@ -85,24 +91,69 @@ export function EmulatorsAutoSetupPanel({ onChanged }: Readonly<Props>) {
     }
   }, [baseDir, showErrorToast, showSuccessToast, t]);
 
-  const handleSetupOne = useCallback(
+  // "Baixar": download / install only.
+  const handleInstallOne = useCallback(
     async (target: Target) => {
       setRows((previous) => ({ ...previous, [target]: "working" }));
       try {
-        const result = await window.electron.autoSetupEmulator(target);
+        const result = await window.electron.installEmulatorOnly(target);
         const ok = result.status !== "failed" && result.status !== "unavailable";
         setRows((previous) => ({ ...previous, [target]: ok ? "installed" : "failed" }));
-        if (ok) showSuccessToast(t("emulators_setup_one_done", { name: LABEL[target] }));
+        if (ok) showSuccessToast(t("emulators_install_one_done", { name: LABEL[target] }));
         else showErrorToast(t("emulators_setup_one_failed", { name: LABEL[target] }));
       } catch {
         setRows((previous) => ({ ...previous, [target]: "failed" }));
         showErrorToast(t("emulators_setup_one_failed", { name: LABEL[target] }));
       } finally {
+        await refreshStates();
         onChanged();
       }
     },
-    [onChanged, showErrorToast, showSuccessToast, t]
+    [onChanged, refreshStates, showErrorToast, showSuccessToast, t]
   );
+
+  // "Configurar": controller, graphics for this PC and achievements.
+  const handleConfigureOne = useCallback(
+    async (target: Target) => {
+      setConfiguring(target);
+      try {
+        const ok = await window.electron.configureEmulatorOnly(target);
+        if (ok) showSuccessToast(t("emulators_configure_one_done", { name: LABEL[target] }));
+        else showErrorToast(t("emulators_configure_one_failed", { name: LABEL[target] }));
+      } finally {
+        setConfiguring(null);
+      }
+    },
+    [showErrorToast, showSuccessToast, t]
+  );
+
+  const handleCheckUpdates = useCallback(async () => {
+    setCheckingUpdates(true);
+    try {
+      const updated = await window.electron.checkEmulatorUpdates();
+      if (updated.length) showSuccessToast(t("emulators_updated", { list: updated.join(", ") }));
+      else showSuccessToast(t("emulators_up_to_date"));
+    } catch {
+      showErrorToast(t("emulators_update_check_failed"));
+    } finally {
+      setCheckingUpdates(false);
+      await refreshStates();
+    }
+  }, [refreshStates, showErrorToast, showSuccessToast, t]);
+
+  const handleDownloadTranslations = useCallback(async () => {
+    setDownloadingTranslations(true);
+    showSuccessToast(t("emulators_translations_online_searching"), undefined, 120_000);
+    try {
+      await window.electron.downloadAllTranslationsOnline();
+      showSuccessToast(t("emulators_translations_online_done"));
+    } catch {
+      showErrorToast(t("emulators_translations_failed"));
+    } finally {
+      setDownloadingTranslations(false);
+      onChanged();
+    }
+  }, [onChanged, showErrorToast, showSuccessToast, t]);
 
   const handleSetupAll = useCallback(async () => {
     setRunningAll(true);
@@ -161,6 +212,14 @@ export function EmulatorsAutoSetupPanel({ onChanged }: Readonly<Props>) {
             <Icon name={runningAll ? "sync" : "download"} size={16} />
             {t("emulators_setup_all")}
           </Button>
+          <Button theme="outline" onClick={handleCheckUpdates} disabled={anyWorking || checkingUpdates}>
+            <Icon name="sync" size={16} />
+            {checkingUpdates ? t("emulators_checking_updates") : t("emulators_check_updates")}
+          </Button>
+          <Button theme="outline" onClick={handleDownloadTranslations} disabled={downloadingTranslations}>
+            <Icon name={downloadingTranslations ? "sync" : "languages"} size={16} />
+            {t("emulators_translations_online")}
+          </Button>
           <Button theme="outline" onClick={() => handleTranslationsFolder("switch")} disabled={translating}>
             <Icon name={translating ? "sync" : "languages"} size={16} />
             {t("emulators_translations_switch")}
@@ -185,18 +244,31 @@ export function EmulatorsAutoSetupPanel({ onChanged }: Readonly<Props>) {
               <span className={`emulators-autosetup__chip emulators-autosetup__chip--${state ?? "missing"}`}>
                 {t(`emulators_row_${state ?? "missing"}`)}
               </span>
-              <Button
-                theme={state === "installed" ? "outline" : "primary"}
-                onClick={() => handleSetupOne(target)}
-                disabled={working || runningAll}
-              >
-                <Icon name={working ? "sync" : state === "installed" ? "settings" : "download"} size={14} />
-                {working
-                  ? t("emulators_row_working")
-                  : state === "installed"
-                    ? t("emulators_row_reconfigure")
-                    : t("emulators_row_install")}
-              </Button>
+              {versions[target] && state === "installed" && (
+                <span className="emulators-autosetup__card-version">{versions[target]}</span>
+              )}
+              <div className="emulators-autosetup__card-actions">
+                <Button
+                  theme={state === "installed" ? "outline" : "primary"}
+                  onClick={() => handleInstallOne(target)}
+                  disabled={working || runningAll}
+                >
+                  <Icon name={working ? "sync" : "download"} size={14} />
+                  {working
+                    ? t("emulators_row_working")
+                    : state === "installed"
+                      ? t("emulators_row_reinstall")
+                      : t("emulators_row_download")}
+                </Button>
+                <Button
+                  theme="outline"
+                  onClick={() => handleConfigureOne(target)}
+                  disabled={state !== "installed" || working || configuring === target}
+                >
+                  <Icon name={configuring === target ? "sync" : "settings"} size={14} />
+                  {t("emulators_row_configure")}
+                </Button>
+              </div>
             </li>
           );
         })}

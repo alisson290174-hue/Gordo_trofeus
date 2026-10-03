@@ -153,26 +153,37 @@ const download = async (repo: string, file: RepoFile, target: string) => {
  * For each game with no "PT-BR" copy yet, finds its translation by name in the console's repo,
  * downloads it (hash-checked) and applies it. Returns how many translated copies were created.
  */
+export type OnlineRomTranslationOutcome =
+  | { status: "installed"; outputPath: string }
+  | { status: "already" | "unsupported" | "not_found" }
+  | { status: "failed"; reason: string };
+
+/** One game: look up its translation online, download (hash-checked) and apply it. */
+export const findOnlineRomTranslation = async (game: PatchableGame): Promise<OnlineRomTranslationOutcome> => {
+  if (isTranslatedName(game.romPath) || fs.existsSync(translatedCopyPath(game.romPath))) return { status: "already" };
+  const source = REPOS.find((candidate) => candidate.test.test(game.platform ?? ""));
+  if (!source) return { status: "unsupported" };
+  const files = await listRepo(source.repo, source.dir);
+  const file = files.find((candidate) => matchGameByName(path.basename(candidate.path), [game]));
+  if (!file || file.size > MAX_BYTES) return { status: "not_found" };
+  const target = path.join(app.getPath("userData"), "translations", source.repo, path.basename(file.path));
+  try {
+    await fs.promises.mkdir(path.dirname(target), { recursive: true });
+    if (!fs.existsSync(target) || (await sha256File(target)) !== file.sha256) await download(source.repo, file, target);
+    const result = await applyTranslationArchive(game, target);
+    if (result.ok) return { status: "installed", outputPath: result.outputPath };
+    logger.info("[rom-translation] online patch not applied", { game: game.title, reason: result.reason });
+    return { status: "failed", reason: result.reason };
+  } catch (error) {
+    logger.warn("[rom-translation] online download failed", { game: game.title, error: String(error) });
+    return { status: "failed", reason: String(error) };
+  }
+};
+
 export const fetchOnlineRomTranslations = async (games: PatchableGame[]): Promise<number> => {
   let created = 0;
-  const saveRoot = path.join(app.getPath("userData"), "translations");
   for (const game of games) {
-    if (isTranslatedName(game.romPath) || fs.existsSync(translatedCopyPath(game.romPath))) continue;
-    const source = REPOS.find((candidate) => candidate.test.test(game.platform ?? ""));
-    if (!source) continue;
-    const files = await listRepo(source.repo, source.dir);
-    const file = files.find((candidate) => matchGameByName(path.basename(candidate.path), [game]));
-    if (!file || file.size > MAX_BYTES) continue;
-    const target = path.join(saveRoot, source.repo, path.basename(file.path));
-    try {
-      await fs.promises.mkdir(path.dirname(target), { recursive: true });
-      if (!fs.existsSync(target) || (await sha256File(target)) !== file.sha256) await download(source.repo, file, target);
-      const result = await applyTranslationArchive(game, target);
-      if (result.ok) created += 1;
-      else logger.info("[rom-translation] online patch not applied", { game: game.title, reason: result.reason });
-    } catch (error) {
-      logger.warn("[rom-translation] online download failed", { game: game.title, error: String(error) });
-    }
+    if ((await findOnlineRomTranslation(game)).status === "installed") created += 1;
   }
   return created;
 };

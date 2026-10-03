@@ -195,3 +195,19 @@
     }
   }
 }
+
+.emulators-autosetup__card-version {
+  font-size: 11px;
+  opacity: 0.6;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.emulators-autosetup__card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}

@@ -509,6 +509,18 @@ contextBridge.exposeInMainWorld("electron", {
   autoSetupEmulator: (target: EmulatorSystem | "retroarch") =>
     ipcRenderer.invoke("autoSetupEmulator", target),
   getEmulatorSetupStates: () => ipcRenderer.invoke("getEmulatorSetupStates"),
+  installEmulatorOnly: (target: EmulatorAutoSetupProgress["target"]) =>
+    ipcRenderer.invoke("installEmulatorOnly", target),
+  configureEmulatorOnly: (target: EmulatorAutoSetupProgress["target"]) =>
+    ipcRenderer.invoke("configureEmulatorOnly", target),
+  getEmulatorVersions: () => ipcRenderer.invoke("getEmulatorVersions"),
+  checkEmulatorUpdates: () => ipcRenderer.invoke("checkEmulatorUpdates"),
+  downloadAllTranslationsOnline: () => ipcRenderer.invoke("downloadAllTranslationsOnline"),
+  onEmulatorsUpdated: (cb: (updated: string[]) => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, updated: string[]) => cb(updated);
+    ipcRenderer.on("on-emulators-updated", listener);
+    return () => ipcRenderer.removeListener("on-emulators-updated", listener);
+  },
   getEmulatorsBaseDir: (): Promise<string> => ipcRenderer.invoke("getEmulatorsBaseDir"),
   setEmulatorsBaseDir: (dir: string): Promise<string> =>
     ipcRenderer.invoke("setEmulatorsBaseDir", dir),
@@ -1094,6 +1106,8 @@ contextBridge.exposeInMainWorld("electron", {
     ),
   installTranslationsFromFolder: (system: EmulatorSystem, folder: string) =>
     ipcRenderer.invoke("installTranslationsFromFolder", system, folder),
+  downloadGameTranslation: (shop: GameShop, objectId: string) =>
+    ipcRenderer.invoke("downloadGameTranslation", shop, objectId),
   installGameTranslation: (shop: GameShop, objectId: string, sourcePath: string) =>
     ipcRenderer.invoke("installGameTranslation", shop, objectId, sourcePath),
   openClassicsGame: (

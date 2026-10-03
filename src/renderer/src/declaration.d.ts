@@ -655,6 +655,12 @@ declare global {
         reason?: string;
       }[]
     >;
+    downloadGameTranslation: (
+      shop: GameShop,
+      objectId: string
+    ) => Promise<
+      "installed" | "already_installed" | "not_found" | "unsupported" | "failed"
+    >;
     installGameTranslation: (
       shop: GameShop,
       objectId: string,
@@ -673,6 +679,23 @@ declare global {
         executablePath: string | null;
       }[]
     >;
+    installEmulatorOnly: (
+      target: EmulatorAutoSetupProgress["target"]
+    ) => Promise<{
+      target: EmulatorAutoSetupProgress["target"];
+      status: "ready" | "found" | "installed" | "unavailable" | "failed";
+      executablePath: string | null;
+      reason?: string;
+    }>;
+    configureEmulatorOnly: (
+      target: EmulatorAutoSetupProgress["target"]
+    ) => Promise<boolean>;
+    getEmulatorVersions: () => Promise<
+      { target: EmulatorAutoSetupProgress["target"]; version: string | null }[]
+    >;
+    checkEmulatorUpdates: () => Promise<string[]>;
+    downloadAllTranslationsOnline: () => Promise<boolean>;
+    onEmulatorsUpdated: (cb: (updated: string[]) => void) => () => void;
     getEmulatorsBaseDir: () => Promise<string>;
     setEmulatorsBaseDir: (dir: string) => Promise<string>;
     onEmulatorAutoSetupProgress: (

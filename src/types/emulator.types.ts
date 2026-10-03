@@ -31,6 +31,8 @@ export interface EmulatorConfig {
   executablePath: string | null;
   detectedVersion: string | null;
   detectedAt: number | null;
+  /** Release tag Opus last installed (drives the automatic emulator updates). */
+  releaseTag?: string | null;
   biosPath: string | null;
   romFolders: RomFolder[];
   lastScanAt: number | null;

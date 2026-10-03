@@ -1,3 +1,4 @@
+import { GamepadComboWatcher } from "./gamepad-combo-watcher";
 import { WindowManager } from "./window-manager";
 import { isLocalOnlyShop } from "@shared";
 import { updateGameExecutablePath } from "@main/helpers/update-executable-path";
@@ -382,7 +383,9 @@ export const watchProcesses = async () => {
 
   currentTick++;
 
-  WindowManager.sendToAppWindows("on-games-running", getGamesRunning());
+  const running = getGamesRunning();
+  WindowManager.sendToAppWindows("on-games-running", running);
+  GamepadComboWatcher.sync(running.length > 0);
 };
 
 async function onOpenGame(game: Game, matchedPath: string) {

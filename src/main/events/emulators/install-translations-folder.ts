@@ -88,3 +88,15 @@ registerEvent("installTranslationsFromFolder", (_event, system: EmulatorSystem, 
   if ((system !== "3ds" && system !== "switch") || typeof folder !== "string") return [];
   return run(system, folder);
 });
+
+// "Baixar traduções online": every console at once (mods for 3DS/Switch, patched copies for the rest).
+registerEvent("downloadAllTranslationsOnline", async () => {
+  const { autoTranslateEmulator, autoTranslateRetroArch, PATCH_SYSTEMS } = await import("./rom-translation-hooks");
+  for (const system of ["3ds", "switch"] as const) {
+    const config = await emulators.getEmulatorConfig(system);
+    await autoInstallTranslations(system, config.romFolders.map((folder) => folder.path));
+  }
+  for (const system of PATCH_SYSTEMS) await autoTranslateEmulator(system);
+  await autoTranslateRetroArch();
+  return true;
+});

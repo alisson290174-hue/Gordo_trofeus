@@ -79,7 +79,7 @@ const BINARY_TO_SYSTEM: Record<EmulatorBinary, EmulatorSystem> = {
   azahar: "3ds",
 };
 
-const emulatorInstallDirectory = async (
+export const emulatorInstallDirectory = async (
   binary: EmulatorBinary
 ): Promise<string> => {
   const system = BINARY_TO_SYSTEM[binary];

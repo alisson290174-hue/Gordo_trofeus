@@ -912,6 +912,26 @@ export class WindowManager {
     }
   }
 
+  /**
+   * Back to Opus after a game closes from the controller: Big Picture if it's open, else the main
+   * window. Windows ignores focus() from a background app, so the window is raised on top briefly.
+   */
+  public static bringLauncherToFront() {
+    const target =
+      this.bigPicture && !this.bigPicture.isDestroyed() ? this.bigPicture : this.mainWindow;
+    if (!target || target.isDestroyed()) {
+      this.createMainWindow();
+      return;
+    }
+    if (target.isMinimized()) target.restore();
+    target.show();
+    target.setAlwaysOnTop(true);
+    target.focus();
+    setTimeout(() => {
+      if (!target.isDestroyed()) target.setAlwaysOnTop(false);
+    }, 600);
+  }
+
   public static openMainWindow() {
     if (this.bigPicture && !this.bigPicture.isDestroyed()) {
       this.bigPicture.focus();

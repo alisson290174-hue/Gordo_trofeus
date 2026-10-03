@@ -329,6 +329,24 @@ export function GameContextMenu({
         ]
       : []),
 
+    // Any game: look for a PT-BR translation online and install it if one exists.
+    {
+      id: "download-translation",
+      label: t("download_translation"),
+      icon: <Icon name="download" size={16} />,
+      disabled: isDeleting,
+      onClick: async () => {
+        showSuccessToast(t("download_translation_searching"), t("download_translation_searching_hint"), 120_000);
+        const result = await window.electron
+          .downloadGameTranslation(game.shop, game.objectId)
+          .catch(() => "failed" as const);
+        if (result === "installed") showSuccessToast(t("download_translation_installed"));
+        else if (result === "already_installed") showSuccessToast(t("download_translation_already"));
+        else if (result === "failed") showErrorToast(t("download_translation_failed"));
+        else showErrorToast(t("download_translation_unavailable"));
+      },
+    },
+
     // 3DS/Switch: a fan translation (romfs mod) installed into the emulator in one step.
     ...(game.shop === "launchbox"
       ? [

@@ -4,7 +4,10 @@ import assert from "node:assert/strict";
 import {
   applyQtPadBindings,
   applySdlPadBindings,
+  applyXInputPadBindings,
   azaharBindings,
+  DUCKSTATION_PAD,
+  PCSX2_PAD,
   parseXInputHardwareId,
   sdlGuidForXInput,
   setQtIniValue,
@@ -13,6 +16,30 @@ import {
 } from "./controller-autoconfig-rules";
 
 describe("controller autoconfig", () => {
+  it("moves a drifted SDL pad map to XInput-0 and enables the XInput source", () => {
+    // DuckStation had Pad1 on "SDL-2": the 8BitDo enumerated elsewhere and no button worked.
+    const drifted = "[Pad1]\nType = AnalogController\nCross = SDL-2/A\nUp = SDL-2/DPadUp\n";
+    const next = applyXInputPadBindings(drifted, DUCKSTATION_PAD);
+    assert.match(next, /Cross = XInput-0\/A/);
+    assert.match(next, /Up = XInput-0\/DPadUp/);
+    assert.match(next, /L2 = XInput-0\/\+LeftTrigger/);
+    assert.match(next, /\[InputSources\][^[]*XInput = true/);
+    assert.doesNotMatch(next, /SDL-2/);
+  });
+
+  it("maps PCSX2's SDL face names to XInput A/B/X/Y", () => {
+    const next = applyXInputPadBindings("", PCSX2_PAD);
+    assert.match(next, /Cross = XInput-0\/A/);
+    assert.match(next, /Circle = XInput-0\/B/);
+    assert.match(next, /Square = XInput-0\/X/);
+    assert.match(next, /Triangle = XInput-0\/Y/);
+  });
+
+  it("keeps a map that is already on XInput", () => {
+    const custom = "[Pad1]\nCross = XInput-0/B\n";
+    assert.equal(applyXInputPadBindings(custom, DUCKSTATION_PAD), custom);
+  });
+
   it("builds the SDL GUID Eden itself stores for an XInput pad", () => {
     // Eden wrote this GUID for the 8BitDo pad (USB\VID_2DC8&PID_310B&REV_0114) in XInput mode.
     assert.equal(sdlGuidForXInput("2DC8", "310B", "0114"), "03000000c82d00000b31000014017801");
