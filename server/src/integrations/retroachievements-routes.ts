@@ -2,7 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { db } from "../db.js";
 import { requireAuth } from "../auth/require-auth.js";
 import { createLimiter } from "../rate-limit.js";
-import { RaNotConnectedError, resolveRaGameByHash } from "./retroachievements-games.js";
+import { PS2_CONSOLE_ID, RaNotConnectedError, resolveRaGameByHash } from "./retroachievements-games.js";
 
 // Each resolve may call RetroAchievements with the user's key; a library scan stays well below this.
 const resolveBudget = createLimiter(300, 10 * 60_000);
@@ -124,19 +124,22 @@ export function registerRetroAchievementsRoutes(app: FastifyInstance) {
 
   // Links a library game to its RetroAchievements game from the disc hash the app computed
   // (same algorithm as PCSX2). Only hashes on RA's official list ever create a link.
-  app.post<{ Body: { shop?: string; objectId?: string; hash?: string } }>(
+  app.post<{ Body: { shop?: string; objectId?: string; hash?: string; consoleId?: number } }>(
     "/profile/retroachievements/resolve",
     async (request, reply) => {
       const user = requireAuth(request, reply);
       if (!user) return;
 
       const { shop, objectId, hash } = request.body ?? {};
+      // RetroAchievements consoles the app hashes: N64, SNES, GB, GBA, GBC, NES, PS1, PS2.
+      const consoleId = request.body?.consoleId ?? PS2_CONSOLE_ID;
       if (
         shop !== "launchbox" ||
         typeof objectId !== "string" ||
         !/^[\w.-]{1,128}$/.test(objectId) ||
         typeof hash !== "string" ||
-        !/^[0-9a-f]{32}$/i.test(hash)
+        !/^[0-9a-f]{32}$/i.test(hash) ||
+        ![2, 3, 4, 5, 6, 7, 12, 21].includes(consoleId)
       ) {
         return reply.code(400).send({ message: "Invalid resolve request" });
       }
@@ -145,7 +148,7 @@ export function registerRetroAchievementsRoutes(app: FastifyInstance) {
       }
 
       try {
-        const match = await resolveRaGameByHash(user.id, shop, objectId, hash);
+        const match = await resolveRaGameByHash(user.id, shop, objectId, hash, consoleId);
         reply.send({
           retroAchievementsGameId: match?.raGameId ?? null,
           title: match?.title ?? null,

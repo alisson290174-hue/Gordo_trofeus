@@ -13,6 +13,7 @@ import { isWithin } from "./rom-path-utils";
 import { entryMatchesSystemPlatform } from "./catalogue-platforms";
 import { contentKindOfTitleId } from "@main/services/emulators/switch-title";
 import { autoSetupEmulator } from "@main/services/emulators/emulator-auto-setup";
+import { repairCuesInFolder } from "@main/services/emulators/cue-repair";
 import {
   findLibretroBoxart,
   findLibretroTitleScreen,
@@ -1158,6 +1159,10 @@ export async function runLaunchboxImport(
   // Linking games is all a user has to do: a console without an emulator gets one set up in the
   // background (official build, checked download) while the games are read.
   void autoSetupEmulator(system).catch(() => {});
+  // Broken .cue files (renamed .bin) would import fine but never boot: fix them first.
+  if (system === "ps1" || system === "ps2") {
+    for (const folder of folders) repairCuesInFolder(folder.path, folder.scanSubfolders);
+  }
 
   // Register the folders up front with empty counts. A cancelled scan returns
   // before the rollup is persisted, and the user still expects the folder they

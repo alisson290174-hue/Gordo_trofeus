@@ -19,6 +19,35 @@ import { KNOWN_BINARIES } from "./known-binaries";
 import { installPs3FirmwareIfMissing } from "./ps3-firmware-installer";
 import { configureControllerForEmulator } from "./controller-autoconfig";
 import { applyGraphicsProfile } from "./graphics-profile";
+import fs from "node:fs";
+import { setIniValue } from "./duckstation-souvenir-config-value";
+import { duckstationConfigCandidates, findExistingConfig } from "./emulator-config";
+
+/**
+ * RetroAchievements is off by default in RetroArch and DuckStation: turn it on so trophies unlock
+ * (the user still signs in once inside the emulator; Balói never handles the RA password).
+ */
+const enableEmulatorAchievements = (target: "ps1" | "retroarch", executablePath: string) => {
+  try {
+    if (target === "ps1") {
+      const file = findExistingConfig(duckstationConfigCandidates());
+      if (!file) return;
+      const content = fs.readFileSync(file, "utf8");
+      if (/^\[Cheevos\][^[]*^Enabled\s*=\s*true/im.test(content)) return;
+      fs.writeFileSync(file, setIniValue(content, "Cheevos", "Enabled", "true"), "utf8");
+      return;
+    }
+    const cfg = path.join(path.dirname(executablePath), "retroarch.cfg");
+    const content = fs.existsSync(cfg) ? fs.readFileSync(cfg, "utf8") : "";
+    if (/^cheevos_enable\s*=\s*"true"/m.test(content)) return;
+    const next = /^cheevos_enable\s*=.*$/m.test(content)
+      ? content.replace(/^cheevos_enable\s*=.*$/m, 'cheevos_enable = "true"')
+      : `${content.trimEnd()}${content ? "\n" : ""}cheevos_enable = "true"\n`;
+    fs.writeFileSync(cfg, next, "utf8");
+  } catch (error) {
+    logger.warn("[auto-setup] could not enable achievements", { target, error: String(error) });
+  }
+};
 
 /**
  * Installs and configures emulators without the user picking anything: anyone with Balói gets
@@ -75,6 +104,7 @@ const setupEmulator = async (system: EmulatorSystem): Promise<AutoSetupResult> =
   if (result.executablePath) {
     await configureControllerForEmulator(system, result.executablePath);
     await applyGraphicsProfile(system, result.executablePath);
+    if (system === "ps1") enableEmulatorAchievements("ps1", result.executablePath);
   }
   return result;
 };
@@ -141,6 +171,7 @@ const setupRetroArch = async (): Promise<AutoSetupResult> => {
     await downloadAndInstallAllCores();
     if (status === "ready") status = "installed";
   }
+  if (config.executablePath) enableEmulatorAchievements("retroarch", config.executablePath);
   return { target: "retroarch", status, executablePath: config.executablePath };
 };
 

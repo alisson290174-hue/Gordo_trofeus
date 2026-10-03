@@ -79,10 +79,17 @@ async function findFile(reader: SectorReader, root: DirEntry, filePath: string) 
   return current && !current.isDir ? current : null;
 }
 
-/** `BOOT2 = cdrom0:\SLUS_212.68;1` → `SLUS_212.68` (subfolders kept, as rcheevos does). */
-export function parseBootExecutable(systemCnf: string): string | null {
+/**
+ * `BOOT2 = cdrom0:\SLUS_212.68;1` → `SLUS_212.68` (PS2) and `BOOT = cdrom:\SLUS_007.08;1` →
+ * `SLUS_007.08` (PS1); subfolders kept, as rcheevos does.
+ */
+export function parseBootExecutable(systemCnf: string, key: "BOOT2" | "BOOT" = "BOOT2"): string | null {
+  const re =
+    key === "BOOT2"
+      ? /^\s*BOOT2\s*=\s*(?:cdrom0:)?\\*([^\s;]+)/i
+      : /^\s*BOOT\s*=\s*(?:cdrom:)?\\*([^\s;]+)/i;
   for (const line of systemCnf.split(/\r?\n/)) {
-    const match = /^\s*BOOT2\s*=\s*(?:cdrom0:)?\\?([^\s;]+)/i.exec(line);
+    const match = re.exec(line);
     if (match) return match[1];
   }
   return null;
@@ -94,7 +101,18 @@ async function resolveCueTarget(cuePath: string) {
   return match ? path.resolve(path.dirname(cuePath), match[1]) : null;
 }
 
-export async function computePs2DiscHash(discPath: string): Promise<string | null> {
+export const computePs2DiscHash = (discPath: string) => computePlaystationDiscHash(discPath, "ps2");
+export const computePs1DiscHash = (discPath: string) => computePlaystationDiscHash(discPath, "ps1");
+
+/**
+ * rcheevos `rc_hash_ps2` / `rc_hash_psx`: MD5 of the boot executable's name followed by its bytes.
+ * PS1 boots `BOOT = cdrom:\…` (or PSX.EXE without a SYSTEM.CNF) and the size comes from the
+ * PS-X EXE header (+2048 for the header sector itself).
+ */
+async function computePlaystationDiscHash(
+  discPath: string,
+  kind: "ps1" | "ps2"
+): Promise<string | null> {
   const extension = path.extname(discPath).toLowerCase();
   if (![".iso", ".bin", ".img", ".cue"].includes(extension)) return null;
 
@@ -112,10 +130,15 @@ export async function computePs2DiscHash(discPath: string): Promise<string | nul
     };
 
     const systemCnf = await findFile(reader, root, "SYSTEM.CNF");
-    if (!systemCnf) return null;
-    const bootName = parseBootExecutable(
-      (await reader.read(systemCnf.lba, Math.min(systemCnf.size, SECTOR - 1))).toString("latin1")
-    );
+    let bootName: string | null = null;
+    if (systemCnf) {
+      bootName = parseBootExecutable(
+        (await reader.read(systemCnf.lba, Math.min(systemCnf.size, SECTOR - 1))).toString("latin1"),
+        kind === "ps2" ? "BOOT2" : "BOOT"
+      );
+    } else if (kind === "ps1") {
+      bootName = "PSX.EXE";
+    }
     if (!bootName) return null;
 
     const executable = await findFile(reader, root, bootName);
@@ -123,10 +146,14 @@ export async function computePs2DiscHash(discPath: string): Promise<string | nul
 
     const md5 = createHash("md5").update(bootName, "latin1");
     // rcheevos always hashes the first full sector, then the remaining bytes of the file.
-    let remaining = Math.min(executable.size, MAX_HASH_BYTES);
     let lba = executable.lba;
     let chunk = await reader.read(lba, SECTOR);
     if (chunk.length < SECTOR) return null;
+    const size =
+      kind === "ps1" && chunk.toString("latin1", 0, 8) === "PS-X EXE"
+        ? chunk.readUInt32LE(28) + SECTOR
+        : executable.size;
+    let remaining = Math.min(size, MAX_HASH_BYTES);
     for (;;) {
       md5.update(chunk);
       if (remaining <= chunk.length) break;

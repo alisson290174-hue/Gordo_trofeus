@@ -67,7 +67,8 @@ const findHashStatement = db.prepare(
   "SELECT ra_game_id, title FROM ra_game_hashes WHERE hash = ? AND console_id = ?"
 );
 
-let hashListRefresh: Promise<void> | null = null;
+// One download per console at a time (PS1, PS2, SNES… refresh independently).
+const hashListRefreshes = new Map<number, Promise<void>>();
 
 async function refreshHashList(consoleId: number, webApiKey: string) {
   const games = await raGet<{ ID: number; Title?: string; Hashes?: string[] }[]>(
@@ -98,12 +99,14 @@ async function ensureHashList(consoleId: number, webApiKey: string) {
   const row = hashListFetchedStatement.get(consoleId) as { fetched_at: string } | undefined;
   const fresh = row && Date.now() - new Date(row.fetched_at).getTime() < HASH_LIST_TTL_MS;
   if (fresh) return;
-  // One download at a time; a failed refresh keeps serving the previous list if there is one.
-  hashListRefresh ??= refreshHashList(consoleId, webApiKey).finally(() => {
-    hashListRefresh = null;
-  });
+  // A failed refresh keeps serving the previous list if there is one.
+  let refresh = hashListRefreshes.get(consoleId);
+  if (!refresh) {
+    refresh = refreshHashList(consoleId, webApiKey).finally(() => hashListRefreshes.delete(consoleId));
+    hashListRefreshes.set(consoleId, refresh);
+  }
   try {
-    await hashListRefresh;
+    await refresh;
   } catch (error) {
     if (!row) throw error;
   }

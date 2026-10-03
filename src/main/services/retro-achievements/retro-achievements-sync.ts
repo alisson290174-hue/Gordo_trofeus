@@ -18,7 +18,7 @@ import {
 import { AchievementMemoryStore } from "../achievements/achievement-memory-store";
 import { AchievementSouvenirStore } from "../achievements/achievement-souvenir-store";
 import { getAchievementSouvenirs } from "../achievements/get-achievement-souvenirs";
-import { computePs2DiscHash } from "./ps2-disc-hash";
+import { computeRaHash, RA_CONSOLE, raConsoleForPlatform } from "./rom-hash";
 
 const toMillis = (date?: string) => {
   if (!date) return null;
@@ -123,8 +123,8 @@ export const resolveRetroAchievementsGameId = async (
 const discHashAttempts = new Map<string, Promise<number | null>>();
 
 /**
- * PS2 discs: hash the disc like PCSX2 does and let the server match it against RetroAchievements'
- * official list. Original dumps match; patched discs (translations, Bomba Patch…) have their own
+ * PS1/PS2 discs and cartridges (SNES, NES, N64, GB/GBC/GBA): hash the game like the emulator's
+ * rcheevos does and let the server match it against RetroAchievements' official list. Original dumps match; patched discs (translations, Bomba Patch…) have their own
  * hash and simply have no RetroAchievements set.
  */
 const resolveByDiscHash = (objectId: string, shop: GameShop) => {
@@ -135,9 +135,10 @@ const resolveByDiscHash = (objectId: string, shop: GameShop) => {
     attempt = (async () => {
       const game = await gamesSublevel.get(levelKeys.game(shop, objectId)).catch(() => null);
       const discPath = game?.selectedDiscPath ?? game?.discs?.[0]?.path ?? game?.executablePath;
-      if (!discPath) return null;
+      const raConsole = raConsoleForPlatform(game?.platform);
+      if (!discPath || !raConsole) return null;
 
-      const hash = await computePs2DiscHash(discPath).catch((error) => {
+      const hash = await computeRaHash(raConsole, discPath).catch((error) => {
         logger.warn("[retroachievements] could not hash disc", { discPath, error: String(error) });
         return null;
       });
@@ -145,7 +146,7 @@ const resolveByDiscHash = (objectId: string, shop: GameShop) => {
 
       const result = await HydraApi.post<{ retroAchievementsGameId: number | null }>(
         "/profile/retroachievements/resolve",
-        { shop, objectId, hash }
+        { shop, objectId, hash, consoleId: RA_CONSOLE[raConsole] }
       ).catch((error) => {
         logger.warn("[retroachievements] resolve failed", String(error));
         discHashAttempts.delete(key); // transient (offline, not connected yet): retry later
