@@ -274,9 +274,15 @@ export default function Home() {
                     style={
                       tile
                         ? {
-                            backgroundImage: `url("${tile.url}")`,
-                            backgroundSize: tile.size,
-                            backgroundPosition: tile.position,
+                            backgroundImage: tile.fallback
+                              ? `url("${tile.url}"), url("${tile.fallback}")`
+                              : `url("${tile.url}")`,
+                            backgroundSize: tile.fallback
+                              ? `${tile.size ?? "cover"}, cover`
+                              : tile.size,
+                            backgroundPosition: tile.fallback
+                              ? `${tile.position ?? "center"}, center`
+                              : tile.position,
                           }
                         : undefined
                     }

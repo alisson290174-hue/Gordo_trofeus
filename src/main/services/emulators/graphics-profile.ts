@@ -82,8 +82,17 @@ export const applyGraphicsProfile = async (
     switch (system) {
       case "ps1":
         return editIni(findExistingConfig(duckstationConfigCandidates()), "GPU", "ResolutionScale", scale);
-      case "ps2":
-        return editIni(findExistingConfig(pcsx2ConfigCandidates(executablePath)), "EmuCore/GS", "upscale_multiplier", scale);
+      case "ps2": {
+        const file = findExistingConfig(pcsx2ConfigCandidates(executablePath));
+        if (!editIni(file, "EmuCore/GS", "upscale_multiplier", scale) || !file) return false;
+        // Untouched config: also turn on PCSX2's bundled 16:9 and de-interlace game patches.
+        let content = fs.readFileSync(file, "utf8");
+        for (const key of ["EnableWideScreenPatches", "EnableNoInterlacingPatches"]) {
+          content = setIniValue(content, "EmuCore", key, "true");
+        }
+        fs.writeFileSync(file, content, "utf8");
+        return true;
+      }
       case "dolphin": {
         const userDir = dolphinUserDirectoryCandidates(executablePath)[0];
         const file = path.join(userDir, "Config", "GFX.ini");

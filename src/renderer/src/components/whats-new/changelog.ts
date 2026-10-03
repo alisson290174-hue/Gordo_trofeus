@@ -10,6 +10,17 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.34",
+    date: "03/10/2026",
+    items: [
+      "Capas do Início padronizadas: PS2, N64, GameCube, Wii, DS e PS3 usam a arte da caixa recortada, sem faixas do console nem imagens em branco.",
+      "PS3: capa da caixa baixada pelo código do jogo.",
+      "Só aponte a pasta dos jogos: BIOS do PS1/PS2 e chaves/firmware do Switch guardadas perto dos jogos são encontradas e configuradas sozinhas.",
+      "PS2: patches de tela cheia (16:9) e sem entrelaçamento ligados na primeira configuração.",
+      "Capas da Epic carregam mais rápido.",
+    ],
+  },
+  {
     version: "1.0.33",
     date: "03/10/2026",
     items: [

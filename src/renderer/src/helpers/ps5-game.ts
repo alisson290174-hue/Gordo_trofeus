@@ -34,19 +34,34 @@ const firstImage = (...urls: (string | null | undefined)[]) => {
   return null;
 };
 
+/**
+ * Epic serves its key art at full size (1200x1600 PNG/JPEG, ~0.6 MB each): ask its CDN for the
+ * size the screen needs, ~13x lighter, so the library and the Início strip paint at once.
+ */
+export const sizedEpicArt = (url: string | null, width: number, height: number) => {
+  if (!url || !/^https:\/\/cdn\d*\.epicgames\.com\//.test(url) || url.includes("?")) return url;
+  return `${url}?h=${height}&quality=medium&resize=1&w=${width}`;
+};
+
 /** 2:3 box art (Biblioteca grid, Início tiles). */
 export const getCoverArt = (game: GameArt) =>
-  firstImage(
-    game.customCoverImageUrl,
-    getShowcaseArt(game, "cover"),
-    game.coverImageUrl,
-    steamAsset(game, "library_600x900.jpg"),
-    game.libraryImageUrl,
-    game.libraryHeroImageUrl
+  sizedEpicArt(
+    firstImage(
+      game.customCoverImageUrl,
+      getShowcaseArt(game, "cover"),
+      game.coverImageUrl,
+      steamAsset(game, "library_600x900.jpg"),
+      game.libraryImageUrl,
+      game.libraryHeroImageUrl
+    ),
+    480,
+    640
   );
 
 export interface TileArt {
   url: string;
+  /** Box art painted underneath: shows when the tile art fails to load or is transparent. */
+  fallback?: string | null;
   /** CSS background-size/position that crop the console's strip off a box scan. */
   size?: string;
   position?: string;
@@ -60,20 +75,28 @@ export interface TileArt {
  */
 const BOX_FRAMES: Partial<Record<PlatformTone, { size: string; position: string }>> = {
   snes: { size: "auto 122%", position: "50% 12%" },
-  n64: { size: "auto 118%", position: "62% 0%" },
+  // Landscape box: keep the logo whole and leave the red "NINTENDO 64" edge out.
+  n64: { size: "cover", position: "25% 50%" },
+  // Title screens are letterboxed; the box art (minus its console header) reads better.
+  gamecube: { size: "cover", position: "50% 50%" },
+  wii: { size: "cover", position: "50% 60%" },
   ps1: { size: "126% auto", position: "100% 35%" },
+  // LaunchBox fanart for PS2 ranges from great to blank/white/screenshots: the box is consistent.
+  ps2: { size: "cover", position: "50% 50%" },
   gba: { size: "122% auto", position: "100% 40%" },
   gbc: { size: "122% auto", position: "100% 40%" },
-  nds: { size: "cover", position: "50% 60%" },
+  nds: { size: "122% auto", position: "100% 40%" },
   gb: { size: "122% auto", position: "100% 40%" },
   nes: { size: "cover", position: "50% 65%" },
   n3ds: { size: "122% auto", position: "0% 55%" },
   psp: { size: "cover", position: "50% 62%" },
+  // webMAN box scans: drop the "PLAYSTATION 3" spine on the left and the black top band.
+  ps3: { size: "115% auto", position: "100% 60%" },
 };
 
 /**
  * Square tile in the Início strip. A custom icon wins; boxed classics get their box framed above;
- * the rest keep dedicated square art (Switch icon, PS3 ICON0, PS2 fanart) and only then the box.
+ * the rest keep dedicated square art (Switch icon, PS3 ICON0, fanart) and only then the box.
  */
 export const getTileArt = (game: GameArt): TileArt | null => {
   const custom = firstImage(game.customIconUrl);
@@ -81,7 +104,9 @@ export const getTileArt = (game: GameArt): TileArt | null => {
 
   const cover = getCoverArt(game);
   if (game.shop === "launchbox" && cover) {
-    const frame = BOX_FRAMES[getPlatformBadge(game).tone];
+    const tone = getPlatformBadge(game).tone;
+    // PS3 games without a box scan only have the disc's landscape ICON0: no frame for that.
+    const frame = tone === "ps3" && !cover.includes("aldostools") ? undefined : BOX_FRAMES[tone];
     if (frame) return { url: cover, ...frame };
   }
 
@@ -92,17 +117,21 @@ export const getTileArt = (game: GameArt): TileArt | null => {
       ? game.libraryHeroImageUrl
       : null;
   const url = firstImage(game.tileImageUrl, fanart) ?? cover;
-  return url ? { url } : null;
+  return url ? { url, fallback: url !== cover ? cover : null } : null;
 };
 
 /** Wide key art behind the Início / Detalhes hero. */
 export const getHeroArt = (game: GameArt) =>
-  firstImage(
-    game.customHeroImageUrl,
-    getShowcaseArt(game, "hero"),
-    game.libraryHeroImageUrl,
-    steamAsset(game, "library_hero.jpg"),
-    game.libraryImageUrl
+  sizedEpicArt(
+    firstImage(
+      game.customHeroImageUrl,
+      getShowcaseArt(game, "hero"),
+      game.libraryHeroImageUrl,
+      steamAsset(game, "library_hero.jpg"),
+      game.libraryImageUrl
+    ),
+    1920,
+    1080
   );
 
 /** 460x215 capsule used by the "Descobrir" cards. */

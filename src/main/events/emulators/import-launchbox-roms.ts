@@ -14,6 +14,7 @@ import { entryMatchesSystemPlatform } from "./catalogue-platforms";
 import { contentKindOfTitleId } from "@main/services/emulators/switch-title";
 import { autoSetupEmulator } from "@main/services/emulators/emulator-auto-setup";
 import { repairCuesInFolder } from "@main/services/emulators/cue-repair";
+import { provisionSystemFiles } from "@main/services/emulators/system-files";
 import { readDolphinDiscHeader } from "@main/services/emulators/dolphin-disc-reader";
 import {
   findLibretroBoxart,
@@ -934,16 +935,26 @@ const resolveUnmatchedArt = async (
     if (serialCover && (await urlResponds(serialCover))) {
       return { title, coverUrl: serialCover, heroUrl: null, tileUrl };
     }
-    const fallback = await findLibretroBoxart(libretroFolder, title).catch(() => null);
     if (system === "ps3") {
       const local = ps3LocalArt(primaryPath);
+      // webMAN's cover set (by Title ID) has nearly every PS3 box; libretro only a few dozen.
+      const titleId = serial?.toUpperCase().replace(/[^A-Z0-9]/g, "");
+      const webmanCover =
+        titleId && /^[A-Z]{4}\d{5}$/.test(titleId)
+          ? `https://cdn.jsdelivr.net/gh/aldostools/resources@master/COV/${titleId}.JPG`
+          : null;
+      const box =
+        webmanCover && (await urlResponds(webmanCover))
+          ? webmanCover
+          : await findLibretroBoxart(libretroFolder, title).catch(() => null);
       return {
         title,
-        coverUrl: fallback ?? local.icon,
+        coverUrl: box ?? local.icon,
         heroUrl: local.pic,
         tileUrl: tileUrl ?? local.icon,
       };
     }
+    const fallback = await findLibretroBoxart(libretroFolder, title).catch(() => null);
     return { title, coverUrl: fallback, heroUrl: null, tileUrl };
   }
   return { title, coverUrl: serialCover, heroUrl: null, tileUrl: null };
@@ -1181,7 +1192,10 @@ export async function runLaunchboxImport(
 
   // Linking games is all a user has to do: a console without an emulator gets one set up in the
   // background (official build, checked download) while the games are read.
-  void autoSetupEmulator(system).catch(() => {});
+  // BIOS / keys / firmware kept next to the games are found and set up once the emulator exists.
+  void autoSetupEmulator(system)
+    .then(() => provisionSystemFiles(system, folders.map((f) => f.path)))
+    .catch(() => {});
   // Broken .cue files (renamed .bin) would import fine but never boot: fix them first.
   if (system === "ps1" || system === "ps2") {
     for (const folder of folders) repairCuesInFolder(folder.path, folder.scanSubfolders);
