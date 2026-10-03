@@ -22,7 +22,11 @@ export const contentKindOfTitleId = (titleId: string): SwitchContentKind => {
 /** Best guess from the file name: its Title ID when present, otherwise the usual dump tags. */
 export const contentKindFromName = (fileName: string): SwitchContentKind => {
   const id = titleIdFromName(fileName);
-  if (id) return contentKindOfTitleId(id);
+  if (id) {
+    const kind = contentKindOfTitleId(id);
+    // Some dumps carry the update's ID in their name; "[v0]" still means the base game.
+    return kind === "update" && /\[v0\]/i.test(fileName) ? "base" : kind;
+  }
   if (/\b(?:update|upd)\b/i.test(fileName)) return "update";
   if (/\bdlc\b/i.test(fileName)) return "dlc";
   return "base";

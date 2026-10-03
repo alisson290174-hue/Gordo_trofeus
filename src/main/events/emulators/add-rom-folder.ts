@@ -3,6 +3,7 @@ import { emulators } from "@main/services";
 import type { EmulatorSystem } from "@types";
 
 import { runLaunchboxImport } from "./import-launchbox-roms";
+import { autoInstallTranslations } from "./install-translations-folder";
 
 const addRomFolder = async (
   _event: Electron.IpcMainInvokeEvent,
@@ -23,6 +24,7 @@ const addRomFolder = async (
     language,
     signal
   );
+  void autoInstallTranslations(system, [folderPath]);
 
   return emulators.getEmulatorConfig(system);
 };

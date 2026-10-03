@@ -1092,6 +1092,8 @@ contextBridge.exposeInMainWorld("electron", {
       executablePath,
       launchOptions
     ),
+  installTranslationsFromFolder: (system: EmulatorSystem, folder: string) =>
+    ipcRenderer.invoke("installTranslationsFromFolder", system, folder),
   installGameTranslation: (shop: GameShop, objectId: string, sourcePath: string) =>
     ipcRenderer.invoke("installGameTranslation", shop, objectId, sourcePath),
   openClassicsGame: (

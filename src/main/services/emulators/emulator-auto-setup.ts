@@ -18,6 +18,7 @@ import { getEmulatorVersion } from "./get-emulator-version";
 import { KNOWN_BINARIES } from "./known-binaries";
 import { installPs3FirmwareIfMissing } from "./ps3-firmware-installer";
 import { configureControllerForEmulator } from "./controller-autoconfig";
+import { applyGraphicsProfile } from "./graphics-profile";
 
 /**
  * Installs and configures emulators without the user picking anything: anyone with Balói gets
@@ -71,7 +72,10 @@ const withPs3Firmware = async (result: AutoSetupResult): Promise<AutoSetupResult
 const setupEmulator = async (system: EmulatorSystem): Promise<AutoSetupResult> => {
   const result = await withPs3Firmware(await setupEmulatorBinary(system));
   // "Instala e configura": the Xbox-layout pad is bound right away, not at the first game.
-  if (result.executablePath) await configureControllerForEmulator(system, result.executablePath);
+  if (result.executablePath) {
+    await configureControllerForEmulator(system, result.executablePath);
+    await applyGraphicsProfile(system, result.executablePath);
+  }
   return result;
 };
 

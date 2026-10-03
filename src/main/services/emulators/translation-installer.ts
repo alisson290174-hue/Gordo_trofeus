@@ -11,6 +11,7 @@ import {
   findExecutables,
   findModRoots,
   KNOWN_TRANSLATION_PASSWORDS,
+  matchGameByName,
   pickModRoot,
 } from "./translation-rules";
 
@@ -76,8 +77,11 @@ export const installTranslation = async (params: {
   gameTitleId: string | null;
   sourcePath: string;
 }): Promise<TranslationInstallResult> => {
-  const { system, executablePath, gameTitleId, sourcePath } = params;
+  const { system, executablePath, sourcePath } = params;
   if (system !== "3ds" && system !== "switch") return { ok: false, reason: "unsupported_system" };
+  // Switch mods always live under the base game's ID (updates/DLC end in 800/001…).
+  const toBase = (id: string) => (system === "switch" ? `${id.slice(0, 13)}000`.toUpperCase() : id);
+  const gameTitleId = params.gameTitleId ? toBase(params.gameTitleId) : null;
   if (!executablePath || !fs.existsSync(executablePath)) return { ok: false, reason: "emulator_missing" };
 
   const isArchive = ARCHIVE_RE.test(sourcePath);
@@ -96,7 +100,11 @@ export const installTranslation = async (params: {
     const files = await listFiles(workDir);
     if (findExecutables(files).length > 0) return { ok: false, reason: "executable_inside" };
 
-    const pick = pickModRoot(findModRoots(files), gameTitleId);
+    const roots = findModRoots(files).map((root) => ({
+      ...root,
+      titleId: root.titleId ? toBase(root.titleId) : null,
+    }));
+    const pick = pickModRoot(roots, gameTitleId);
     if (!pick.ok) return pick;
 
     const rootDir = path.resolve(workDir, pick.root.root);
@@ -114,4 +122,95 @@ export const installTranslation = async (params: {
   } finally {
     if (isArchive) await fs.promises.rm(workDir, { recursive: true, force: true }).catch(() => {});
   }
+};
+
+export interface FolderTranslationGame {
+  titleId: string;
+  title: string;
+}
+
+export interface FolderTranslationResult {
+  file: string;
+  status: "installed" | "already_installed" | "no_game" | "failed";
+  game?: string;
+  reason?: string;
+}
+
+/** A game already has a translation when its mods folder holds anything. */
+const hasInstalledMod = (system: EmulatorSystem, executablePath: string, titleId: string) => {
+  const target =
+    system === "3ds"
+      ? modTarget(system, executablePath, titleId)
+      : path.join(qtEmulatorDataDir(executablePath, "eden"), "load", titleId);
+  try {
+    return fs.readdirSync(target).length > 0;
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Installs every translation in a folder (the user's "traducoes" folder) for the games in their
+ * library: archives with title-ID folders go to that game; untagged ones are matched by file name.
+ * Games that already have a translation are left alone, so it's safe to run on every scan.
+ */
+export const installTranslationsFromFolder = async (params: {
+  system: EmulatorSystem;
+  executablePath: string | null;
+  folder: string;
+  games: FolderTranslationGame[];
+}): Promise<FolderTranslationResult[]> => {
+  const { system, executablePath, folder, games } = params;
+  if ((system !== "3ds" && system !== "switch") || !executablePath) return [];
+  const entries = await fs.promises.readdir(folder, { withFileTypes: true }).catch(() => []);
+  const results: FolderTranslationResult[] = [];
+  const done = new Set<string>();
+
+  for (const entry of entries) {
+    const file = entry.name;
+    if (!entry.isDirectory() && !ARCHIVE_RE.test(file)) continue;
+    const sourcePath = path.join(folder, file);
+
+    // Cheap check first: the title ID is usually in the archive's folder names.
+    let candidates = games;
+    if (ARCHIVE_RE.test(file)) {
+      const listed = await SevenZip.listEntries(sourcePath).catch(() => null);
+      // Folder names only; an archive whose listing is password-protected falls back to its name.
+      const names = (listed ?? []).map((e) => `${e.name}/`);
+      const ids = new Set(
+        findModRoots(names)
+          .map((root) => root.titleId)
+          .filter((id): id is string => Boolean(id))
+          .map((id) => (system === "switch" ? `${id.slice(0, 13)}000` : id))
+      );
+      if (ids.size > 0) candidates = games.filter((game) => ids.has(game.titleId.toUpperCase()));
+      else {
+        const byName = matchGameByName(file, games);
+        candidates = byName ? [byName] : [];
+      }
+    } else {
+      const byName = matchGameByName(file, games);
+      candidates = byName ? [byName] : candidates;
+    }
+
+    const game = candidates.find((g) => !done.has(g.titleId.toUpperCase()));
+    if (!game) {
+      results.push({ file, status: candidates.length > 0 ? "already_installed" : "no_game" });
+      continue;
+    }
+    if (hasInstalledMod(system, executablePath, game.titleId.toUpperCase())) {
+      done.add(game.titleId.toUpperCase());
+      results.push({ file, status: "already_installed", game: game.title });
+      continue;
+    }
+    const result = await installTranslation({ system, executablePath, gameTitleId: game.titleId, sourcePath });
+    if (result.ok) {
+      done.add(game.titleId.toUpperCase());
+      results.push({ file, status: "installed", game: game.title });
+    } else {
+      results.push({ file, status: "failed", game: game.title, reason: result.reason });
+    }
+  }
+  logger.info("[translation] folder install", { system, folder, results });
+  return results;
 };

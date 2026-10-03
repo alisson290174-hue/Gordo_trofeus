@@ -644,6 +644,17 @@ declare global {
       cb: (payload: EmulatorInstallProgress) => void
     ) => () => void;
     autoSetupEmulators: () => Promise<EmulatorAutoSetupProgress[]>;
+    installTranslationsFromFolder: (
+      system: EmulatorSystem,
+      folder: string
+    ) => Promise<
+      {
+        file: string;
+        status: "installed" | "already_installed" | "no_game" | "failed";
+        game?: string;
+        reason?: string;
+      }[]
+    >;
     installGameTranslation: (
       shop: GameShop,
       objectId: string,

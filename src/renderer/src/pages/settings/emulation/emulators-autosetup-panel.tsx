@@ -120,6 +120,28 @@ export function EmulatorsAutoSetupPanel({ onChanged }: Readonly<Props>) {
     }
   }, [onChanged, refreshStates, showErrorToast, showSuccessToast, t]);
 
+  const [translating, setTranslating] = useState(false);
+
+  // Every translation in a folder ("traducoes") installed into the matching Switch/3DS games.
+  const handleTranslationsFolder = useCallback(
+    async (system: "switch" | "3ds") => {
+      const picked = await window.electron.showOpenDialog({ properties: ["openDirectory"] });
+      if (picked.canceled || picked.filePaths.length === 0) return;
+      setTranslating(true);
+      try {
+        const results = await window.electron.installTranslationsFromFolder(system, picked.filePaths[0]);
+        const installed = results.filter((r) => r.status === "installed").length;
+        const already = results.filter((r) => r.status === "already_installed").length;
+        showSuccessToast(t("emulators_translations_done", { installed, already }));
+      } catch {
+        showErrorToast(t("emulators_translations_failed"));
+      } finally {
+        setTranslating(false);
+      }
+    },
+    [showErrorToast, showSuccessToast, t]
+  );
+
   const anyWorking = runningAll || Object.values(rows).includes("working");
 
   return (
@@ -134,10 +156,20 @@ export function EmulatorsAutoSetupPanel({ onChanged }: Readonly<Props>) {
             <span className="emulators-autosetup__folder-change">{t("emulators_folder_change")}</span>
           </button>
         </div>
-        <Button theme="outline" onClick={handleSetupAll} disabled={anyWorking}>
-          <Icon name={runningAll ? "sync" : "download"} size={16} />
-          {t("emulators_setup_all")}
-        </Button>
+        <div className="emulators-autosetup__header-actions">
+          <Button theme="outline" onClick={handleSetupAll} disabled={anyWorking}>
+            <Icon name={runningAll ? "sync" : "download"} size={16} />
+            {t("emulators_setup_all")}
+          </Button>
+          <Button theme="outline" onClick={() => handleTranslationsFolder("switch")} disabled={translating}>
+            <Icon name={translating ? "sync" : "languages"} size={16} />
+            {t("emulators_translations_switch")}
+          </Button>
+          <Button theme="outline" onClick={() => handleTranslationsFolder("3ds")} disabled={translating}>
+            <Icon name={translating ? "sync" : "languages"} size={16} />
+            {t("emulators_translations_3ds")}
+          </Button>
+        </div>
       </div>
 
       <ul className="emulators-autosetup__grid">

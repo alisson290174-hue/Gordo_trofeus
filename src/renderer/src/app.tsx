@@ -47,6 +47,7 @@ import { CloudSubscriptionModal } from "./pages/shared-modals/hydra-cloud/cloud-
 import { AddFriendModal } from "./pages/profile/profile-content/add-friend-modal";
 import { ClassicsScanModal } from "./pages/settings/emulation/classics-scan-modal";
 import { RetroArchScanModal } from "./pages/settings/emulation/retroarch-scan-modal";
+import { WhatsNewModal } from "./components/whats-new/whats-new-modal";
 import { CloudGiftNotificationModal } from "./pages/shared-modals/cloud-gift-notification-modal";
 
 import type { UserPreferences } from "@types";
@@ -551,6 +552,7 @@ export function App() {
 
       <ClassicsScanModal />
       <RetroArchScanModal />
+      <WhatsNewModal />
 
       <main>
         <article className="container">

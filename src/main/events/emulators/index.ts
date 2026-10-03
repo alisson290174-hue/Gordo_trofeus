@@ -34,3 +34,4 @@ import "./inspect-memcard";
 import "./emulation-saves";
 import "./list-local-emulation-saves";
 import "./auto-setup-emulators";
+import "./install-translations-folder";

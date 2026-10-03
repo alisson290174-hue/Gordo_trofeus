@@ -572,6 +572,10 @@ const resolveSkus = async (
     }
     // A Switch dump named without tags can still turn out to be an update/DLC once its
     // ticket is read; those never become games.
+    // A base dump named with its update's ID ("…800" but "[v0]") is the game itself.
+    if (system === "switch" && sku && contentKindOfTitleId(sku) === "update" && /\[v0\]/i.test(game.name)) {
+      sku = `${sku.replace(/[^0-9a-f]/gi, "").slice(0, 13)}000`.toUpperCase();
+    }
     if (system === "switch" && sku && contentKindOfTitleId(sku) !== "base") {
       onExtract?.(i + 1, collected.length, game.name);
       continue;

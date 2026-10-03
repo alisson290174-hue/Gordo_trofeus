@@ -20,7 +20,9 @@ export interface ModRoot {
   titleId: string | null;
 }
 
-const TITLED_RE = /^(.*?(?:^|\/)(?:luma\/titles|atmosphere\/contents|titles|contents|mods)\/([0-9a-f]{16}))\/(?:romfs|exefs)\//i;
+// Any folder named after a 16-hex title ID that holds romfs/exefs: luma/titles/<id>,
+// atmosphere/contents/<id>, sxos/titles/<id>, Switch/Contents/<id> or just <id>/ at the top.
+const TITLED_RE = /^((?:.*\/)?([0-9a-f]{16}))\/(?:romfs|exefs)\//i;
 const BARE_RE = /^(.*?)(?:^|\/)?(?:romfs|exefs)\//i;
 
 /** Every romfs/exefs root found among the extracted files, title-ID'd ones first. */
@@ -67,3 +69,43 @@ export const pickModRoot = (roots: ModRoot[], gameTitleId: string | null): PickM
 
 /** Passwords the Brazilian translation groups put on their archives (tried after none). */
 export const KNOWN_TRANSLATION_PASSWORDS = ["", "João13", "joao13traducoes.com"];
+
+const NAME_NOISE = new Set([
+  "the", "and", "of", "de", "do", "da", "e", "a", "o", "pt", "br", "ptbr", "pt-br", "traducao",
+  "tradução", "translation", "nx", "switch", "pkg", "tpkg", "trpkg", "nsp", "xci", "pc", "update",
+  "dublagem", "nativo", "final", "rev", "v", "para", "versao", "versão", "deluxe", "hd",
+]);
+
+/** Comparable words of a game or archive name ("Kirby Forgotten Lands" → kirby, forgotten, land). */
+export const titleWords = (name: string) =>
+  new Set(
+    name
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/\[[^\]]*\]|\([^)]*\)/g, " ")
+      .replace(/\.(rar|zip|7z)$/, "")
+      .split(/[^a-z0-9]+/)
+      .map((word) => (word.length > 3 && word.endsWith("s") ? word.slice(0, -1) : word))
+      .filter((word) => word.length > 0 && !NAME_NOISE.has(word) && !/^v?\d+(\.\d+)*$/.test(word))
+  );
+
+/**
+ * The library game an archive without title IDs was made for, by name: every meaningful word of the
+ * archive must be in the game's title (and vice versa for most of them), so "Mario Kart 8" never
+ * lands on "Mario Party". Null when no game is a clear match.
+ */
+export const matchGameByName = <T extends { title: string }>(archiveName: string, games: T[]): T | null => {
+  const wanted = titleWords(archiveName);
+  if (wanted.size === 0) return null;
+  let best: { game: T; score: number } | null = null;
+  for (const game of games) {
+    const have = titleWords(game.title);
+    if (have.size === 0) continue;
+    const shared = [...wanted].filter((word) => have.has(word)).length;
+    if (shared < wanted.size) continue;
+    const score = shared / have.size;
+    if (score >= 0.6 && (!best || score > best.score)) best = { game, score };
+  }
+  return best?.game ?? null;
+};

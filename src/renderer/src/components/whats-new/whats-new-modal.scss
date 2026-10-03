@@ -1,0 +1,19 @@
+.whats-new {
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin: 0;
+    padding-left: 18px;
+    max-width: 520px;
+    color: #dfe3ea;
+    font-size: 14px;
+    line-height: 21px;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+}

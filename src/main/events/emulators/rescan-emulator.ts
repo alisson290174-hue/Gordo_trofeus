@@ -6,6 +6,7 @@ import {
   hideGamesOutsideRomFolders,
   runLaunchboxImport,
 } from "./import-launchbox-roms";
+import { autoInstallTranslations } from "./install-translations-folder";
 
 const rescanEmulator = async (
   _event: Electron.IpcMainInvokeEvent,
@@ -32,6 +33,10 @@ const rescanEmulator = async (
   );
   // A full rescan covers every linked folder, so anything left outside them is stale.
   await hideGamesOutsideRomFolders(
+    system,
+    current.romFolders.map((f) => f.path)
+  );
+  void autoInstallTranslations(
     system,
     current.romFolders.map((f) => f.path)
   );
