@@ -7,9 +7,12 @@ import { emulators, logger } from "@main/services";
 import { platformToSystem } from "@main/helpers";
 import { qtEmulatorDataDir } from "@main/services/emulators/controller-autoconfig";
 import {
+  hasInstalledMod,
   installTranslationsFromFolder,
   type FolderTranslationGame,
 } from "@main/services/emulators/translation-installer";
+import { fetchOnlineTranslations } from "@main/services/emulators/online-translations";
+import { app } from "electron";
 import type { EmulatorSystem } from "@types";
 
 /** Title IDs of the console's games in the library (Switch: from the serial, 3DS: from the file). */
@@ -51,18 +54,34 @@ const TRANSLATION_FOLDER_NAMES = ["traducoes", "traduções", "traducao", "tradu
 export const autoInstallTranslations = async (system: EmulatorSystem, romFolders: string[]) => {
   if (system !== "3ds" && system !== "switch") return;
   const seen = new Set<string>();
+  let saveFolder: string | null = null;
   for (const romFolder of romFolders) {
     for (const base of [romFolder, path.dirname(romFolder)]) {
       for (const name of TRANSLATION_FOLDER_NAMES) {
         const candidate = path.join(base, name);
         if (seen.has(candidate.toLowerCase()) || !fs.existsSync(candidate)) continue;
         seen.add(candidate.toLowerCase());
+        saveFolder ??= candidate;
         await run(system, candidate).catch((error) =>
           logger.error("[translation] auto install failed", error)
         );
       }
     }
   }
+
+  // Then the online repository, for the games still without a translation.
+  const config = await emulators.getEmulatorConfig(system);
+  if (!config.executablePath) return;
+  const games = await libraryGames(system);
+  await fetchOnlineTranslations({
+    system,
+    executablePath: config.executablePath,
+    games: games.map((game) => ({
+      ...game,
+      hasTranslation: hasInstalledMod(system, config.executablePath as string, game.titleId),
+    })),
+    saveFolder: saveFolder ?? path.join(app.getPath("userData"), "translations", system),
+  }).catch((error) => logger.error("[translation] online pass failed", error));
 };
 
 registerEvent("installTranslationsFromFolder", (_event, system: EmulatorSystem, folder: string) => {

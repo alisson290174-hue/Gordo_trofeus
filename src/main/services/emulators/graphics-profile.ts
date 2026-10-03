@@ -1,4 +1,5 @@
 import { execFile } from "node:child_process";
+import { app } from "electron";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -64,6 +65,18 @@ export const applyGraphicsProfile = async (
 ): Promise<boolean> => {
   if (process.platform !== "win32" || !executablePath) return false;
   try {
+    if (system === "switch") {
+      // Official PT-BR releases (Mario Galaxy, Jamboree, Kirby…) only show it with the console set
+      // to Brazilian Portuguese (17); default English (1) or European Portuguese (9) hide it.
+      if (!app.getLocale().toLowerCase().startsWith("pt")) return false;
+      const file = path.join(qtEmulatorDataDir(executablePath, "eden"), "config", "qt-config.ini");
+      const content = fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "";
+      const current = /^language_index=(\d+)/m.exec(content)?.[1];
+      if (current && current !== "1" && current !== "9") return false;
+      fs.mkdirSync(path.dirname(file), { recursive: true });
+      fs.writeFileSync(file, setQtIniValue(content, "System", "language_index", "17"), "utf8");
+      return true;
+    }
     const scale = SCALE[await detectGpuTier()][system];
     if (!scale) return false;
     switch (system) {

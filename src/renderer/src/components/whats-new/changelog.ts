@@ -10,6 +10,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.25",
+    date: "03/10/2026",
+    items: [
+      "Traduções online: ao sincronizar Switch ou 3DS, o Balói procura a tradução PT-BR dos jogos que ainda não têm, baixa do repositório do João13 (arquivo conferido) e instala.",
+      "Jogos de Switch com português oficial (Mario Galaxy, Mario Party Jamboree, Kirby…) agora abrem em PT-BR: o Eden fica configurado em Português (Brasil).",
+      "Novas traduções instaladas: Xenoblade Chronicles 3 e Final Fantasy Tactics.",
+    ],
+  },
+  {
     version: "1.0.24",
     date: "03/10/2026",
     items: [

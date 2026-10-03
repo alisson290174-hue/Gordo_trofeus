@@ -137,7 +137,7 @@ export interface FolderTranslationResult {
 }
 
 /** A game already has a translation when its mods folder holds anything. */
-const hasInstalledMod = (system: EmulatorSystem, executablePath: string, titleId: string) => {
+export const hasInstalledMod = (system: EmulatorSystem, executablePath: string, titleId: string) => {
   const target =
     system === "3ds"
       ? modTarget(system, executablePath, titleId)
