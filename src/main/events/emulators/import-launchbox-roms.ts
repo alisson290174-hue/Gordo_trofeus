@@ -14,6 +14,7 @@ import { entryMatchesSystemPlatform } from "./catalogue-platforms";
 import { contentKindOfTitleId } from "@main/services/emulators/switch-title";
 import { autoSetupEmulator } from "@main/services/emulators/emulator-auto-setup";
 import { repairCuesInFolder } from "@main/services/emulators/cue-repair";
+import { readDolphinDiscHeader } from "@main/services/emulators/dolphin-disc-reader";
 import {
   findLibretroBoxart,
   findLibretroTitleScreen,
@@ -849,7 +850,24 @@ const discCoverUrl = (
 const LIBRETRO_FOLDERS: Partial<Record<EmulatorSystem, string>> = {
   ps1: "Sony - PlayStation",
   ps3: "Sony - PlayStation 3",
+  psp: "Sony - PlayStation Portable",
   "3ds": "Nintendo - Nintendo 3DS",
+};
+
+/**
+ * Dolphin runs two consoles: the disc header tells them apart (also inside .rvz/.gcz/.wbfs), so the
+ * game gets its real platform, badge and the right libretro box art.
+ */
+const dolphinPlatform = async (
+  primaryPath: string
+): Promise<{ platform: string; libretroFolder: string }> => {
+  const header = await readDolphinDiscHeader(primaryPath).catch(() => null);
+  const isWii =
+    (header && header.length >= 0x1c && header.readUInt32BE(0x18) === 0x5d1c9ea3) ||
+    (!header && /\.wbfs$/i.test(primaryPath));
+  return isWii
+    ? { platform: "Nintendo Wii", libretroFolder: "Nintendo - Wii" }
+    : { platform: "Nintendo GameCube", libretroFolder: "Nintendo - GameCube" };
 };
 
 /**
@@ -889,7 +907,8 @@ const resolveUnmatchedArt = async (
   system: EmulatorSystem,
   serial: string | null | undefined,
   title: string,
-  primaryPath?: string
+  primaryPath?: string,
+  libretroFolderOverride?: string
 ): Promise<{
   title: string;
   coverUrl: string | null;
@@ -908,7 +927,7 @@ const resolveUnmatchedArt = async (
   }
 
   const serialCover = discCoverUrl(system, serial);
-  const libretroFolder = LIBRETRO_FOLDERS[system];
+  const libretroFolder = libretroFolderOverride ?? LIBRETRO_FOLDERS[system];
   if (libretroFolder) {
     // Boxes carry spines/labels that look off in the Início square; the title screen doesn't.
     const tileUrl = await findLibretroTitleScreen(libretroFolder, title).catch(() => null);
@@ -941,11 +960,12 @@ const persistUnmatchedGame = async (
   coverUrl: string | null,
   /** Wide art for the hero; the box art doubles as hero when there is none. */
   heroUrl: string | null = null,
-  tileUrl: string | null = null
+  tileUrl: string | null = null,
+  platformOverride: string | null = null
 ) => {
   const shop = "launchbox" as const;
   const gameKey = levelKeys.game(shop, objectId);
-  const platform = SYSTEM_DEFAULT_PLATFORM[system];
+  const platform = platformOverride ?? SYSTEM_DEFAULT_PLATFORM[system];
 
   await gamesShopAssetsSublevel
     .put(gameKey, {
@@ -1026,12 +1046,14 @@ const persistUnmatchedGames = async (
       ? `rom-sku-${normalizeSku(serial)}`
       : `rom-${createHash("sha1").update(groupKey).digest("hex").slice(0, 16)}`;
     const sourceFileName = group.files[0].name;
+    const dolphin = system === "dolphin" ? await dolphinPlatform(group.files[0].primaryPath) : null;
     const art = await resolveUnmatchedArt(
       system,
       serial,
       (system === "ps3" ? await ps3GameTitle(group.files[0].primaryPath) : null) ??
         cleanRomTitle(sourceFileName),
-      group.files[0].primaryPath
+      group.files[0].primaryPath,
+      dolphin?.libretroFolder
     );
     const title = art.title;
     persistedIds.add(objectId);
@@ -1046,7 +1068,8 @@ const persistUnmatchedGames = async (
       group.sizeBytes || null,
       coverUrl,
       heroUrl,
-      tileUrl
+      tileUrl,
+      dolphin?.platform ?? null
     ).catch((err) =>
       logger.error("Failed to persist unmatched rom locally", err)
     );

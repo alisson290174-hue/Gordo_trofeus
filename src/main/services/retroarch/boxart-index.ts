@@ -67,7 +67,9 @@ export const findLibretroImage = async (
   kind: LibretroImageKind,
   title: string
 ): Promise<string | null> => {
-  const name = pickBoxart(title, await getListing(system, kind));
+  // A translated copy ("Super Mario 64 PT-BR") uses the original game's art.
+  const original = title.replace(/\s*\bPT-?BR\b\s*/gi, " ").trim();
+  const name = pickBoxart(original, await getListing(system, kind));
   return name ? `${imageFolderUrl(system, kind)}${encodeURIComponent(name)}.png` : null;
 };
 

@@ -2,6 +2,7 @@ import { registerEvent } from "../register-event";
 import { retroarch } from "@main/services";
 
 import { startTrackedRetroArchImport } from "./import-retroarch-roms";
+import { autoTranslateRetroArch } from "../emulators/rom-translation-hooks";
 
 const rescanRetroArch = async (
   _event: Electron.IpcMainInvokeEvent,
@@ -23,6 +24,8 @@ const rescanRetroArch = async (
     language
   );
   await tracked.done;
+  // Known PT-BR patches are applied to copies of the games, then the copies are imported.
+  void autoTranslateRetroArch();
 
   return retroarch.getRetroArchConfig();
 };

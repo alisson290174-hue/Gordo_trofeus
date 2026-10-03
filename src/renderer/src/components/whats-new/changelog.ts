@@ -10,6 +10,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.33",
+    date: "03/10/2026",
+    items: [
+      "Traduções para N64, DS, GBA, SNES, PSP, PS1, PS2, GameCube e Wii: o Balói aplica o patch (.bps/.xdelta) numa cópia do jogo e ela aparece como \"PT-BR\" na biblioteca — a original continua lá, com os troféus.",
+      "Busca online dessas traduções ao sincronizar, com arquivos conferidos.",
+      "GameCube/Wii em .rvz reconhecidos com nome, console e capa; PSP com capa.",
+    ],
+  },
+  {
     version: "1.0.32",
     date: "03/10/2026",
     items: ["Artes dos jogos maiores na faixa do Início."],

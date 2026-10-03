@@ -7,6 +7,7 @@ import {
   runLaunchboxImport,
 } from "./import-launchbox-roms";
 import { autoInstallTranslations } from "./install-translations-folder";
+import { autoTranslateEmulator } from "./rom-translation-hooks";
 
 const rescanEmulator = async (
   _event: Electron.IpcMainInvokeEvent,
@@ -40,6 +41,7 @@ const rescanEmulator = async (
     system,
     current.romFolders.map((f) => f.path)
   );
+  void autoTranslateEmulator(system);
 
   return emulators.getEmulatorConfig(system);
 };
