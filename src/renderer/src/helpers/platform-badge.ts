@@ -14,6 +14,7 @@ export type PlatformTone =
   | "n64"
   | "gb"
   | "gbc"
+  | "nds"
   | "gba"
   | "gamecube"
   | "wii"
@@ -35,6 +36,7 @@ const RULES: { test: RegExp; label: string; tone: PlatformTone; name: string }[]
   { test: /\b3ds\b/i, label: "3DS", tone: "n3ds", name: "Nintendo 3DS" },
   { test: /super nintendo|\bsnes\b/i, label: "SNES", tone: "snes", name: "Super Nintendo" },
   { test: /nintendo 64|\bn64\b/i, label: "N64", tone: "n64", name: "Nintendo 64" },
+  { test: /nintendo\s*ds\b|\bnds\b/i, label: "DS", tone: "nds", name: "Nintendo DS" },
   { test: /game\s*boy advance|\bgba\b/i, label: "GBA", tone: "gba", name: "Game Boy Advance" },
   { test: /game\s*boy color|\bgbc\b/i, label: "GBC", tone: "gbc", name: "Game Boy Color" },
   { test: /game\s*boy|\bgb\b/i, label: "GB", tone: "gb", name: "Game Boy" },

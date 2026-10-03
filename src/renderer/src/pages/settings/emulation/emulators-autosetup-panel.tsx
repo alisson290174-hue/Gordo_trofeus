@@ -17,7 +17,7 @@ const TARGETS: { target: Target; console: string; emulator: string }[] = [
   { target: "switch", console: "Switch", emulator: "Eden" },
   { target: "3ds", console: "3DS", emulator: "Azahar" },
   { target: "dolphin", console: "GameCube/Wii", emulator: "Dolphin" },
-  { target: "retroarch", console: "SNES · NES · N64 · GBA · GB", emulator: "RetroArch" },
+  { target: "retroarch", console: "SNES · NES · N64 · GBA · GB · DS", emulator: "RetroArch" },
 ];
 
 const LABEL: Record<Target, string> = Object.fromEntries(

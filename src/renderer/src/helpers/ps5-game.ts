@@ -64,6 +64,7 @@ const BOX_FRAMES: Partial<Record<PlatformTone, { size: string; position: string 
   ps1: { size: "126% auto", position: "100% 35%" },
   gba: { size: "122% auto", position: "100% 40%" },
   gbc: { size: "122% auto", position: "100% 40%" },
+  nds: { size: "cover", position: "50% 60%" },
   gb: { size: "122% auto", position: "100% 40%" },
   nes: { size: "cover", position: "50% 65%" },
   n3ds: { size: "122% auto", position: "0% 55%" },

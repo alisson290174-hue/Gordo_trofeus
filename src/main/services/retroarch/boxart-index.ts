@@ -18,6 +18,7 @@ const SYSTEM_FOLDERS: Record<RetroArchPlatform, string> = {
   n64: "Nintendo - Nintendo 64",
   gb: "Nintendo - Game Boy",
   gbc: "Nintendo - Game Boy Color",
+  nds: "Nintendo - Nintendo DS",
   gba: "Nintendo - Game Boy Advance",
 };
 

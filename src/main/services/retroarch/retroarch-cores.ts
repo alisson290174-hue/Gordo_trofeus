@@ -42,6 +42,13 @@ export const RETROARCH_CORES: Record<
     buildbotName: "mgba",
     platforms: ["gba"],
   },
+  // Nintendo DS: melonDS DS ships an open-source BIOS, so games boot with no BIOS files.
+  melondsds: {
+    name: "melondsds",
+    displayName: "melonDS DS",
+    buildbotName: "melondsds",
+    platforms: ["nds"],
+  },
 };
 
 export const RETROARCH_CORE_NAMES: readonly RetroArchCoreName[] = Object.keys(
@@ -55,6 +62,7 @@ export const RETROARCH_PLATFORMS: readonly RetroArchPlatform[] = [
   "gb",
   "gbc",
   "gba",
+  "nds",
 ];
 
 export const PLATFORM_TO_CORE: Record<RetroArchPlatform, RetroArchCoreName> = {
@@ -64,6 +72,7 @@ export const PLATFORM_TO_CORE: Record<RetroArchPlatform, RetroArchCoreName> = {
   gb: "gambatte",
   gbc: "gambatte",
   gba: "mgba",
+  nds: "melondsds",
 };
 
 export { PLATFORM_ROM_EXTENSIONS } from "../../../shared/retroarch-platform.js";
@@ -75,6 +84,7 @@ export const PLATFORM_TO_LAUNCHBOX_NAME: Record<RetroArchPlatform, string> = {
   gb: "Nintendo Game Boy",
   gbc: "Nintendo Game Boy Color",
   gba: "Nintendo Game Boy Advance",
+  nds: "Nintendo DS",
 };
 
 export const ALL_RETROARCH_ROM_EXTENSIONS: readonly string[] = Array.from(

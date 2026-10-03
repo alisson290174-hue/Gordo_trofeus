@@ -215,6 +215,7 @@ const discExtensions = new Set([
   "gb",
   "gbc",
   "gba",
+  "nds",
 
   "n64",
   "z64",

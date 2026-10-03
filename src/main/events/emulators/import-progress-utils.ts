@@ -14,7 +14,7 @@ export const baseNameWithoutExt = (fileName: string): string => {
 };
 
 const ROM_EXTENSION =
-  /\.(?:cue|bin|iso|img|ccd|sub|mds|mdf|chd|cso|zso|pbp|ecm|gz|nrg|m3u|smc|sfc|gba|gbc|gb|nes|z64|n64|v64|zip|7z|nsp|xci|nsz|xcz|3ds|cci|cxi|3dsx|cia|zcci|zcia|z3dsx|zcxi)$/i;
+  /\.(?:cue|bin|iso|img|ccd|sub|mds|mdf|chd|cso|zso|pbp|ecm|gz|nrg|m3u|smc|sfc|gba|gbc|gb|nds|nes|z64|n64|v64|zip|7z|nsp|xci|nsz|xcz|3ds|cci|cxi|3dsx|cia|zcci|zcia|z3dsx|zcxi)$/i;
 
 /**
  * A readable title for a ROM no catalogue knows, from its file name:

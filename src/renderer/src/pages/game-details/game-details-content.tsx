@@ -124,8 +124,9 @@ export function GameDetailsContent() {
       return sanitizeRichHtml(document.body.outerHTML);
     }
 
-    // Local-only games (custom, Epic) have no server details — no error message for them.
-    if (isLocalOnlyShop(game?.shop)) {
+    // Local-only games (custom, Epic) and emulator games outside the catalogue (fan translations,
+    // homebrew) have no server details — no error message for them.
+    if (isLocalOnlyShop(game?.shop) || game?.shop === "launchbox") {
       return "";
     }
 

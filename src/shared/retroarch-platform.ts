@@ -5,6 +5,7 @@ export const platformToRetroArchPlatform = (
 ): RetroArchPlatform | null => {
   if (!platform) return null;
   const p = platform.toLowerCase();
+  if (/nintendo\s*ds\b|\bnds\b/.test(p)) return "nds";
   if (/game\s*boy\s*advance|\bgba\b/.test(p)) return "gba";
   if (/game\s*boy\s*color|\bgbc\b/.test(p)) return "gbc";
   if (/game\s*boy|\bgb\b/.test(p)) return "gb";
@@ -22,6 +23,7 @@ export const RETROARCH_PLATFORM_LABELS: Record<RetroArchPlatform, string> = {
   gb: "GB",
   gbc: "GBC",
   gba: "GBA",
+  nds: "DS",
 };
 
 export const PLATFORM_ROM_EXTENSIONS: Record<RetroArchPlatform, string[]> = {
@@ -31,6 +33,7 @@ export const PLATFORM_ROM_EXTENSIONS: Record<RetroArchPlatform, string[]> = {
   gb: [".gb"],
   gbc: [".gbc"],
   gba: [".gba"],
+  nds: [".nds"],
 };
 
 export const RETROARCH_ARCHIVE_EXTENSIONS = [".zip", ".7z"] as const;

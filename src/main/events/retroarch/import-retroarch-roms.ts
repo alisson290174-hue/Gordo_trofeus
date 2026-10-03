@@ -235,6 +235,7 @@ export const recomputeRetroArchPlatformCounts = async (): Promise<void> => {
     n64: 0,
     gb: 0,
     gbc: 0,
+    nds: 0,
     gba: 0,
   };
 

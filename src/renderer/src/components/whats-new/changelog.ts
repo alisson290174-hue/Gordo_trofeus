@@ -10,6 +10,14 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.31",
+    date: "03/10/2026",
+    items: [
+      "Nintendo DS: núcleo melonDS DS no RetroArch (sem BIOS). Coloque os .nds em uma pasta, vincule e jogue com o controle.",
+      "Jogos de emulador sem descrição não mostram mais \"Não foi possível obter os detalhes da loja\".",
+    ],
+  },
+  {
     version: "1.0.30",
     date: "03/10/2026",
     items: [
