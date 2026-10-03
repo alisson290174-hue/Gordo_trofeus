@@ -10,6 +10,14 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.29",
+    date: "03/10/2026",
+    items: [
+      "Troféus de PS3: o Balói lê os troféus que o RPCS3 registra (platina, ouro, prata e bronze de verdade, com os ícones do jogo) e mostra no seu perfil.",
+      "O troféu aparece com pop-up assim que você fecha o jogo.",
+    ],
+  },
+  {
     version: "1.0.28",
     date: "03/10/2026",
     items: [
