@@ -10,6 +10,13 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.30",
+    date: "03/10/2026",
+    items: [
+      "3DS: quando o mesmo jogo tem uma cópia criptografada e outra que funciona, o Balói abre a que funciona.",
+    ],
+  },
+  {
     version: "1.0.29",
     date: "03/10/2026",
     items: [

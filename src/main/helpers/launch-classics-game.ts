@@ -71,10 +71,24 @@ export class RomEncryptedError extends Error {
  */
 const resolve3dsBootTarget = async (
   executablePath: string,
-  romPath: string,
-  system: EmulatorSystem
+  selectedPath: string,
+  system: EmulatorSystem,
+  otherDiscs: string[] = []
 ): Promise<string> => {
-  const header = await emulators.read3dsHeader(romPath);
+  let romPath = selectedPath;
+  let header = await emulators.read3dsHeader(romPath);
+  // The same game can have an encrypted copy and a playable one: use the playable one.
+  if (header?.encrypted) {
+    for (const candidate of otherDiscs) {
+      if (candidate === selectedPath) continue;
+      const candidateHeader = await emulators.read3dsHeader(candidate).catch(() => null);
+      if (candidateHeader && !candidateHeader.encrypted) {
+        romPath = candidate;
+        header = candidateHeader;
+        break;
+      }
+    }
+  }
   if (header?.encrypted) throw new RomEncryptedError(system);
   if (header?.titleId && romPath.toLowerCase().endsWith(".cia")) {
     const installed = await emulators.findInstalled3dsTitle(executablePath, header.titleId);
@@ -268,7 +282,12 @@ export const launchClassicsGame = async (
       });
     }
     if (system === "3ds") {
-      return resolve3dsBootTarget(configuredExecutablePath, discPath, system);
+      return resolve3dsBootTarget(
+        configuredExecutablePath,
+        discPath,
+        system,
+        (game?.discs ?? []).map((disc) => disc.path)
+      );
     }
     if (config.binary === "pcsx2" && isMdsPath(discPath)) {
       return resolvePs2MdsBootTarget(discPath);
