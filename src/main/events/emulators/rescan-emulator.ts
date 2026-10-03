@@ -2,7 +2,10 @@ import { registerEvent } from "../register-event";
 import { emulators } from "@main/services";
 import type { EmulatorSystem } from "@types";
 
-import { runLaunchboxImport } from "./import-launchbox-roms";
+import {
+  hideGamesOutsideRomFolders,
+  runLaunchboxImport,
+} from "./import-launchbox-roms";
 
 const rescanEmulator = async (
   _event: Electron.IpcMainInvokeEvent,
@@ -26,6 +29,11 @@ const rescanEmulator = async (
     })),
     language,
     signal
+  );
+  // A full rescan covers every linked folder, so anything left outside them is stale.
+  await hideGamesOutsideRomFolders(
+    system,
+    current.romFolders.map((f) => f.path)
   );
 
   return emulators.getEmulatorConfig(system);

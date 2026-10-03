@@ -86,7 +86,9 @@ const PS2_PAIR_RULES: Record<string, string[]> = {
   ".mds": [".mdf"],
 };
 
-const PS3_LAUNCHABLE_EXTS = new Set([".iso", ".pkg", ".elf", ".self"]);
+// Loose .elf/.self files are system modules and test programs (RPCS3 ships hundreds in
+// dev_flash and test/), never games: a PS3 game is a disc folder, an .iso or a .pkg.
+const PS3_LAUNCHABLE_EXTS = new Set([".iso", ".pkg"]);
 
 const SNIFFABLE_EXTS = new Set([
   ".cue",
@@ -200,13 +202,15 @@ const classifyForSystem = async (
   if (system === "ps3") {
     if (PS3_INTERNAL_FILES.has(candidate.name.toLowerCase())) return "skip";
     if (ext === ".iso") {
+      // Only images that really look like a PS3 disc: a folder linked high up (a whole drive)
+      // also holds PS2 discs and OS installers (Windows/Linux .iso), which aren't games here.
       const target = await resolveSniffTarget(candidate.fullPath);
-      if (!target) return "ok";
+      if (!target) return "skip";
       const detected = await sniffDiscImage(target);
-      if (detected === "ps3" || detected === "unknown") return "ok";
-      return "wrong-platform";
+      if (detected === "ps3") return "ok";
+      return detected === "unknown" ? "skip" : "wrong-platform";
     }
-    return ext === ".pkg" || ext === ".elf" || ext === ".self" ? "ok" : "skip";
+    return ext === ".pkg" ? "ok" : "skip";
   }
 
   if (system === "psp") return "ok";

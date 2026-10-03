@@ -8,7 +8,7 @@ type DiscPlatform = "ps1" | "ps2" | "ps3" | "gamecube" | "wii" | "unknown";
 
 const BOOT2_RE = /BOOT2\s*=/;
 const BOOT_RE = /BOOT\s*=/;
-const PS3_MARKERS = ["PS3_GAME", "PS3_DISC.SFB", "PARAM.SFO", "EBOOT.BIN"];
+const PS3_MARKERS = ["PS3VOLUME", "PS3_GAME", "PS3_DISC.SFB", "PARAM.SFO", "EBOOT.BIN"];
 
 const classifyDolphinHeader = (data: Buffer): DiscPlatform => {
   if (data.length < 0x20) return "unknown";

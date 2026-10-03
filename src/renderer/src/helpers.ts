@@ -233,6 +233,8 @@ export const handleClassicsLaunchError = (
     showSuccessToast(t("pkg_installing_toast"));
   } else if (code === "PKG_UNREADABLE") {
     showErrorToast(t("pkg_unreadable_toast"));
+  } else if (code === "ROM_ENCRYPTED") {
+    showErrorToast(t("rom_encrypted_toast"));
   } else if (code === "EMULATOR_ALREADY_RUNNING") {
     context.onEmulatorAlreadyRunning();
   } else {
@@ -347,6 +349,7 @@ const CLASSICS_LAUNCH_ERROR_CODES = [
   "EMULATOR_ALREADY_RUNNING",
   "PKG_INSTALLING",
   "PKG_UNREADABLE",
+  "ROM_ENCRYPTED",
   "RETROARCH_NOT_CONFIGURED",
   "CORE_NOT_INSTALLED",
 ] as const;
@@ -369,7 +372,7 @@ export const getClassicsLaunchErrorSystem = (
   error: unknown
 ): EmulatorSystem | undefined => {
   const direct = (error as { system?: string })?.system;
-  const systems: EmulatorSystem[] = ["ps1", "ps2", "ps3", "psp", "dolphin"];
+  const systems: EmulatorSystem[] = ["ps1", "ps2", "ps3", "psp", "dolphin", "switch", "3ds"];
   if (systems.includes(direct as EmulatorSystem))
     return direct as EmulatorSystem;
 

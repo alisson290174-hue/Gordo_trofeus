@@ -1,4 +1,5 @@
 export * from "./known-binaries";
+export * from "./n3ds-title";
 export * from "./detect-emulator";
 export * from "./detect-emulator-with-downloads";
 export * from "./get-emulator-version";

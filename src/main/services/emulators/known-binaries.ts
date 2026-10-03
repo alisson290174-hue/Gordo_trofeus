@@ -84,7 +84,7 @@ export const KNOWN_BINARIES: Record<EmulatorSystem, KnownBinary> = {
     versionFlags: ["--version"],
     // Only formats RPCS3 launches as a game. Disc dumps are caught via
     // romDirectoryMarkers; license/internal files (.rap/.sfb/.bin/...) excluded.
-    romExtensions: [".iso", ".pkg", ".elf", ".self"],
+    romExtensions: [".iso", ".pkg"],
     romDirectoryMarkers: ["PS3_GAME", "ps3_game"],
   },
   psp: {
@@ -151,8 +151,9 @@ export const KNOWN_BINARIES: Record<EmulatorSystem, KnownBinary> = {
     flatpakIds: ["org.azahar_emu.Azahar"],
     // The Qt GUI opens its window even for --version, so the version isn't probed.
     versionFlags: [],
-    // .cia are installers (installed into the emulator's NAND), not bootable files.
-    romExtensions: [".3ds", ".cci", ".cxi", ".3dsx", ".app"],
+    // .cia install into the emulated SD card on first launch; the z* variants are Azahar's
+    // compressed dumps.
+    romExtensions: [".3ds", ".cci", ".cxi", ".3dsx", ".app", ".cia", ".zcci", ".zcia", ".z3dsx", ".zcxi"],
     romDirectoryMarkers: [],
   },
 };

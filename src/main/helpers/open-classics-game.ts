@@ -117,6 +117,17 @@ const translateLaunchError = (
     );
   }
 
+  if (code === "ROM_ENCRYPTED") {
+    return Object.assign(
+      codedLaunchError(
+        "ROM_ENCRYPTED",
+        `ROM_ENCRYPTED: ROM is encrypted for ${system}`,
+        { objectId, system }
+      ),
+      { system }
+    );
+  }
+
   if (code === "PKG_UNREADABLE") {
     return Object.assign(
       codedLaunchError(

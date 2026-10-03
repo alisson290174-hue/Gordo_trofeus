@@ -1108,6 +1108,40 @@ const reconcileDeletedGames = async (
   }
 };
 
+/**
+ * Games of a console whose files sit outside every folder still linked to it: the folder was
+ * unlinked (or linked by mistake, like a whole drive). They leave the library and the profile;
+ * the record is only hidden, so linking the folder again brings them back with their playtime.
+ */
+export const hideGamesOutsideRomFolders = async (
+  system: EmulatorSystem,
+  folderPaths: string[]
+): Promise<number> => {
+  let hidden = 0;
+  for await (const [key, game] of gamesSublevel.iterator()) {
+    if (game.isDeleted || game.shop !== "launchbox") continue;
+    if (platformToSystem(game.platform) !== system) continue;
+    const discs = game.discs ?? [];
+    if (discs.length === 0) continue;
+    const linked = discs.some((disc) =>
+      folderPaths.some((folder) => isWithin(disc.path, folder))
+    );
+    if (linked) continue;
+
+    await gamesSublevel.put(key, { ...game, isDeleted: true }).catch((err) => {
+      logger.error("Could not hide game outside the linked folders", err);
+    });
+    if (game.remoteId) {
+      HydraApi.delete(`/profile/games/${game.remoteId}`).catch(() => {});
+    }
+    hidden += 1;
+  }
+  if (hidden > 0) {
+    logger.info("Hid games outside the linked rom folders", { system, hidden });
+  }
+  return hidden;
+};
+
 export async function runLaunchboxImport(
   system: EmulatorSystem,
   folders: FolderInput[],

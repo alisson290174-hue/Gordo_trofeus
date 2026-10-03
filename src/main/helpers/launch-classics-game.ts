@@ -55,6 +55,33 @@ export class PkgUnreadableError extends Error {
   }
 }
 
+export class RomEncryptedError extends Error {
+  code = "ROM_ENCRYPTED" as const;
+  system: EmulatorSystem;
+  constructor(system: EmulatorSystem) {
+    super(`ROM is encrypted for system ${system}`);
+    this.system = system;
+  }
+}
+
+/**
+ * Azahar only runs decrypted dumps. Check the header up front so the user gets a clear message
+ * instead of an emulator error, and boot an already-installed .cia from the emulated SD card.
+ */
+const resolve3dsBootTarget = async (
+  executablePath: string,
+  romPath: string,
+  system: EmulatorSystem
+): Promise<string> => {
+  const header = await emulators.read3dsHeader(romPath);
+  if (header?.encrypted) throw new RomEncryptedError(system);
+  if (header?.titleId && romPath.toLowerCase().endsWith(".cia")) {
+    const installed = await emulators.findInstalled3dsTitle(executablePath, header.titleId);
+    if (installed) return installed;
+  }
+  return romPath;
+};
+
 const isPkgPath = (filePath: string): boolean =>
   filePath.toLowerCase().endsWith(".pkg");
 
@@ -238,6 +265,9 @@ export const launchClassicsGame = async (
         pkgPath: discPath,
         system,
       });
+    }
+    if (system === "3ds") {
+      return resolve3dsBootTarget(configuredExecutablePath, discPath, system);
     }
     if (config.binary === "pcsx2" && isMdsPath(discPath)) {
       return resolvePs2MdsBootTarget(discPath);
