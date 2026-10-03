@@ -54,3 +54,25 @@
   font-weight: 500;
   line-height: 1;
 }
+
+// Per-console tabs: the console's own coloured tag, then its game count.
+.library-category-filter__container {
+  flex-wrap: wrap;
+}
+
+.library-category-filter__divider {
+  width: 1px;
+  margin: 6px 4px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.library-category-filter__console.platform-badge {
+  height: 18px;
+  font-size: 10px;
+  box-shadow: none;
+}
+
+.library-category-filter__count {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.75;
+}

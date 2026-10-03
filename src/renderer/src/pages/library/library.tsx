@@ -39,7 +39,7 @@ import { LibraryGameCardLarge } from "./library-game-card-large";
 import { ViewOptions, ViewMode } from "./view-options";
 import { FilterOptions, SortOption } from "./filter-options";
 import { CategoryFilter, LibraryCategory } from "./category-filter";
-import { LIBRARY_PAGE_CATEGORIES } from "./library-category";
+import { isConsoleCategory, LIBRARY_PAGE_CATEGORIES } from "./library-category";
 import { AchievementsFilter } from "./achievements-filter";
 import { PlatformFilter } from "./platform-filter";
 import { filterGamesBySearch } from "./library-search";
@@ -182,7 +182,9 @@ export default function Library() {
   const [category, setCategory] = useState<LibraryCategory>(() => {
     const saved = localStorage.getItem("library-category") as LibraryCategory | null;
     // Old choices ("PC", "Biblioteca Steam") no longer exist on this page → "Todos".
-    return saved && LIBRARY_PAGE_CATEGORIES.includes(saved) ? saved : "all";
+    return saved && (LIBRARY_PAGE_CATEGORIES.includes(saved) || isConsoleCategory(saved))
+      ? saved
+      : "all";
   });
   const [selectedPlatforms, setSelectedPlatforms] =
     useState<string[]>(readStoredPlatforms);
@@ -665,6 +667,7 @@ export default function Library() {
               <CategoryFilter
                 category={effectiveCategory}
                 onCategoryChange={handleCategoryChange}
+                library={library}
               />
               <CollectionsFilter
                 collections={libraryCollections}

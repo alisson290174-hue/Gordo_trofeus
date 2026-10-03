@@ -208,6 +208,9 @@
   }
 
   &__game {
+    // Off-screen rows skip layout/paint: long libraries scroll smoothly.
+    content-visibility: auto;
+    contain-intrinsic-size: auto 84px;
     display: flex;
     align-items: center;
     gap: 16px;

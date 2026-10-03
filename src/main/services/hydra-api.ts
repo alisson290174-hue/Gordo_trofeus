@@ -140,6 +140,8 @@ export class HydraApi {
 
     if (WindowManager.mainWindow) {
       WindowManager.mainWindow.webContents.send("on-signin");
+      // A new install signing in for the first time gets the user's setup back.
+      void import("./settings-sync").then(({ SettingsSync }) => SettingsSync.start());
       await clearGamesRemoteIds();
       void uploadGamesBatch();
 

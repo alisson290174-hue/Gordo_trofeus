@@ -1,3 +1,5 @@
+import { getPlatformBadge } from "../../helpers/platform-badge";
+
 // "pc" / "steam_library" stay for the profile filters; the library page uses the store split.
 export type LibraryCategory =
   | "all"
@@ -6,7 +8,14 @@ export type LibraryCategory =
   | "classics"
   | "steam"
   | "epic"
-  | "torrent";
+  | "torrent"
+  /** One emulated console, by platform-badge tone ("console:ps2"). */
+  | `console:${string}`;
+
+export const CONSOLE_CATEGORY_PREFIX = "console:";
+
+export const isConsoleCategory = (category: string): category is `console:${string}` =>
+  category.startsWith(CONSOLE_CATEGORY_PREFIX);
 
 /** Filters shown on the library page, in order. */
 export const LIBRARY_PAGE_CATEGORIES: LibraryCategory[] = [
@@ -19,6 +28,7 @@ export const LIBRARY_PAGE_CATEGORIES: LibraryCategory[] = [
 
 export interface LibraryCategoryGame {
   shop: string;
+  platform?: string | null;
   hasActiveSteamImport?: boolean;
 }
 
@@ -55,6 +65,13 @@ export const filterLibraryGamesByCategory = <T extends LibraryCategoryGame>(
 
   if (category === "classics") {
     return games.filter((game) => game.shop === "launchbox");
+  }
+
+  if (isConsoleCategory(category)) {
+    const tone = category.slice(CONSOLE_CATEGORY_PREFIX.length);
+    return games.filter(
+      (game) => game.shop === "launchbox" && getPlatformBadge(game).tone === tone
+    );
   }
 
   // Games owned on the Steam account (imported), installed through the Steam client.

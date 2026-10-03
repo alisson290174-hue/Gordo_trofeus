@@ -320,3 +320,12 @@ db.exec(`
   CREATE INDEX IF NOT EXISTS idx_cloud_snapshots_user ON cloud_snapshots(user_id);
   CREATE INDEX IF NOT EXISTS idx_cloud_snapshot_files_snapshot ON cloud_snapshot_files(snapshot_id);
 `);
+
+// Configurações do usuário (preferências do app, emuladores, pastas): restauradas ao reinstalar.
+db.exec(`
+  CREATE TABLE IF NOT EXISTS user_settings (
+    user_id TEXT PRIMARY KEY,
+    data TEXT NOT NULL,
+    updated_at TEXT NOT NULL
+  )
+`);

@@ -155,6 +155,7 @@ const updateUserPreferences = async (
   );
 
   Wine.syncUserPreferences(updatedPreferences);
+  void import("@main/services/settings-sync").then(({ SettingsSync }) => SettingsSync.touch());
 
   await updateAchievementSouvenirPreference(preferences);
 

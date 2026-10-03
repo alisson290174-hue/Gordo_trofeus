@@ -34,7 +34,10 @@ const TIER_POINTS: Record<AchievementTier, number> = {
   bronze: 15,
 };
 const POINTS_PER_LEVEL = 600;
-const FETCH_CONCURRENCY = 4;
+const FETCH_CONCURRENCY = 3;
+
+/** Achievement lists already fetched this session (the tab opens instantly the second time). */
+const achievementCache = new Map<string, UserAchievement[]>();
 
 type TrophyFilter = "all" | "earned" | "locked";
 
@@ -56,7 +59,7 @@ export default function Trophies() {
 
   const [achievementsByGame, setAchievementsByGame] = useState<
     Record<string, UserAchievement[]>
-  >({});
+  >(() => Object.fromEntries(achievementCache));
   const [filter, setFilter] = useState<TrophyFilter>("all");
 
   const games = useMemo(
@@ -67,31 +70,46 @@ export default function Trophies() {
     [library]
   );
 
-  // Pull every game's achievement list (local cache in main) a few at a time.
+  const paramKey =
+    searchParams.get("shop") && searchParams.get("objectId")
+      ? `${searchParams.get("shop")}:${searchParams.get("objectId")}`
+      : null;
+
+  // Each list costs a server round-trip, so: the game on screen first, the rest a few at a time in
+  // the background, results applied in batches (one re-render every ~300 ms, not one per game) and
+  // kept for the whole session so coming back to the tab is instant.
   useEffect(() => {
     let cancelled = false;
-    const queue = games.filter((game) => !(keyOf(game) in achievementsByGame));
-    if (queue.length === 0) return;
+    const pending = games.filter((game) => !achievementCache.has(keyOf(game)));
+    if (pending.length === 0) return;
+    const priority = pending.findIndex((game) => keyOf(game) === paramKey);
+    if (priority > 0) pending.unshift(...pending.splice(priority, 1));
+
+    let buffer: Record<string, UserAchievement[]> = {};
+    let flushTimer: ReturnType<typeof setTimeout> | null = null;
+    const flush = () => {
+      flushTimer = null;
+      if (cancelled || Object.keys(buffer).length === 0) return;
+      const batch = buffer;
+      buffer = {};
+      setAchievementsByGame((prev) => ({ ...prev, ...batch }));
+    };
+    const store = (key: string, list: UserAchievement[], immediate: boolean) => {
+      achievementCache.set(key, list);
+      buffer[key] = list;
+      if (immediate) flush();
+      else flushTimer ??= setTimeout(flush, 300);
+    };
 
     const worker = async () => {
-      while (!cancelled && queue.length) {
-        const game = queue.shift()!;
-        try {
-          const list = await window.electron.getUnlockedAchievements(
-            game.objectId,
-            game.shop
-          );
-          if (!cancelled) {
-            setAchievementsByGame((prev) => ({
-              ...prev,
-              [keyOf(game)]: list ?? [],
-            }));
-          }
-        } catch {
-          if (!cancelled) {
-            setAchievementsByGame((prev) => ({ ...prev, [keyOf(game)]: [] }));
-          }
-        }
+      while (!cancelled && pending.length) {
+        const game = pending.shift()!;
+        const key = keyOf(game);
+        const list = await window.electron
+          .getUnlockedAchievements(game.objectId, game.shop)
+          .catch(() => [] as UserAchievement[]);
+        if (cancelled) return;
+        store(key, list ?? [], key === paramKey);
       }
     };
 
@@ -99,6 +117,7 @@ export default function Trophies() {
 
     return () => {
       cancelled = true;
+      if (flushTimer) clearTimeout(flushTimer);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [games]);
@@ -117,15 +136,19 @@ export default function Trophies() {
   const isPlatinumGame = (game: LibraryGame) =>
     countsByGame[keyOf(game)]?.isPlatinum ?? getTrophyProgress(game).isPlatinum;
 
+  // Ordered by the progress the library already knows, so rows don't jump while lists arrive.
   const sortedGames = useMemo(
     () =>
       orderBy(
         games,
-        [(game) => (isPlatinumGame(game) ? 1 : 0), percentOf],
-        ["desc", "desc"]
+        [
+          (game) => (getTrophyProgress(game).isPlatinum ? 1 : 0),
+          (game) => getTrophyProgress(game).percent,
+          (game) => game.title.toLowerCase(),
+        ],
+        ["desc", "desc", "asc"]
       ),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [games, countsByGame]
+    [games]
   );
 
   const totals = useMemo(() => {
@@ -155,14 +178,28 @@ export default function Trophies() {
     };
   }, [games, countsByGame]);
 
-  const paramKey =
-    searchParams.get("shop") && searchParams.get("objectId")
-      ? `${searchParams.get("shop")}:${searchParams.get("objectId")}`
-      : null;
   const selected =
     sortedGames.find((game) => keyOf(game) === paramKey) ??
     sortedGames[0] ??
     null;
+
+  // A game picked before its turn in the background queue loads right away.
+  const selectedKey = selected ? keyOf(selected) : null;
+  useEffect(() => {
+    if (!selected || !selectedKey || achievementCache.has(selectedKey)) return;
+    let cancelled = false;
+    window.electron
+      .getUnlockedAchievements(selected.objectId, selected.shop)
+      .catch(() => [] as UserAchievement[])
+      .then((list) => {
+        achievementCache.set(selectedKey, list ?? []);
+        if (!cancelled) setAchievementsByGame((prev) => ({ ...prev, [selectedKey]: list ?? [] }));
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedKey]);
 
   const selectGame = (game: LibraryGame) => {
     setFilter("all");

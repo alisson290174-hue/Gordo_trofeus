@@ -123,6 +123,8 @@ export const loadState = async () => {
   }
 
   await HydraApi.setupApi().then(async () => {
+    // The user's setup on our server: restored on a fresh install, kept current afterwards.
+    void import("./services/settings-sync").then(({ SettingsSync }) => SettingsSync.start());
     uploadGamesBatch();
     void migrateDownloadSources();
 

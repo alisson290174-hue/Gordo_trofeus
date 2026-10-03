@@ -1,5 +1,8 @@
 
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { getPlatformBadge } from "@renderer/helpers/platform-badge";
+import "@renderer/components/platform-badge/platform-badge.scss";
 import { Icon } from "@renderer/components/icon/icon";
 import { SteamIcon } from "@renderer/components/steam-library-badge/steam-library-badge";
 import "./category-filter.scss";
@@ -55,11 +58,14 @@ export function ClassicsIcon({
 interface CategoryFilterProps {
   category: LibraryCategory;
   onCategoryChange: (category: LibraryCategory) => void;
+  /** To list one tab per emulated console that actually has games. */
+  library?: { shop: string; platform?: string | null }[];
 }
 
 export function CategoryFilter({
   category,
   onCategoryChange,
+  library = [],
 }: Readonly<CategoryFilterProps>) {
   const { t } = useTranslation("library");
 
@@ -77,6 +83,19 @@ export function CategoryFilter({
     icon: icons[value] ?? null,
   }));
 
+  // Each emulated console as its own source, like Steam / Epic (biggest first).
+  const consoles = useMemo(() => {
+    const counts = new Map<string, { label: string; name: string; count: number }>();
+    for (const game of library) {
+      if (game.shop !== "launchbox") continue;
+      const badge = getPlatformBadge(game);
+      const entry = counts.get(badge.tone) ?? { label: badge.label, name: badge.name, count: 0 };
+      entry.count += 1;
+      counts.set(badge.tone, entry);
+    }
+    return [...counts.entries()].sort((a, b) => b[1].count - a[1].count);
+  }, [library]);
+
   return (
     <div className="library-category-filter__container">
       {options.map((option) => (
@@ -90,6 +109,25 @@ export function CategoryFilter({
           <span>{option.label}</span>
         </button>
       ))}
+      {consoles.length > 1 && <span className="library-category-filter__divider" aria-hidden="true" />}
+      {consoles.length > 1 &&
+        consoles.map(([tone, { label, name, count }]) => {
+          const value = `console:${tone}` as LibraryCategory;
+          return (
+            <button
+              key={tone}
+              type="button"
+              title={name}
+              className={`library-category-filter__option ${category === value ? "library-category-filter__option--active" : ""}`}
+              onClick={() => onCategoryChange(value)}
+            >
+              <span className={`platform-badge platform-badge--${tone} library-category-filter__console`}>
+                {label}
+              </span>
+              <span className="library-category-filter__count">{count}</span>
+            </button>
+          );
+        })}
     </div>
   );
 }

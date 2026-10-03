@@ -15,6 +15,7 @@ import { registerCollectionRoutes } from "./collections/routes.js";
 import { registerCloudSaveRoutes } from "./cloud-saves/routes.js";
 import { registerRetroAchievementsRoutes } from "./integrations/retroachievements-routes.js";
 import { registerPs3TrophyRoutes } from "./achievements/ps3-trophies.js";
+import { registerSettingsRoutes } from "./settings/routes.js";
 import { registerEmulationSaveRoutes } from "./emulation-saves/routes.js";
 import { registerMiscRoutes } from "./misc-routes.js";
 import { registerPs2Routes } from "./catalogue/ps2-routes.js";
@@ -93,6 +94,7 @@ export async function buildApp() {
   registerCloudSaveRoutes(app);
   registerRetroAchievementsRoutes(app);
   registerPs3TrophyRoutes(app);
+  registerSettingsRoutes(app);
   registerEmulationSaveRoutes(app);
   registerMiscRoutes(app);
   registerPs2Routes(app);
