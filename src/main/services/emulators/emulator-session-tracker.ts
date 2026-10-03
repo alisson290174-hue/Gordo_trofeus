@@ -34,6 +34,8 @@ export interface EmulatorSession {
   sku: string | null;
   beforeTotalSeconds: number | null;
   startedAt: number;
+  /** Wall-clock start: RetroAchievements unlocks from here on pop a notification. */
+  startedAtMs: number;
   heartbeat: ReturnType<typeof setInterval> | null;
   child: ChildProcess;
   souvenirSession: EmulatorSouvenirSession | null;
@@ -84,6 +86,7 @@ export const startEmulatorSession = async ({
     sku,
     beforeTotalSeconds: before,
     startedAt: performance.now(),
+    startedAtMs: Date.now(),
     heartbeat: null,
     child,
     souvenirSession,
@@ -95,6 +98,23 @@ export const startEmulatorSession = async ({
     void sendPresencePing(gameKey);
     session.heartbeat = setInterval(() => {
       void sendPresencePing(gameKey);
+      // The emulator reports unlocks to RetroAchievements live: check each minute while playing.
+      if (game.shop === "launchbox") {
+        void syncRetroAchievements({
+          objectId: game.objectId,
+          shop: game.shop,
+          notifySince: session.startedAtMs - 60_000,
+        })
+          .then((result) => {
+            if (result.didChange) {
+              WindowManager.mainWindow?.webContents.send(
+                `on-update-achievements-${game.objectId}-${game.shop}`,
+                result.achievements
+              );
+            }
+          })
+          .catch(() => {});
+      }
     }, PRESENCE_HEARTBEAT_INTERVAL_MS);
     session.heartbeat.unref?.();
   }
@@ -241,6 +261,7 @@ const finalizeEmulatorSession = async (gameKey: string): Promise<void> => {
     syncRetroAchievements({
       objectId: game.objectId,
       shop: game.shop,
+      notifySince: session.startedAtMs - 60_000,
     })
       .then((result) => {
         if (!result.didChange) return;

@@ -1,3 +1,4 @@
+import { useDesktopGamepad } from "@renderer/hooks/use-desktop-gamepad";
 import { ControlCenter, Header, Toast } from "@renderer/components";
 import { isFullBleedPath } from "@renderer/components/header/header";
 import cn from "classnames";
@@ -89,6 +90,7 @@ export function App() {
   const toast = useAppSelector((state) => state.toast);
 
   const { showSuccessToast, showErrorToast } = useToast();
+  useDesktopGamepad();
 
   const [showArchiveDeletionModal, setShowArchiveDeletionModal] =
     useState(false);

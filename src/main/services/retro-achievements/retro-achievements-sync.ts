@@ -168,6 +168,11 @@ interface SyncRetroAchievementsParams {
   objectId: string;
   shop: GameShop;
   retroAchievementsGameId?: number;
+  /**
+   * Unlocks earned at/after this time (ms) pop the trophy notification. Set while a game is being
+   * played, so a first sync never announces old trophies.
+   */
+  notifySince?: number;
 }
 
 type RetroAchievementsSyncStatus =
@@ -199,6 +204,7 @@ export const syncRetroAchievements = async ({
   objectId,
   shop,
   retroAchievementsGameId,
+  notifySince,
 }: SyncRetroAchievementsParams): Promise<RetroAchievementsSyncResult> => {
   const userPreferences = await db.get<string, UserPreferences | null>(
     levelKeys.userPreferences,
@@ -276,6 +282,7 @@ export const syncRetroAchievements = async ({
 
   let newUnlockCount = 0;
   let didChange = false;
+  const freshUnlocks: UnlockedAchievement[] = [];
 
   for (const achievement of remoteAchievements) {
     const name = String(achievement.ID);
@@ -290,6 +297,9 @@ export const syncRetroAchievements = async ({
       unlockedByName.set(key, { name, unlockTime, hardcoreUnlockTime });
       newUnlockCount += 1;
       didChange = true;
+      if (notifySince != null && unlockTime >= notifySince) {
+        freshUnlocks.push({ name, unlockTime, hardcoreUnlockTime });
+      }
       continue;
     }
 
@@ -312,6 +322,18 @@ export const syncRetroAchievements = async ({
         hardcoreUnlockTime,
       });
       didChange = true;
+    }
+  }
+
+  // Trophies earned during this session: same popup + Windows toast as every other source. Done
+  // before the memory store is updated, so mergeAchievements still sees them as new.
+  if (freshUnlocks.length > 0) {
+    const game = await gamesSublevel.get(levelKeys.game(shop, objectId)).catch(() => null);
+    if (game) {
+      const { mergeAchievements } = await import("../achievements/merge-achievements");
+      await mergeAchievements(game, freshUnlocks, true).catch((error) =>
+        logger.error("Failed to announce RetroAchievements unlocks", error)
+      );
     }
   }
 

@@ -18,7 +18,7 @@ import { getEmulatorVersion } from "./get-emulator-version";
 import { KNOWN_BINARIES } from "./known-binaries";
 import { installPs3FirmwareIfMissing } from "./ps3-firmware-installer";
 import { configureControllerForEmulator } from "./controller-autoconfig";
-import { applyGraphicsProfile } from "./graphics-profile";
+import { applyGraphicsProfile, applySmoothShaders } from "./graphics-profile";
 import fs from "node:fs";
 import { setIniValue } from "./duckstation-souvenir-config-value";
 import { duckstationConfigCandidates, findExistingConfig } from "./emulator-config";
@@ -102,6 +102,7 @@ const withPs3Firmware = async (result: AutoSetupResult): Promise<AutoSetupResult
 const configureInstalledEmulator = async (system: EmulatorSystem, executablePath: string) => {
   await configureControllerForEmulator(system, executablePath);
   await applyGraphicsProfile(system, executablePath);
+  applySmoothShaders(system, executablePath);
   if (system === "ps1") enableEmulatorAchievements("ps1", executablePath);
 };
 

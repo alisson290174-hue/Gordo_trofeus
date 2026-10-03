@@ -120,3 +120,39 @@ export const applyGraphicsProfile = async (
     return false;
   }
 };
+
+/**
+ * Stutter-free shader compilation, independent of the resolution profile (applied once, only over
+ * the emulator's own default): Dolphin "Hybrid Ubershaders" (ShaderCompilationMode = 2) and
+ * Azahar asynchronous shader compilation. On a modern GPU these remove the hitches when new
+ * effects appear, at no visible cost.
+ */
+export const applySmoothShaders = (system: EmulatorSystem, executablePath: string | null): boolean => {
+  if (process.platform !== "win32" || !executablePath) return false;
+  try {
+    if (system === "dolphin") {
+      const userDir = dolphinUserDirectoryCandidates(executablePath)[0];
+      if (!userDir) return false;
+      const file = path.join(userDir, "Config", "GFX.ini");
+      const content = fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "";
+      const line = getIniLine(content, "Settings", "ShaderCompilationMode");
+      if (line !== null && !/=\s*0\s*$/.test(line)) return false;
+      fs.mkdirSync(path.dirname(file), { recursive: true });
+      fs.writeFileSync(file, setIniValue(content, "Settings", "ShaderCompilationMode", "2"), "utf8");
+      return true;
+    }
+    if (system === "3ds") {
+      const file = path.join(qtEmulatorDataDir(executablePath, "Azahar"), "config", "qt-config.ini");
+      const content = fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "";
+      if (/^async_shader_compilation=true/m.test(content)) return false;
+      fs.mkdirSync(path.dirname(file), { recursive: true });
+      let next = setQtIniValue(content, "Renderer", "async_shader_compilation", "true");
+      next = setQtIniValue(next, "Renderer", "async_shader_compilation\default", "false");
+      fs.writeFileSync(file, next, "utf8");
+      return true;
+    }
+  } catch (error) {
+    logger.warn(`[graphics] could not enable smooth shaders for ${system}`, error);
+  }
+  return false;
+};

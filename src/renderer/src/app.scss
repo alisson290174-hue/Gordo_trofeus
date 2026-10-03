@@ -300,3 +300,14 @@ progress[value] {
     background-position: -100% 0;
   }
 }
+
+// Controller navigation in the desktop app: the focused control gets the same ring as Big Picture.
+body.gamepad-nav {
+  :focus,
+  :focus-visible {
+    outline: 3px solid #ffffff !important;
+    outline-offset: 2px;
+    box-shadow: 0 0 0 7px rgba(0, 112, 243, 0.55) !important;
+    border-radius: 10px;
+  }
+}
