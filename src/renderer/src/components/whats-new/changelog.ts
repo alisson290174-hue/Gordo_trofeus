@@ -10,6 +10,14 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.28",
+    date: "03/10/2026",
+    items: [
+      "Login mais estável: se o servidor trocar a chave de segurança ou reiniciar, o Balói renova a sessão sozinho em vez de pedir login de novo.",
+      "Troféus do RetroAchievements para PS1, SNES, NES, N64, Game Boy, GBC e GBA.",
+    ],
+  },
+  {
     version: "1.0.27",
     date: "03/10/2026",
     items: [

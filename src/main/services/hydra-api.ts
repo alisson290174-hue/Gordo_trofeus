@@ -347,6 +347,25 @@ export class HydraApi {
   }
 
   private static readonly handleUnauthorizedError = async (err) => {
+    // A 401 on a normal call usually means the short access token was rejected (server restart
+    // with a new signing secret, clock skew), not that the session is gone: renew it once and keep
+    // the user signed in. Only a refresh that is itself refused ends the session.
+    const isRefreshCall = err instanceof AxiosError && /\/auth\/refresh$/.test(err.config?.url ?? "");
+    if (
+      err instanceof AxiosError &&
+      err.response?.status === 401 &&
+      !isRefreshCall &&
+      this.userAuth.refreshToken
+    ) {
+      try {
+        await this.refreshToken();
+        throw err; // this request failed; the next ones use the renewed token
+      } catch (refreshError) {
+        if (refreshError === err) throw err;
+        err = refreshError;
+      }
+    }
+
     if (err instanceof AxiosError && err.response?.status === 401) {
       logger.error(
         "401 - Current credentials:",
