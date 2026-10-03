@@ -379,7 +379,7 @@ export function HeroPanelActions() {
       );
     }
 
-    // Epic: install/update through Legendary straight from Balói.
+    // Epic: install/update through Legendary straight from Opus.
     if (game?.shop === "epic" && !game.executablePath) {
       const install = epicInstalls[game.objectId];
       if (install && install.status !== "error") {

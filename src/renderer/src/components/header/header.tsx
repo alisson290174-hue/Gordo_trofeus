@@ -414,7 +414,7 @@ export function Header() {
             onClick={() => navigate("/")}
           >
             <img src={AppIcon} alt="" />
-            <span>Balói</span>
+            <span>Opus</span>
           </button>
 
           <nav className="header__nav">

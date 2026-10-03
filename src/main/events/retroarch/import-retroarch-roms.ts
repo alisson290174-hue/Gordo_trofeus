@@ -393,7 +393,7 @@ const recordMatchedRom = (
 };
 
 /**
- * Balói's server has no CRC database for cartridge systems yet, so a ROM it can't name still
+ * Opus's server has no CRC database for cartridge systems yet, so a ROM it can't name still
  * becomes a library game under a clean file-name title (like unmatched PS1/PS2 discs) instead of
  * silently vanishing. The id is stable across rescans: the CRC32 when there is one, else the path.
  */

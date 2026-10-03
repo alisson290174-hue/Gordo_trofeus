@@ -31,7 +31,7 @@ export function WindowTitleBar({
   return (
     <header className="window-title-bar" style={titleBarStyle}>
       <img src={AppIcon} alt="" className="window-title-bar__icon" />
-      <h4>Balói</h4>
+      <h4>Opus</h4>
       <div className="window-title-bar__controls">
         <button
           type="button"

@@ -402,7 +402,7 @@ const getPlayTimeDifference = (a: LibraryGame, b: LibraryGame): number => {
 const getMostPlayedDifference = (a: LibraryGame, b: LibraryGame): number =>
   getDisplayedPlayTimeInMilliseconds(b) - getDisplayedPlayTimeInMilliseconds(a);
 
-// Installed = playable from Balói. A finished download alone (an installer or archive still to be
+// Installed = playable from Opus. A finished download alone (an installer or archive still to be
 // set up — installedSizeInBytes) is not; its page offers "Instalar" instead.
 export const isGameInstalled = (game: LibraryGame): boolean =>
   (Boolean(game.executablePath) && game.executableMissing !== true) ||

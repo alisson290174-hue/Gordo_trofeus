@@ -8,7 +8,7 @@ import { qtEmulatorDataDir } from "./controller-autoconfig";
 import { getEmulatorConfig, updateEmulatorConfig } from "./emulators-repository";
 
 /**
- * Files Balói can't download (Sony BIOS, Nintendo keys and firmware) but can FIND: people keep
+ * Files Opus can't download (Sony BIOS, Nintendo keys and firmware) but can FIND: people keep
  * them next to their games. When a game folder is linked, the folder, its parent and a couple of
  * levels below are searched and whatever an emulator is missing gets set up — nothing that's
  * already configured is touched.

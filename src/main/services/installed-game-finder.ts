@@ -99,7 +99,7 @@ export async function watchGameInstallation(game: Game) {
 
 /**
  * On startup: games whose download finished but that still have no executable are matched against
- * what's installed now — covers installs that finished while Balói was closed.
+ * what's installed now — covers installs that finished while Opus was closed.
  */
 export async function findInstalledDownloadedGames() {
   if (process.platform !== "win32") return 0;

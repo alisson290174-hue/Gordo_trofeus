@@ -7,7 +7,7 @@ import { duckstationConfigCandidates, findExistingConfig } from "./emulator-conf
 /**
  * DuckStation keeps its own BIOS folder ([BIOS] SearchDirectory, "bios" inside its data dir) and
  * opens a first-run setup wizard instead of the game until that wizard is completed. When the user
- * already pointed Balói at a BIOS folder, hand that folder to DuckStation and mark the wizard done,
+ * already pointed Opus at a BIOS folder, hand that folder to DuckStation and mark the wizard done,
  * so "Jogar" boots the game. Pure transform, so it can be tested.
  */
 export const applyDuckStationLaunchSettings = (content: string, biosPath: string): string => {

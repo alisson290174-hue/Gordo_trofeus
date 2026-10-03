@@ -25,7 +25,7 @@ import { duckstationConfigCandidates, findExistingConfig } from "./emulator-conf
 
 /**
  * RetroAchievements is off by default in RetroArch and DuckStation: turn it on so trophies unlock
- * (the user still signs in once inside the emulator; Balói never handles the RA password).
+ * (the user still signs in once inside the emulator; Opus never handles the RA password).
  */
 const enableEmulatorAchievements = (target: "ps1" | "retroarch", executablePath: string) => {
   try {
@@ -50,7 +50,7 @@ const enableEmulatorAchievements = (target: "ps1" | "retroarch", executablePath:
 };
 
 /**
- * Installs and configures emulators without the user picking anything: anyone with Balói gets
+ * Installs and configures emulators without the user picking anything: anyone with Opus gets
  * working emulators and only has to point it at their own game folders. Each emulator is
  * downloaded from its official release (SHA-256 checked where published), unpacked into the
  * emulators folder and its executable saved in the config. BIOS/keys/firmware are never bundled.
@@ -236,7 +236,7 @@ export const getEmulatorSetupStates = async (): Promise<EmulatorSetupState[]> =>
   return states;
 };
 
-/** Every emulator Balói supports, one after another (they share bandwidth and disk). */
+/** Every emulator Opus supports, one after another (they share bandwidth and disk). */
 export const autoSetupAllEmulators = async (): Promise<AutoSetupResult[]> => {
   const results: AutoSetupResult[] = [];
   for (const system of EMULATOR_SYSTEMS) results.push(await autoSetupEmulator(system));

@@ -35,7 +35,7 @@ export function displayGameTitle(
 }
 
 /**
- * Shops whose games exist only on this PC: never sent to the Balói server, no server catalogue,
+ * Shops whose games exist only on this PC: never sent to the Opus server, no server catalogue,
  * achievements or stats (custom executables and Epic games through Legendary).
  */
 export const isLocalOnlyShop = (shop: string | null | undefined): boolean =>

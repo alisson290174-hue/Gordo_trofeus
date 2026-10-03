@@ -238,7 +238,7 @@ export function SettingsContextContentGameplay() {
             />
 
             <span className="settings-behavior__hydra-cloud-badge">
-              Balói Cloud
+              Opus Cloud
             </span>
           </button>
         )}

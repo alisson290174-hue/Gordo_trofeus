@@ -6,7 +6,7 @@ interface PlatformCarrier {
   data?: { platform?: string | null } | null;
 }
 
-// LaunchBox names ("Sony Playstation 2") and the short names Balói's own server sends
+// LaunchBox names ("Sony Playstation 2") and the short names Opus's own server sends
 // ("PlayStation 2") — rejecting the latter made every rescan import nothing.
 export const SYSTEM_CATALOGUE_PLATFORMS: Record<EmulatorSystem, string[]> = {
   ps1: ["Sony Playstation", "PlayStation"],

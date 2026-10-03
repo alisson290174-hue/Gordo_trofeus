@@ -262,7 +262,7 @@ export default function ComponentLab() {
       type: "error",
       title: "Unable to sync cloud save",
       message:
-        "Balói couldn't reach the cloud right now. Try again in a few minutes.",
+        "Opus couldn't reach the cloud right now. Try again in a few minutes.",
       imageUrl: toastImageUrl ?? undefined,
     });
   }, [presentToastDemo, toastImageUrl]);
@@ -330,7 +330,7 @@ export default function ComponentLab() {
           description="Label, hint, ícones, erro e disabled."
         >
           <div className="catalogue-page__input-row">
-            <Input label="Default" placeholder="Balói" />
+            <Input label="Default" placeholder="Opus" />
             <Input
               label="With icons"
               placeholder="Search"
@@ -608,7 +608,7 @@ export default function ComponentLab() {
               Basic: image, title and description.
             </Typography>
             <Typography variant="label">
-              Fallback: no image so the Balói icon should render.
+              Fallback: no image so the Opus icon should render.
             </Typography>
             <Typography variant="label">
               Accent and Action: highlighted background with game art.
@@ -715,7 +715,7 @@ export default function ComponentLab() {
               totalBytes={SAMPLE_TOTAL_BYTES}
             />
             <UserDiskItem
-              title="Balói archive drive"
+              title="Opus archive drive"
               path="D:\\Baloi\\Library"
               freeBytes={Math.round(82.6 * 1024 ** 3)}
               totalBytes={2 * 1024 ** 4}

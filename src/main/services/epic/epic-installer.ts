@@ -207,7 +207,7 @@ export async function uninstallEpicGame(appName: string) {
   WindowManager.sendToAppWindows("on-library-batch-complete");
 }
 
-/** Starts the game through Legendary (handles Epic's online auth); detached from Balói. */
+/** Starts the game through Legendary (handles Epic's online auth); detached from Opus. */
 export async function launchEpicGame(appName: string) {
   if (!/^[\w.-]+$/.test(appName)) throw new Error("invalid Epic app name");
   await runLegendary(["--version"], { timeoutMs: 20_000 });

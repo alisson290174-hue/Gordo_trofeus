@@ -311,7 +311,7 @@ export function NotificationsAchievementsSection({
                           showErrorToast("Notification failed", {
                             ...SETTINGS_TOAST_OPTIONS,
                             message:
-                              "Balói could not show the achievement preview.",
+                              "Opus could not show the achievement preview.",
                           });
                         });
                     }}

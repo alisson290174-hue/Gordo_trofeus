@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import { entryMatchesSystemPlatform } from "./catalogue-platforms";
 
 describe("catalogue-platforms", () => {
-  it("accepts Balói's server names and LaunchBox names", () => {
+  it("accepts Opus's server names and LaunchBox names", () => {
     assert.equal(entryMatchesSystemPlatform({ platform: "PlayStation 2" }, "ps2"), true);
     assert.equal(entryMatchesSystemPlatform({ platform: "Sony Playstation 2" }, "ps2"), true);
     assert.equal(entryMatchesSystemPlatform({ data: { platform: "playstation  2" } }, "ps2"), true);

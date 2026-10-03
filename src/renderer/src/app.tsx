@@ -185,7 +185,7 @@ export function App() {
       updateUserDetails(userDetails);
     }
 
-    // Hydra's external bundle; Balói doesn't ship one (the env var is unset).
+    // Hydra's external bundle; Opus doesn't ship one (the env var is unset).
     if (
       import.meta.env.RENDERER_VITE_EXTERNAL_RESOURCES_URL &&
       !document.getElementById("external-resources")
@@ -469,7 +469,7 @@ export function App() {
             window.electron.platform === "win32" ? " title-bar--windows" : ""
           }`}
         >
-          <h4>Balói</h4>
+          <h4>Opus</h4>
 
           <button
             type="button"

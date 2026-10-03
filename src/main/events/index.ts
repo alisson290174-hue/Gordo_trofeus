@@ -52,7 +52,7 @@ ipcMain.handle("retryAchievementSouvenirSync", () =>
 ipcMain.handle("cleanupAchievementSouvenirSync", () =>
   cleanupAchievementSouvenirSync()
 );
-// Balói has no third-party checkout: without the URL the modal shows its "unavailable" state.
+// Opus has no third-party checkout: without the URL the modal shows its "unavailable" state.
 ipcMain.handle("getCloudIframeUrl", () => {
   const base = import.meta.env.MAIN_VITE_CHECKOUT_URL;
   return base ? new URL("/cloud", base).toString() : null;

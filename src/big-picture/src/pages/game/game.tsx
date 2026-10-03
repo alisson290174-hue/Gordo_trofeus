@@ -130,7 +130,7 @@ interface ClassicsLaunchNotice {
 
 const CLASSICS_LAUNCH_FALLBACK: ClassicsLaunchNotice = {
   title: "Launch failed",
-  message: "Balói could not launch this Classics game.",
+  message: "Opus could not launch this Classics game.",
   kind: "error",
 };
 
@@ -163,7 +163,7 @@ const CLASSICS_LAUNCH_NOTICES: Partial<
   },
   PLATFORM_UNKNOWN: {
     title: "Platform not supported",
-    message: "Balói could not identify an emulator for this platform.",
+    message: "Opus could not identify an emulator for this platform.",
     kind: "error",
   },
   NO_DISC: {
@@ -180,7 +180,7 @@ const CLASSICS_LAUNCH_NOTICES: Partial<
   PKG_UNREADABLE: {
     title: "Unsupported PKG",
     message:
-      "Balói could not read this package. Install and launch it from RPCS3 directly.",
+      "Opus could not read this package. Install and launch it from RPCS3 directly.",
     kind: "error",
   },
 };
@@ -1847,7 +1847,7 @@ export default function Game() {
         <ConfirmationModal
           visible={pendingClassicsLaunch !== null}
           title="RPCS3 is already running"
-          description="Close the current RPCS3 session before launching this game, or force Balói to start it again."
+          description="Close the current RPCS3 session before launching this game, or force Opus to start it again."
           confirmLabel="Launch Anyway"
           onClose={() => setPendingClassicsLaunch(null)}
           onConfirm={async () => {

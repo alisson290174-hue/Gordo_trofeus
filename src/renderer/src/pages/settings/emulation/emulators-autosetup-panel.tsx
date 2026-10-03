@@ -8,7 +8,7 @@ import "./emulators-autosetup-panel.scss";
 
 type Target = EmulatorAutoSetupProgress["target"];
 
-/** Console label, the emulator Balói installs for it, and the consoles it covers. */
+/** Console label, the emulator Opus installs for it, and the consoles it covers. */
 const TARGETS: { target: Target; console: string; emulator: string }[] = [
   { target: "ps1", console: "PS1", emulator: "DuckStation" },
   { target: "ps2", console: "PS2", emulator: "PCSX2" },
@@ -32,7 +32,7 @@ interface Props {
 }
 
 /**
- * "Emuladores do Balói": where emulators live, and each emulator installed + configured (controller
+ * "Emuladores do Opus": where emulators live, and each emulator installed + configured (controller
  * included) with one click, or all of them at once, so a new user only links their game folders.
  */
 export function EmulatorsAutoSetupPanel({ onChanged }: Readonly<Props>) {

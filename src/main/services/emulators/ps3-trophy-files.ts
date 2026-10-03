@@ -75,5 +75,5 @@ export const parseTropusr = (data: Buffer): Map<number, number | null> => {
   return unlocked;
 };
 
-/** Balói tiers come from rarity; each PS3 grade gets a rarity inside its tier. */
+/** Opus tiers come from rarity; each PS3 grade gets a rarity inside its tier. */
 export const PS3_GRADE_PERCENT: Record<Ps3Grade, number> = { P: 1, G: 5, S: 25, B: 60 };

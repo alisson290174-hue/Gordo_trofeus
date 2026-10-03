@@ -29,7 +29,7 @@
 // would otherwise set — without this, checkboxes/radios/focus rings had no color at all.
 :root {
   --color-primary: #{globals.$brand-navy};
-  // Native controls (checkboxes, radios, ranges) and focus rings follow the Balói blue instead of
+  // Native controls (checkboxes, radios, ranges) and focus rings follow the Opus blue instead of
   // the Windows accent colour (orange on some PCs).
   accent-color: #{globals.$brand-orange};
 }

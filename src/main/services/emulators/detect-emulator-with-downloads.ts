@@ -15,7 +15,7 @@ export const detectEmulatorWithDownloads = async (
 ): Promise<DetectionResult | null> => {
   const configuredDownloads = await getDownloadsPath().catch(() => null);
   const defaultDownloads = SystemPath.getPath("downloads");
-  // Emulators Balói installed itself live under the emulators folder (one subfolder each).
+  // Emulators Opus installed itself live under the emulators folder (one subfolder each).
   const emulatorsBaseDir = await getEmulatorsBaseDir().catch(() => null);
   const downloadDirectories = Array.from(
     new Set(

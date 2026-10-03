@@ -577,7 +577,7 @@ function getExternalProfileActions(
   const giftActions: ProfileHeroAction[] = profile.canReceiveCloudGift
     ? [
         {
-          label: "Gift Balói Cloud",
+          label: "Gift Opus Cloud",
           variant: "secondary",
           icon: <GiftIcon size={20} />,
           onClick: () => {
@@ -1505,8 +1505,8 @@ function LockedAchievements({
         <SparkleIcon size={24} weight="fill" />
         <p>
           {isOwnProfile
-            ? "You need Balói Cloud in order to display achievements in your own profile."
-            : "This user is required to have Balói Cloud in order to display achievements in his profile."}
+            ? "You need Opus Cloud in order to display achievements in your own profile."
+            : "This user is required to have Opus Cloud in order to display achievements in his profile."}
         </p>
       </div>
     </div>

@@ -203,7 +203,7 @@ export function CloudSubscriptionModal({
         ) : (
           <iframe
             ref={iframeRef}
-            title="Balói Cloud"
+            title="Opus Cloud"
             className="cloud-subscription-modal__iframe"
             src={iframeSrc}
             width={CLOUD_DESIGN_WIDTH}

@@ -507,7 +507,7 @@ export default function Home() {
           upNavigationTarget={heroUpNavigationTarget}
         />
         <FocusCarousel
-          title="Popular on Balói"
+          title="Popular on Opus"
           cardVariant="vertical"
           games={weeklyGames}
           regionId={HOME_WEEKLY_GAMES_CAROUSEL_REGION_ID}

@@ -48,7 +48,7 @@ describe("resolveLibraryIsDeleted", () => {
 });
 
 describe("resolveMissingSteamImport", () => {
-  // Balói: Steam imports come from our own owned-games sync, so a game missing from the server's
+  // Opus: Steam imports come from our own owned-games sync, so a game missing from the server's
   // list is kept; the owned-games sync is what removes games that left the account.
   it("keeps an imported Steam game even when the server doesn't list it", () => {
     assert.equal(

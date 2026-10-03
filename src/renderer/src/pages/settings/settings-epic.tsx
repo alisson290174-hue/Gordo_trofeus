@@ -20,7 +20,7 @@ function EpicBadge() {
 
 /**
  * Epic Games account (through Legendary). Login happens on Epic's own page in an isolated
- * window; the session is stored only on this PC and never reaches the Balói server.
+ * window; the session is stored only on this PC and never reaches the Opus server.
  */
 export function SettingsEpic() {
   const { t } = useTranslation("settings");

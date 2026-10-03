@@ -46,7 +46,7 @@ function TrophyCupGlyph() {
 }
 
 /**
- * In-game trophy toast (design "Balói — Notificação de troféu"): a metallic tier medal is the
+ * In-game trophy toast (design "Opus — Notificação de troféu"): a metallic tier medal is the
  * hero, the achievement art is a small thumbnail next to its name, and a thin bar drains while
  * the toast is on screen.
  */

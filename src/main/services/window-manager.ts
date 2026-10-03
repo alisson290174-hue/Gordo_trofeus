@@ -773,7 +773,7 @@ export class WindowManager {
     const connectionWindow = new BrowserWindow({
       width: layout.width,
       height: layout.height,
-      title: "Balói Launcher",
+      title: "Opus Launcher",
       backgroundColor: "#1c1c1c",
       parent: parentWindow,
       modal: true,
@@ -1059,7 +1059,7 @@ export class WindowManager {
       tray.popUpContextMenu(contextMenu);
     };
 
-    tray.setToolTip("Balói Launcher");
+    tray.setToolTip("Opus Launcher");
 
     if (process.platform === "win32") {
       await updateSystemTray();

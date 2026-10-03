@@ -5,7 +5,7 @@ import { cartridgeHashBytes, raConsoleForPlatform, toBigEndianN64 } from "./rom-
 import { parseBootExecutable } from "./ps2-disc-hash";
 
 describe("RetroAchievements ROM hashing", () => {
-  it("maps Balói platforms to RetroAchievements consoles", () => {
+  it("maps Opus platforms to RetroAchievements consoles", () => {
     assert.equal(raConsoleForPlatform("Super Nintendo Entertainment System"), "snes");
     assert.equal(raConsoleForPlatform("Nintendo Game Boy Advance"), "gba");
     assert.equal(raConsoleForPlatform("Nintendo 64"), "n64");

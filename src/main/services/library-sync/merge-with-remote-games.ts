@@ -233,7 +233,7 @@ const mergeExistingGame = (
   ),
   platform: remoteGame.platform ?? localGame.platform,
   source: resolveLibrarySource(localGame.source, remoteGame.source),
-  // Balói: the Steam import flag is owned locally (steam-owned-library sync); our server
+  // Opus: the Steam import flag is owned locally (steam-owned-library sync); our server
   // doesn't store it, so a missing remote flag must not wipe the local one.
   hasActiveSteamImport:
     remoteGame.hasActiveSteamImport === true || localGame.hasActiveSteamImport === true,

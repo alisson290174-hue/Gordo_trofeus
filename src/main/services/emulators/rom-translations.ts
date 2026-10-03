@@ -62,7 +62,7 @@ export const applyTranslationArchive = async (game: PatchableGame, sourcePath: s
     } else {
       await SevenZip.extractFile({ filePath: sourcePath, outputPath: work, passwords: KNOWN_TRANSLATION_PASSWORDS });
       const files = listFiles(work);
-      // A patcher .exe/.bat is never run; the patch file next to it is all Balói needs.
+      // A patcher .exe/.bat is never run; the patch file next to it is all Opus needs.
       if (findExecutables(files).some((file) => !/\.(bat|cmd)$/i.test(file))) {
         return { ok: false, reason: "executable_inside" };
       }

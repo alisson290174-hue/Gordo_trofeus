@@ -51,7 +51,7 @@ export const createSteamGamePageSync = (
         dependencies.log("Steam game page sync finished", steamAppId);
         return true;
       } catch (error) {
-        // No Steam web session (Balói signs in with Steam OpenID only) is the normal state, not a
+        // No Steam web session (Opus signs in with Steam OpenID only) is the normal state, not a
         // failure — keep the error log for real problems.
         if (error instanceof Error && error.name === "SteamSessionRequiredError") {
           dependencies.log("Steam game page sync skipped (no Steam session)", steamAppId);

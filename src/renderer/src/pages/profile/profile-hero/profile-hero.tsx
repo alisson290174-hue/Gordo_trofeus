@@ -27,7 +27,7 @@ interface MenuItem {
 }
 
 /**
- * Profile hero (design "Balói — Perfil de troféus"): banner under the top nav, big ringed
+ * Profile hero (design "Opus — Perfil de troféus"): banner under the top nav, big ringed
  * avatar, name in thin display type, a meta line and pill actions. Destructive actions
  * (undo friendship, block, sign out) live in the "⋯" menu, like the PS5 profile.
  */

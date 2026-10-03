@@ -5,8 +5,8 @@ import path from "node:path";
 import { db } from "@main/level";
 
 /**
- * Folder where Balói installs emulators it sets up by itself (one subfolder per emulator). Every
- * user gets working emulators without picking anything; they only point Balói at their games.
+ * Folder where Opus installs emulators it sets up by itself (one subfolder per emulator). Every
+ * user gets working emulators without picking anything; they only point Opus at their games.
  * Defaults to a plain ASCII path in the user's home (some emulators dislike accents in paths);
  * the user can move it (e.g. D:\EMULADORES) from the Emulação settings.
  */

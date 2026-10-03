@@ -8,7 +8,7 @@ import { SettingsIntegrationCard } from "./settings-integration-card";
 type SyncResult = { visible: boolean; total: number; installed: number };
 
 /**
- * Steam account games. No extra sign-in: the Balói login already is a Steam login, so our server
+ * Steam account games. No extra sign-in: the Opus login already is a Steam login, so our server
  * lists the account's games with its own Steam Web API key. Install/play go through Steam.
  */
 export function SettingsSteamOwned() {

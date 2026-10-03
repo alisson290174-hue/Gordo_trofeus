@@ -484,8 +484,8 @@ export function AccountPrivacySettingsSection({
       </SettingsSection> */}
 
       <SettingsSection
-        title="Balói Cloud"
-        description="Check your subscription status and manage your Balói Cloud plan."
+        title="Opus Cloud"
+        description="Check your subscription status and manage your Opus Cloud plan."
       >
         <div className="account-privacy-settings-section__section-content">
           <div className="account-privacy-settings-section__subscription-copy">

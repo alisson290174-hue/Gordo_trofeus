@@ -58,7 +58,7 @@ const client = new RealtimeWebSocketClient({
       logger.info("Realtime connect skipped: user is not logged in");
       return true;
     }
-    // Balói server has no realtime endpoint yet: stop instead of retrying every few seconds.
+    // Opus server has no realtime endpoint yet: stop instead of retrying every few seconds.
     if (isAxiosError(error) && error.response?.status === 404) {
       logger.info("Realtime connect skipped: server has no /auth/realtime");
       return true;

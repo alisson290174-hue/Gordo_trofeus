@@ -34,7 +34,7 @@ export const resolveMissingSteamImport = (
   game: { shop: string; hasActiveSteamImport?: boolean },
   existsRemotely: boolean
 ) => {
-  // Balói: Steam imports come from our own owned-games sync, not from the server's game list,
+  // Opus: Steam imports come from our own owned-games sync, not from the server's game list,
   // so "not on the server" doesn't mean "left the Steam account" — that sync handles removals.
   if (BALOI_LOCAL_STEAM_IMPORT) return null;
 

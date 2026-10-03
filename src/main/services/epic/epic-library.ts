@@ -7,7 +7,7 @@ import { runLegendary } from "./legendary";
 import { listEpicGames } from "./epic-account";
 
 /**
- * Puts the games of the connected Epic account into the Balói library (shop "epic",
+ * Puts the games of the connected Epic account into the Opus library (shop "epic",
  * objectId = Epic app name). Art comes from Epic's own metadata; nothing is sent to our server.
  */
 

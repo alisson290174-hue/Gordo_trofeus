@@ -10,6 +10,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.35",
+    date: "03/10/2026",
+    items: [
+      "O Balói agora se chama Opus Launcher — de obra-prima: cada jogo é parte da sua coleção.",
+      "Ícone novo: o direcional em relevo, em roxo, azul e verde.",
+      "Sua biblioteca, login, emuladores e conquistas continuam exatamente onde estavam.",
+    ],
+  },
+  {
     version: "1.0.34",
     date: "03/10/2026",
     items: [
@@ -24,7 +33,7 @@ export const CHANGELOG: ChangelogEntry[] = [
     version: "1.0.33",
     date: "03/10/2026",
     items: [
-      "Traduções para N64, DS, GBA, SNES, PSP, PS1, PS2, GameCube e Wii: o Balói aplica o patch (.bps/.xdelta) numa cópia do jogo e ela aparece como \"PT-BR\" na biblioteca — a original continua lá, com os troféus.",
+      "Traduções para N64, DS, GBA, SNES, PSP, PS1, PS2, GameCube e Wii: o Opus aplica o patch (.bps/.xdelta) numa cópia do jogo e ela aparece como \"PT-BR\" na biblioteca — a original continua lá, com os troféus.",
       "Busca online dessas traduções ao sincronizar, com arquivos conferidos.",
       "GameCube/Wii em .rvz reconhecidos com nome, console e capa; PSP com capa.",
     ],
@@ -46,14 +55,14 @@ export const CHANGELOG: ChangelogEntry[] = [
     version: "1.0.30",
     date: "03/10/2026",
     items: [
-      "3DS: quando o mesmo jogo tem uma cópia criptografada e outra que funciona, o Balói abre a que funciona.",
+      "3DS: quando o mesmo jogo tem uma cópia criptografada e outra que funciona, o Opus abre a que funciona.",
     ],
   },
   {
     version: "1.0.29",
     date: "03/10/2026",
     items: [
-      "Troféus de PS3: o Balói lê os troféus que o RPCS3 registra (platina, ouro, prata e bronze de verdade, com os ícones do jogo) e mostra no seu perfil.",
+      "Troféus de PS3: o Opus lê os troféus que o RPCS3 registra (platina, ouro, prata e bronze de verdade, com os ícones do jogo) e mostra no seu perfil.",
       "O troféu aparece com pop-up assim que você fecha o jogo.",
     ],
   },
@@ -61,7 +70,7 @@ export const CHANGELOG: ChangelogEntry[] = [
     version: "1.0.28",
     date: "03/10/2026",
     items: [
-      "Login mais estável: se o servidor trocar a chave de segurança ou reiniciar, o Balói renova a sessão sozinho em vez de pedir login de novo.",
+      "Login mais estável: se o servidor trocar a chave de segurança ou reiniciar, o Opus renova a sessão sozinho em vez de pedir login de novo.",
       "Troféus do RetroAchievements para PS1, SNES, NES, N64, Game Boy, GBC e GBA.",
     ],
   },
@@ -88,7 +97,7 @@ export const CHANGELOG: ChangelogEntry[] = [
     version: "1.0.25",
     date: "03/10/2026",
     items: [
-      "Traduções online: ao sincronizar Switch ou 3DS, o Balói procura a tradução PT-BR dos jogos que ainda não têm, baixa do repositório do João13 (arquivo conferido) e instala.",
+      "Traduções online: ao sincronizar Switch ou 3DS, o Opus procura a tradução PT-BR dos jogos que ainda não têm, baixa do repositório do João13 (arquivo conferido) e instala.",
       "Jogos de Switch com português oficial (Mario Galaxy, Mario Party Jamboree, Kirby…) agora abrem em PT-BR: o Eden fica configurado em Português (Brasil).",
       "Novas traduções instaladas: Xenoblade Chronicles 3 e Final Fantasy Tactics.",
     ],
@@ -97,7 +106,7 @@ export const CHANGELOG: ChangelogEntry[] = [
     version: "1.0.24",
     date: "03/10/2026",
     items: [
-      "Traduções automáticas: deixe uma pasta \"traducoes\" ao lado da pasta de ROMs de Switch ou 3DS e o Balói instala cada tradução no jogo certo ao sincronizar.",
+      "Traduções automáticas: deixe uma pasta \"traducoes\" ao lado da pasta de ROMs de Switch ou 3DS e o Opus instala cada tradução no jogo certo ao sincronizar.",
       "Configurações → Emulação ganhou \"Traduções de uma pasta\" para instalar todas de uma vez.",
       "Gráficos ajustados à sua placa de vídeo: PS1, PS2, GameCube/Wii e 3DS em alta resolução em PCs mais fortes (só onde você não mudou nada).",
       "Jogos de Switch com o ID da atualização no nome (ex.: Luigi's Mansion 3) voltam a aparecer na biblioteca.",

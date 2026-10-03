@@ -58,7 +58,7 @@ export function useLibraryLaunchGame(
           const code = getClassicsLaunchErrorCode(error);
           const toast = (code && CLASSICS_LAUNCH_ERROR_TOASTS[code]) || {
             title: "Launch failed",
-            message: "Balói could not launch this Classics game.",
+            message: "Opus could not launch this Classics game.",
           };
           showErrorToast(toast.title, { message: toast.message });
         }

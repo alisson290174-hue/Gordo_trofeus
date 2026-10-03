@@ -140,7 +140,7 @@ export const loadState = async () => {
     void syncSteamOwnedLibrary().catch((error) =>
       logger.warn("[steam-owned] boot sync skipped", error?.message ?? error)
     );
-    // Downloaded games installed while Balói was closed: learn their executable from Windows.
+    // Downloaded games installed while Opus was closed: learn their executable from Windows.
     void findInstalledDownloadedGames()
       .then((found) => found && logger.info(`[installed-game-finder] ${found} game(s) found installed`))
       .catch((error) => logger.warn("[installed-game-finder] boot check skipped", error?.message ?? error));

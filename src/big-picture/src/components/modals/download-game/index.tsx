@@ -1590,7 +1590,7 @@ function DownloadGameOptions({
         message: response.error?.startsWith("download_error_")
           ? t(response.error)
           : (response.error ??
-            "Balói couldn't start this download. Try again in a moment."),
+            "Opus couldn't start this download. Try again in a moment."),
       });
 
       console.error("download-game-modal failed to submit download", {
@@ -1606,7 +1606,7 @@ function DownloadGameOptions({
       const message =
         error instanceof Error && error.message
           ? error.message
-          : "Balói couldn't start this download. Try again in a moment.";
+          : "Opus couldn't start this download. Try again in a moment.";
       showErrorToast("Download failed", {
         fallbackVisual: "downloads",
         color: "var(--error)",

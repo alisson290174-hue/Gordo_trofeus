@@ -4,7 +4,7 @@ import { db, levelKeys } from "@main/level";
 import { logger } from "./logger";
 
 /**
- * Balói login (access + 60-day refresh token) at rest, encrypted with Windows DPAPI through
+ * Opus login (access + 60-day refresh token) at rest, encrypted with Windows DPAPI through
  * Electron safeStorage: a copy of the app's data folder is useless on another Windows account or
  * machine. Records saved before this existed (plain JSON) are read once and re-saved encrypted.
  */

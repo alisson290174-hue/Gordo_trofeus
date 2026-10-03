@@ -6,7 +6,7 @@ import { applyDuckStationLaunchSettings } from "./duckstation-launch-config";
 describe("applyDuckStationLaunchSettings", () => {
   const bios = String.raw`D:\EMULADORES\Emulador PS2\Bios`;
 
-  it("points DuckStation at Balói's BIOS folder and skips the setup wizard", () => {
+  it("points DuckStation at Opus's BIOS folder and skips the setup wizard", () => {
     const before = "[Main]\nUngrouped = true\n\n[BIOS]\nFastForwardBoot = false\nSearchDirectory = bios\n\n[Console]\nRegion = Auto\n";
     const after = applyDuckStationLaunchSettings(before, bios);
     assert.match(after, /\[BIOS\][^[]*SearchDirectory = D:\\EMULADORES\\Emulador PS2\\Bios/);

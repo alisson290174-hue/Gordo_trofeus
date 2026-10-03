@@ -8,8 +8,8 @@ param([Parameter(Mandatory = $true)][string]$Version)
 Set-Location (Join-Path $PSScriptRoot "..\dist")
 $remote = "/opt/hydra-server/updates"
 $files = @(
-  "Baloi-Launcher-$Version-setup.exe",
-  "Baloi-Launcher-$Version-setup.exe.blockmap",
+  "Opus-Launcher-$Version-setup.exe",
+  "Opus-Launcher-$Version-setup.exe.blockmap",
   "latest.yml"
 )
 
@@ -33,5 +33,5 @@ foreach ($f in $files) {
 }
 
 # Keep only the current version's installer and blockmap on the server.
-ssh baloi-vps "cd $remote && ls Baloi-Launcher-*-setup.exe* 2>/dev/null | grep -v '$Version' | xargs -r rm -f"
+ssh baloi-vps "cd $remote && ls Baloi-Launcher-*-setup.exe* Opus-Launcher-*-setup.exe* 2>/dev/null | grep -v '$Version' | xargs -r rm -f"
 Write-Host "OK: versao $Version publicada no feed de atualizacao." -ForegroundColor Green

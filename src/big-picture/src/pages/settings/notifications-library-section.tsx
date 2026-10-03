@@ -159,7 +159,7 @@ export function NotificationsLibrarySection({
   return (
     <SettingsSection
       title="Library"
-      description="Choose which library activity notifications Balói should show."
+      description="Choose which library activity notifications Opus should show."
       className={className}
     >
       <VerticalFocusGroup

@@ -6,7 +6,7 @@ import { getPlatformBadge } from "./platform-badge";
 const tag = (platform: string | null, shop = "launchbox") => getPlatformBadge({ shop, platform }).label;
 
 describe("getPlatformBadge", () => {
-  it("names every console Balói emulates", () => {
+  it("names every console Opus emulates", () => {
     assert.equal(tag("PlayStation"), "PS1");
     assert.equal(tag("PlayStation 2"), "PS2");
     assert.equal(tag("PlayStation 3"), "PS3");

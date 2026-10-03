@@ -11,11 +11,11 @@ import { logger } from "../logger";
  *
  * Security:
  * - The binary is pinned: its SHA-256 must match the official 0.21.1 release before it runs.
- * - Its config and the Epic session live in the Balói user folder (LEGENDARY_CONFIG_PATH),
+ * - Its config and the Epic session live in the Opus user folder (LEGENDARY_CONFIG_PATH),
  *   never in a shared location and never sent to our server.
  * - Its own update checks are disabled, so it only talks to Epic.
  * - The Epic session (Legendary's user.json, with the account tokens) is kept encrypted at rest
- *   with Windows DPAPI (safeStorage), like Balói's own session: it is decrypted only while a
+ *   with Windows DPAPI (safeStorage), like Opus's own session: it is decrypted only while a
  *   Legendary process runs and sealed again — with any refreshed token — when the last one ends.
  */
 const LEGENDARY_VERSION = "0.21.1";

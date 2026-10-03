@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import fs from "node:fs";
 
 /**
- * Integrity rules for the third-party programs Balói downloads and then extracts or runs
+ * Integrity rules for the third-party programs Opus downloads and then extracts or runs
  * (emulators, RetroArch and its cores):
  *
  * - Only HTTPS, and only from the projects' official hosts.

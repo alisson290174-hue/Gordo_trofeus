@@ -417,7 +417,7 @@ async function onOpenGame(game: Game, matchedPath: string) {
             { signal }
           );
         } catch (error) {
-          // Balói's server doesn't track Steam imports (the owned-games sync does), so a 404
+          // Opus's server doesn't track Steam imports (the owned-games sync does), so a 404
           // means "unknown here", not "left the account": keep the local flag.
           if (axios.isAxiosError(error) && error.response?.status === 404) {
             return { hasActiveSteamImport: game.hasActiveSteamImport === true };

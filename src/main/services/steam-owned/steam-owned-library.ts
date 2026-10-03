@@ -8,7 +8,7 @@ import { getSteamAppInstallDirectories } from "../steam-integration/steam-instal
 import { syncSteamOwnedAchievements } from "./steam-owned-achievements";
 
 /**
- * Steam account games in the Balói library. The list comes from our server (Steam ID from the
+ * Steam account games in the Opus library. The list comes from our server (Steam ID from the
  * Steam sign-in + the server's Web API key); "installed" comes from Steam's own appmanifest files
  * on this PC. Installing and playing go through the Steam client (steam:// links) — Steam doesn't
  * allow downloading its games any other way.

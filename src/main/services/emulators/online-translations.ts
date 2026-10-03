@@ -13,7 +13,7 @@ import { matchGameByName } from "./translation-rules";
 /**
  * Brazilian fan translations published by João13 Traduções on Hugging Face. Every file there has
  * its SHA-256 in the repository index, so a download is installed only when it matches — the same
- * fail-closed rule Balói uses for emulator downloads. Only these repositories are ever contacted.
+ * fail-closed rule Opus uses for emulator downloads. Only these repositories are ever contacted.
  */
 const SOURCES: Partial<Record<EmulatorSystem, { repo: string; dir: string }>> = {
   switch: { repo: "Joao13TraducoesDublagens/Traducao-NS", dir: "" },
