@@ -10,6 +10,22 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.36",
+    date: "03/10/2026",
+    items: [
+      "Select + Start no controle fecha o jogo e volta para o Opus (vale também no Big Picture).",
+      "Controle funcionando no app normal: direcional/analógico move, A abre, B volta, LB/RB trocam de aba, Start abre o Big Picture.",
+      "PS1 e PS2: controle ligado pelo XInput — não perde mais o mapeamento quando outro dispositivo é conectado.",
+      "Botão direito em qualquer jogo → \"Baixar tradução\": o Opus procura na internet e instala sozinho, ou avisa que não há tradução.",
+      "Emulação: \"Baixar\" e \"Configurar\" separados em cada emulador, \"Verificar atualizações\" e \"Baixar traduções online\". Os emuladores agora se atualizam sozinhos.",
+      "Biblioteca separada por console (PS2, Switch, SNES…), do lado de Steam, Epic e Torrent.",
+      "Conquistas abre bem mais rápido e não fica pulando enquanto carrega.",
+      "Troféus do RetroAchievements aparecem na hora, durante o jogo.",
+      "Suas configurações ficam salvas no servidor: ao reinstalar o Opus, elas voltam sozinhas.",
+      "Big Picture novo: seções no topo com LB/RB, Início estilo PS5, biblioteca por console e menu rápido no Start.",
+    ],
+  },
+  {
     version: "1.0.35",
     date: "03/10/2026",
     items: [
