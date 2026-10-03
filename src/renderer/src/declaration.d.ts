@@ -644,6 +644,24 @@ declare global {
       cb: (payload: EmulatorInstallProgress) => void
     ) => () => void;
     autoSetupEmulators: () => Promise<EmulatorAutoSetupProgress[]>;
+    installGameTranslation: (
+      shop: GameShop,
+      objectId: string,
+      sourcePath: string
+    ) => Promise<
+      | { ok: true; titleId: string; target: string; fileCount: number }
+      | { ok: false; reason: string }
+    >;
+    autoSetupEmulator: (
+      target: EmulatorAutoSetupProgress["target"]
+    ) => Promise<EmulatorAutoSetupProgress>;
+    getEmulatorSetupStates: () => Promise<
+      {
+        target: EmulatorAutoSetupProgress["target"];
+        installed: boolean;
+        executablePath: string | null;
+      }[]
+    >;
     getEmulatorsBaseDir: () => Promise<string>;
     setEmulatorsBaseDir: (dir: string) => Promise<string>;
     onEmulatorAutoSetupProgress: (
@@ -992,7 +1010,7 @@ declare global {
     /* Misc */
     openExternal: (src: string) => Promise<void>;
     openCheckout: (options?: OpenCheckoutOptions) => Promise<void>;
-    getCloudIframeUrl: () => Promise<string>;
+    getCloudIframeUrl: () => Promise<string | null>;
     getVersion: () => Promise<string>;
     getAppSessionId: () => Promise<string>;
     isStaging: () => Promise<boolean>;

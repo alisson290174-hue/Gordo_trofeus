@@ -61,7 +61,9 @@ export function CloudSubscriptionModal({
 
     getCloudIframeUrl()
       .then((url) => {
-        if (isMounted) setCloudIframeUrl(url);
+        if (!isMounted) return;
+        if (url) setCloudIframeUrl(url);
+        else setIsIframeUnavailable(true);
       })
       .catch(() => {
         if (isMounted) setIsIframeUnavailable(true);

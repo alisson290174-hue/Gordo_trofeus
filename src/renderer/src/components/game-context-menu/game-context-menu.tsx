@@ -329,6 +329,30 @@ export function GameContextMenu({
         ]
       : []),
 
+    // 3DS/Switch: a fan translation (romfs mod) installed into the emulator in one step.
+    ...(game.shop === "launchbox" && /\b3ds\b|\bswitch\b/i.test(game.platform ?? "")
+      ? [
+          {
+            id: "install-translation",
+            label: t("install_translation"),
+            icon: <Icon name="languages" size={16} />,
+            disabled: isDeleting,
+            onClick: async () => {
+              const picked = await window.electron.showOpenDialog({
+                properties: ["openFile"],
+                filters: [{ name: t("install_translation_filter"), extensions: ["zip", "7z", "rar"] }],
+              });
+              if (picked.canceled || picked.filePaths.length === 0) return;
+              const result = await window.electron
+                .installGameTranslation(game.shop, game.objectId, picked.filePaths[0])
+                .catch(() => ({ ok: false as const, reason: "unreadable" }));
+              if (result.ok) showSuccessToast(t("install_translation_success"));
+              else showErrorToast(t(`install_translation_error_${result.reason}`));
+            },
+          },
+        ]
+      : []),
+
     {
       id: "manage",
       label: t("options"),

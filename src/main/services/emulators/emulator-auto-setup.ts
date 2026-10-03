@@ -17,6 +17,7 @@ import { getEmulatorConfig, updateEmulatorConfig } from "./emulators-repository"
 import { getEmulatorVersion } from "./get-emulator-version";
 import { KNOWN_BINARIES } from "./known-binaries";
 import { installPs3FirmwareIfMissing } from "./ps3-firmware-installer";
+import { configureControllerForEmulator } from "./controller-autoconfig";
 
 /**
  * Installs and configures emulators without the user picking anything: anyone with Balói gets
@@ -67,8 +68,12 @@ const withPs3Firmware = async (result: AutoSetupResult): Promise<AutoSetupResult
   return firmware === "installed" && result.status === "ready" ? { ...result, status: "installed" } : result;
 };
 
-const setupEmulator = async (system: EmulatorSystem): Promise<AutoSetupResult> =>
-  withPs3Firmware(await setupEmulatorBinary(system));
+const setupEmulator = async (system: EmulatorSystem): Promise<AutoSetupResult> => {
+  const result = await withPs3Firmware(await setupEmulatorBinary(system));
+  // "Instala e configura": the Xbox-layout pad is bound right away, not at the first game.
+  if (result.executablePath) await configureControllerForEmulator(system, result.executablePath);
+  return result;
+};
 
 const setupEmulatorBinary = async (system: EmulatorSystem): Promise<AutoSetupResult> => {
   const binary = KNOWN_BINARIES[system];
@@ -163,6 +168,38 @@ export const autoSetupRetroArch = () =>
       return result;
     }
   });
+
+export type AutoSetupTarget = EmulatorSystem | "retroarch";
+
+/** One emulator picked by the user in Configurações → Emulação. */
+export const autoSetupTarget = (target: AutoSetupTarget) =>
+  target === "retroarch" ? autoSetupRetroArch() : autoSetupEmulator(target);
+
+export interface EmulatorSetupState {
+  target: AutoSetupTarget;
+  installed: boolean;
+  executablePath: string | null;
+}
+
+/** Which emulators are already in place, so each one shows "Instalar" or "Pronto". */
+export const getEmulatorSetupStates = async (): Promise<EmulatorSetupState[]> => {
+  const states: EmulatorSetupState[] = [];
+  for (const system of EMULATOR_SYSTEMS) {
+    const config = await getEmulatorConfig(system);
+    const installed = Boolean(config.executablePath && existsSync(config.executablePath));
+    states.push({ target: system, installed, executablePath: installed ? config.executablePath : null });
+  }
+  const retroArch = await getRetroArchConfig();
+  const retroArchInstalled =
+    Boolean(retroArch.executablePath && existsSync(retroArch.executablePath)) &&
+    Object.values(retroArch.cores).every((core) => core.installed);
+  states.push({
+    target: "retroarch",
+    installed: retroArchInstalled,
+    executablePath: retroArchInstalled ? retroArch.executablePath : null,
+  });
+  return states;
+};
 
 /** Every emulator Balói supports, one after another (they share bandwidth and disk). */
 export const autoSetupAllEmulators = async (): Promise<AutoSetupResult[]> => {

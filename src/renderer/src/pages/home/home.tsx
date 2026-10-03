@@ -262,7 +262,7 @@ export default function Home() {
           <div className="home-hero__tiles">
             {heroGames.map((game, index) => {
               const isFocused = index === safeFocusIndex;
-              const cover = getTileArt(game.asset);
+              const tile = getTileArt(game.asset);
 
               return (
                 <div key={game.key} className="home-hero__tile-wrap">
@@ -272,7 +272,13 @@ export default function Home() {
                       "home-hero__tile--focused": isFocused,
                     })}
                     style={
-                      cover ? { backgroundImage: `url("${cover}")` } : undefined
+                      tile
+                        ? {
+                            backgroundImage: `url("${tile.url}")`,
+                            backgroundSize: tile.size,
+                            backgroundPosition: tile.position,
+                          }
+                        : undefined
                     }
                     onClick={() =>
                       isFocused ? openGame(game.asset) : setFocusIndex(index)

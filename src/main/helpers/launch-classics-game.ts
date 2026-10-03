@@ -18,6 +18,7 @@ import { resolveLaunchCommand } from "./resolve-launch-command";
 import { spawnDetachedEmulator } from "./spawn-detached-emulator";
 import { prepareEmulatorSouvenirs } from "@main/services/emulators/prepare-emulator-souvenirs";
 import { cleanupEmulatorSouvenirSession } from "@main/services/emulators/emulator-souvenir-config";
+import { configureControllerForEmulator } from "@main/services/emulators/controller-autoconfig";
 
 export class EmulatorNotConfiguredError extends Error {
   code = "EMULATOR_NOT_CONFIGURED" as const;
@@ -276,6 +277,7 @@ export const launchClassicsGame = async (
   };
 
   const bootTarget = await resolveBootTarget();
+  await configureControllerForEmulator(system, configuredExecutablePath);
 
   if (game) {
     await gamesSublevel.put(gameKey, {

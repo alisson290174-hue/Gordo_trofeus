@@ -506,6 +506,9 @@ contextBridge.exposeInMainWorld("electron", {
       ipcRenderer.removeListener("on-emulator-install-progress", listener);
   },
   autoSetupEmulators: () => ipcRenderer.invoke("autoSetupEmulators"),
+  autoSetupEmulator: (target: EmulatorSystem | "retroarch") =>
+    ipcRenderer.invoke("autoSetupEmulator", target),
+  getEmulatorSetupStates: () => ipcRenderer.invoke("getEmulatorSetupStates"),
   getEmulatorsBaseDir: (): Promise<string> => ipcRenderer.invoke("getEmulatorsBaseDir"),
   setEmulatorsBaseDir: (dir: string): Promise<string> =>
     ipcRenderer.invoke("setEmulatorsBaseDir", dir),
@@ -1089,6 +1092,8 @@ contextBridge.exposeInMainWorld("electron", {
       executablePath,
       launchOptions
     ),
+  installGameTranslation: (shop: GameShop, objectId: string, sourcePath: string) =>
+    ipcRenderer.invoke("installGameTranslation", shop, objectId, sourcePath),
   openClassicsGame: (
     shop: GameShop,
     objectId: string,

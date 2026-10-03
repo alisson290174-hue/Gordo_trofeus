@@ -1,13 +1,84 @@
 .emulators-autosetup {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 18px 28px;
+  flex-direction: column;
+  gap: 18px;
   padding: 20px 24px;
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.07);
   background: linear-gradient(135deg, rgba(0, 112, 243, 0.12), rgba(255, 255, 255, 0.02));
+
+  &__header {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 14px 28px;
+  }
+
+  // One card per emulator: console, emulator name, state and its own install button.
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 10px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  &__card {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "text chip"
+      "button button";
+    align-items: center;
+    gap: 10px 8px;
+    padding: 12px 14px;
+    border-radius: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    background: rgba(6, 9, 18, 0.45);
+    transition: border-color 0.2s ease;
+
+    &--installed {
+      border-color: rgba(46, 184, 114, 0.28);
+    }
+
+    &--working {
+      border-color: rgba(77, 155, 255, 0.5);
+    }
+
+    &--failed {
+      border-color: rgba(230, 70, 70, 0.35);
+    }
+
+    .button {
+      grid-area: button;
+      justify-content: center;
+      width: 100%;
+    }
+  }
+
+  &__card-text {
+    grid-area: text;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  &__card-console {
+    font-size: 14px;
+    font-weight: 600;
+    color: #f2f4f8;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__card-emulator {
+    font-size: 12px;
+    color: #8e919b;
+  }
 
   &__text {
     display: flex;
@@ -90,6 +161,9 @@
     color: #dfe3ea;
     background: rgba(255, 255, 255, 0.07);
 
+    grid-area: chip;
+    white-space: nowrap;
+
     &--installed,
     &--found,
     &--ready {
@@ -102,6 +176,12 @@
       color: #ff9a9a;
     }
 
+    &--working {
+      background: rgba(77, 155, 255, 0.16);
+      color: #9cc7ff;
+    }
+
+    &--missing,
     &--unavailable {
       background: rgba(255, 255, 255, 0.06);
       color: #8e919b;

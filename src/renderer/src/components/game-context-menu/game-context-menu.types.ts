@@ -14,4 +14,5 @@ export interface GameContextMenuGame {
   selectedDiscPath?: string | null;
   dontAskDiscSelection?: boolean;
   launchOptions?: string | null;
+  platform?: string | null;
 }

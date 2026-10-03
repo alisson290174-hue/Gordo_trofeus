@@ -1,6 +1,7 @@
 import type { GameShop, LibraryGame } from "@types";
 import { resolveImageSource } from "@renderer/helpers";
 import { getShowcaseArt } from "./showcase";
+import { getPlatformBadge, type PlatformTone } from "./platform-badge";
 
 const STEAM_CDN = "https://cdn.cloudflare.steamstatic.com/steam/apps/";
 
@@ -18,7 +19,7 @@ type GameArt = Partial<
     | "customIconUrl"
     | "tileImageUrl"
   >
-> & { shop: GameShop; objectId: string };
+> & { shop: GameShop; objectId: string; platform?: string | null };
 
 const steamAsset = (game: GameArt, file: string) =>
   game.shop === "steam" && /^\d+$/.test(game.objectId)
@@ -44,20 +45,53 @@ export const getCoverArt = (game: GameArt) =>
     game.libraryHeroImageUrl
   );
 
+export interface TileArt {
+  url: string;
+  /** CSS background-size/position that crop the console's strip off a box scan. */
+  size?: string;
+  position?: string;
+}
+
 /**
- * Square tile in the Início strip. Box scans carry console strips (PS2 header, PS1 spine, SNES
- * landscape boxes) that look broken in a square, so classics get dedicated art: the Switch icon or
- * a title screen (tileImageUrl), else PS2 fanart, and only then the box.
+ * How to frame a box scan in a square so only its artwork shows: SNES/N64 boxes are landscape
+ * with the console banner along the bottom, PS1 and Game Boy boxes carry a spine down the left,
+ * 3DS/PSP/NES boxes a banner across the top. Title screens looked worse (pixel art on black or
+ * flat colour), so these consoles use the framed box instead.
  */
-export const getTileArt = (game: GameArt) => {
+const BOX_FRAMES: Partial<Record<PlatformTone, { size: string; position: string }>> = {
+  snes: { size: "auto 122%", position: "50% 12%" },
+  n64: { size: "auto 118%", position: "62% 0%" },
+  ps1: { size: "126% auto", position: "100% 35%" },
+  gba: { size: "122% auto", position: "100% 40%" },
+  gbc: { size: "122% auto", position: "100% 40%" },
+  gb: { size: "122% auto", position: "100% 40%" },
+  nes: { size: "cover", position: "50% 65%" },
+  n3ds: { size: "122% auto", position: "0% 55%" },
+  psp: { size: "cover", position: "50% 62%" },
+};
+
+/**
+ * Square tile in the Início strip. A custom icon wins; boxed classics get their box framed above;
+ * the rest keep dedicated square art (Switch icon, PS3 ICON0, PS2 fanart) and only then the box.
+ */
+export const getTileArt = (game: GameArt): TileArt | null => {
+  const custom = firstImage(game.customIconUrl);
+  if (custom) return { url: custom };
+
   const cover = getCoverArt(game);
+  if (game.shop === "launchbox" && cover) {
+    const frame = BOX_FRAMES[getPlatformBadge(game).tone];
+    if (frame) return { url: cover, ...frame };
+  }
+
   const fanart =
     game.shop === "launchbox" &&
     game.libraryHeroImageUrl &&
     game.libraryHeroImageUrl !== game.coverImageUrl
       ? game.libraryHeroImageUrl
       : null;
-  return firstImage(game.customIconUrl, game.tileImageUrl, fanart) ?? cover;
+  const url = firstImage(game.tileImageUrl, fanart) ?? cover;
+  return url ? { url } : null;
 };
 
 /** Wide key art behind the Início / Detalhes hero. */

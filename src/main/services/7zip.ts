@@ -56,7 +56,10 @@ export class SevenZip {
   private static isPasswordRelatedError(error: unknown): boolean {
     const errorMessage =
       error instanceof Error ? error.message : String(error ?? "");
-    const normalizedMessage = errorMessage.toLowerCase();
+    // node-7z puts only the first "ERROR:" line (the archive path) in `message`; the reason
+    // ("Wrong password?") is in the raw stderr it keeps alongside.
+    const stderr = (error as { stderr?: unknown } | null)?.stderr;
+    const normalizedMessage = `${errorMessage}\n${typeof stderr === "string" ? stderr : ""}`.toLowerCase();
 
     return (
       normalizedMessage.includes("wrong password") ||
@@ -104,6 +107,9 @@ export class SevenZip {
           yes: true,
           noWildcards: true,
           password: password || undefined,
+          // "-p" with no value is an explicit empty password: 7-Zip then reports "wrong password"
+          // on an encrypted archive instead of prompting (and waiting forever) for one.
+          ...(password ? {} : { $raw: ["-p"] }),
         };
 
         const stream = Seven.extractFull(filePath, ".", options);
@@ -113,6 +119,10 @@ export class SevenZip {
           detached: true,
           windowsHide: true,
         });
+        // An encrypted archive tried without a password makes 7-Zip prompt on stdin and wait
+        // forever; closing stdin turns that prompt into a "wrong password" error instead, so the
+        // next password in the list gets its turn.
+        stream._childProcess.stdin?.end();
 
         stream.on("progress", (progress) => {
           if (onProgress) {

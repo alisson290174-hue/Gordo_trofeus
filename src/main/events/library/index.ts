@@ -31,6 +31,7 @@ import "./open-game-winetricks";
 import "./open-game-save-folder";
 import "./open-game";
 import "./open-classics-game";
+import "./install-game-translation";
 import "./update-classics-disc";
 import "./refresh-library-assets";
 import "./remove-game-from-favorites";
