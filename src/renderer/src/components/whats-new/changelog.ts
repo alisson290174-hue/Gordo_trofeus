@@ -10,6 +10,11 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.32",
+    date: "03/10/2026",
+    items: ["Artes dos jogos maiores na faixa do Início."],
+  },
+  {
     version: "1.0.31",
     date: "03/10/2026",
     items: [
