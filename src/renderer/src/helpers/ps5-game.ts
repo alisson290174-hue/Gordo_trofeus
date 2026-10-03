@@ -15,6 +15,8 @@ type GameArt = Partial<
     | "customLogoImageUrl"
     | "logoImageUrl"
     | "iconUrl"
+    | "customIconUrl"
+    | "tileImageUrl"
   >
 > & { shop: GameShop; objectId: string };
 
@@ -41,6 +43,22 @@ export const getCoverArt = (game: GameArt) =>
     game.libraryImageUrl,
     game.libraryHeroImageUrl
   );
+
+/**
+ * Square tile in the Início strip. Box scans carry console strips (PS2 header, PS1 spine, SNES
+ * landscape boxes) that look broken in a square, so classics get dedicated art: the Switch icon or
+ * a title screen (tileImageUrl), else PS2 fanart, and only then the box.
+ */
+export const getTileArt = (game: GameArt) => {
+  const cover = getCoverArt(game);
+  const fanart =
+    game.shop === "launchbox" &&
+    game.libraryHeroImageUrl &&
+    game.libraryHeroImageUrl !== game.coverImageUrl
+      ? game.libraryHeroImageUrl
+      : null;
+  return firstImage(game.customIconUrl, game.tileImageUrl, fanart) ?? cover;
+};
 
 /** Wide key art behind the Início / Detalhes hero. */
 export const getHeroArt = (game: GameArt) =>

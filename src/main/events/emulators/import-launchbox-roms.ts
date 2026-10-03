@@ -12,7 +12,10 @@ import {
 import { isWithin } from "./rom-path-utils";
 import { entryMatchesSystemPlatform } from "./catalogue-platforms";
 import { contentKindOfTitleId } from "@main/services/emulators/switch-title";
-import { findLibretroBoxart } from "@main/services/retroarch/boxart-index";
+import {
+  findLibretroBoxart,
+  findLibretroTitleScreen,
+} from "@main/services/retroarch/boxart-index";
 import {
   bandPercent,
   baseNameWithoutExt,
@@ -185,7 +188,9 @@ export const persistEntryLocally = async (
   language: string,
   discs: ClassicsDisc[],
   defaultPlatform: string | null,
-  romSizeBytes: number | null
+  romSizeBytes: number | null,
+  /** Art for the Início strip; Switch icons are square already and need none. */
+  tileUrl: string | null = null
 ) => {
   const shop = "launchbox" as const;
   const objectId = entry.objectId;
@@ -225,6 +230,7 @@ export const persistEntryLocally = async (
   // classics, and get-library falls back to these fields (PS2 has its own backfill for that).
   const coverUrl = assetsSource?.libraryImageUrl ?? null;
   const heroUrl = assetsSource?.libraryHeroImageUrl ?? coverUrl;
+  const tile = tileUrl ?? (platformToSystem(platform) === "switch" ? coverUrl : null);
 
   const existing = await gamesSublevel.get(gameKey);
   if (existing) {
@@ -236,6 +242,7 @@ export const persistEntryLocally = async (
     }
     if (coverUrl) existing.coverImageUrl = coverUrl;
     if (heroUrl) existing.libraryHeroImageUrl = heroUrl;
+    if (tile) existing.tileImageUrl = tile;
     // A game first imported under its file name gets the catalogue title once it's recognised.
     const catalogueTitle = entry.data?.title;
     const fileName = discs[0]?.fileName;
@@ -257,6 +264,7 @@ export const persistEntryLocally = async (
       iconUrl: assets.iconUrl,
       libraryHeroImageUrl: heroUrl,
       coverImageUrl: coverUrl,
+      tileImageUrl: tile,
       logoImageUrl: assets.logoImageUrl,
       objectId,
       shop,
@@ -847,7 +855,12 @@ const resolveUnmatchedArt = async (
   system: EmulatorSystem,
   serial: string | null | undefined,
   title: string
-): Promise<{ title: string; coverUrl: string | null; heroUrl: string | null }> => {
+): Promise<{
+  title: string;
+  coverUrl: string | null;
+  heroUrl: string | null;
+  tileUrl: string | null;
+}> => {
   if (system === "switch") {
     const found = await HydraApi.post<{
       title: string;
@@ -855,19 +868,21 @@ const resolveUnmatchedArt = async (
       heroUrl: string | null;
     } | null>("/games/switch/search", { title }, { needsAuth: false }).catch(() => null);
     return found
-      ? { title: found.title, coverUrl: found.coverUrl, heroUrl: found.heroUrl }
-      : { title, coverUrl: null, heroUrl: null };
+      ? { title: found.title, coverUrl: found.coverUrl, heroUrl: found.heroUrl, tileUrl: found.coverUrl }
+      : { title, coverUrl: null, heroUrl: null, tileUrl: null };
   }
 
   const serialCover = discCoverUrl(system, serial);
   if (system === "ps1") {
+    // PS1 boxes carry a spine/label that looks off in a square; the title screen doesn't.
+    const tileUrl = await findLibretroTitleScreen("Sony - PlayStation", title).catch(() => null);
     if (serialCover && (await urlResponds(serialCover))) {
-      return { title, coverUrl: serialCover, heroUrl: null };
+      return { title, coverUrl: serialCover, heroUrl: null, tileUrl };
     }
     const fallback = await findLibretroBoxart("Sony - PlayStation", title).catch(() => null);
-    return { title, coverUrl: fallback, heroUrl: null };
+    return { title, coverUrl: fallback, heroUrl: null, tileUrl };
   }
-  return { title, coverUrl: serialCover, heroUrl: null };
+  return { title, coverUrl: serialCover, heroUrl: null, tileUrl: null };
 };
 
 const persistUnmatchedGame = async (
@@ -880,7 +895,8 @@ const persistUnmatchedGame = async (
   romSizeBytes: number | null,
   coverUrl: string | null,
   /** Wide art for the hero; the box art doubles as hero when there is none. */
-  heroUrl: string | null = null
+  heroUrl: string | null = null,
+  tileUrl: string | null = null
 ) => {
   const shop = "launchbox" as const;
   const gameKey = levelKeys.game(shop, objectId);
@@ -913,6 +929,7 @@ const persistUnmatchedGame = async (
       existing.libraryHeroImageUrl = heroUrl ?? coverUrl;
       existing.coverImageUrl = coverUrl;
     }
+    if (tileUrl) existing.tileImageUrl = tileUrl;
     existing.discs = discs;
     if (
       !existing.selectedDiscPath ||
@@ -928,6 +945,7 @@ const persistUnmatchedGame = async (
       iconUrl: null,
       libraryHeroImageUrl: heroUrl ?? coverUrl,
       coverImageUrl: coverUrl,
+      tileImageUrl: tileUrl,
       logoImageUrl: null,
       objectId,
       shop,
@@ -966,7 +984,7 @@ const persistUnmatchedGames = async (
     const art = await resolveUnmatchedArt(system, serial, cleanRomTitle(sourceFileName));
     const title = art.title;
     persistedIds.add(objectId);
-    const { coverUrl, heroUrl } = art;
+    const { coverUrl, heroUrl, tileUrl } = art;
 
     await persistUnmatchedGame(
       objectId,
@@ -976,7 +994,8 @@ const persistUnmatchedGames = async (
       system,
       group.sizeBytes || null,
       coverUrl,
-      heroUrl
+      heroUrl,
+      tileUrl
     ).catch((err) =>
       logger.error("Failed to persist unmatched rom locally", err)
     );

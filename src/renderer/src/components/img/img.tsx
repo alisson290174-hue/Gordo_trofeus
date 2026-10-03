@@ -33,6 +33,7 @@ export function Img({ src, fallback, onError, ...props }: ImgProps) {
   return (
     <img
       {...props}
+      alt={props.alt ?? ""}
       src={shouldUseFallback ? fallback : src}
       onError={shouldUseFallback ? undefined : handleError}
     />

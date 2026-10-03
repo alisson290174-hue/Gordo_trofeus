@@ -29,7 +29,6 @@ import type {
   LibraryGame,
   GameRunning,
   TorBoxUser,
-  Auth,
   ShortcutLocation,
   Ps2MemcardScanInput,
   Ps2MemcardScanProgress,

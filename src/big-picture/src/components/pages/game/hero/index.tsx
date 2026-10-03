@@ -1,3 +1,4 @@
+import { sanitizeRichHtml } from "@shared";
 import {
   DownloadSimpleIcon,
   GearIcon,
@@ -417,7 +418,7 @@ export function Hero({
         <Typography
           className="game-page__hero-description"
           dangerouslySetInnerHTML={{
-            __html: shopDetails.short_description || "",
+            __html: sanitizeRichHtml(shopDetails.short_description || ""),
           }}
         />
 

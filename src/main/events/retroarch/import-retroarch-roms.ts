@@ -26,7 +26,11 @@ import type { LaunchboxShopDetailsEntry } from "@main/services/emulators";
 import { WindowManager, logger, retroarch } from "@main/services";
 import { platformToRetroArchPlatform } from "@main/helpers";
 import { gamesSublevel } from "@main/level";
-import { findRetroArchBoxart } from "@main/services/retroarch/boxart-index";
+import {
+  findLibretroTitleScreen,
+  findRetroArchBoxart,
+  retroArchSystemFolder,
+} from "@main/services/retroarch/boxart-index";
 import type { ClassicsDisc, Game, RetroArchPlatform, RomFolder } from "@types";
 
 interface FolderInput {
@@ -512,12 +516,20 @@ const persistMatchedTitles = async (
     const defaultPlatform = info
       ? retroarch.PLATFORM_TO_LAUNCHBOX_NAME[info.platform]
       : null;
+    // Cartridge boxes (often landscape) crop badly into the Início strip's square: title screen.
+    const tileUrl =
+      info && entry.data?.title
+        ? await findLibretroTitleScreen(retroArchSystemFolder(info.platform), entry.data.title).catch(
+            () => null
+          )
+        : null;
     await persistEntryLocally(
       entry,
       language,
       discs,
       defaultPlatform,
-      info?.sizeBytes ?? null
+      info?.sizeBytes ?? null,
+      tileUrl
     ).catch((err) => {
       logger.error("Failed to persist RetroArch entry locally", err);
     });

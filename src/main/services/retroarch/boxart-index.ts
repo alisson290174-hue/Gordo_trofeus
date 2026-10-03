@@ -21,13 +21,15 @@ const SYSTEM_FOLDERS: Record<RetroArchPlatform, string> = {
   gba: "Nintendo - Game Boy Advance",
 };
 
+export type LibretroImageKind = "Named_Boxarts" | "Named_Titles";
+
 const listings = new Map<string, Promise<string[]>>();
 
-const boxartFolderUrl = (system: string) =>
-  `${THUMBNAILS}/${encodeURIComponent(system)}/Named_Boxarts/`;
+const imageFolderUrl = (system: string, kind: LibretroImageKind) =>
+  `${THUMBNAILS}/${encodeURIComponent(system)}/${kind}/`;
 
-const fetchListing = async (system: string): Promise<string[]> => {
-  const { data } = await axios.get<string>(boxartFolderUrl(system), {
+const fetchListing = async (system: string, kind: LibretroImageKind): Promise<string[]> => {
+  const { data } = await axios.get<string>(imageFolderUrl(system, kind), {
     responseType: "text",
     timeout: 30_000,
     maxContentLength: MAX_LISTING_BYTES,
@@ -44,27 +46,38 @@ const fetchListing = async (system: string): Promise<string[]> => {
   return names;
 };
 
-const getListing = (system: string) => {
-  let listing = listings.get(system);
+const getListing = (system: string, kind: LibretroImageKind) => {
+  const key = `${system}/${kind}`;
+  let listing = listings.get(key);
   if (!listing) {
-    listing = fetchListing(system).catch((error) => {
-      logger.warn(`[boxart] could not list ${system} box art`, String(error));
-      listings.delete(system); // retry on the next import
+    listing = fetchListing(system, kind).catch((error) => {
+      logger.warn(`[boxart] could not list ${key}`, String(error));
+      listings.delete(key); // retry on the next import
       return [];
     });
-    listings.set(system, listing);
+    listings.set(key, listing);
   }
   return listing;
 };
 
-/** Box art from a libretro-thumbnails system folder ("Sony - PlayStation"), matched by title. */
-export const findLibretroBoxart = async (
+/** An image from a libretro-thumbnails system folder ("Sony - PlayStation"), matched by title. */
+export const findLibretroImage = async (
   system: string,
+  kind: LibretroImageKind,
   title: string
 ): Promise<string | null> => {
-  const name = pickBoxart(title, await getListing(system));
-  return name ? `${boxartFolderUrl(system)}${encodeURIComponent(name)}.png` : null;
+  const name = pickBoxart(title, await getListing(system, kind));
+  return name ? `${imageFolderUrl(system, kind)}${encodeURIComponent(name)}.png` : null;
 };
+
+export const findLibretroBoxart = (system: string, title: string) =>
+  findLibretroImage(system, "Named_Boxarts", title);
+
+/** Title screen (4:3): the Início strip's square tile for systems whose boxes have labels/strips. */
+export const findLibretroTitleScreen = (system: string, title: string) =>
+  findLibretroImage(system, "Named_Titles", title);
+
+export const retroArchSystemFolder = (platform: RetroArchPlatform) => SYSTEM_FOLDERS[platform];
 
 /** URL of the best-matching box art for a cartridge title, or null when libretro has none. */
 export const findRetroArchBoxart = (platform: RetroArchPlatform, title: string) =>

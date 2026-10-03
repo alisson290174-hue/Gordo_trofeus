@@ -192,6 +192,8 @@ export class HydraApi {
     this.instance = axios.create({
       baseURL: import.meta.env.MAIN_VITE_API_URL,
       headers: { "User-Agent": `Hydra Launcher v${appVersion}` },
+      // Every call carries the user's token: an absolute URL must never send it to another host.
+      allowAbsoluteUrls: false,
     });
 
     if (this.ADD_LOG_INTERCEPTOR) {

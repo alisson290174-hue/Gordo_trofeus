@@ -16,11 +16,7 @@ export type SubscriptionStatus = "active" | "pending" | "cancelled";
  * - `unknown`     — not installed / not yet scanned / never played.
  */
 export type AchievementSupport =
-  | "working"
-  | "supported"
-  | "not_writing"
-  | "unsupported"
-  | "unknown";
+  "working" | "supported" | "not_writing" | "unsupported" | "unknown";
 
 export interface Subscription {
   id: string;
@@ -51,6 +47,8 @@ export interface Game {
   logoImageUrl: string | null;
   /** Box art kept on the record itself (classics), so profile syncs that reset assets can't lose it. */
   coverImageUrl?: string | null;
+  /** Square-friendly art for the Início strip (Switch icon, title screen) — classics only. */
+  tileImageUrl?: string | null;
   customIconUrl?: string | null;
   customLogoImageUrl?: string | null;
   customHeroImageUrl?: string | null;

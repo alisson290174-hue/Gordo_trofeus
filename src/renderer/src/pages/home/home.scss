@@ -83,7 +83,8 @@
     border-radius: 18px;
     background-color: #1a2233;
     background-size: cover;
-    background-position: center 20%;
+    // Tile art is square or centred (icon, title screen, fanart), not a box with a header strip.
+    background-position: center;
     cursor: pointer;
     flex: none;
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);

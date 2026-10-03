@@ -19,6 +19,11 @@ const hydraApiCall = async (
   payload: HydraApiCallPayload
 ) => {
   const { method, url, data, params, options } = payload;
+  // Only paths on Balói's own server ("/profile/me"): never a full or protocol-relative URL that
+  // would carry the user's token elsewhere.
+  if (typeof url !== "string" || !url.startsWith("/") || url.startsWith("//") || url.includes("\\")) {
+    throw new Error("hydra-api-call-invalid-url");
+  }
   const hydraApiOptions = {
     ...options,
     validateStatus: options?.acceptedStatuses

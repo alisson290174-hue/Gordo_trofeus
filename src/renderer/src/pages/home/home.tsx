@@ -13,6 +13,7 @@ import {
   formatSummaryMeta,
   getCoverArt,
   getHeaderArt,
+  getTileArt,
   getHeroArt,
   getLogoArt,
   getTrophyProgress,
@@ -260,7 +261,7 @@ export default function Home() {
           <div className="home-hero__tiles">
             {heroGames.map((game, index) => {
               const isFocused = index === safeFocusIndex;
-              const cover = getCoverArt(game.asset);
+              const cover = getTileArt(game.asset);
 
               return (
                 <div key={game.key} className="home-hero__tile-wrap">

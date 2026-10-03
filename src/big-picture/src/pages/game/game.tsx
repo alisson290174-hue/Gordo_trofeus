@@ -1,4 +1,5 @@
 import { StarIcon } from "@phosphor-icons/react";
+import { sanitizeRichHtml } from "@shared";
 import {
   formatNumber,
   getClassicsLaunchErrorCode,
@@ -1528,7 +1529,8 @@ export default function Game() {
                           <div
                             className="game-page__detailed-description-block-content"
                             dangerouslySetInnerHTML={{
-                              __html: block,
+                              // Store/catalogue HTML is untrusted (Steam, PS2 index, nlib).
+                              __html: sanitizeRichHtml(block),
                             }}
                           />
                         </div>

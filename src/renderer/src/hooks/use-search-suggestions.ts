@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
+import { filterGamesBySearch } from "@renderer/pages/library/library-search";
 import { useAppSelector } from "./redux";
 import { debounce } from "lodash-es";
 import { logger } from "@renderer/logger";
@@ -41,46 +42,19 @@ export function useSearchSuggestions(
       const normalizedQuery = searchQuery.trim().toLowerCase();
       if (normalizedQuery.length < 2) return [];
 
-      const matches: SearchSuggestion[] = [];
-
-      for (const { game, titleLower } of librarySearchIndex) {
-        if (matches.length >= limit) break;
-
-        if (titleLower.includes(normalizedQuery)) {
-          matches.push({
-            title: game.title,
-            objectId: game.objectId,
-            shop: game.shop,
-            iconUrl: game.iconUrl,
-            source: "library",
-          });
-          continue;
-        }
-
-        let queryIndex = 0;
-
-        for (
-          let index = 0;
-          index < titleLower.length && queryIndex < normalizedQuery.length;
-          index++
-        ) {
-          if (titleLower[index] === normalizedQuery[queryIndex]) {
-            queryIndex++;
-          }
-        }
-
-        if (queryIndex === normalizedQuery.length) {
-          matches.push({
-            title: game.title,
-            objectId: game.objectId,
-            shop: game.shop,
-            iconUrl: game.iconUrl,
-            source: "library",
-          });
-        }
-      }
-
-      return matches;
+      // Same rule as the library page: titles containing the words first, loose match on typos.
+      return filterGamesBySearch(
+        librarySearchIndex.map(({ game }) => game),
+        normalizedQuery
+      )
+        .slice(0, limit)
+        .map((game) => ({
+          title: game.title,
+          objectId: game.objectId,
+          shop: game.shop,
+          iconUrl: game.iconUrl,
+          source: "library" as const,
+        }));
     },
     [librarySearchIndex]
   );

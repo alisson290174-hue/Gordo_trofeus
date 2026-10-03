@@ -21,7 +21,7 @@ import { setHeaderTitle } from "@renderer/features";
 import EmptyLibraryIllustration from "@renderer/assets/empty-states/empty-library.png";
 import EmptySearchIllustration from "@renderer/assets/empty-states/empty-search.png";
 import { useTranslation } from "react-i18next";
-import { AuthPage, removeDiacritics } from "@shared";
+import { AuthPage } from "@shared";
 import { GameCollection, LibraryGame } from "@types";
 import { CreateCollectionModal, GameContextMenu } from "@renderer/components";
 import { useCollectionContextMenu } from "@renderer/context";
@@ -42,6 +42,7 @@ import { CategoryFilter, LibraryCategory } from "./category-filter";
 import { LIBRARY_PAGE_CATEGORIES } from "./library-category";
 import { AchievementsFilter } from "./achievements-filter";
 import { PlatformFilter } from "./platform-filter";
+import { filterGamesBySearch } from "./library-search";
 import { CollectionsFilter } from "./collections-filter";
 import {
   LIBRARY_INSTALLED_ONLY_STORAGE_KEY,
@@ -484,26 +485,7 @@ export default function Library() {
       );
     }
 
-    const queryLower = removeDiacritics(deferredSearchQuery).toLowerCase();
-
-    if (!queryLower.trim()) return filtered;
-
-    return filtered.filter((game) => {
-      const titleLower = removeDiacritics(game.title ?? "").toLowerCase();
-      let queryIndex = 0;
-
-      for (
-        let i = 0;
-        i < titleLower.length && queryIndex < queryLower.length;
-        i++
-      ) {
-        if (titleLower[i] === queryLower[queryIndex]) {
-          queryIndex++;
-        }
-      }
-
-      return queryIndex === queryLower.length;
-    });
+    return filterGamesBySearch(filtered, deferredSearchQuery);
   }, [
     sortedLibrary,
     deferredSearchQuery,
