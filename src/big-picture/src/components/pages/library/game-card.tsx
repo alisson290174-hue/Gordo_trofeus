@@ -133,7 +133,8 @@ export function VerticalLibraryGameCard({
       actions={{
         primary: () => navigate(gameDetailsPath),
         press: {
-          y: onOpenContextMenu
+          // X = game menu (Y is the library search).
+          x: onOpenContextMenu
             ? () => {
                 const buttonRect =
                   menuButtonRef.current?.getBoundingClientRect() ?? null;
@@ -245,7 +246,8 @@ export function HorizontalLibraryGameListCard({
       actions={{
         primary: () => navigate(gameDetailsPath),
         press: {
-          y: onOpenContextMenu
+          // X = game menu (Y is the library search).
+          x: onOpenContextMenu
             ? () => {
                 const buttonRect =
                   menuButtonRef.current?.getBoundingClientRect() ?? null;

@@ -719,7 +719,22 @@
     "Completionist": "Completista",
     "Try adjusting your search terms or filters.": "Tente ajustar os termos de busca ou os filtros.",
     "Empty collection": "Coleção vazia",
-    "Add games to this collection to see them here.": "Adicione jogos a esta coleção para vê-los aqui."
+    "Add games to this collection to see them here.": "Adicione jogos a esta coleção para vê-los aqui.",
+    "Play": "Jogar",
+    "Trophies": "Troféus",
+    "Game page": "Página do jogo",
+    "Sections": "Seções",
+    "Quick menu": "Menu rápido",
+    "Console": "Console",
+    "Back": "Voltar",
+    "Close game": "Fechar o jogo",
+    "saves and quits": "salva e encerra",
+    "back to the desktop": "volta para a área de trabalho",
+    "Close menu": "Fechar menu",
+    "Controls": "Controles",
+    "Recent games": "Jogos recentes",
+    "Filter by console": "Filtrar por console",
+    "Game menu": "Menu do jogo"
   },
   "format": {
     "playtime_hours_one": "{{count}} hora",

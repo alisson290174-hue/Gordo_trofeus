@@ -1,10 +1,10 @@
 .library-page {
-  margin-top: calc(-1 * var(--big-picture-header-height));
+  /* No hero any more: the list scrolls in its own box, below the section bar. */
   width: 100%;
   min-width: 0;
-  /* Matches `.home-page`: negative margin eats header inset; extend height so the column fills `#root` (no stripe at bottom). */
-  height: calc(100% + var(--big-picture-header-height));
-  min-height: calc(100% + var(--big-picture-header-height));
+  height: 100%;
+  min-height: 100%;
+  padding-top: calc(var(--spacing-unit) * 4);
   overflow-x: hidden;
   overflow-y: auto;
   background: var(--background);

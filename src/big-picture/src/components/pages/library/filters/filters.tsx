@@ -36,6 +36,7 @@ import {
 } from "../navigation";
 import {
   countGamesInCollection,
+  getLibraryConsoleTabs,
   type LibraryFilterCounts,
   type LibraryFilterTab,
   type LibrarySecondaryFilter,
@@ -134,16 +135,12 @@ export function LibraryFilters({
         value: "all",
         label: t("library_tab_all", { count: counts.all }),
       },
-      {
-        id: getLibraryFiltersTabFocusId("moderns"),
-        value: "moderns",
-        label: t("library_tab_moderns", { count: counts.moderns }),
-      },
-      {
-        id: getLibraryFiltersTabFocusId("classics"),
-        value: "classics",
-        label: t("library_tab_classics", { count: counts.classics }),
-      },
+      // One tab per console present in the library (PC, PS2, Switch…), biggest first.
+      ...getLibraryConsoleTabs(library).map((consoleTab) => ({
+        id: getLibraryFiltersTabFocusId(consoleTab.value.replace(":", "-")),
+        value: consoleTab.value,
+        label: `${consoleTab.label} (${consoleTab.count})`,
+      })),
       {
         id: getLibraryFiltersTabFocusId("favorites"),
         value: "favorites",
@@ -367,7 +364,7 @@ export function LibraryFilters({
       </HorizontalFocusGroup>
 
       <div className="library-filters__tabs">
-        <BumperBadge label="LB" />
+        <BumperBadge label="LT" />
 
         <Tabs
           className="library-filters-tabs"
@@ -379,7 +376,7 @@ export function LibraryFilters({
           ariaLabel="Library filters"
         />
 
-        <BumperBadge label="RB" />
+        <BumperBadge label="RT" />
       </div>
     </div>
   );

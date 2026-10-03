@@ -4,7 +4,13 @@ import type { GameRunning } from "@types";
 export type BigPictureRunningGame = Pick<
   GameRunning,
   "id" | "sessionDurationInMillis"
->;
+> &
+  Partial<
+    Pick<
+      GameRunning,
+      "title" | "objectId" | "shop" | "coverImageUrl" | "iconUrl" | "customIconUrl"
+    >
+  >;
 
 interface BigPictureRunningGamesStoreState {
   runningGamesById: Record<string, BigPictureRunningGame>;

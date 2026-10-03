@@ -212,7 +212,7 @@ export default function Settings() {
 
   useEffect(() => {
     const removeLeftBumper = onButtonPressed(
-      GamepadButtonType.LEFT_BUMPER,
+      GamepadButtonType.LEFT_TRIGGER,
       (event) => {
         if (
           virtualKeyboardTarget ||
@@ -229,7 +229,7 @@ export default function Settings() {
     );
 
     const removeRightBumper = onButtonPressed(
-      GamepadButtonType.RIGHT_BUMPER,
+      GamepadButtonType.RIGHT_TRIGGER,
       (event) => {
         if (
           virtualKeyboardTarget ||
@@ -352,8 +352,8 @@ export default function Settings() {
               onValueChange={setSelectedTab}
               variant="settings"
               ariaLabel="Settings categories"
-              beforeTabs={<BumperBadge label="LB" />}
-              afterTabs={<BumperBadge label="RB" />}
+              beforeTabs={<BumperBadge label="LT" />}
+              afterTabs={<BumperBadge label="RT" />}
             />
           </div>
 

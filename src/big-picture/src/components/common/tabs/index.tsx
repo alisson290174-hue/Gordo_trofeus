@@ -428,8 +428,18 @@ export function Tabs<TValue extends string = string>({
   useEffect(() => {
     if (variant === "settings") return;
 
+    // On the main screen LB / RB switch the top sections, so page tabs move with LT / RT;
+    // inside modals the bumpers are free again.
+    const onMainLayer = layerId === "big-picture-app-layer";
+    const previousButton = onMainLayer
+      ? GamepadButtonType.LEFT_TRIGGER
+      : GamepadButtonType.LEFT_BUMPER;
+    const nextButton = onMainLayer
+      ? GamepadButtonType.RIGHT_TRIGGER
+      : GamepadButtonType.RIGHT_BUMPER;
+
     const removeLeftBumper = onButtonPressed(
-      GamepadButtonType.LEFT_BUMPER,
+      previousButton,
       (event) => {
         if (!isActiveGamepadEvent(event)) return;
         if (!canHandleBumperPress()) return;
@@ -459,7 +469,7 @@ export function Tabs<TValue extends string = string>({
     );
 
     const removeRightBumper = onButtonPressed(
-      GamepadButtonType.RIGHT_BUMPER,
+      nextButton,
       (event) => {
         if (!isActiveGamepadEvent(event)) return;
         if (!canHandleBumperPress()) return;
@@ -500,6 +510,7 @@ export function Tabs<TValue extends string = string>({
     isActiveGamepadEvent,
     isCurrentFocusInsideTabList,
     itemsFocusable,
+    layerId,
     onButtonPressed,
     resolvedItems,
     selectedValue,

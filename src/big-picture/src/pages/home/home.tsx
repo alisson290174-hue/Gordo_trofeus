@@ -1,665 +1,280 @@
-import type { LibraryGame, ShopAssets } from "@types";
+import { DotsThreeIcon, PlayIcon, TrophyIcon } from "@phosphor-icons/react";
+import type { LibraryGame } from "@types";
+import { getDisplayedPlayTimeInMilliseconds } from "@shared";
+import { PlatformBadge } from "@renderer/components/platform-badge/platform-badge";
+import { getPlatformBadge } from "@renderer/helpers/platform-badge";
+import { getHeroArt, getLogoArt, getTileArt } from "@renderer/helpers/ps5-game";
+import cn from "classnames";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { MouseEventHandler } from "react";
 import { useNavigate } from "react-router-dom";
-import { useTranslation } from "react-i18next";
-import { logger } from "@renderer/logger";
-
-import { HomePageHero } from "./hero";
-import { useFeaturedGame } from "./hero/use-featured-game";
-import { type HomeChallengeGame } from "./home-data";
-import { useHotGames } from "./use-hot-games";
-import { useHomeChallengeGridNavigation } from "./use-home-challenge-grid-navigation";
-import { useHardPlatinums } from "./use-hard-platinums";
-import { useWeeklyGames } from "./use-weekly-games";
 import {
-  getHomeChallengeGameItemId,
-  getHomeTrendingGameItemId,
-  getHomeWeeklyGameItemId,
-  HOME_HARD_PLATINUMS_GRID_REGION_ID,
-  HOME_HERO_ACTIONS_REGION_ID,
-  HOME_PAGE_REGION_ID,
-  HOME_TRENDING_GAMES_CAROUSEL_REGION_ID,
-  HOME_WEEKLY_GAMES_CAROUSEL_REGION_ID,
-} from "./navigation";
-import {
-  buildLibraryToastOptions,
-  getBigPictureGameAchievementsPath,
-  getBigPictureGameDetailsPath,
-  getGameLandscapeImageSource,
-  getItemFocusTarget,
-} from "../../helpers";
-import {
-  BIG_PICTURE_HEADER_REGION_ID,
-  BIG_PICTURE_SIDEBAR_ITEM_IDS,
-} from "../../layout";
-import {
-  ChallengeGameCard,
-  ContextMenu,
-  FocusCarousel,
   FocusItem,
-  GridFocusGroup,
+  HorizontalFocusGroup,
   VerticalFocusGroup,
 } from "../../components";
-import { ConfirmationModal, DownloadGameModal } from "../../components/modals";
-import {
-  buildCatalogGameContextMenuItems,
-  buildLibraryGameContextMenuItems,
-  LibraryGameSettingsModal,
-  useLibraryFavorite,
-  useLibraryLaunchGame,
-  useLibraryPendingAction,
-} from "../../components/pages/library";
+import { useLibraryLaunchGame } from "../../components/pages/library/use-library-launch-game";
 import { IS_DESKTOP } from "../../constants";
 import {
-  useBigPictureToast,
-  useGameCollections,
-  useLibrary,
-  useNavigation,
-} from "../../hooks";
-import type { FocusOverrideTarget, FocusOverrides } from "../../services";
+  getBigPictureGameAchievementsPath,
+  getBigPictureGameDetailsPath,
+} from "../../helpers";
+import { formatLastPlayed, formatPlayTime, tr } from "../../helpers/opus-text";
+import { useLibrary, useNavigationScreenActions } from "../../hooks";
+import { NavigationService } from "../../services";
+import { useNavigationStore } from "../../stores";
+import { HOME_PAGE_REGION_ID } from "./navigation";
+import "./opus-home.scss";
 
-import "./page.scss";
+const BASE_PATH = IS_DESKTOP ? "/big-picture" : "";
+const STRIP_SIZE = 18;
+const TILE_PREFIX = "home-tile-";
+const TILES_REGION_ID = "home-tiles";
+const ACTIONS_REGION_ID = "home-actions";
+const CONSOLES_REGION_ID = "home-consoles";
+const PLAY_BUTTON_ID = "home-play";
 
-const HOME_SECTION_ORDER = ["hero", "weekly", "trending", "challenge"] as const;
+const gameKey = (game: LibraryGame) => `${game.shop}:${game.objectId}`;
+const tileId = (game: LibraryGame) => `${TILE_PREFIX}${game.shop}-${game.objectId}`;
 
-type HomeSectionId = (typeof HOME_SECTION_ORDER)[number];
-type DownloadModalGame = Pick<
-  ShopAssets,
-  "objectId" | "shop" | "title" | "libraryHeroImageUrl"
-> & {
-  downloadSources?: string[];
-};
+const hasTranslation = (game: LibraryGame) =>
+  /\bPT-?BR\b/i.test(game.title) ||
+  (game.discs ?? []).some((disc) => /\bPT-?BR\b/i.test(disc.fileName ?? ""));
 
-const DEFAULT_MENU_POSITION = { x: 0, y: 0 };
-
-interface HomeCatalogMenuState {
-  catalogGame: ShopAssets | null;
-  visible: boolean;
-  position: { x: number; y: number };
-  restoreFocusId: string | null;
-}
+/** Most recently played first, then the newest additions: the strip is "where you left off". */
+const sortRecent = (games: LibraryGame[]) =>
+  [...games].sort((a, b) => {
+    const playedA = a.lastTimePlayed ? new Date(a.lastTimePlayed).getTime() : 0;
+    const playedB = b.lastTimePlayed ? new Date(b.lastTimePlayed).getTime() : 0;
+    if (playedA !== playedB) return playedB - playedA;
+    const addedA = a.addedToLibraryAt ? new Date(a.addedToLibraryAt).getTime() : 0;
+    const addedB = b.addedToLibraryAt ? new Date(b.addedToLibraryAt).getTime() : 0;
+    return addedB - addedA;
+  });
 
 export default function Home() {
   const navigate = useNavigate();
-  const { setFocus } = useNavigation();
-  const { showSuccessToast } = useBigPictureToast();
-  const { t } = useTranslation("big_picture");
-  const { library, updateLibrary } = useLibrary();
-  const { loadCollections } = useGameCollections();
+  const { library, loaded } = useLibrary();
+  const [consoleFilter, setConsoleFilter] = useState<string>("all");
+  const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  const currentFocusId = useNavigationStore((state) => state.currentFocusId);
 
-  const refreshLibraryData = useCallback(async () => {
-    await Promise.all([updateLibrary(), loadCollections()]);
-    globalThis.window.dispatchEvent(new Event("library-update"));
-  }, [loadCollections, updateLibrary]);
+  const visible = useMemo(() => library.filter((game) => !game.isDeleted), [library]);
 
-  const { favoriteLoadingGameId, toggleFavorite } =
-    useLibraryFavorite(updateLibrary);
-
-  const [downloadModalGame, setDownloadModalGame] =
-    useState<DownloadModalGame | null>(null);
-  const [settingsModalGame, setSettingsModalGame] =
-    useState<LibraryGame | null>(null);
-  const [menuState, setMenuState] = useState<HomeCatalogMenuState>({
-    catalogGame: null,
-    visible: false,
-    position: DEFAULT_MENU_POSITION,
-    restoreFocusId: null,
-  });
-  const downloadModalRestoreFocusIdRef = useRef<string | null>(null);
-  const settingsModalRestoreFocusIdRef = useRef<string | null>(null);
-
-  const handleCloseDownloadModal = useCallback(() => {
-    const restoreFocusId = downloadModalRestoreFocusIdRef.current;
-
-    downloadModalRestoreFocusIdRef.current = null;
-    setDownloadModalGame(null);
-
-    if (!restoreFocusId) return;
-
-    globalThis.window.requestAnimationFrame(() => {
-      setFocus(restoreFocusId);
-    });
-  }, [setFocus]);
-
-  const handleOpenGameSettingsFromMenu = useCallback(
-    (game: LibraryGame) => {
-      settingsModalRestoreFocusIdRef.current = menuState.restoreFocusId;
-      setSettingsModalGame(game);
-    },
-    [menuState.restoreFocusId]
-  );
-
-  const handleCloseGameSettingsModal = useCallback(() => {
-    const restoreFocusId = settingsModalRestoreFocusIdRef.current;
-
-    settingsModalRestoreFocusIdRef.current = null;
-    setSettingsModalGame(null);
-
-    if (!restoreFocusId) return;
-
-    globalThis.window.requestAnimationFrame(() => {
-      setFocus(restoreFocusId);
-    });
-  }, [setFocus]);
-
-  const {
-    pendingAction,
-    isSubmittingAction,
-    requestRemoveFiles: handleRequestRemoveFilesFromMenu,
-    requestRemoveFromLibrary: handleRequestRemoveFromLibraryFromMenu,
-    closePendingAction,
-    confirmPendingAction,
-  } = useLibraryPendingAction({
-    getRestoreFocusId: useCallback(
-      () => menuState.restoreFocusId,
-      [menuState.restoreFocusId]
-    ),
-    onDataRefresh: refreshLibraryData,
-    setFocus,
-    showSuccessToast,
-    buildToastOptions: buildLibraryToastOptions,
-  });
-
-  const [addingCatalogKey, setAddingCatalogKey] = useState<string | null>(null);
-
-  const openDownloadModalFromContextMenu = useCallback(
-    (game: DownloadModalGame) => {
-      const restoreFocusId = menuState.restoreFocusId;
-      downloadModalRestoreFocusIdRef.current = restoreFocusId;
-
-      globalThis.window.requestAnimationFrame(() => {
-        setDownloadModalGame(game);
-      });
-    },
-    [menuState.restoreFocusId]
-  );
-
-  const handleLaunchFromMenu = useLibraryLaunchGame(
-    useCallback(
-      (game: LibraryGame) => {
-        openDownloadModalFromContextMenu(game);
-      },
-      [openDownloadModalFromContextMenu]
-    )
-  );
-
-  const closeCatalogMenu = useCallback(() => {
-    setMenuState((current) => ({
-      ...current,
-      visible: false,
-    }));
-  }, []);
-
-  const openCatalogMenu = useCallback(
-    (
-      catalogGame: ShopAssets,
-      position: { x: number; y: number },
-      restoreFocusId: string
-    ) => {
-      setMenuState({
-        catalogGame,
-        visible: true,
-        position,
-        restoreFocusId,
-      });
-    },
-    []
-  );
-
-  const handleAddCatalogGameToLibrary = useCallback(async () => {
-    const target = menuState.catalogGame;
-
-    if (!target || !IS_DESKTOP || target.shop === "custom") return;
-
-    const key = `${target.shop}:${target.objectId}`;
-    setAddingCatalogKey(key);
-
-    try {
-      await globalThis.window.electron.addGameToLibrary(
-        target.shop,
-        target.objectId,
-        target.title
-      );
-      await refreshLibraryData();
-
-      const { title, ...toastOptions } = await buildLibraryToastOptions(
-        target,
-        "added"
-      );
-      showSuccessToast(title, toastOptions);
-    } finally {
-      setAddingCatalogKey(null);
+  // Console chips: only consoles that actually have games, in a stable order.
+  const consoles = useMemo(() => {
+    const counts = new Map<string, { label: string; count: number }>();
+    for (const game of visible) {
+      const badge = getPlatformBadge(game);
+      const entry = counts.get(badge.tone) ?? { label: badge.label, count: 0 };
+      entry.count += 1;
+      counts.set(badge.tone, entry);
     }
-  }, [menuState.catalogGame, refreshLibraryData, showSuccessToast]);
+    return [...counts.entries()]
+      .sort((a, b) => b[1].count - a[1].count)
+      .map(([tone, { label, count }]) => ({ tone, label, count }));
+  }, [visible]);
 
-  const handleOpenCatalogDownloadOptions = useCallback(() => {
-    const target = menuState.catalogGame;
+  const strip = useMemo(() => {
+    const filtered =
+      consoleFilter === "all"
+        ? visible
+        : visible.filter((game) => getPlatformBadge(game).tone === consoleFilter);
+    return sortRecent(filtered).slice(0, STRIP_SIZE);
+  }, [consoleFilter, visible]);
 
-    if (!target) return;
-
-    openDownloadModalFromContextMenu(target);
-  }, [menuState.catalogGame, openDownloadModalFromContextMenu]);
-
-  const handleCatalogViewAchievementsFromMenu = useCallback(() => {
-    const target = menuState.catalogGame;
-
-    if (!target) return;
-
-    navigate(getBigPictureGameAchievementsPath(target));
-  }, [menuState.catalogGame, navigate]);
-
-  const handleCatalogShareFromMenu = useCallback(async () => {
-    const target = menuState.catalogGame;
-
-    if (!target) return;
-
-    const electron = globalThis.window.electron as {
-      openExternal?: (src: string) => Promise<void>;
-    };
-
-    if (
-      target.shop === "steam" &&
-      typeof electron.openExternal === "function"
-    ) {
-      await electron.openExternal(
-        `https://store.steampowered.com/app/${target.objectId}/`
-      );
-
-      return;
-    }
-
-    logger.log("Big Picture catalog context menu share", {
-      objectId: target.objectId,
-      shop: target.shop,
-    });
-  }, [menuState.catalogGame]);
-
-  const libraryGameForOpenMenu = useMemo(() => {
-    const target = menuState.catalogGame;
-
-    if (!target) return undefined;
-
-    return library.find(
-      (entry) =>
-        entry.shop === target.shop && entry.objectId === target.objectId
-    );
-  }, [library, menuState.catalogGame]);
-
-  const menuItems = useMemo(() => {
-    if (!menuState.visible || !menuState.catalogGame) return [];
-
-    const target = menuState.catalogGame;
-
-    if (libraryGameForOpenMenu) {
-      const game = libraryGameForOpenMenu;
-
-      return buildLibraryGameContextMenuItems(
-        game,
-        {
-          onLaunchOrDownload: handleLaunchFromMenu,
-          onToggleFavorite: toggleFavorite,
-          onViewAchievements: handleCatalogViewAchievementsFromMenu,
-          onOptions: handleOpenGameSettingsFromMenu,
-          onUninstall: handleRequestRemoveFilesFromMenu,
-          onRemoveFromLibrary: handleRequestRemoveFromLibraryFromMenu,
-        },
-        favoriteLoadingGameId === game.id,
-        t
-      );
-    }
-
-    const catalogKey = `${target.shop}:${target.objectId}`;
-    const canAddToLibrary = IS_DESKTOP && target.shop !== "custom";
-
-    return buildCatalogGameContextMenuItems(target, {
-      canAddToLibrary,
-      isAddingToLibrary: addingCatalogKey === catalogKey,
-      onOpenDownloadOptions: handleOpenCatalogDownloadOptions,
-      onAddToLibrary: handleAddCatalogGameToLibrary,
-      onShare: handleCatalogShareFromMenu,
-      onViewAchievements: handleCatalogViewAchievementsFromMenu,
-    });
-  }, [
-    addingCatalogKey,
-    favoriteLoadingGameId,
-    t,
-    handleAddCatalogGameToLibrary,
-    handleOpenCatalogDownloadOptions,
-    handleCatalogShareFromMenu,
-    handleCatalogViewAchievementsFromMenu,
-    handleLaunchFromMenu,
-    handleOpenGameSettingsFromMenu,
-    handleRequestRemoveFilesFromMenu,
-    handleRequestRemoveFromLibraryFromMenu,
-    libraryGameForOpenMenu,
-    menuState.catalogGame,
-    menuState.visible,
-    toggleFavorite,
-  ]);
-
-  const { featuredGame } = useFeaturedGame();
-  const hardPlatinums = useHardPlatinums();
-  const hotGames = useHotGames();
-  const weeklyGames = useWeeklyGames();
-
+  // The focused tile drives the whole screen; moving down to the buttons keeps the last one.
   useEffect(() => {
-    void updateLibrary();
-  }, [updateLibrary]);
+    if (!currentFocusId?.startsWith(TILE_PREFIX)) return;
+    const game = strip.find((candidate) => tileId(candidate) === currentFocusId);
+    if (game) setSelectedKey(gameKey(game));
+  }, [currentFocusId, strip]);
 
-  const hasHero = featuredGame != null;
-  const hasWeekly = weeklyGames.length > 0;
-  const hasTrending = hotGames.length > 0;
-  const hasChallenge = hardPlatinums.length > 0;
+  const selected =
+    strip.find((game) => gameKey(game) === selectedKey) ?? strip[0] ?? null;
 
-  const homeSectionRegionIdById: Record<
-    Exclude<HomeSectionId, "hero">,
-    string
-  > = {
-    weekly: HOME_WEEKLY_GAMES_CAROUSEL_REGION_ID,
-    trending: HOME_TRENDING_GAMES_CAROUSEL_REGION_ID,
-    challenge: HOME_HARD_PLATINUMS_GRID_REGION_ID,
-  };
-
-  const availableSections = HOME_SECTION_ORDER.filter((sectionId) => {
-    switch (sectionId) {
-      case "hero":
-        return hasHero;
-      case "weekly":
-        return hasWeekly;
-      case "trending":
-        return hasTrending;
-      case "challenge":
-        return hasChallenge;
-    }
-  });
-
-  const getRegionTarget = (
-    sectionId: Exclude<HomeSectionId, "hero"> | undefined,
-    entryDirection: "right" | "down" = "right"
-  ): FocusOverrideTarget | undefined => {
-    if (!sectionId) return undefined;
-
-    return {
-      type: "region",
-      regionId: homeSectionRegionIdById[sectionId],
-      entryDirection,
-    };
-  };
-
-  const getFirstContentRegionBelowHero = () => {
-    const nextSectionId = availableSections.find((sectionId) => {
-      return sectionId !== "hero";
-    });
-
-    return getRegionTarget(nextSectionId);
-  };
-
-  const getNextRegionBelow = (sectionId: Exclude<HomeSectionId, "hero">) => {
-    const currentIndex = availableSections.indexOf(sectionId);
-
-    if (currentIndex === -1) return undefined;
-
-    const nextSectionId = availableSections[currentIndex + 1];
-
-    if (!nextSectionId || nextSectionId === "hero") return undefined;
-
-    return getRegionTarget(nextSectionId);
-  };
-
-  const getPreviousRegionAbove = (
-    sectionId: Exclude<HomeSectionId, "hero">
-  ): { type: "region"; regionId: string; entryDirection: "right" } => {
-    const currentIndex = availableSections.indexOf(sectionId);
-    const previousSectionId =
-      currentIndex > 0 ? availableSections[currentIndex - 1] : "hero";
-
-    if (previousSectionId === "hero") {
-      return {
-        type: "region",
-        regionId: HOME_HERO_ACTIONS_REGION_ID,
-        entryDirection: "right",
-      };
-    }
-
-    return getRegionTarget(previousSectionId) as {
-      type: "region";
-      regionId: string;
-      entryDirection: "right";
-    };
-  };
-
-  const heroDownNavigationTarget = getFirstContentRegionBelowHero();
-  const heroUpNavigationTarget: FocusOverrideTarget = {
-    type: "region",
-    regionId: BIG_PICTURE_HEADER_REGION_ID,
-    entryDirection: "down",
-  };
-
-  const getWeeklyGameNavigationOverrides = (
-    _game: (typeof weeklyGames)[number],
-    index: number,
-    games: typeof weeklyGames
-  ): FocusOverrides => ({
-    ...(index === 0
-      ? {
-          left: getItemFocusTarget(BIG_PICTURE_SIDEBAR_ITEM_IDS.home),
-        }
-      : {}),
-    ...(index === games.length - 1
-      ? {
-          right: {
-            type: "block",
-          },
-        }
-      : {}),
-    up: {
-      type: "region",
-      regionId: HOME_HERO_ACTIONS_REGION_ID,
-      entryDirection: "right",
-    },
-    ...(getNextRegionBelow("weekly")
-      ? {
-          down: getNextRegionBelow("weekly"),
-        }
-      : {}),
-  });
-
-  const getHotGameNavigationOverrides = (
-    _game: (typeof hotGames)[number],
-    index: number,
-    games: typeof hotGames
-  ): FocusOverrides => ({
-    ...(index === 0
-      ? {
-          left: getItemFocusTarget(BIG_PICTURE_SIDEBAR_ITEM_IDS.home),
-        }
-      : {}),
-    ...(index === games.length - 1
-      ? {
-          right: {
-            type: "block",
-          },
-        }
-      : {}),
-    up: {
-      ...getPreviousRegionAbove("trending"),
-    },
-    ...(getNextRegionBelow("trending")
-      ? {
-          down: getNextRegionBelow("trending"),
-        }
-      : {}),
-  });
-
-  const challengeGridUpRegionId = getPreviousRegionAbove("challenge").regionId;
-  const challengeNavigationOverridesByItemId = useHomeChallengeGridNavigation(
-    hardPlatinums,
-    challengeGridUpRegionId
+  const openGamePage = useCallback(
+    (game: LibraryGame) => navigate(getBigPictureGameDetailsPath(game)),
+    [navigate]
   );
+  const launch = useLibraryLaunchGame(openGamePage);
+
+  useNavigationScreenActions({
+    press: { y: () => navigate(`${BASE_PATH}/library?search=1`) },
+  });
+
+  // First paint: once the games arrive, start on the first tile (not on the section bar).
+  const firstTileId = strip[0] ? tileId(strip[0]) : null;
+  const didInitialFocusRef = useRef(false);
+  useEffect(() => {
+    if (didInitialFocusRef.current || !firstTileId) return;
+    didInitialFocusRef.current = true;
+    const { currentFocusId: focusNow } = useNavigationStore.getState();
+    if (!focusNow || !focusNow.startsWith("home-")) {
+      globalThis.requestAnimationFrame(() => NavigationService.getInstance().setFocus(firstTileId));
+    }
+  }, [firstTileId]);
+
+  if (!loaded) return <div className="opus-home" />;
+
+  if (!library.length) {
+    return (
+      <VerticalFocusGroup regionId={HOME_PAGE_REGION_ID} className="opus-home opus-home--empty">
+        <h1>{tr("Your library is empty", "Sua biblioteca está vazia")}</h1>
+        <p>
+          {tr(
+            "Link your games folder in Settings › Emulation, or add PC games in the desktop app.",
+            "Vincule a pasta dos seus jogos em Configurações › Emulação, ou adicione jogos de PC no app."
+          )}
+        </p>
+        <FocusItem id="home-empty-settings" actions={{ primary: () => navigate(`${BASE_PATH}/settings`) }} asChild>
+          <button type="button" className="opus-home__button opus-home__button--primary" onClick={() => navigate(`${BASE_PATH}/settings`)}>
+            Settings
+          </button>
+        </FocusItem>
+      </VerticalFocusGroup>
+    );
+  }
+
+  const hero = selected ? getHeroArt(selected) : null;
+  const logo = selected ? getLogoArt(selected) : null;
+  const playTime = selected ? getDisplayedPlayTimeInMilliseconds(selected) : 0;
+  const achievements = selected?.achievementCount ?? 0;
+  const unlocked = selected?.unlockedAchievementCount ?? 0;
+  const lastPlayed = selected ? formatLastPlayed(selected.lastTimePlayed) : null;
 
   return (
-    <VerticalFocusGroup regionId={HOME_PAGE_REGION_ID} asChild>
-      <section className="home-page">
-        <HomePageHero
-          featuredGame={featuredGame}
-          downNavigationTarget={heroDownNavigationTarget}
-          upNavigationTarget={heroUpNavigationTarget}
-        />
-        <FocusCarousel
-          title="Popular on Opus"
-          cardVariant="vertical"
-          games={weeklyGames}
-          regionId={HOME_WEEKLY_GAMES_CAROUSEL_REGION_ID}
-          getItemId={getHomeWeeklyGameItemId}
-          getItemNavigationOverrides={getWeeklyGameNavigationOverrides}
-          onCarouselItemOpenContextMenu={openCatalogMenu}
-          onItemActivate={(game) => {
-            navigate(getBigPictureGameDetailsPath(game));
-          }}
-          showRightFade
-        />
-        <FocusCarousel
-          title="Trending Right Now"
-          cardVariant="horizontal"
-          games={hotGames}
-          regionId={HOME_TRENDING_GAMES_CAROUSEL_REGION_ID}
-          getItemId={getHomeTrendingGameItemId}
-          getItemNavigationOverrides={getHotGameNavigationOverrides}
-          onCarouselItemOpenContextMenu={openCatalogMenu}
-          onItemActivate={(game) => {
-            navigate(getBigPictureGameDetailsPath(game));
-          }}
-          showRightFade
-        />
-        {hardPlatinums.length > 0 ? (
-          <section className="home-page__challenge-section">
-            <h2 className="home-page__challenge-title">
-              Challenge yourself: Hard platinums
-            </h2>
-            <GridFocusGroup
-              className="home-page__challenge-grid"
-              regionId={HOME_HARD_PLATINUMS_GRID_REGION_ID}
+    <VerticalFocusGroup regionId={HOME_PAGE_REGION_ID} className="opus-home">
+      <div className="opus-home__backdrop" aria-hidden="true">
+        {hero && <img key={hero} src={hero} alt="" className="opus-home__hero" />}
+        <div className="opus-home__shade" />
+      </div>
+
+      <HorizontalFocusGroup regionId={TILES_REGION_ID} className="opus-home__tiles" aria-label="Recent games">
+        {strip.map((game) => {
+          const art = getTileArt(game);
+          const isSelected = selected && gameKey(game) === gameKey(selected);
+          return (
+            <FocusItem
+              key={gameKey(game)}
+              id={tileId(game)}
+              actions={{
+                primary: () => void launch(game),
+                press: { x: () => openGamePage(game) },
+              }}
+              asChild
             >
-              {hardPlatinums.map((game: HomeChallengeGame) => {
-                const itemId = getHomeChallengeGameItemId(game);
+              <button
+                type="button"
+                className={cn("opus-home__tile", { "opus-home__tile--selected": isSelected })}
+                aria-label={game.title}
+                onClick={() => void launch(game)}
+                style={
+                  art
+                    ? {
+                        backgroundImage: art.fallback
+                          ? `url("${art.url}"), url("${art.fallback}")`
+                          : `url("${art.url}")`,
+                        backgroundSize: art.fallback ? `${art.size ?? "cover"}, cover` : art.size ?? "cover",
+                        backgroundPosition: art.fallback
+                          ? `${art.position ?? "center"}, center`
+                          : art.position ?? "center",
+                      }
+                    : undefined
+                }
+              >
+                {!art && <span className="opus-home__tile-name">{game.title}</span>}
+              </button>
+            </FocusItem>
+          );
+        })}
+      </HorizontalFocusGroup>
 
-                const openChallengeContextMenuSecondary = () => {
-                  const element = document.getElementById(itemId);
-                  const rect = element?.getBoundingClientRect();
+      {selected && (
+        <section className="opus-home__info">
+          <div className="opus-home__eyebrow">
+            <PlatformBadge game={selected} className="opus-home__badge" />
+            {hasTranslation(selected) && (
+              <span className="opus-home__note">{tr("PT-BR translation installed", "Tradução PT-BR instalada")}</span>
+            )}
+          </div>
 
-                  if (!rect) return;
+          {logo ? (
+            <img src={logo} alt={selected.title} className="opus-home__logo" />
+          ) : (
+            <h1 className="opus-home__title">{selected.title}</h1>
+          )}
 
-                  openCatalogMenu(
-                    game,
-                    {
-                      x: rect.left + rect.width / 2,
-                      y: rect.top + rect.height / 2,
-                    },
-                    itemId
-                  );
-                };
+          <div className="opus-home__meta">
+            {lastPlayed && <span>{lastPlayed}</span>}
+            {formatPlayTime(playTime) && <span>{formatPlayTime(playTime)}</span>}
+            {!lastPlayed && !formatPlayTime(playTime) && <span>{tr("Not played yet", "Ainda não jogado")}</span>}
+            {achievements > 0 && (
+              <span>{tr(`Trophies ${unlocked} of ${achievements}`, `Troféus ${unlocked} de ${achievements}`)}</span>
+            )}
+          </div>
 
-                const openChallengePointerMenu: MouseEventHandler<
-                  HTMLElement
-                > = (event) => {
-                  event.preventDefault();
-                  event.stopPropagation();
+          {achievements > 0 && (
+            <div className="opus-home__progress" aria-hidden="true">
+              <div style={{ width: `${Math.round((unlocked / achievements) * 100)}%` }} />
+            </div>
+          )}
 
-                  openCatalogMenu(
-                    game,
-                    { x: event.clientX, y: event.clientY },
-                    itemId
-                  );
-                };
+          <HorizontalFocusGroup regionId={ACTIONS_REGION_ID} className="opus-home__actions">
+            <FocusItem id={PLAY_BUTTON_ID} actions={{ primary: () => void launch(selected) }} asChild>
+              <button type="button" className="opus-home__button opus-home__button--primary" onClick={() => void launch(selected)}>
+                <PlayIcon size={26} weight="fill" />
+                Play
+              </button>
+            </FocusItem>
+            <FocusItem
+              id="home-trophies"
+              actions={{ primary: () => navigate(getBigPictureGameAchievementsPath(selected)) }}
+              asChild
+            >
+              <button
+                type="button"
+                className="opus-home__button"
+                onClick={() => navigate(getBigPictureGameAchievementsPath(selected))}
+              >
+                <TrophyIcon size={26} />
+                Trophies
+              </button>
+            </FocusItem>
+            <FocusItem id="home-more" actions={{ primary: () => openGamePage(selected) }} asChild>
+              <button
+                type="button"
+                className="opus-home__button opus-home__button--round"
+                aria-label="Game page"
+                onClick={() => openGamePage(selected)}
+              >
+                <DotsThreeIcon size={30} weight="bold" />
+              </button>
+            </FocusItem>
+          </HorizontalFocusGroup>
+        </section>
+      )}
 
-                return (
-                  <FocusItem
-                    key={itemId}
-                    actions={{
-                      primary: () => {
-                        navigate(getBigPictureGameDetailsPath(game));
-                      },
-                      press: {
-                        y: () => {
-                          openChallengeContextMenuSecondary();
-                        },
-                      },
-                    }}
-                    navigationOverrides={
-                      challengeNavigationOverridesByItemId[itemId]
-                    }
-                    id={itemId}
-                  >
-                    <ChallengeGameCard
-                      coverImageUrl={getGameLandscapeImageSource(game)}
-                      downloadSources={game.downloadSources}
-                      gameTitle={game.title}
-                      genres={game.genres}
-                      onClick={() => {
-                        navigate(getBigPictureGameDetailsPath(game));
-                      }}
-                      onContextMenu={openChallengePointerMenu}
-                    />
-                  </FocusItem>
-                );
-              })}
-            </GridFocusGroup>
-          </section>
-        ) : null}
-
-        <ContextMenu
-          ariaLabel="Game context menu"
-          items={menuItems}
-          position={menuState.position}
-          restoreFocusId={menuState.restoreFocusId}
-          visible={
-            Boolean(menuState.visible && menuState.catalogGame !== null) &&
-            menuItems.length > 0
-          }
-          onClose={closeCatalogMenu}
-        />
-
-        {downloadModalGame ? (
-          <DownloadGameModal
-            key={`${downloadModalGame.shop}:${downloadModalGame.objectId}`}
-            visible
-            onClose={handleCloseDownloadModal}
-            game={downloadModalGame}
-          />
-        ) : null}
-
-        {pendingAction ? (
-          <ConfirmationModal
-            visible
-            title={
-              pendingAction.type === "remove-files"
-                ? "Remove downloaded files?"
-                : "Remove from library?"
-            }
-            description={
-              pendingAction.type === "remove-files"
-                ? "This deletes the downloaded game files from disk."
-                : `Remove ${pendingAction.game.title} from your library. Downloaded files will not be deleted.`
-            }
-            confirmLabel={
-              pendingAction.type === "remove-files" ? "Remove files" : "Remove"
-            }
-            danger
-            loading={isSubmittingAction}
-            onClose={closePendingAction}
-            onConfirm={confirmPendingAction}
-          />
-        ) : null}
-
-        {settingsModalGame ? (
-          <LibraryGameSettingsModal
-            visible
-            game={settingsModalGame}
-            onClose={handleCloseGameSettingsModal}
-          />
-        ) : null}
-      </section>
+      {consoles.length > 1 && (
+        <HorizontalFocusGroup regionId={CONSOLES_REGION_ID} className="opus-home__consoles" aria-label="Filter by console">
+          {[{ tone: "all", label: tr("All", "Todos"), count: visible.length }, ...consoles].map((entry) => (
+            <FocusItem
+              key={entry.tone}
+              id={`home-console-${entry.tone}`}
+              actions={{ primary: () => setConsoleFilter(entry.tone) }}
+              asChild
+            >
+              <button
+                type="button"
+                className={cn("opus-home__chip", { "opus-home__chip--active": consoleFilter === entry.tone })}
+                onClick={() => setConsoleFilter(entry.tone)}
+              >
+                {entry.label}
+                <span>{entry.count}</span>
+              </button>
+            </FocusItem>
+          ))}
+        </HorizontalFocusGroup>
+      )}
     </VerticalFocusGroup>
   );
 }

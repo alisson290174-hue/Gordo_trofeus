@@ -6,17 +6,16 @@ import {
   BIG_PICTURE_CONTENT_REGION_ID,
   BIG_PICTURE_SHELL_REGION_ID,
   getBigPictureContentEntryRegionIdFromPathname,
-  BIG_PICTURE_SIDEBAR_ITEM_IDS,
-  getBigPictureGameRouteMatch,
-  getBigPictureSidebarLibraryGameFocusId,
-  getBigPictureSidebarItemIdFromPathname,
+  ButtonHints,
   Header,
-  Sidebar,
+  normalizeBigPicturePathname,
+  QuickMenu,
+  TOP_NAV_REGION_ID,
+  TopNav,
 } from "./layout";
 import { IS_DESKTOP } from "./constants";
 import { useBigPictureToast, useNavigation, useUserPreferences } from "./hooks";
 import {
-  HorizontalFocusGroup,
   InputModeProvider,
   NavigationHistoryBridge,
   NavigationLayer,
@@ -29,7 +28,6 @@ import {
   CloudGiftNotificationModal,
   VirtualKeyboardProvider,
 } from "./components";
-import { getItemFocusTarget } from "./helpers";
 import {
   initializeBigPictureRunningGamesStore,
   useInputModeStore,
@@ -52,14 +50,13 @@ export default function App() {
   const [pendingRouteFocusPathname, setPendingRouteFocusPathname] = useState<
     string | null
   >(pathname);
-  const activeSidebarItemId = getBigPictureSidebarItemIdFromPathname(pathname);
-  const activeGameRoute = getBigPictureGameRouteMatch(pathname);
-  const leftSidebarTargetId = activeGameRoute
-    ? getBigPictureSidebarLibraryGameFocusId(activeGameRoute)
-    : (activeSidebarItemId ?? BIG_PICTURE_SIDEBAR_ITEM_IDS.library);
+  // The old left sidebar is gone: up from the top of a page reaches the section bar.
   const contentNavigationOverrides: FocusOverrides = {
-    left: getItemFocusTarget(leftSidebarTargetId),
+    up: { type: "region", regionId: TOP_NAV_REGION_ID },
+    left: { type: "block" },
   };
+  const isCataloguePage =
+    normalizeBigPicturePathname(pathname).startsWith("/catalogue");
 
   useEffect(() => {
     if (!IS_DESKTOP) {
@@ -157,7 +154,6 @@ export default function App() {
       setPendingRouteFocusPathname(null);
     }
   }, [
-    leftSidebarTargetId,
     nodes,
     pathname,
     pendingRouteFocusPathname,
@@ -187,34 +183,38 @@ export default function App() {
             rootRegionId={BIG_PICTURE_SHELL_REGION_ID}
             initialFocusRegionId={BIG_PICTURE_CONTENT_REGION_ID}
           >
-            <HorizontalFocusGroup
+            <VerticalFocusGroup
               regionId={BIG_PICTURE_SHELL_REGION_ID}
               autoScrollMode="auto"
               asChild
             >
               <div className="big-picture__app">
-                <Sidebar />
+                <div className="big-picture__layout">
+                  <TopNav />
 
-                <VerticalFocusGroup
-                  regionId={BIG_PICTURE_CONTENT_REGION_ID}
-                  navigationOverrides={contentNavigationOverrides}
-                  autoScrollMode="auto"
-                  asChild
-                >
-                  <div className="big-picture__layout">
-                    <Header />
+                  <VerticalFocusGroup
+                    regionId={BIG_PICTURE_CONTENT_REGION_ID}
+                    navigationOverrides={contentNavigationOverrides}
+                    autoScrollMode="auto"
+                    asChild
+                  >
+                    <div className="big-picture__body">
+                      {isCataloguePage && <Header />}
 
-                    <article className="big-picture__content">
-                      <Outlet />
-                    </article>
+                      <article className="big-picture__content">
+                        <Outlet />
+                      </article>
+                    </div>
+                  </VerticalFocusGroup>
 
-                    <VirtualKeyboardProvider />
-                  </div>
-                </VerticalFocusGroup>
+                  <ButtonHints />
+                  <VirtualKeyboardProvider />
+                </div>
               </div>
-            </HorizontalFocusGroup>
+            </VerticalFocusGroup>
           </NavigationLayer>
 
+          <QuickMenu />
           <InputModeProvider />
           <NavigationDiagnostics />
           <BigPictureToastHost />

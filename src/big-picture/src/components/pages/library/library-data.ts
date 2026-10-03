@@ -1,5 +1,22 @@
 import type { LibraryGame } from "@types";
 import { getDisplayedPlayTimeInMilliseconds } from "@shared";
+import { getPlatformBadge } from "@renderer/helpers/platform-badge";
+
+/** Console tabs ("console:ps2") built from the badge tones of the games in the library. */
+export const CONSOLE_TAB_PREFIX = "console:";
+
+export function getLibraryConsoleTabs(library: LibraryGame[]) {
+  const counts = new Map<string, { label: string; count: number }>();
+  for (const game of library) {
+    const badge = getPlatformBadge(game);
+    const entry = counts.get(badge.tone) ?? { label: badge.label, count: 0 };
+    entry.count += 1;
+    counts.set(badge.tone, entry);
+  }
+  return [...counts.entries()]
+    .sort((a, b) => b[1].count - a[1].count)
+    .map(([tone, { label, count }]) => ({ value: `${CONSOLE_TAB_PREFIX}${tone}`, label, count }));
+}
 
 export const BUILTIN_LIBRARY_TABS = [
   "all",
@@ -126,6 +143,11 @@ export function filterLibraryByTab(
   library: LibraryGame[],
   selectedTab: LibraryFilterTab
 ) {
+  if (selectedTab.startsWith(CONSOLE_TAB_PREFIX)) {
+    const tone = selectedTab.slice(CONSOLE_TAB_PREFIX.length);
+    return library.filter((game) => getPlatformBadge(game).tone === tone);
+  }
+
   if (selectedTab === "moderns") {
     return library.filter((game) => game.shop !== "launchbox");
   }

@@ -4,11 +4,13 @@ import type { LibraryGame } from "@types";
 
 export function useLibrary() {
   const [library, setLibrary] = useState<LibraryGame[]>([]);
+  const [loaded, setLoaded] = useState(!IS_DESKTOP);
 
   const updateLibrary = useCallback(async () => {
     if (!IS_DESKTOP) return;
     const updatedLibrary = await globalThis.window.electron.getLibrary();
     setLibrary(updatedLibrary);
+    setLoaded(true);
   }, []);
 
   useEffect(() => {
@@ -39,5 +41,5 @@ export function useLibrary() {
     };
   }, [updateLibrary]);
 
-  return { library, updateLibrary };
+  return { library, loaded, updateLibrary };
 }

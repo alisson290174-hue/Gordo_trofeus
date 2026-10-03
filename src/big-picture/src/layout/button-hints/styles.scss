@@ -1,0 +1,25 @@
+.button-hints {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 70;
+  height: var(--big-picture-footer-height);
+  padding: 0 var(--opus-gutter);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 36px;
+  background: rgba(7, 11, 22, 0.78);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+  font-size: 20px;
+  color: var(--opus-muted);
+  pointer-events: none;
+
+  &__hint {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+  }
+}

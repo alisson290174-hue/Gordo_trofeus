@@ -7,7 +7,7 @@ import {
   useRef,
   useState,
 } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { FolderOpen } from "@phosphor-icons/react";
 import { IS_DESKTOP } from "../../constants";
 import {
@@ -19,7 +19,9 @@ import {
   useGameCollections,
   useLibrary,
   useNavigation,
+  useNavigationScreenActions,
 } from "../../hooks";
+import { NavigationItemActionsService, NavigationService } from "../../services";
 import {
   isBuiltinLibraryTab,
   getGameCollectionIds,
@@ -29,7 +31,6 @@ import {
   LibraryFocusList,
   LibraryGameContextMenu,
   LibraryGameSettingsModal,
-  LibraryHero,
   VerticalFocusGroup,
   LIBRARY_SECONDARY_FILTER_STORAGE_KEY,
   LIBRARY_SORT_BY_STORAGE_KEY,
@@ -50,8 +51,6 @@ import {
 import { ConfirmationModal, DownloadGameModal } from "../../components/modals";
 import {
   LIBRARY_FILTERS_SEARCH_INPUT_ID,
-  LIBRARY_HERO_LAUNCH_BUTTON_ID,
-  LIBRARY_HERO_OPEN_SETTINGS_BUTTON_ID,
   LIBRARY_PAGE_REGION_ID,
 } from "../../components/pages/library/navigation";
 
@@ -93,7 +92,8 @@ function getInitialLibrarySecondaryFilter(): LibrarySecondaryFilter {
 function getInitialLibraryFilterTab(): LibraryFilterTab {
   return getInitialLibraryStoredValue(
     LIBRARY_TAB_STORAGE_KEY,
-    (value): value is LibraryFilterTab => Boolean(value),
+    (value): value is LibraryFilterTab =>
+      Boolean(value) && value !== "moderns" && value !== "classics",
     "all"
   );
 }
@@ -122,6 +122,20 @@ export default function LibraryPage() {
   const settingsModalRestoreFocusIdRef = useRef<string | null>(null);
   const navigate = useNavigate();
   const { setFocus } = useNavigation();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const openSearch = useCallback(() => {
+    NavigationService.getInstance().setFocus(LIBRARY_FILTERS_SEARCH_INPUT_ID);
+    globalThis.requestAnimationFrame(() =>
+      NavigationItemActionsService.getInstance().triggerPrimaryForFocusedItem()
+    );
+  }, []);
+  useNavigationScreenActions({ press: { y: openSearch } });
+  useEffect(() => {
+    if (searchParams.get("search") !== "1") return;
+    setSearchParams({}, { replace: true });
+    const timer = globalThis.setTimeout(openSearch, 300);
+    return () => globalThis.clearTimeout(timer);
+  }, [openSearch, searchParams, setSearchParams]);
   const { showSuccessToast } = useBigPictureToast();
   const { library, updateLibrary } = useLibrary();
   const {
@@ -154,6 +168,7 @@ export default function LibraryPage() {
     useLibraryFavorite(updateLibrary);
   const isSelectedFilterTabAvailable =
     isBuiltinLibraryTab(selectedFilterTab) ||
+    selectedFilterTab.startsWith("console:") ||
     collections.some((collection) => collection.id === selectedFilterTab);
   const activeFilterTab =
     isSelectedFilterTabAvailable || !hasFailedToLoadCollections
@@ -230,15 +245,6 @@ export default function LibraryPage() {
     [contextMenuState.restoreFocusId, openDownloadModal]
   );
 
-  const handleHeroPrimaryAction = useLibraryLaunchGame(
-    useCallback(
-      (game: LibraryGame) => {
-        openDownloadModal(game, LIBRARY_HERO_LAUNCH_BUTTON_ID);
-      },
-      [openDownloadModal]
-    )
-  );
-
   const handleCloseDownloadModal = useCallback(() => {
     const restoreFocusId = downloadModalRestoreFocusIdRef.current;
 
@@ -251,13 +257,6 @@ export default function LibraryPage() {
       setFocus(restoreFocusId);
     });
   }, [setFocus]);
-
-  const handleOpenHeroSettings = useCallback((game: LibraryGame) => {
-    settingsModalRestoreFocusIdRef.current =
-      LIBRARY_HERO_OPEN_SETTINGS_BUTTON_ID;
-    setSettingsModalGame(game);
-    setIsGameSettingsModalOpen(true);
-  }, []);
 
   const handleOpenGameSettingsFromContextMenu = useCallback(
     (game: LibraryGame) => {
@@ -426,14 +425,6 @@ export default function LibraryPage() {
           regionId={LIBRARY_PAGE_REGION_ID}
           style={{ flex: 1 }}
         >
-          <LibraryHero
-            onPrimaryAction={handleHeroPrimaryAction}
-            onOpenSettings={handleOpenHeroSettings}
-            favoriteLoadingGameId={favoriteLoadingGameId}
-            lastPlayedGames={lastPlayedGames}
-            onToggleFavorite={toggleFavorite}
-          />
-
           <LibraryFilters
             selectedTab={activeFilterTab}
             onSelectedTabChange={setSelectedFilterTab}

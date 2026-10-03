@@ -31,21 +31,21 @@ function getLayoutForViewport(
 ): LibraryGridLayout {
   if (viewportWidth >= GRID_1440P_WIDTH) {
     return {
-      columnCount: 6,
+      columnCount: 8,
       columnGap: GRID_STANDARD_COLUMN_GAP,
     };
   }
 
   if (viewportWidth >= GRID_1080P_WIDTH) {
     return {
-      columnCount: 5,
+      columnCount: 7,
       columnGap: GRID_STANDARD_COLUMN_GAP,
     };
   }
 
   if (viewportWidth >= GRID_720P_WIDTH) {
     return {
-      columnCount: 4,
+      columnCount: 6,
       columnGap: GRID_STANDARD_COLUMN_GAP,
     };
   }
