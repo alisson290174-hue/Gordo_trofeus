@@ -132,3 +132,103 @@ export async function getSwitchMetadata(objectId: string): Promise<Ps2Metadata |
     return null; // transient: not cached, retried on the next scan
   }
 }
+
+// --- lookup by name (dumps whose file has no Title ID, e.g. most .xci) ------------------------
+
+const NINTENDO_SEARCH = "https://searching.nintendo-europe.com/en/select";
+const NINTENDO_IMAGE_HOSTS = new Set(["www.nintendo.com", "fs-prod-cdn.nintendo-europe.com"]);
+
+db.exec(`
+  CREATE TABLE IF NOT EXISTS switch_title_search (
+    query TEXT PRIMARY KEY,
+    data TEXT,
+    fetched_at TEXT NOT NULL
+  )
+`);
+const getSearchRow = db.prepare("SELECT data, fetched_at FROM switch_title_search WHERE query = ?");
+const putSearchRow = db.prepare(
+  "INSERT OR REPLACE INTO switch_title_search (query, data, fetched_at) VALUES (?, ?, ?)"
+);
+
+/** "Pokémon™ Legends: Arceus" and "Pokemon Legends Arceus" → "pokemonlegendsarceus". */
+export const compactSwitchTitle = (title: string) =>
+  title
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[™®©]/g, "")
+    .replace(/[^a-z0-9]/g, "");
+
+const nintendoImage = (value: unknown): string | null => {
+  if (typeof value !== "string") return null;
+  try {
+    const url = new URL(value.startsWith("//") ? `https:${value}` : value);
+    if (!NINTENDO_IMAGE_HOSTS.has(url.hostname)) return null;
+    url.protocol = "https:";
+    return url.toString();
+  } catch {
+    return null;
+  }
+};
+
+export interface SwitchSearchResult {
+  title: string;
+  coverUrl: string | null;
+  heroUrl: string | null;
+  releaseYear: number | null;
+}
+
+interface NintendoDoc {
+  title?: string;
+  image_url_sq_s?: string;
+  image_url?: string;
+  image_url_h2x1_s?: string;
+  pretty_date_s?: string;
+}
+
+/**
+ * Official Nintendo eShop search, accepted only on an exact (normalised) title match so a dump is
+ * never given another game's art. Cached per query, misses included.
+ */
+export async function searchSwitchByTitle(rawTitle: string): Promise<SwitchSearchResult | null> {
+  const wanted = compactSwitchTitle(rawTitle);
+  if (wanted.length < 3 || wanted.length > 120) return null;
+
+  const row = getSearchRow.get(wanted) as { data: string | null; fetched_at: string } | undefined;
+  if (row?.data) return JSON.parse(row.data) as SwitchSearchResult;
+  if (row && Date.now() - new Date(row.fetched_at).getTime() < MISS_TTL_MS) return null;
+  if (!upstreamBudget("nintendo-search")) return null;
+
+  try {
+    const url = new URL(NINTENDO_SEARCH);
+    // Solr query: keep only letters, digits and spaces so user text can't alter the query.
+    url.searchParams.set("q", rawTitle.normalize("NFKD").replace(/[^\p{L}\p{N} ]/gu, " ").trim());
+    url.searchParams.set("fq", "type:GAME AND system_type:nintendoswitch*");
+    url.searchParams.set("rows", "10");
+    url.searchParams.set("wt", "json");
+    url.searchParams.set("fl", "title,image_url,image_url_sq_s,image_url_h2x1_s,pretty_date_s");
+    const response = await fetch(url, {
+      headers: { "user-agent": "BaloiServer/1.0" },
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!response.ok) return null;
+    const body = await response.text();
+    if (body.length > MAX_BYTES) return null;
+    const docs = (JSON.parse(body) as { response?: { docs?: NintendoDoc[] } }).response?.docs ?? [];
+    const doc = docs.find((d) => typeof d.title === "string" && compactSwitchTitle(d.title) === wanted);
+
+    const year = Number(doc?.pretty_date_s?.slice(-4));
+    const result: SwitchSearchResult | null = doc?.title
+      ? {
+          title: doc.title.replace(/[™®©]/g, "").trim(),
+          coverUrl: nintendoImage(doc.image_url_sq_s ?? doc.image_url),
+          heroUrl: nintendoImage(doc.image_url_h2x1_s),
+          releaseYear: Number.isInteger(year) && year > 2000 ? year : null,
+        }
+      : null;
+    putSearchRow.run(wanted, result ? JSON.stringify(result) : null, new Date().toISOString());
+    return result;
+  } catch {
+    return null;
+  }
+}

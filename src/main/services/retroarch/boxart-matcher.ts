@@ -34,8 +34,18 @@ const regionRank = (name: string): number => {
 
 const baseOf = (name: string) => name.replace(/\s*[([].*$/, "").trim();
 
+/**
+ * Fan translations that renamed the game itself, so no name match can find the original box:
+ * translated title (compacted) → original title. Only the box art lookup uses it; the game keeps
+ * the translated name.
+ */
+const TRANSLATED_TITLES: Record<string, string> = {
+  supermundomario: "Super Mario World",
+};
+
 export function pickBoxart(title: string, names: readonly string[]): string | null {
-  const wanted = compactTitle(title);
+  const own = compactTitle(title);
+  const wanted = TRANSLATED_TITLES[own] ? compactTitle(TRANSLATED_TITLES[own]) : own;
   if (wanted.length < 3) return null;
 
   let best: { name: string; score: number; rank: number } | null = null;

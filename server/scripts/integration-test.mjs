@@ -182,6 +182,16 @@ check("Switch update Title ID is not a game", Array.isArray(nxUpdate) && nxUpdat
 const nxPage = (await req("GET", "/games/launchbox/rom-sku-0100152000022000")).json();
 check("Switch game page lookup uses the cache", nxPage.title === "Mario Kart 8 Deluxe", JSON.stringify(nxPage).slice(0, 160));
 
+// Switch dumps without Title ID: lookup by exact title (cache seeded: no network)
+db.prepare("INSERT OR REPLACE INTO switch_title_search (query, data, fetched_at) VALUES (?, ?, ?)").run(
+  "kirbyfighters2",
+  JSON.stringify({ title: "Kirby Fighters 2", coverUrl: "https://www.nintendo.com/eu/media/x.jpg", heroUrl: null, releaseYear: 2020 }),
+  new Date().toISOString()
+);
+const byTitle = (await req("POST", "/games/switch/search", { json: { title: "Kirby_Fighters 2" } })).json();
+check("Switch search by title (normalised)", byTitle?.title === "Kirby Fighters 2" && byTitle?.coverUrl?.startsWith("https://www.nintendo.com/"), JSON.stringify(byTitle));
+check("Switch search rejects bad input", (await req("POST", "/games/switch/search", { json: { title: 5 } })).statusCode === 400);
+
 // --- privacy
 db.prepare("UPDATE users SET profile_visibility = 'PRIVATE' WHERE id = ?").run(bob.id);
 const stranger = upsertUserFromSteamLogin("76561198000000033", "Carol", null);

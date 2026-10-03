@@ -45,8 +45,12 @@ describe("pickBoxart", () => {
     assert.equal(pickBoxart("Donkey Kong Country", SNES), null);
   });
 
+  it("finds the original box for a renamed fan translation", () => {
+    assert.equal(pickBoxart("Super Mundo Mario", SNES), "Super Mario World (USA)");
+  });
+
   it("returns nothing for a title the list doesn't have", () => {
-    assert.equal(pickBoxart("Super Mundo Mario", SNES), null);
+    assert.equal(pickBoxart("Super Metroid Zero", SNES), null);
     assert.equal(pickBoxart("ab", SNES), null);
   });
 });

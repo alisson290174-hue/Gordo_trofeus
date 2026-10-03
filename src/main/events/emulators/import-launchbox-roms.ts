@@ -1,3 +1,4 @@
+import axios from "axios";
 import { createHash, randomUUID } from "node:crypto";
 import { existsSync } from "node:fs";
 import path from "node:path";
@@ -11,6 +12,7 @@ import {
 import { isWithin } from "./rom-path-utils";
 import { entryMatchesSystemPlatform } from "./catalogue-platforms";
 import { contentKindOfTitleId } from "@main/services/emulators/switch-title";
+import { findLibretroBoxart } from "@main/services/retroarch/boxart-index";
 import {
   bandPercent,
   baseNameWithoutExt,
@@ -219,6 +221,11 @@ export const persistEntryLocally = async (
   const platform =
     entry.platform ?? entry.data?.platform ?? defaultPlatform ?? null;
 
+  // Art also lives on the game record: profile syncs reset the shop-assets cache to null for
+  // classics, and get-library falls back to these fields (PS2 has its own backfill for that).
+  const coverUrl = assetsSource?.libraryImageUrl ?? null;
+  const heroUrl = assetsSource?.libraryHeroImageUrl ?? coverUrl;
+
   const existing = await gamesSublevel.get(gameKey);
   if (existing) {
     await clearFinishedDownload(shop, objectId);
@@ -227,6 +234,8 @@ export const persistEntryLocally = async (
     if (platform && !existing.platform) {
       existing.platform = platform;
     }
+    if (coverUrl) existing.coverImageUrl = coverUrl;
+    if (heroUrl) existing.libraryHeroImageUrl = heroUrl;
     // A game first imported under its file name gets the catalogue title once it's recognised.
     const catalogueTitle = entry.data?.title;
     const fileName = discs[0]?.fileName;
@@ -246,7 +255,8 @@ export const persistEntryLocally = async (
     await gamesSublevel.put(gameKey, {
       title: entry.data?.title ?? assets.title,
       iconUrl: assets.iconUrl,
-      libraryHeroImageUrl: assets.libraryHeroImageUrl,
+      libraryHeroImageUrl: heroUrl,
+      coverImageUrl: coverUrl,
       logoImageUrl: assets.logoImageUrl,
       objectId,
       shop,
@@ -820,6 +830,46 @@ const discCoverUrl = (
     : null;
 };
 
+const urlResponds = (url: string) =>
+  axios
+    .head(url, { timeout: 8000, validateStatus: () => true })
+    .then((response) => response.status === 200)
+    .catch(() => false);
+
+/**
+ * Title and art for a ROM no catalogue matched by serial:
+ * - Switch dumps the Title ID lookup didn't cover (most .xci have none): official name + art by
+ *   exact title (server).
+ * - PS1: box art by serial when the cover repo has it, else libretro-thumbnails by title.
+ * - Others: the serial cover repo, as before.
+ */
+const resolveUnmatchedArt = async (
+  system: EmulatorSystem,
+  serial: string | null | undefined,
+  title: string
+): Promise<{ title: string; coverUrl: string | null; heroUrl: string | null }> => {
+  if (system === "switch") {
+    const found = await HydraApi.post<{
+      title: string;
+      coverUrl: string | null;
+      heroUrl: string | null;
+    } | null>("/games/switch/search", { title }, { needsAuth: false }).catch(() => null);
+    return found
+      ? { title: found.title, coverUrl: found.coverUrl, heroUrl: found.heroUrl }
+      : { title, coverUrl: null, heroUrl: null };
+  }
+
+  const serialCover = discCoverUrl(system, serial);
+  if (system === "ps1") {
+    if (serialCover && (await urlResponds(serialCover))) {
+      return { title, coverUrl: serialCover, heroUrl: null };
+    }
+    const fallback = await findLibretroBoxart("Sony - PlayStation", title).catch(() => null);
+    return { title, coverUrl: fallback, heroUrl: null };
+  }
+  return { title, coverUrl: serialCover, heroUrl: null };
+};
+
 const persistUnmatchedGame = async (
   objectId: string,
   title: string,
@@ -828,7 +878,9 @@ const persistUnmatchedGame = async (
   discs: ClassicsDisc[],
   system: EmulatorSystem,
   romSizeBytes: number | null,
-  coverUrl: string | null
+  coverUrl: string | null,
+  /** Wide art for the hero; the box art doubles as hero when there is none. */
+  heroUrl: string | null = null
 ) => {
   const shop = "launchbox" as const;
   const gameKey = levelKeys.game(shop, objectId);
@@ -857,7 +909,10 @@ const persistUnmatchedGame = async (
     existing.addedToLibraryAt ??= new Date();
     if (isFileNameTitle(existing.title, sourceFileName)) existing.title = title;
     if (platform && !existing.platform) existing.platform = platform;
-    if (coverUrl) existing.libraryHeroImageUrl = coverUrl;
+    if (coverUrl) {
+      existing.libraryHeroImageUrl = heroUrl ?? coverUrl;
+      existing.coverImageUrl = coverUrl;
+    }
     existing.discs = discs;
     if (
       !existing.selectedDiscPath ||
@@ -871,7 +926,8 @@ const persistUnmatchedGame = async (
     await gamesSublevel.put(gameKey, {
       title,
       iconUrl: null,
-      libraryHeroImageUrl: coverUrl,
+      libraryHeroImageUrl: heroUrl ?? coverUrl,
+      coverImageUrl: coverUrl,
       logoImageUrl: null,
       objectId,
       shop,
@@ -907,10 +963,10 @@ const persistUnmatchedGames = async (
       ? `rom-sku-${normalizeSku(serial)}`
       : `rom-${createHash("sha1").update(groupKey).digest("hex").slice(0, 16)}`;
     const sourceFileName = group.files[0].name;
-    const title = cleanRomTitle(sourceFileName);
+    const art = await resolveUnmatchedArt(system, serial, cleanRomTitle(sourceFileName));
+    const title = art.title;
     persistedIds.add(objectId);
-    // Box art by serial from the community cover repos (PS1/PS2).
-    const coverUrl = discCoverUrl(system, serial);
+    const { coverUrl, heroUrl } = art;
 
     await persistUnmatchedGame(
       objectId,
@@ -919,7 +975,8 @@ const persistUnmatchedGames = async (
       discs,
       system,
       group.sizeBytes || null,
-      coverUrl
+      coverUrl,
+      heroUrl
     ).catch((err) =>
       logger.error("Failed to persist unmatched rom locally", err)
     );

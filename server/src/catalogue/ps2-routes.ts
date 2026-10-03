@@ -1,6 +1,6 @@
 import type { FastifyInstance } from "fastify";
 import { getPs2Metadata, type Ps2Metadata } from "./ps2-index.js";
-import { getSwitchMetadata } from "./switch-titles.js";
+import { getSwitchMetadata, searchSwitchByTitle } from "./switch-titles.js";
 
 /** Same id the client gives unmatched ROMs ("rom-sku-SCES50959"), so rescans never duplicate games. */
 const objectIdForSku = (sku: string) => `rom-sku-${sku.toUpperCase().replace(/[^A-Z0-9]/g, "")}`;
@@ -72,5 +72,14 @@ export function registerPs2Routes(app: FastifyInstance) {
       if (found) entries.push(toShopDetailsEntry(objectId, found.meta, [sku], found.platform));
     }
     reply.send(entries);
+  });
+
+  // Switch dumps without a Title ID in the file (most .xci): official name and art by title.
+  app.post<{ Body: { title?: string } }>("/games/switch/search", async (request, reply) => {
+    const title = request.body?.title;
+    if (typeof title !== "string" || title.length > 200) {
+      return reply.code(400).send({ message: "Invalid title" });
+    }
+    reply.send((await searchSwitchByTitle(title)) ?? null);
   });
 }

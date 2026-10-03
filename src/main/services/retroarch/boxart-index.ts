@@ -21,13 +21,13 @@ const SYSTEM_FOLDERS: Record<RetroArchPlatform, string> = {
   gba: "Nintendo - Game Boy Advance",
 };
 
-const listings = new Map<RetroArchPlatform, Promise<string[]>>();
+const listings = new Map<string, Promise<string[]>>();
 
-const boxartFolderUrl = (platform: RetroArchPlatform) =>
-  `${THUMBNAILS}/${encodeURIComponent(SYSTEM_FOLDERS[platform])}/Named_Boxarts/`;
+const boxartFolderUrl = (system: string) =>
+  `${THUMBNAILS}/${encodeURIComponent(system)}/Named_Boxarts/`;
 
-const fetchListing = async (platform: RetroArchPlatform): Promise<string[]> => {
-  const { data } = await axios.get<string>(boxartFolderUrl(platform), {
+const fetchListing = async (system: string): Promise<string[]> => {
+  const { data } = await axios.get<string>(boxartFolderUrl(system), {
     responseType: "text",
     timeout: 30_000,
     maxContentLength: MAX_LISTING_BYTES,
@@ -44,24 +44,28 @@ const fetchListing = async (platform: RetroArchPlatform): Promise<string[]> => {
   return names;
 };
 
-const getListing = (platform: RetroArchPlatform) => {
-  let listing = listings.get(platform);
+const getListing = (system: string) => {
+  let listing = listings.get(system);
   if (!listing) {
-    listing = fetchListing(platform).catch((error) => {
-      logger.warn(`[boxart] could not list ${platform} box art`, String(error));
-      listings.delete(platform); // retry on the next import
+    listing = fetchListing(system).catch((error) => {
+      logger.warn(`[boxart] could not list ${system} box art`, String(error));
+      listings.delete(system); // retry on the next import
       return [];
     });
-    listings.set(platform, listing);
+    listings.set(system, listing);
   }
   return listing;
 };
 
-/** URL of the best-matching box art for a title, or null when libretro has none. */
-export const findRetroArchBoxart = async (
-  platform: RetroArchPlatform,
+/** Box art from a libretro-thumbnails system folder ("Sony - PlayStation"), matched by title. */
+export const findLibretroBoxart = async (
+  system: string,
   title: string
 ): Promise<string | null> => {
-  const name = pickBoxart(title, await getListing(platform));
-  return name ? `${boxartFolderUrl(platform)}${encodeURIComponent(name)}.png` : null;
+  const name = pickBoxart(title, await getListing(system));
+  return name ? `${boxartFolderUrl(system)}${encodeURIComponent(name)}.png` : null;
 };
+
+/** URL of the best-matching box art for a cartridge title, or null when libretro has none. */
+export const findRetroArchBoxart = (platform: RetroArchPlatform, title: string) =>
+  findLibretroBoxart(SYSTEM_FOLDERS[platform], title);
