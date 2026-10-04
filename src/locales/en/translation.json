@@ -257,6 +257,7 @@
     "generate_achievements": "Generate achievements (Goldberg)",
     "install_translation": "Install translation…",
     "download_translation": "Download translation",
+    "search_translation": "Search translation online",
     "switch_mods": "Install enhancements (60 FPS)",
     "switch_mods_searching": "Looking for enhancements…",
     "switch_mods_installed": "Enhancements installed: {{mods}}",

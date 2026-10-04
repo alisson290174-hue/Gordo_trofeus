@@ -10,6 +10,13 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.43",
+    date: "04/10/2026",
+    items: [
+      "Botão direito no jogo → \"Pesquisar tradução na internet\": abre a busca pronta nos sites de tradução PT-BR (João13, GGames, Romhacking). Baixou o arquivo? Use \"Instalar tradução\" e o Opus aplica sozinho.",
+    ],
+  },
+  {
     version: "1.0.42",
     date: "04/10/2026",
     items: [

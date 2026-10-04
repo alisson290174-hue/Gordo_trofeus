@@ -222,6 +222,7 @@
     "generate_achievements": "Gerar conquistas (Goldberg)",
     "install_translation": "Instalar tradução…",
     "download_translation": "Baixar tradução",
+    "search_translation": "Pesquisar tradução na internet",
     "switch_mods": "Instalar melhorias (60 FPS)",
     "switch_mods_searching": "Procurando melhorias…",
     "switch_mods_installed": "Melhorias instaladas: {{mods}}",
