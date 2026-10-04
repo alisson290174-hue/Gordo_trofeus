@@ -44,3 +44,14 @@ registerEvent("configureEmulatorOnly", (_event, target: AutoSetupTarget) =>
 );
 registerEvent("getEmulatorVersions", () => getEmulatorVersions());
 registerEvent("checkEmulatorUpdates", () => checkEmulatorUpdates());
+
+// "Conectar RetroAchievements nos emuladores": one login, a token written into every emulator.
+registerEvent("loginRetroAchievementsInEmulators", async (_event, username: string, password: string) => {
+  if (typeof username !== "string" || typeof password !== "string" || !username.trim() || !password) {
+    return { ok: false as const, reason: "invalid_credentials" as const };
+  }
+  const { loginRetroAchievementsInEmulators } = await import(
+    "@main/services/emulators/retroachievements-emulator-login"
+  );
+  return loginRetroAchievementsInEmulators(username, password);
+});

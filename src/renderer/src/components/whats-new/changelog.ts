@@ -10,6 +10,19 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.40",
+    date: "04/10/2026",
+    items: [
+      "RetroAchievements em todos os emuladores de uma vez: Configurações → Emulação → \"RetroAchievements nos emuladores\" (a senha não é guardada).",
+      "Big Picture: o direcional para a esquerda e para cima voltou a funcionar na aba Início.",
+      "Fechar um jogo não abre mais o Big Picture sozinho.",
+      "Select + Start também fecha jogos de PC que abrem por um launcher.",
+      "Busca de traduções mais certeira (não confunde mais jogo 1 com jogo 2).",
+      "Capas maiores na tela Início e capas de PS2/PS3 recortadas no padrão.",
+      "Big Picture: Configurações, Catálogo e Downloads não ficam mais escondidos atrás da barra de cima.",
+    ],
+  },
+  {
     version: "1.0.39",
     date: "03/10/2026",
     items: [

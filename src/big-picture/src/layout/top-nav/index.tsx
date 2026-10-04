@@ -6,7 +6,7 @@ import { AuthPage } from "@shared";
 import { FocusItem, HorizontalFocusGroup } from "../../components";
 import { IS_DESKTOP } from "../../constants";
 import { useGamepad, useUserDetails } from "../../hooks";
-import { NavigationAudioService, type FocusOverrides } from "../../services";
+import { NavigationAudioService, NavigationService, type FocusOverrides } from "../../services";
 import {
   useNavigationStore,
   useVirtualKeyboardStore,
@@ -77,6 +77,16 @@ export function TopNav() {
     0,
     sections.findIndex((section) => section.matches(normalized))
   );
+
+  // Coming up from a page lands on the current section, not on the last button of the bar.
+  const activeSectionKey = sections[activeIndex]?.key;
+  useEffect(() => {
+    if (!activeSectionKey) return;
+    NavigationService.getInstance().rememberFocusInRegion(
+      TOP_NAV_REGION_ID,
+      getTopNavSectionId(activeSectionKey)
+    );
+  }, [activeSectionKey]);
 
   const goTo = useCallback(
     (index: number) => {

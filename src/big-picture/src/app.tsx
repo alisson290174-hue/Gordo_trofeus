@@ -10,7 +10,6 @@ import {
   Header,
   normalizeBigPicturePathname,
   QuickMenu,
-  TOP_NAV_REGION_ID,
   TopNav,
 } from "./layout";
 import { IS_DESKTOP } from "./constants";
@@ -32,7 +31,7 @@ import {
   initializeBigPictureRunningGamesStore,
   useInputModeStore,
 } from "./stores";
-import { NavigationAudioService, type FocusOverrides } from "./services";
+import { NavigationAudioService } from "./services";
 import { BigPictureI18nBridge, ensureBigPictureI18nResources } from "./i18n";
 
 import "./styles/globals.scss";
@@ -50,11 +49,6 @@ export default function App() {
   const [pendingRouteFocusPathname, setPendingRouteFocusPathname] = useState<
     string | null
   >(pathname);
-  // The old left sidebar is gone: up from the top of a page reaches the section bar.
-  const contentNavigationOverrides: FocusOverrides = {
-    up: { type: "region", regionId: TOP_NAV_REGION_ID },
-    left: { type: "block" },
-  };
   const isCataloguePage =
     normalizeBigPicturePathname(pathname).startsWith("/catalogue");
 
@@ -194,7 +188,6 @@ export default function App() {
 
                   <VerticalFocusGroup
                     regionId={BIG_PICTURE_CONTENT_REGION_ID}
-                    navigationOverrides={contentNavigationOverrides}
                     autoScrollMode="auto"
                     asChild
                   >

@@ -73,4 +73,15 @@ describe("translation rules", () => {
     assert.equal(matchGameByName("Mario Tennis Aces.rar", games), null);
     assert.equal(matchGameByName("Pokemon Shield.rar", games), null);
   });
+
+  it("keeps sequels apart and accepts a subtitle the library name lacks", () => {
+    const underground2 = [{ title: "Need for Speed: Underground 2" }];
+    assert.equal(matchGameByName("[PS2] Need For Speed - Underground (USA) (Tradução PT-BR, V1.0) (ZANIT).rar", underground2), null);
+    const gow = [{ title: "God of War" }];
+    assert.equal(matchGameByName("[PS2] God Of War II (SCUS) (Tradução PT-BR, V4.3) (OAleex e cia).rar", gow), null);
+    const re3 = [{ title: "Resident Evil 3" }];
+    assert.equal(matchGameByName("[PS1] Resident Evil 3 - Nemesis (Tradução PT-BR, V1.1) (Trans-Center).rar", re3)?.title, "Resident Evil 3");
+    const gow2 = [{ title: "God of War II" }];
+    assert.equal(matchGameByName("[PS2] God Of War II (SCUS) (Tradução PT-BR, V4.3) (OAleex e cia).rar", gow2)?.title, "God of War II");
+  });
 });

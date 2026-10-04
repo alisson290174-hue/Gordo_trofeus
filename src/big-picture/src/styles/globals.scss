@@ -242,3 +242,18 @@ li {
   &--x { background: #2f6fdb; }
   &--y { background: #c8961a; }
 }
+
+// Pages without a full-bleed hero used to slide under the old 56px header. With the taller
+// section bar they start below it instead (game page / achievements keep their bleed).
+.catalogue-results-page,
+.downloads-page,
+.settings-page {
+  margin-top: 0 !important;
+  height: 100% !important;
+  min-height: 100% !important;
+}
+
+// The catalogue keeps only its search: the back arrow + title duplicate the section bar.
+.big-picture__body > .header .header__action {
+  display: none;
+}

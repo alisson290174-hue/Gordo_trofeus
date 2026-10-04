@@ -1150,6 +1150,11 @@ export class NavigationService {
     return false;
   }
 
+  /** Where focus lands next time it enters `regionId` (e.g. the current tab of a bar). */
+  public rememberFocusInRegion(regionId: string, nodeId: string) {
+    this.lastFocusedByRegionId.set(regionId, nodeId);
+  }
+
   private updateLastFocusedForNode(nodeId: string) {
     const node = this.nodes.get(nodeId);
 

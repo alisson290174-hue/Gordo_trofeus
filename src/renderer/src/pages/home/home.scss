@@ -68,7 +68,7 @@
     gap: 18px;
     flex-wrap: nowrap;
     overflow: hidden;
-    min-height: 172px;
+    min-height: 224px;
   }
 
   &__tile-wrap {
@@ -78,9 +78,9 @@
   }
 
   &__tile {
-    width: 120px;
-    height: 120px;
-    border-radius: 20px;
+    width: 156px;
+    height: 156px;
+    border-radius: 22px;
     background-color: #1a2233;
     background-size: cover;
     // Tile art is square or centred (icon, title screen, fanart), not a box with a header strip.
@@ -94,8 +94,8 @@
       box-shadow 280ms ease;
 
     &--focused {
-      width: 172px;
-      height: 172px;
+      width: 224px;
+      height: 224px;
       box-shadow: 0 18px 44px rgba(0, 0, 0, 0.6);
     }
   }

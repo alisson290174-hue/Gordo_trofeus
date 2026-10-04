@@ -62,11 +62,12 @@ export const applyTranslationArchive = async (game: PatchableGame, sourcePath: s
     } else {
       await SevenZip.extractFile({ filePath: sourcePath, outputPath: work, passwords: KNOWN_TRANSLATION_PASSWORDS });
       const files = listFiles(work);
-      // A patcher .exe/.bat is never run; the patch file next to it is all Opus needs.
-      if (findExecutables(files).some((file) => !/\.(bat|cmd)$/i.test(file))) {
+      // A patcher .exe/.bat is never run: the patch file next to it is all Opus needs. Only an
+      // archive that is nothing but a patcher program can't be used.
+      patches = files.filter((file) => PATCH_RE.test(file)).map((file) => path.join(work, file));
+      if (patches.length === 0 && findExecutables(files).some((file) => !/\.(bat|cmd)$/i.test(file))) {
         return { ok: false, reason: "executable_inside" };
       }
-      patches = files.filter((file) => PATCH_RE.test(file)).map((file) => path.join(work, file));
     }
     if (patches.length === 0) return { ok: false, reason: "no_patch" };
 

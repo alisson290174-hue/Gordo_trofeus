@@ -514,6 +514,8 @@ contextBridge.exposeInMainWorld("electron", {
   configureEmulatorOnly: (target: EmulatorAutoSetupProgress["target"]) =>
     ipcRenderer.invoke("configureEmulatorOnly", target),
   getEmulatorVersions: () => ipcRenderer.invoke("getEmulatorVersions"),
+  loginRetroAchievementsInEmulators: (username: string, password: string) =>
+    ipcRenderer.invoke("loginRetroAchievementsInEmulators", username, password),
   checkEmulatorUpdates: () => ipcRenderer.invoke("checkEmulatorUpdates"),
   downloadAllTranslationsOnline: () => ipcRenderer.invoke("downloadAllTranslationsOnline"),
   onEmulatorsUpdated: (cb: (updated: string[]) => void) => {

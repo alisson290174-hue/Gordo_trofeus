@@ -699,6 +699,13 @@ declare global {
       { target: EmulatorAutoSetupProgress["target"]; version: string | null }[]
     >;
     checkEmulatorUpdates: () => Promise<string[]>;
+    loginRetroAchievementsInEmulators: (
+      username: string,
+      password: string
+    ) => Promise<
+      | { ok: true; configured: string[] }
+      | { ok: false; reason: "invalid_credentials" | "network" }
+    >;
     downloadAllTranslationsOnline: () => Promise<boolean>;
     onEmulatorsUpdated: (cb: (updated: string[]) => void) => () => void;
     getEmulatorsBaseDir: () => Promise<string>;

@@ -87,8 +87,12 @@ export const titleWords = (name: string) =>
       .replace(/\.(rar|zip|7z)$/, "")
       .split(/[^a-z0-9]+/)
       .map((word) => (word.length > 3 && word.endsWith("s") ? word.slice(0, -1) : word))
-      .filter((word) => word.length > 0 && !NAME_NOISE.has(word) && !/^v?\d+(\.\d+)*$/.test(word))
+      // Version tags go ("v1", "1.5"); plain numbers stay, they tell sequels apart ("Underground 2").
+      .filter((word) => word.length > 0 && !NAME_NOISE.has(word) && !/^v\d+(\.\d+)*$|^\d+\.\d+(\.\d+)*$/.test(word))
   );
+
+/** "2", "64", "ii", "iii"…: a word that makes a different game of the same series. */
+const SEQUEL_WORD = /^(\d+|i{1,3}|iv|v|vi{1,3}|ix|x|xi{1,3})$/;
 
 /**
  * The library game an archive without title IDs was made for, by name: every meaningful word of the
@@ -102,9 +106,19 @@ export const matchGameByName = <T extends { title: string }>(archiveName: string
   for (const game of games) {
     const have = titleWords(game.title);
     if (have.size === 0) continue;
+    // A sequel number on either side must be on both: "Underground 2" is not "Underground".
+    const sequelMismatch = [...have, ...wanted].some(
+      (word) => SEQUEL_WORD.test(word) && !(have.has(word) && wanted.has(word))
+    );
+    if (sequelMismatch) continue;
     const shared = [...wanted].filter((word) => have.has(word)).length;
-    if (shared < wanted.size) continue;
-    const score = shared / have.size;
+    let score = 0;
+    if (shared === wanted.size) {
+      score = shared / have.size;
+    } else if (shared === have.size && have.size >= 2 && wanted.size - shared <= 2) {
+      // The archive spells out a subtitle the library name lacks ("Resident Evil 3" → "… - Nemesis").
+      score = 0.6;
+    }
     if (score >= 0.6 && (!best || score > best.score)) best = { game, score };
   }
   return best?.game ?? null;

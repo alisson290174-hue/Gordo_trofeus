@@ -76,6 +76,9 @@ export const LibraryPs5Card = memo(function LibraryPs5Card({
       <div
         className={cn("ps5-card__cover", {
           "ps5-card__cover--platinum": progress.isPlatinum,
+          // Box scans with the console's header strip on top (PS2) / band + spine (PS3).
+          "ps5-card__cover--ps2-box": typeof src === "string" && src.includes("ps2-covers"),
+          "ps5-card__cover--ps3-box": typeof src === "string" && src.includes("aldostools"),
         })}
       >
         <img

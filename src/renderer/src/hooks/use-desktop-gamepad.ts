@@ -5,8 +5,9 @@ import { pickNeighbor, type Direction } from "@renderer/helpers/spatial-navigati
 /**
  * The controller works in the desktop app too (not only in Big Picture): the d-pad / left stick
  * moves focus to the nearest control in that direction, A clicks, B goes back (or closes the open
- * dialog), LB / RB switch the top sections and Start opens Big Picture. Only while this window
- * has focus; the mouse takes over again as soon as it moves.
+ * dialog) and LB / RB switch the top sections. Only while this window has focus; buttons already
+ * held when it gains focus are ignored (Select+Start that just closed a game must not act here).
+ * The mouse takes over again as soon as it moves.
  */
 
 const SECTIONS = ["/", "/library", "/catalogue", "/downloads", "/trophies"];
@@ -15,7 +16,7 @@ const FOCUSABLE =
   'button:not([disabled]), a[href], input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]), [role="button"]';
 
 // Standard Gamepad mapping (Xbox layout).
-const BUTTON = { a: 0, b: 1, lb: 4, rb: 5, start: 9, up: 12, down: 13, left: 14, right: 15 };
+const BUTTON = { a: 0, b: 1, lb: 4, rb: 5, up: 12, down: 13, left: 14, right: 15 };
 const STICK_THRESHOLD = 0.6;
 const FIRST_REPEAT_MS = 380;
 const REPEAT_MS = 130;
@@ -114,18 +115,27 @@ export function useDesktopGamepad() {
           navigate(SECTIONS[(current + step + SECTIONS.length) % SECTIONS.length]);
           break;
         }
-        case BUTTON.start:
-          void window.electron.openBigPictureWindow();
-          break;
         default:
       }
     };
 
+    let hadFocus = document.hasFocus();
     const tick = () => {
       frame = requestAnimationFrame(tick);
-      if (!document.hasFocus()) return;
+      const focused = document.hasFocus();
       const pad = [...(navigator.getGamepads?.() ?? [])].find((candidate) => candidate?.connected);
-      if (!pad) return;
+      if (!focused || !pad) {
+        hadFocus = false;
+        return;
+      }
+      if (!hadFocus) {
+        // Just got focus: whatever is held now was pressed elsewhere (e.g. in the game).
+        hadFocus = true;
+        for (const button of Object.values(BUTTON)) pressed.set(button, Boolean(pad.buttons[button]?.pressed));
+        const [x = 0, y = 0] = pad.axes;
+        held.dir = Math.abs(x) > STICK_THRESHOLD || Math.abs(y) > STICK_THRESHOLD ? held.dir : null;
+        return;
+      }
 
       for (const button of Object.values(BUTTON)) {
         const isDown = Boolean(pad.buttons[button]?.pressed);

@@ -110,7 +110,27 @@ const closeGame = async (
         })
       : null;
 
-  const fallbackProcesses = linuxFallbackProcess ? [linuxFallbackProcess] : [];
+  // Windows: a launcher exe often starts the real game as another process; take whatever runs
+  // from the game's own folder (never the launcher itself).
+  const gameDirectory =
+    process.platform === "win32" && game.executablePath
+      ? path.dirname(game.executablePath).toLowerCase() + path.sep
+      : null;
+  const windowsFallbackProcesses =
+    // At least drive\folder\game: a loose exe in "C:\Games" must not take its neighbours down.
+    gameDirectory &&
+    gameDirectory.split(path.sep).filter(Boolean).length >= 3 &&
+    !gameProcesses.length
+      ? processes.filter(
+          (runningProcess) =>
+            runningProcess.pid !== process.pid &&
+            (runningProcess.exe?.toLowerCase().startsWith(gameDirectory) ?? false)
+        )
+      : [];
+
+  const fallbackProcesses = linuxFallbackProcess
+    ? [linuxFallbackProcess]
+    : windowsFallbackProcesses;
   const processesToClose = gameProcesses.length
     ? gameProcesses
     : fallbackProcesses;

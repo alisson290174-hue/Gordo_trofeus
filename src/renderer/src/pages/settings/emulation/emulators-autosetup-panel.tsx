@@ -4,6 +4,7 @@ import type { EmulatorAutoSetupProgress } from "@types";
 import { Button } from "@renderer/components";
 import { Icon } from "@renderer/components/icon/icon";
 import { useToast } from "@renderer/hooks";
+import { RetroAchievementsEmulatorsModal } from "./retroachievements-emulators-modal";
 import "./emulators-autosetup-panel.scss";
 
 type Target = EmulatorAutoSetupProgress["target"];
@@ -46,6 +47,7 @@ export function EmulatorsAutoSetupPanel({ onChanged }: Readonly<Props>) {
   const [configuring, setConfiguring] = useState<Target | null>(null);
   const [checkingUpdates, setCheckingUpdates] = useState(false);
   const [downloadingTranslations, setDownloadingTranslations] = useState(false);
+  const [raModalOpen, setRaModalOpen] = useState(false);
 
   const refreshStates = useCallback(async () => {
     const versionList = await window.electron.getEmulatorVersions().catch(() => []);
@@ -198,6 +200,7 @@ export function EmulatorsAutoSetupPanel({ onChanged }: Readonly<Props>) {
 
   return (
     <section className="emulators-autosetup">
+      <RetroAchievementsEmulatorsModal visible={raModalOpen} onClose={() => setRaModalOpen(false)} />
       <div className="emulators-autosetup__header">
         <div className="emulators-autosetup__text">
           <h3 className="emulators-autosetup__title">{t("emulators_autosetup_title")}</h3>
@@ -216,6 +219,10 @@ export function EmulatorsAutoSetupPanel({ onChanged }: Readonly<Props>) {
           <Button theme="outline" onClick={handleCheckUpdates} disabled={anyWorking || checkingUpdates}>
             <Icon name="sync" size={16} />
             {checkingUpdates ? t("emulators_checking_updates") : t("emulators_check_updates")}
+          </Button>
+          <Button theme="outline" onClick={() => setRaModalOpen(true)}>
+            <Icon name="trophy" size={16} />
+            {t("ra_emulators_button")}
           </Button>
           <Button theme="outline" onClick={handleDownloadTranslations} disabled={downloadingTranslations}>
             <Icon name={downloadingTranslations ? "sync" : "languages"} size={16} />

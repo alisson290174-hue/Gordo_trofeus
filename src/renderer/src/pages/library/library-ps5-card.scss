@@ -159,3 +159,14 @@
     text-overflow: ellipsis;
   }
 }
+
+// Hide the console's printed header strip so PS2/PS3 boxes look like every other cover.
+.ps5-card__cover--ps2-box > img:first-child {
+  transform: scale(1.16);
+  transform-origin: 50% 100%;
+}
+
+.ps5-card__cover--ps3-box > img:first-child {
+  transform: scale(1.14);
+  transform-origin: 100% 100%;
+}
