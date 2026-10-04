@@ -44,8 +44,8 @@ export const detectGpuTier = async (): Promise<GpuTier> => {
 
 /** Internal resolution multiplier per console and tier (low keeps native). */
 const SCALE: Record<GpuTier, Partial<Record<EmulatorSystem, number>>> = {
-  high: { ps1: 5, ps2: 3, dolphin: 3, "3ds": 4 },
-  mid: { ps1: 3, ps2: 2, dolphin: 2, "3ds": 2 },
+  high: { ps1: 5, ps2: 3, dolphin: 3, "3ds": 4, switch: 2, ps3: 2 },
+  mid: { ps1: 3, ps2: 2, dolphin: 2, "3ds": 2, ps3: 1.5 },
   low: {},
 };
 
@@ -65,19 +65,26 @@ export const applyGraphicsProfile = async (
 ): Promise<boolean> => {
   if (process.platform !== "win32" || !executablePath) return false;
   try {
+    const scale = SCALE[await detectGpuTier()][system];
     if (system === "switch") {
+      const file = path.join(qtEmulatorDataDir(executablePath, "eden"), "config", "qt-config.ini");
+      let content = fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "";
       // Official PT-BR releases (Mario Galaxy, Jamboree, Kirby…) only show it with the console set
       // to Brazilian Portuguese (17); default English (1) or European Portuguese (9) hide it.
-      if (!app.getLocale().toLowerCase().startsWith("pt")) return false;
-      const file = path.join(qtEmulatorDataDir(executablePath, "eden"), "config", "qt-config.ini");
-      const content = fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "";
-      const current = /^language_index=(\d+)/m.exec(content)?.[1];
-      if (current && current !== "1" && current !== "9") return false;
+      const language = /^language_index=(\d+)/m.exec(content)?.[1];
+      if (app.getLocale().toLowerCase().startsWith("pt") && (!language || language === "1" || language === "9")) {
+        content = setQtIniValue(content, "System", "language_index", "17");
+      }
+      // 2x (resolution_setup 4) on a strong GPU, only over Eden's own 1x default (2).
+      const resolution = /^resolution_setup=(\d+)/m.exec(content)?.[1];
+      if (scale === 2 && (!resolution || resolution === "2")) {
+        content = setQtIniValue(content, "Renderer", "resolution_setup", "4");
+        content = setQtIniValue(content, "Renderer", "resolution_setup\\default", "false");
+      }
       fs.mkdirSync(path.dirname(file), { recursive: true });
-      fs.writeFileSync(file, setQtIniValue(content, "System", "language_index", "17"), "utf8");
+      fs.writeFileSync(file, content, "utf8");
       return true;
     }
-    const scale = SCALE[await detectGpuTier()][system];
     if (!scale) return false;
     switch (system) {
       case "ps1":
@@ -110,6 +117,19 @@ export const applyGraphicsProfile = async (
         if (current && current !== "1") return false;
         fs.mkdirSync(path.dirname(file), { recursive: true });
         fs.writeFileSync(file, setQtIniValue(content, "Renderer", "resolution_factor", String(scale)), "utf8");
+        return true;
+      }
+      case "ps3": {
+        // RPCS3 keeps "Resolution Scale: 100" (percent) under Video in config/config.yml.
+        const file = path.join(path.dirname(executablePath), "config", "config.yml");
+        if (!fs.existsSync(file)) return false;
+        const content = fs.readFileSync(file, "utf8");
+        if (!/^(\s*)Resolution Scale: 100\s*$/m.test(content)) return false;
+        fs.writeFileSync(
+          file,
+          content.replace(/^(\s*)Resolution Scale: 100\s*$/m, `$1Resolution Scale: ${Math.round(scale * 100)}`),
+          "utf8"
+        );
         return true;
       }
       default:
@@ -147,7 +167,18 @@ export const applySmoothShaders = (system: EmulatorSystem, executablePath: strin
       if (/^async_shader_compilation=true/m.test(content)) return false;
       fs.mkdirSync(path.dirname(file), { recursive: true });
       let next = setQtIniValue(content, "Renderer", "async_shader_compilation", "true");
-      next = setQtIniValue(next, "Renderer", "async_shader_compilation\default", "false");
+      next = setQtIniValue(next, "Renderer", "async_shader_compilation\\default", "false");
+      fs.writeFileSync(file, next, "utf8");
+      return true;
+    }
+    if (system === "switch") {
+      // Eden: asynchronous shaders remove the hitch the first time an effect appears.
+      const file = path.join(qtEmulatorDataDir(executablePath, "eden"), "config", "qt-config.ini");
+      const content = fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "";
+      if (/^use_asynchronous_shaders=true/m.test(content)) return false;
+      fs.mkdirSync(path.dirname(file), { recursive: true });
+      let next = setQtIniValue(content, "Renderer", "use_asynchronous_shaders", "true");
+      next = setQtIniValue(next, "Renderer", "use_asynchronous_shaders\\default", "false");
       fs.writeFileSync(file, next, "utf8");
       return true;
     }

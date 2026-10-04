@@ -10,6 +10,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.41",
+    date: "04/10/2026",
+    items: [
+      "Switch mais bonito e sem travadinhas em placas de vídeo fortes: resolução 2x e shaders assíncronos ligados automaticamente.",
+      "PS3 em resolução maior (até 200%) conforme a placa de vídeo do PC.",
+      "Correção de uma configuração inválida gravada no emulador de 3DS.",
+    ],
+  },
+  {
     version: "1.0.40",
     date: "04/10/2026",
     items: [
