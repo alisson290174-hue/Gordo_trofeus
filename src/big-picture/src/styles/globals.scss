@@ -4,6 +4,9 @@
 @import "@fontsource/space-grotesk/600.css";
 @import "@fontsource/space-grotesk/700.css";
 
+// Console tags shared with the desktop app (its own CSS is scoped away from Big Picture).
+@import "../../../renderer/src/components/platform-badge/platform-badge.scss";
+
 // Opus: same Outfit face as the desktop app.
 @font-face {
   font-family: "Outfit";

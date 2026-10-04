@@ -1493,3 +1493,173 @@
     font-size: 12px;
   }
 }
+
+// ---- Opus: game page top (approved Big Picture board 2) ------------------------------------
+.game-page__hero-shell {
+  height: min(86vh, 900px);
+  background: #070b16;
+
+  // The image's own fade ends at a fixed height (a hard line under the tall bar): the overlay
+  // gradients below do the shading instead.
+  .animated-hero-image__blend-wrap {
+    display: none;
+  }
+}
+
+.game-page__hero-overlay {
+  justify-content: flex-end;
+  gap: 22px;
+  padding: calc(var(--big-picture-header-height) + 48px) var(--opus-gutter) 48px;
+  background:
+    linear-gradient(90deg, rgba(7, 11, 22, 0.96) 0%, rgba(7, 11, 22, 0.78) 42%, rgba(7, 11, 22, 0.12) 78%),
+    linear-gradient(0deg, rgba(7, 11, 22, 1) 0%, rgba(7, 11, 22, 0) 50%);
+  color: var(--opus-text);
+}
+
+.game-page__hero-title {
+  font-size: clamp(56px, 5vw, 96px);
+  font-weight: 400;
+  letter-spacing: -0.02em;
+  max-width: 60%;
+  text-wrap: balance;
+}
+
+.game-page__hero-logo {
+  width: auto;
+  max-width: min(560px, 42vw);
+  max-height: 200px;
+  filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.55));
+}
+
+.game-page__hero-description {
+  max-width: 760px;
+  font-size: 22px;
+  line-height: 1.5;
+  color: var(--opus-muted);
+}
+
+.game-page__hero-actions {
+  gap: 18px;
+  padding: 10px 4px;
+
+  .button {
+    height: 72px;
+    padding: 0 34px;
+    border-radius: 999px;
+    border: none;
+    font-size: 24px;
+    background: rgba(255, 255, 255, 0.1) !important;
+    color: var(--opus-text) !important;
+  }
+
+  .button--icon {
+    width: 72px;
+    padding: 0;
+    justify-content: center;
+
+    svg {
+      color: var(--opus-text);
+    }
+  }
+
+  .button--primary {
+    padding: 0 44px;
+    background: var(--opus-text) !important;
+    color: #070b16 !important;
+    font-weight: 600;
+
+    svg {
+      color: #070b16;
+    }
+  }
+
+  .button__icon-container {
+    background: transparent !important;
+  }
+
+  [data-focused="true"] > .button,
+  .button[data-focused="true"],
+  [data-focused="true"].button {
+    box-shadow: var(--opus-ring) !important;
+  }
+}
+
+.opus-game {
+  &__eyebrow {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    font-size: 20px;
+    color: var(--opus-muted);
+  }
+
+  &__badge.platform-badge {
+    height: 32px;
+    padding: 0 14px;
+    border-radius: 8px;
+    font-size: 17px;
+  }
+
+  &__facts {
+    width: 100%;
+    margin-top: 8px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px;
+  }
+
+  &__fact {
+    padding: 24px 28px;
+    border-radius: 18px;
+    background: rgba(15, 22, 40, 0.86);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    &--wide {
+      grid-column: span 2;
+    }
+  }
+
+  &__fact-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+  }
+
+  &__fact-label {
+    font-size: 16px;
+    letter-spacing: 0.1em;
+    color: #8e94a3;
+  }
+
+  &__fact-value {
+    font-size: 36px;
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__fact-note {
+    font-size: 19px;
+    color: var(--opus-muted);
+    font-variant-numeric: tabular-nums;
+
+    &--ok {
+      color: #7fe0ae;
+    }
+  }
+
+  &__bar {
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+
+    div {
+      height: 100%;
+      border-radius: 999px;
+      background: var(--opus-accent);
+    }
+  }
+}

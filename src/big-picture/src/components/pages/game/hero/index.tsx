@@ -1,3 +1,4 @@
+import { GameEyebrow, GameFacts } from "./opus-facts";
 import { sanitizeRichHtml } from "@shared";
 import {
   DownloadSimpleIcon,
@@ -405,6 +406,7 @@ export function Hero({
       })}
 
       <div className="game-page__hero-overlay">
+        <GameEyebrow game={game} shopDetails={shopDetails} />
         {preferredAssets.logoSrc ? (
           <img
             src={preferredAssets.logoSrc}
@@ -462,6 +464,8 @@ export function Hero({
             </Button>
           )}
         </HorizontalFocusGroup>
+
+        <GameFacts game={game} />
       </div>
     </section>
   );

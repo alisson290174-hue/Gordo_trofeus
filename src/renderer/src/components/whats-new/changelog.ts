@@ -10,6 +10,14 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.38",
+    date: "03/10/2026",
+    items: [
+      "Big Picture: página do jogo nova — arte em tela cheia, console, estúdio e ano, botões grandes para o controle e cartões de tempo de jogo, troféus e tradução.",
+      "Big Picture: selos coloridos dos consoles (PS2, Switch, PS4…) em todas as telas.",
+    ],
+  },
+  {
     version: "1.0.37",
     date: "03/10/2026",
     items: [
