@@ -168,3 +168,8 @@ const updateUserPreferences = async (
 };
 
 registerEvent("updateUserPreferences", updateUserPreferences);
+
+registerEvent("getSettingsSyncStatus", async () => {
+  const { settingsSyncStatus } = await import("@main/services/settings-sync");
+  return settingsSyncStatus;
+});

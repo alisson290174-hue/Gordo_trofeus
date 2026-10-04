@@ -12,6 +12,7 @@ describe("RetroAchievements ROM hashing", () => {
     assert.equal(raConsoleForPlatform("PlayStation"), "ps1");
     assert.equal(raConsoleForPlatform("PlayStation 2"), "ps2");
     assert.equal(raConsoleForPlatform("PlayStation 3"), null);
+    assert.equal(raConsoleForPlatform("PlayStation 4"), null);
     assert.equal(raConsoleForPlatform("Nintendo Switch"), null);
   });
 

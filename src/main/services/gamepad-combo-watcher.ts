@@ -12,6 +12,7 @@ import { logger } from "./logger";
 // XINPUT_GAMEPAD_START | XINPUT_GAMEPAD_BACK
 const POLL_SCRIPT = (parentPid: number) => `
 $ErrorActionPreference = 'Stop'
+$ProgressPreference = 'SilentlyContinue'
 Add-Type -TypeDefinition @"
 using System;
 using System.Runtime.InteropServices;
@@ -42,9 +43,12 @@ let onCombo: (() => void) | null = null;
 
 const start = () => {
   if (child || process.platform !== "win32") return;
+  // -EncodedCommand (UTF-16LE base64): a multi-line script with a C# here-string survives intact;
+  // passed through -Command its line breaks are lost and PowerShell rejects it.
+  const encoded = Buffer.from(POLL_SCRIPT(process.pid), "utf16le").toString("base64");
   child = spawn(
     "powershell.exe",
-    ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-Command", POLL_SCRIPT(process.pid)],
+    ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-EncodedCommand", encoded],
     { windowsHide: true, stdio: ["ignore", "pipe", "pipe"] }
   );
   child.stdout?.setEncoding("utf8");
@@ -54,7 +58,11 @@ const start = () => {
       onCombo?.();
     }
   });
-  child.stderr?.on("data", (chunk) => logger.warn("[gamepad] combo watcher:", String(chunk).slice(0, 300)));
+  child.stderr?.on("data", (chunk) => {
+    const text = String(chunk);
+    if (text.startsWith("#< CLIXML") || !text.trim()) return; // PowerShell progress records
+    logger.warn("[gamepad] combo watcher:", text.slice(0, 300));
+  });
   child.on("exit", () => {
     child = null;
   });

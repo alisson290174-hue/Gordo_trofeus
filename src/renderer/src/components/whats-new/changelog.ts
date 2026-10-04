@@ -10,6 +10,17 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.39",
+    date: "03/10/2026",
+    items: [
+      "Select + Start agora fecha o jogo de verdade (o atalho não iniciava em alguns PCs).",
+      "Controle no app normal: o direcional não ficava preso numa janela escondida — agora navega por todas as telas.",
+      "Big Picture: o botão Start abre o menu rápido.",
+      "Jogos de PS4 aparecem como \"PS4\" (não mais como PS1) e não tentam buscar conquistas de PS1.",
+      "Jogos da Steam sem capa ganham uma capa automaticamente.",
+    ],
+  },
+  {
     version: "1.0.38",
     date: "03/10/2026",
     items: [

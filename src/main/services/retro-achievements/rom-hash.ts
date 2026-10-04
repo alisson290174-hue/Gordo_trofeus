@@ -26,7 +26,7 @@ export type RaConsoleKey = keyof typeof RA_CONSOLE;
 export const raConsoleForPlatform = (platform: string | null | undefined): RaConsoleKey | null => {
   const p = (platform ?? "").toLowerCase();
   if (/playstation\s*2|\bps2\b/.test(p)) return "ps2";
-  if (/playstation\s*(3|portable)|\bps3\b|\bpsp\b/.test(p)) return null;
+  if (/playstation\s*(3|4|portable)|\bps[34]\b|\bpsp\b/.test(p)) return null;
   if (/playstation|\bps1\b|\bpsx\b/.test(p)) return "ps1";
   if (/super nintendo|\bsnes\b/.test(p)) return "snes";
   if (/nintendo 64|\bn64\b/.test(p)) return "n64";

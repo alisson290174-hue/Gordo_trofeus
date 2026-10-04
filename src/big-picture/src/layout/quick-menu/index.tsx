@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { Backdrop, FocusItem, NavigationLayer, VerticalFocusGroup } from "../../components";
@@ -8,13 +8,11 @@ import type { LibraryGame } from "@types";
 import { getTileArt } from "@renderer/helpers/ps5-game";
 import {
   useBigPictureRunningGames,
-  useGamepad,
   useLibrary,
   useNavigationScreenActions,
 } from "../../hooks";
 import { NavigationAudioService } from "../../services";
 import { useNavigationStore, useVirtualKeyboardStore } from "../../stores";
-import { GamepadButtonType } from "../../types";
 import { BIG_PICTURE_APP_LAYER_ID } from "../navigation";
 import "./styles.scss";
 
@@ -59,27 +57,30 @@ export function QuickMenu() {
       sessionDurationInMillis: first.sessionDurationInMillis,
     };
   }, [library, running]);
-  const { onButtonPressed, isActiveGamepadEvent } = useGamepad();
   const keyboardOpen = useVirtualKeyboardStore((state) => state.target !== null);
 
   const close = useCallback(() => setOpen(false), []);
 
-  useEffect(() => {
-    return onButtonPressed(GamepadButtonType.START, (event) => {
-      if (!isActiveGamepadEvent(event) || keyboardOpen) return;
-      setOpen((wasOpen) => {
-        if (wasOpen) return false;
-        // Only from the main screen: modals keep Start for themselves.
-        const { currentFocusId, nodes } = useNavigationStore.getState();
-        const focused = nodes.find((node) => node.id === currentFocusId);
-        if (focused && focused.layerId !== BIG_PICTURE_APP_LAYER_ID) return false;
-        NavigationAudioService.getInstance().play("select");
-        return true;
-      });
+  // Start toggles the menu through Big Picture's screen actions (same path as every other screen
+  // button); only from the main screen, never under a modal or the on-screen keyboard.
+  const toggle = useCallback(() => {
+    if (keyboardOpen) return;
+    setOpen((wasOpen) => {
+      if (wasOpen) return false;
+      const { currentFocusId, nodes } = useNavigationStore.getState();
+      const focused = nodes.find((node) => node.id === currentFocusId);
+      if (focused && focused.layerId !== BIG_PICTURE_APP_LAYER_ID) return false;
+      NavigationAudioService.getInstance().play("select");
+      return true;
     });
-  }, [isActiveGamepadEvent, keyboardOpen, onButtonPressed]);
+  }, [keyboardOpen]);
 
-  useNavigationScreenActions(open ? { press: { b: close } } : {});
+  const screenActions = useMemo(
+    () => ({ press: open ? { start: toggle, b: close } : { start: toggle } }),
+    [close, open, toggle]
+  );
+
+  useNavigationScreenActions(screenActions);
 
   const actions = useMemo<QuickAction[]>(() => {
     const list: QuickAction[] = [];

@@ -70,6 +70,7 @@ export const platformToSystem = (
   if (!platform) return null;
   const p = platform.toLowerCase();
   if (/playstation\s*portable|\bpsp\b/.test(p)) return "psp";
+  if (/playstation\s*4|\bps4\b/.test(p)) return "ps4";
   if (/playstation\s*3|\bps3\b/.test(p)) return "ps3";
   if (/playstation\s*2|\bps2\b/.test(p)) return "ps2";
   if (/playstation|\bps1\b|\bpsx\b/.test(p)) return "ps1";
@@ -84,7 +85,7 @@ export const platformToEmulationSavePlatform = (
   if (!platform) return null;
   const normalized = platform.toLowerCase().trim();
   if (/playstation\s*portable|\bpsp\b/.test(normalized)) return "psp";
-  if (/playstation\s*3|\bps3\b/.test(normalized)) return null;
+  if (/playstation\s*[34]|\bps[34]\b/.test(normalized)) return null;
   if (/playstation\s*2|\bps2\b/.test(normalized)) return "ps2";
   if (/playstation|\bps1\b|\bpsx\b/.test(normalized)) return "ps1";
   if (/game\s*cube/.test(normalized)) return "gamecube";
@@ -160,6 +161,7 @@ export const CLASSICS_PS_PLATFORM_LABELS: Partial<
   ps1: "PS",
   ps2: "PS2",
   ps3: "PS3",
+  ps4: "PS4",
   psp: "PSP",
   dolphin: "GC/Wii",
 };

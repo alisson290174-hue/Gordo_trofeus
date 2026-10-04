@@ -28,6 +28,12 @@ const RESTORED_KEY = "opus:settingsRestored";
 const UPLOAD_EVERY = 15 * 60_000;
 let lastUploadedHash: string | null = null;
 let uploadTimer: ReturnType<typeof setInterval> | null = null;
+/** Last outcome, for Configurações / diagnostics. */
+export const settingsSyncStatus: { lastUploadAt: string | null; lastError: string | null; restoredAt: string | null } = {
+  lastUploadAt: null,
+  lastError: null,
+  restoredAt: null,
+};
 
 const existing = (target: string | null | undefined) => (target && fs.existsSync(target) ? target : null);
 const folders = (list: { path: string; scanSubfolders: boolean }[]): SyncedFolder[] =>
@@ -74,6 +80,9 @@ const uploadSettings = async () => {
   if (hash === lastUploadedHash) return;
   await HydraApi.put("/profile/settings", { settings: snapshot });
   lastUploadedHash = hash;
+  settingsSyncStatus.lastUploadAt = new Date().toISOString();
+  settingsSyncStatus.lastError = null;
+  logger.info("[settings-sync] settings saved on the server");
 };
 
 /** Brings the server copy into a fresh install (only once, and only if nothing is set up yet). */
@@ -120,17 +129,22 @@ const restoreSettings = async (): Promise<boolean> => {
 export const SettingsSync = {
   /** On startup, once signed in: restore a fresh install, then keep the server copy current. */
   async start() {
+    logger.info("[settings-sync] start", { loggedIn: HydraApi.isLoggedIn() });
     if (!HydraApi.isLoggedIn()) return;
     try {
       const restored = await restoreSettings();
       if (restored) {
+        settingsSyncStatus.restoredAt = new Date().toISOString();
         const { autoSetupAllEmulators } = await import("./emulators/emulator-auto-setup");
         void autoSetupAllEmulators();
       }
     } catch (error) {
       logger.warn("[settings-sync] restore failed", error);
     }
-    await uploadSettings().catch((error) => logger.warn("[settings-sync] upload failed", error));
+    await uploadSettings().catch((error) => {
+      settingsSyncStatus.lastError = String(error);
+      logger.warn("[settings-sync] upload failed", error);
+    });
     uploadTimer ??= setInterval(() => void uploadSettings().catch(() => {}), UPLOAD_EVERY);
   },
   /** After a settings change the user made (preferences, folders): push soon. */

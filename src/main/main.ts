@@ -132,6 +132,14 @@ export const loadState = async () => {
     // "undefined" in the library/profile and in achievement notifications). Runs in the
     // background so it never delays startup.
     void backfillMissingGameMetadata();
+    // Steam games whose store page has no standard cover get one found automatically.
+    setTimeout(
+      () =>
+        void import("./services/repair-missing-covers").then(({ repairMissingSteamCovers }) =>
+          repairMissingSteamCovers().catch(() => {})
+        ),
+      120_000
+    );
     // Fill PS2 box art for games imported before covers existed (no rescan needed).
     // Then real titles, fanart and logos from the server's PS2 index (after covers so it can
     // replace the box art that stands in as background).

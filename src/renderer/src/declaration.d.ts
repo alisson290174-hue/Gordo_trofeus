@@ -655,6 +655,11 @@ declare global {
         reason?: string;
       }[]
     >;
+    getSettingsSyncStatus: () => Promise<{
+      lastUploadAt: string | null;
+      lastError: string | null;
+      restoredAt: string | null;
+    }>;
     downloadGameTranslation: (
       shop: GameShop,
       objectId: string

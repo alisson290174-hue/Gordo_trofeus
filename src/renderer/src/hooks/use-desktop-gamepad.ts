@@ -24,13 +24,25 @@ const isVisible = (element: HTMLElement) => {
   if (element.closest('[aria-hidden="true"], [inert]')) return false;
   const rect = element.getBoundingClientRect();
   if (rect.width < 4 || rect.height < 4) return false;
-  return rect.bottom > 0 && rect.right > 0 && rect.top < innerHeight && rect.left < innerWidth;
+  const onScreen = rect.bottom > 0 && rect.right > 0 && rect.top < innerHeight && rect.left < innerWidth;
+  return onScreen && isShown(element);
 };
 
-/** An open dialog keeps the focus inside it. */
+/** Really on screen: closed modals often stay mounted (hidden, transparent or zero-sized). */
+const isShown = (element: HTMLElement) => {
+  const rect = element.getBoundingClientRect();
+  if (rect.width < 4 || rect.height < 4) return false;
+  for (let node: HTMLElement | null = element; node; node = node.parentElement) {
+    const style = getComputedStyle(node);
+    if (style.display === "none" || style.visibility === "hidden" || Number(style.opacity) === 0) return false;
+  }
+  return true;
+};
+
+/** An open dialog keeps the focus inside it (only one that is visible and has controls). */
 const currentScope = (): ParentNode => {
-  const dialogs = [...document.querySelectorAll<HTMLElement>('[role="dialog"], [aria-modal="true"], .modal')].filter(
-    (dialog) => dialog.getBoundingClientRect().width > 0
+  const dialogs = [...document.querySelectorAll<HTMLElement>('[role="dialog"], [aria-modal="true"]')].filter(
+    (dialog) => isShown(dialog) && dialog.querySelector(FOCUSABLE) !== null
   );
   return dialogs.at(-1) ?? document;
 };

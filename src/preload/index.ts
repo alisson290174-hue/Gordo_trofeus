@@ -1106,6 +1106,7 @@ contextBridge.exposeInMainWorld("electron", {
     ),
   installTranslationsFromFolder: (system: EmulatorSystem, folder: string) =>
     ipcRenderer.invoke("installTranslationsFromFolder", system, folder),
+  getSettingsSyncStatus: () => ipcRenderer.invoke("getSettingsSyncStatus"),
   downloadGameTranslation: (shop: GameShop, objectId: string) =>
     ipcRenderer.invoke("downloadGameTranslation", shop, objectId),
   installGameTranslation: (shop: GameShop, objectId: string, sourcePath: string) =>
