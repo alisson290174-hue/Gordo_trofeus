@@ -48,6 +48,19 @@ export function EmulatorsAutoSetupPanel({ onChanged }: Readonly<Props>) {
   const [checkingUpdates, setCheckingUpdates] = useState(false);
   const [downloadingTranslations, setDownloadingTranslations] = useState(false);
   const [raModalOpen, setRaModalOpen] = useState(false);
+  const [installingMods, setInstallingMods] = useState(false);
+
+  const handleSwitchMods = async () => {
+    setInstallingMods(true);
+    try {
+      const results = await window.electron.installAllSwitchMods();
+      showSuccessToast(t("switch_mods_all_done", { count: results.filter((r) => r.status === "installed").length }));
+    } catch {
+      showErrorToast(t("switch_mods_all"));
+    } finally {
+      setInstallingMods(false);
+    }
+  };
 
   const refreshStates = useCallback(async () => {
     const versionList = await window.electron.getEmulatorVersions().catch(() => []);
@@ -219,6 +232,10 @@ export function EmulatorsAutoSetupPanel({ onChanged }: Readonly<Props>) {
           <Button theme="outline" onClick={handleCheckUpdates} disabled={anyWorking || checkingUpdates}>
             <Icon name="sync" size={16} />
             {checkingUpdates ? t("emulators_checking_updates") : t("emulators_check_updates")}
+          </Button>
+          <Button theme="outline" onClick={handleSwitchMods} disabled={installingMods}>
+            <Icon name={installingMods ? "sync" : "sliders"} size={16} />
+            {t("switch_mods_all")}
           </Button>
           <Button theme="outline" onClick={() => setRaModalOpen(true)}>
             <Icon name="trophy" size={16} />

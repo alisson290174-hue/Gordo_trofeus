@@ -660,6 +660,16 @@ declare global {
       lastError: string | null;
       restoredAt: string | null;
     }>;
+    installSwitchMods: (
+      shop: GameShop,
+      objectId: string
+    ) => Promise<{
+      status: "installed" | "not_found" | "failed" | "unsupported";
+      mods?: string[];
+    }>;
+    installAllSwitchMods: () => Promise<
+      { title: string; status: string; mods: string[] }[]
+    >;
     downloadGameTranslation: (
       shop: GameShop,
       objectId: string

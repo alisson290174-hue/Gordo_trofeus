@@ -1111,6 +1111,9 @@ contextBridge.exposeInMainWorld("electron", {
   getSettingsSyncStatus: () => ipcRenderer.invoke("getSettingsSyncStatus"),
   downloadGameTranslation: (shop: GameShop, objectId: string) =>
     ipcRenderer.invoke("downloadGameTranslation", shop, objectId),
+  installSwitchMods: (shop: GameShop, objectId: string) =>
+    ipcRenderer.invoke("installSwitchMods", shop, objectId),
+  installAllSwitchMods: () => ipcRenderer.invoke("installAllSwitchMods"),
   installGameTranslation: (shop: GameShop, objectId: string, sourcePath: string) =>
     ipcRenderer.invoke("installGameTranslation", shop, objectId, sourcePath),
   openClassicsGame: (

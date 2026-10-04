@@ -347,6 +347,28 @@ export function GameContextMenu({
       },
     },
 
+    // Switch: 60 FPS / sharper image patches for the installed version of the game.
+    ...(game.shop === "launchbox" && /switch/i.test(game.platform ?? "")
+      ? [
+          {
+            id: "switch-mods",
+            label: t("switch_mods"),
+            icon: <Icon name="sliders" size={16} />,
+            disabled: isDeleting,
+            onClick: async () => {
+              showSuccessToast(t("switch_mods_searching"), undefined, 60_000);
+              const result = await window.electron
+                .installSwitchMods(game.shop, game.objectId)
+                .catch(() => ({ status: "failed" as const, mods: [] }));
+              if (result.status === "installed") {
+                showSuccessToast(t("switch_mods_installed", { mods: (result.mods ?? []).join(", ") }));
+              } else if (result.status === "failed") showErrorToast(t("switch_mods_failed"));
+              else showErrorToast(t("switch_mods_unavailable"));
+            },
+          },
+        ]
+      : []),
+
     // 3DS/Switch: a fan translation (romfs mod) installed into the emulator in one step.
     ...(game.shop === "launchbox"
       ? [

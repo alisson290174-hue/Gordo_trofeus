@@ -10,6 +10,14 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.42",
+    date: "04/10/2026",
+    items: [
+      "Melhorias para jogos de Switch: 60 FPS, mais detalhe à distância e resolução fixa, instaladas com um clique (botão direito no jogo → \"Instalar melhorias\", ou em Configurações → Emulação para todos).",
+      "Os patches só valem para a versão certa do jogo: atualize o jogo no emulador para aproveitar todos.",
+    ],
+  },
+  {
     version: "1.0.41",
     date: "04/10/2026",
     items: [
