@@ -10,6 +10,14 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.37",
+    date: "03/10/2026",
+    items: [
+      "PlayStation 4 no Opus: o shadPS4 é instalado e atualizado sozinho, e os jogos extraídos (pasta com eboot.bin e sce_sys) aparecem com nome, ícone e fundo do próprio jogo.",
+      "Conquistas repaginada no padrão da Biblioteca: filtros (Platinados, Em andamento, Não iniciados), busca e selo do console em cada jogo.",
+    ],
+  },
+  {
     version: "1.0.36",
     date: "03/10/2026",
     items: [

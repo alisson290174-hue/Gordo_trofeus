@@ -87,6 +87,20 @@ export const KNOWN_BINARIES: Record<EmulatorSystem, KnownBinary> = {
     romExtensions: [".iso", ".pkg"],
     romDirectoryMarkers: ["PS3_GAME", "ps3_game"],
   },
+  ps4: {
+    system: "ps4",
+    binary: "shadps4",
+    displayName: "shadPS4",
+    linuxNames: ["shadps4", "Shadps4-sdl.AppImage"],
+    windowsNames: ["shadPS4.exe"],
+    macosBundleNames: ["shadps4.app"],
+    flatpakIds: ["net.shadps4.shadPS4"],
+    versionFlags: [],
+    versionProbeDisabledPlatforms: ["win32", "linux", "darwin"],
+    // A PS4 game is an extracted folder (eboot.bin + sce_sys/param.sfo); PKGs must be extracted first.
+    romExtensions: [],
+    romDirectoryMarkers: ["sce_sys"],
+  },
   psp: {
     system: "psp",
     binary: "ppsspp",

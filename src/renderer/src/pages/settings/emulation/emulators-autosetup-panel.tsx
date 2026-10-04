@@ -13,6 +13,7 @@ const TARGETS: { target: Target; console: string; emulator: string }[] = [
   { target: "ps1", console: "PS1", emulator: "DuckStation" },
   { target: "ps2", console: "PS2", emulator: "PCSX2" },
   { target: "ps3", console: "PS3", emulator: "RPCS3" },
+  { target: "ps4", console: "PS4", emulator: "shadPS4" },
   { target: "psp", console: "PSP", emulator: "PPSSPP" },
   { target: "switch", console: "Switch", emulator: "Eden" },
   { target: "3ds", console: "3DS", emulator: "Azahar" },

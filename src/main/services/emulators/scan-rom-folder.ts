@@ -302,6 +302,18 @@ const collectEntry = (
   const full = path.join(dir, entry.name);
   if (entry.isDirectory()) {
     if (isDirectoryMarker(entry.name, binary.romDirectoryMarkers)) {
+      if (binary.system === "ps4") {
+        // The folder holding sce_sys is the game; its update ("CUSA…-UPDATE") and DLC
+        // ("addcont") folders are applied by shadPS4 itself, not games of their own.
+        const gameDir = dir;
+        if (/-(update|patch)$/i.test(path.basename(gameDir)) || /[\\/]addcont[\\/]/i.test(gameDir)) return;
+        candidates.push({
+          fullPath: path.join(gameDir, "eboot.bin"),
+          name: path.basename(gameDir),
+          isMarkerDir: true,
+        });
+        return;
+      }
       const launchPath = binary.system === "psp" ? dir : full;
       candidates.push({
         fullPath: launchPath,

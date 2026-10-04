@@ -188,7 +188,8 @@
   }
 
   &__body {
-    padding: 8px ps5.$page-gutter 60px;
+    // Room for the floating dock at the bottom of the window.
+    padding: 8px ps5.$page-gutter 140px;
     display: flex;
     gap: 28px;
     flex-wrap: wrap;
@@ -236,8 +237,8 @@
 
   &__game-cover {
     position: relative;
-    width: 64px;
-    height: 64px;
+    width: 52px;
+    height: 70px;
     flex: none;
     border-radius: 12px;
     background-color: #1a2233;
@@ -262,6 +263,9 @@
   }
 
   &__game-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     font-size: 15.5px;
     font-weight: 400;
     white-space: nowrap;
@@ -277,8 +281,9 @@
   }
 
   &__game-pct {
-    font-size: 26px;
-    font-weight: 200;
+    font-size: 18px;
+    font-weight: 400;
+    font-variant-numeric: tabular-nums;
     flex: none;
     min-width: 62px;
     text-align: right;
@@ -481,4 +486,40 @@
     font-size: 11.5px;
     color: rgba(233, 238, 247, 0.4);
   }
+}
+
+
+// Same chips / search as the Library, above the games list.
+.trophies__game-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.trophies__game-chip {
+  @include ps5.chip(36px);
+}
+
+.trophies__search {
+  height: 40px;
+  padding: 0 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+  color: ps5.$text;
+  font-family: ps5.$font;
+  font-size: 14px;
+  outline: none;
+
+  &:focus {
+    border-color: rgba(0, 112, 243, 0.6);
+  }
+}
+
+.trophies__game-badge.platform-badge {
+  flex: none;
+}
+
+.trophies__game-name {
+  min-width: 0;
 }

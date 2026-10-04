@@ -182,6 +182,7 @@ const SYSTEM_DEFAULT_PLATFORM: Record<EmulatorSystem, string | null> = {
   ps1: "PlayStation",
   ps2: "PlayStation 2",
   ps3: "PlayStation 3",
+  ps4: "PlayStation 4",
   psp: "PlayStation Portable",
   dolphin: null,
   switch: "Nintendo Switch",
@@ -897,6 +898,23 @@ const urlResponds = (url: string) =>
  * - Others: the serial cover repo, as before.
  */
 /** Art PS3 disc folders ship with: ICON0 (icon) and PIC1 (1920x1080 background). */
+/** PS4 game folder (primaryPath is its eboot.bin): title from sce_sys/param.sfo. */
+const ps4GameTitle = async (ebootPath: string): Promise<string | null> => {
+  const gameDir = path.dirname(ebootPath);
+  const sfo = await fs.readFile(path.join(gameDir, "sce_sys", "param.sfo")).catch(() => null);
+  const title = sfo ? emulators.parseParamSfoValue(sfo, "TITLE", true) : null;
+  return title || cleanRomTitle(path.basename(gameDir));
+};
+
+/** Art every PS4 game folder ships with: icon0 (square, 512) and pic1 (1920x1080 background). */
+const ps4LocalArt = (ebootPath: string | undefined) => {
+  if (!ebootPath) return { icon: null, pic: null };
+  const sys = path.join(path.dirname(ebootPath), "sce_sys");
+  const icon = path.join(sys, "icon0.png");
+  const pic = [path.join(sys, "pic1.png"), path.join(sys, "pic0.png")].find((candidate) => existsSync(candidate));
+  return { icon: existsSync(icon) ? icon : null, pic: pic ?? null };
+};
+
 const ps3LocalArt = (markerPath: string | undefined) => {
   if (!markerPath || !/^ps3_game$/i.test(path.basename(markerPath))) return { icon: null, pic: null };
   const icon = path.join(markerPath, "ICON0.PNG");
@@ -916,6 +934,11 @@ const resolveUnmatchedArt = async (
   heroUrl: string | null;
   tileUrl: string | null;
 }> => {
+  if (system === "ps4") {
+    const local = ps4LocalArt(primaryPath);
+    return { title, coverUrl: local.icon, heroUrl: local.pic, tileUrl: local.icon };
+  }
+
   if (system === "switch") {
     const found = await HydraApi.post<{
       title: string;
@@ -1062,6 +1085,7 @@ const persistUnmatchedGames = async (
       system,
       serial,
       (system === "ps3" ? await ps3GameTitle(group.files[0].primaryPath) : null) ??
+        (system === "ps4" ? await ps4GameTitle(group.files[0].primaryPath) : null) ??
         cleanRomTitle(sourceFileName),
       group.files[0].primaryPath,
       dolphin?.libretroFolder

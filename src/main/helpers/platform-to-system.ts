@@ -6,6 +6,7 @@ export const platformToSystem = (
   if (!platform) return null;
   const p = platform.toLowerCase();
   if (/playstation\s*portable|\bpsp\b/.test(p)) return "psp";
+  if (/playstation\s*4|\bps4\b/.test(p)) return "ps4";
   if (/playstation\s*3|\bps3\b/.test(p)) return "ps3";
   if (/playstation\s*2|\bps2\b/.test(p)) return "ps2";
   if (/playstation|\bps1\b|\bpsx\b/.test(p)) return "ps1";

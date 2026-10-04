@@ -6,6 +6,7 @@ export type PlatformTone =
   | "ps1"
   | "ps2"
   | "ps3"
+  | "ps4"
   | "psp"
   | "switch"
   | "n3ds"
@@ -29,6 +30,7 @@ export interface PlatformBadge {
 
 const RULES: { test: RegExp; label: string; tone: PlatformTone; name: string }[] = [
   { test: /playstation\s*portable|\bpsp\b/i, label: "PSP", tone: "psp", name: "PlayStation Portable" },
+  { test: /playstation\s*4|\bps4\b/i, label: "PS4", tone: "ps4", name: "PlayStation 4" },
   { test: /playstation\s*3|\bps3\b/i, label: "PS3", tone: "ps3", name: "PlayStation 3" },
   { test: /playstation\s*2|\bps2\b/i, label: "PS2", tone: "ps2", name: "PlayStation 2" },
   { test: /playstation|\bps1\b|\bpsx\b/i, label: "PS1", tone: "ps1", name: "PlayStation" },

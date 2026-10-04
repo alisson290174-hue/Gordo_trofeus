@@ -12,6 +12,7 @@ export const SYSTEM_CATALOGUE_PLATFORMS: Record<EmulatorSystem, string[]> = {
   ps1: ["Sony Playstation", "PlayStation"],
   ps2: ["Sony Playstation 2", "PlayStation 2"],
   ps3: ["Sony Playstation 3", "PlayStation 3"],
+  ps4: ["Sony Playstation 4", "PlayStation 4"],
   psp: ["Sony PSP", "PlayStation Portable", "PSP"],
   dolphin: ["Nintendo GameCube", "Nintendo Wii", "GameCube", "Wii"],
   switch: ["Nintendo Switch", "Switch"],

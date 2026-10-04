@@ -6,6 +6,7 @@ import { orderBy } from "lodash-es";
 import type { LibraryGame, UserAchievement } from "@types";
 import { useLibrary } from "@renderer/hooks";
 import { buildGameDetailsPath } from "@renderer/helpers";
+import { PlatformBadge } from "@renderer/components/platform-badge/platform-badge";
 import {
   getCoverArt,
   getHeroArt,
@@ -40,6 +41,17 @@ const FETCH_CONCURRENCY = 3;
 const achievementCache = new Map<string, UserAchievement[]>();
 
 type TrophyFilter = "all" | "earned" | "locked";
+type GameFilter = "all" | "platinum" | "progress" | "not_started";
+
+const GAME_FILTERS: GameFilter[] = ["all", "platinum", "progress", "not_started"];
+
+const matchesGameFilter = (game: LibraryGame, filter: GameFilter) => {
+  const progress = getTrophyProgress(game);
+  if (filter === "platinum") return progress.isPlatinum;
+  if (filter === "progress") return !progress.isPlatinum && progress.unlocked > 0;
+  if (filter === "not_started") return progress.unlocked === 0;
+  return true;
+};
 
 const keyOf = (game: { shop: string; objectId: string }) =>
   `${game.shop}:${game.objectId}`;
@@ -61,6 +73,8 @@ export default function Trophies() {
     Record<string, UserAchievement[]>
   >(() => Object.fromEntries(achievementCache));
   const [filter, setFilter] = useState<TrophyFilter>("all");
+  const [gameFilter, setGameFilter] = useState<GameFilter>("all");
+  const [search, setSearch] = useState("");
 
   const games = useMemo(
     () =>
@@ -177,6 +191,22 @@ export default function Trophies() {
       levelProgress: (points % POINTS_PER_LEVEL) / POINTS_PER_LEVEL,
     };
   }, [games, countsByGame]);
+
+  const gameFilterCounts = useMemo(
+    () =>
+      Object.fromEntries(
+        GAME_FILTERS.map((key) => [key, games.filter((game) => matchesGameFilter(game, key)).length])
+      ) as Record<GameFilter, number>,
+    [games]
+  );
+
+  const visibleGames = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return sortedGames.filter(
+      (game) =>
+        matchesGameFilter(game, gameFilter) && (!query || game.title.toLowerCase().includes(query))
+    );
+  }, [gameFilter, search, sortedGames]);
 
   const selected =
     sortedGames.find((game) => keyOf(game) === paramKey) ??
@@ -367,11 +397,33 @@ export default function Trophies() {
       ) : (
         <section className="trophies__body">
           <div className="trophies__games">
+            <div className="trophies__game-filters">
+              {GAME_FILTERS.map((key) => (
+                <button
+                  key={key}
+                  type="button"
+                  className={cn("trophies__game-chip", {
+                    "trophies__game-chip--active": gameFilter === key,
+                  })}
+                  onClick={() => setGameFilter(key)}
+                >
+                  <span>{t(`trophies_games_${key}`)}</span>
+                  <span className="trophies__chip-count">{gameFilterCounts[key]}</span>
+                </button>
+              ))}
+            </div>
+            <input
+              type="search"
+              className="trophies__search"
+              placeholder={t("trophies_search_placeholder")}
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+            />
             <span className="ps5-eyebrow trophies__games-title">
-              {t("games_label", { count: games.length })}
+              {t("games_label", { count: visibleGames.length })}
             </span>
 
-            {sortedGames.map((game) => {
+            {visibleGames.map((game) => {
               const counts = countsByGame[keyOf(game)];
               const isSelected = selected && keyOf(selected) === keyOf(game);
               const platinum = isPlatinumGame(game);
@@ -400,7 +452,10 @@ export default function Trophies() {
                     )}
                   </div>
                   <div className="trophies__game-info">
-                    <span className="trophies__game-name">{game.title}</span>
+                    <span className="trophies__game-name">
+                      <PlatformBadge game={game} className="trophies__game-badge" />
+                      {game.title}
+                    </span>
                     <div className="ps5-bar">
                       <span
                         style={{

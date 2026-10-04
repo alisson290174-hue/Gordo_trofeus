@@ -73,6 +73,7 @@ const BINARY_TO_SYSTEM: Record<EmulatorBinary, EmulatorSystem> = {
   duckstation: "ps1",
   pcsx2: "ps2",
   rpcs3: "ps3",
+  shadps4: "ps4",
   ppsspp: "psp",
   dolphin: "dolphin",
   eden: "switch",

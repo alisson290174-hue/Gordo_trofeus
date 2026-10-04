@@ -434,6 +434,25 @@ const resolveDolphinOptions = async (
   ];
 };
 
+const shadps4Entries = (os: InstallOs, arch: InstallArch): EmulatorSourceEntry[] => {
+  if (os === "win32" && arch === "x64") {
+    return [
+      {
+        type: "github",
+        id: "shadps4-portable",
+        binary: "shadps4",
+        repo: "shadps4-emu/shadPS4",
+        channel: "latest",
+        channelLabel: null,
+        // "shadps4-win64-sdl-0.19.0.zip": the emulator itself (games open straight from Opus).
+        assetPattern: /^shadps4-win64-sdl-[\d.]+\.zip$/i,
+        kind: "windows-archive",
+      },
+    ];
+  }
+  return [];
+};
+
 const githubEntries = (
   binary: EmulatorBinary,
   os: InstallOs,
@@ -442,6 +461,7 @@ const githubEntries = (
   if (binary === "duckstation") return duckstationEntries(os, arch);
   if (binary === "pcsx2") return pcsx2Entries(os, arch);
   if (binary === "rpcs3") return rpcs3Entries(os, arch);
+  if (binary === "shadps4") return shadps4Entries(os, arch);
   if (binary === "ppsspp") return ppssppEntries(os, arch);
   if (binary === "azahar") return azaharEntries(os, arch);
   if (binary === "eden") return edenEntries(os, arch);

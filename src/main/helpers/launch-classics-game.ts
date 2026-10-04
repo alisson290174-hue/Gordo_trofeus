@@ -174,6 +174,9 @@ const buildEmulatorArgs = (
       return ["-batch", "-fullscreen", "--", discPath];
     case "rpcs3":
       return ["--no-gui", discPath];
+    case "shadps4":
+      // The game's eboot.bin, fullscreen.
+      return ["-f", "true", "-g", discPath];
     case "ppsspp":
       return ["--pause-menu-exit", "--fullscreen", discPath];
     case "dolphin":

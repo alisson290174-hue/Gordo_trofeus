@@ -362,6 +362,18 @@ const titleIdFromPs3File = async (filePath: string): Promise<string | null> => {
   return null;
 };
 
+/** PS4 game folder (or its eboot.bin): TITLE_ID from sce_sys/param.sfo, e.g. "CUSA20499". */
+const extractPs4TitleId = async (primaryPath: string): Promise<string | null> => {
+  const stat = await fs.stat(primaryPath).catch(() => null);
+  if (!stat) return null;
+  const gameDir = stat.isDirectory() ? primaryPath : path.dirname(primaryPath);
+  const sfo = await fs.readFile(path.join(gameDir, "sce_sys", "param.sfo")).catch(() => null);
+  const id = sfo ? parseParamSfoValue(sfo, "TITLE_ID")?.replace(/[^A-Za-z0-9]/g, "").toUpperCase() : null;
+  if (id && /^[A-Z]{4}\d{5}$/.test(id)) return id;
+  const guess = /[A-Z]{4}\d{5}/.exec(path.basename(gameDir).toUpperCase());
+  return guess ? guess[0] : null;
+};
+
 const extractPs3TitleId = async (
   primaryPath: string
 ): Promise<string | null> => {
@@ -493,6 +505,8 @@ export const extractDiscSku = async (
       return extractPs12Sku(primaryPath);
     case "ps3":
       return extractPs3TitleId(primaryPath);
+    case "ps4":
+      return extractPs4TitleId(primaryPath);
     case "psp":
       return extractPspDiscId(primaryPath);
     case "dolphin":
