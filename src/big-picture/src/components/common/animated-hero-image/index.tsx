@@ -29,6 +29,8 @@ function getBackgroundColor(element: HTMLElement) {
   );
 }
 
+const withAlphaFallback = (alpha: number) => `rgba(8, 8, 8, ${alpha})`;
+
 function withAlpha(color: string, alpha: number) {
   const normalizedAlpha = Math.max(0, Math.min(1, alpha));
 
@@ -42,7 +44,24 @@ function withAlpha(color: string, alpha: number) {
     return `rgba(${rgbaMatch[1]}, ${rgbaMatch[2]}, ${rgbaMatch[3]}, ${normalizedAlpha})`;
   }
 
-  return FALLBACK_BACKGROUND_COLOR;
+  // The Opus theme defines --background as hex (#070b16): without this every fade step came out
+  // as the opaque fallback and covered the lower 2/3 of the banner in black.
+  const hex = /^#([\da-f]{3}|[\da-f]{6})$/i.exec(color.trim())?.[1];
+  if (hex) {
+    const full =
+      hex.length === 3
+        ? hex
+            .split("")
+            .map((digit) => digit + digit)
+            .join("")
+        : hex;
+    const [r, g, b] = [0, 2, 4].map((at) =>
+      Number.parseInt(full.slice(at, at + 2), 16)
+    );
+    return `rgba(${r}, ${g}, ${b}, ${normalizedAlpha})`;
+  }
+
+  return withAlphaFallback(normalizedAlpha);
 }
 
 function getCoverCrop(

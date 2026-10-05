@@ -178,13 +178,19 @@ export function GameDetailsContextProvider({
       });
 
     if (shop !== "custom") {
-      window.electron.getGameStats(objectId, shop).then((result) => {
-        if (abortController.signal.aborted) return;
-        setStats(result);
-      });
+      window.electron
+        .getGameStats(objectId, shop)
+        .then((result) => {
+          if (abortController.signal.aborted) return;
+          setStats(result);
+        })
+        .catch(() => {});
     }
 
-    const assetsPromise = window.electron.getGameAssets(objectId, shop);
+    // Games the server doesn't know (404) just keep the art they already have.
+    const assetsPromise = window.electron
+      .getGameAssets(objectId, shop)
+      .catch(() => null);
 
     Promise.all([shopDetailsPromise, assetsPromise])
       .then(([_, assets]) => {

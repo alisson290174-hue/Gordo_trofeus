@@ -42,8 +42,14 @@ const SUBSCRIPTION_OPTIONS = {
   needsSubscription: true,
 } as const;
 
+// Our server has no artwork storage (every call answered 404 after reading and sending the
+// image): custom art stays on this PC as "local:" files and "Buscar capa" finds it again.
+const ARTWORK_CLOUD_AVAILABLE = false;
+
 const canSyncArtwork = () =>
-  HydraApi.isLoggedIn() && HydraApi.hasActiveSubscription();
+  ARTWORK_CLOUD_AVAILABLE &&
+  HydraApi.isLoggedIn() &&
+  HydraApi.hasActiveSubscription();
 
 const resolveLocalPath = (localUrl: string) =>
   localUrl.startsWith("local:") ? localUrl.slice("local:".length) : null;

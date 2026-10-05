@@ -1,7 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { FastifyInstance } from "fastify";
+import { randomBytes } from "node:crypto";
 import { requireAuth } from "../auth/require-auth.js";
+import { buildMultipartLayout, parseByteRanges, writeMultipartRanges } from "./byte-ranges.js";
 
 /**
  * Auto-update feed for the app (electron-updater "generic" provider): latest.yml, the installer
@@ -28,6 +30,29 @@ export function registerUpdateRoutes(app: FastifyInstance) {
 
     // The feed manifest must never be cached, or clients would miss a new release.
     if (file.endsWith(".yml")) reply.header("Cache-Control", "no-store");
+
+    // Several ranges at once = the updater downloading only the changed blocks.
+    const rangeHeader = request.headers.range;
+    if (rangeHeader?.includes(",")) {
+      const filePath = path.join(updatesDir, file);
+      const size = fs.statSync(filePath).size;
+      const ranges = parseByteRanges(rangeHeader, size);
+      if (!ranges) {
+        return reply.code(416).header("Content-Range", `bytes */${size}`).send();
+      }
+      const boundary = randomBytes(12).toString("hex");
+      const layout = buildMultipartLayout(ranges, size, boundary);
+      reply
+        .code(206)
+        .header("Content-Type", `multipart/byteranges; boundary=${boundary}`)
+        .header("Content-Length", String(layout.length))
+        .header("Accept-Ranges", "bytes");
+      reply.hijack();
+      reply.raw.writeHead(206, reply.getHeaders() as Record<string, string>);
+      await writeMultipartRanges(reply.raw, filePath, layout);
+      return;
+    }
+
     return reply.sendFile(file, updatesDir);
   });
 }

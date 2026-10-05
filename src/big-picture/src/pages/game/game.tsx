@@ -1479,11 +1479,15 @@ export default function Game() {
         </BigPictureCloudSaveProvider>
 
         <section className="game-page__content">
-          <PlaytimeBar
-            game={game}
-            isGameRunning={isGameRunning}
-            runningSessionDurationInMillis={runningSessionDurationInMillis}
-          />
+          {/* Play time and last session already sit in the hero cards; the bar only adds the
+              live session while the game is open. */}
+          {isGameRunning && (
+            <PlaytimeBar
+              game={game}
+              isGameRunning={isGameRunning}
+              runningSessionDurationInMillis={runningSessionDurationInMillis}
+            />
+          )}
 
           <div className="game-page__main-layout">
             <div className="game-page__main-column">

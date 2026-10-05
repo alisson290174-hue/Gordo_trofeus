@@ -29,11 +29,22 @@ const downloadSourceNamesForGameStatement = db.prepare(
    JOIN download_sources ds ON ds.id = gr.download_source_id
    WHERE gr.appid = ?`
 );
+// Offline trophies only, like the library and the platinum (see library/routes.ts).
 const achievementCountStatement = db.prepare(
-  "SELECT COUNT(*) as total FROM achievement_catalogue WHERE shop = ? AND object_id = ?"
+  "SELECT COUNT(*) as total FROM achievement_catalogue WHERE shop = ? AND object_id = ? AND COALESCE(is_online, 0) = 0"
 );
 const unlockedAchievementCountStatement = db.prepare(
-  "SELECT COUNT(*) as total FROM user_achievements WHERE profile_game_id = ?"
+  `SELECT COUNT(*) AS total FROM user_achievements ua
+   JOIN profile_games pg ON pg.id = ua.profile_game_id
+   WHERE ua.profile_game_id = ?
+     AND (
+       NOT EXISTS (SELECT 1 FROM achievement_catalogue c WHERE c.shop = pg.shop AND c.object_id = pg.object_id)
+       OR EXISTS (
+         SELECT 1 FROM achievement_catalogue c
+         WHERE c.shop = pg.shop AND c.object_id = pg.object_id
+           AND c.name = ua.achievement_name COLLATE NOCASE AND COALESCE(c.is_online, 0) = 0
+       )
+     )`
 );
 
 interface ProfileGameRow {

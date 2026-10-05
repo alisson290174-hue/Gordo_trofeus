@@ -64,9 +64,10 @@ export default function GameLauncher() {
         setGame(gameData);
       });
 
-      window.electron.getGameAssets(objectId, shop).then((assets) => {
-        setGameAssets(assets);
-      });
+      window.electron
+        .getGameAssets(objectId, shop)
+        .then((assets) => setGameAssets(assets))
+        .catch(() => {});
     }
 
     window.electron.isMainWindowOpen().then((isOpen) => {

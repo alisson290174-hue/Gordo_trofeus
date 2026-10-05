@@ -1,6 +1,6 @@
 import type { LibraryGame, ShopDetailsWithAssets } from "@types";
 import { motion } from "framer-motion";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { resolvePreferredGameAssets } from "../../../../helpers";
 
 export interface GameAchievementsHeroProps {
@@ -16,6 +16,10 @@ export function GameAchievementsHero({
     () => resolvePreferredGameAssets(game, shopDetails.assets),
     [game, shopDetails.assets]
   );
+
+  // A logo that fails to load shows the game's name instead of a broken-image icon.
+  const [logoFailed, setLogoFailed] = useState(false);
+  useEffect(() => setLogoFailed(false), [preferredAssets.logoSrc]);
 
   return (
     <section className="game-achievements-page__hero">
@@ -35,12 +39,17 @@ export function GameAchievementsHero({
       />
 
       <div className="game-achievements-page__hero-overlay">
-        {preferredAssets.logoSrc ? (
+        {preferredAssets.logoSrc && !logoFailed ? (
           <img
             src={preferredAssets.logoSrc}
             alt={preferredAssets.title}
             className="game-achievements-page__hero-logo"
+            onError={() => setLogoFailed(true)}
           />
+        ) : preferredAssets.title ? (
+          <h1 className="game-achievements-page__hero-title">
+            {preferredAssets.title}
+          </h1>
         ) : null}
       </div>
     </section>

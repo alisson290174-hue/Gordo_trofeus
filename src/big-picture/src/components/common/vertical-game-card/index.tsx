@@ -86,10 +86,13 @@ export function VerticalGameCard({
         {coverMedia ? (
           coverMedia
         ) : coverImageUrl ? (
+          // Lazy: a 500-game grid only decodes the covers near the screen (was ~2 GB of bitmaps).
           <img
             className="vertical-game-card__cover-image"
             src={coverImageUrl}
             alt={gameTitle}
+            loading="lazy"
+            decoding="async"
             draggable={false}
             onError={onCoverImageError}
           />

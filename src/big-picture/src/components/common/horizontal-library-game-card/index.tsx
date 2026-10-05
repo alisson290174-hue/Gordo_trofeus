@@ -88,6 +88,8 @@ export function HorizontalLibraryGameCard({
             className="horizontal-library-game-card__cover-image"
             src={coverImageUrl}
             alt={gameTitle}
+            loading="lazy"
+            decoding="async"
             draggable={false}
             onError={onCoverImageError}
           />
@@ -103,6 +105,8 @@ export function HorizontalLibraryGameCard({
             <img
               src={logoImageUrl}
               alt=""
+              loading="lazy"
+              decoding="async"
               draggable={false}
               className="horizontal-library-game-card__logo-image"
             />

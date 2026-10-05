@@ -5,8 +5,11 @@ import { resolveBigPictureLanguage } from "../i18n";
 export const tr = (en: string, pt: string) =>
   resolveBigPictureLanguage() === "pt-BR" ? pt : en;
 
+// Rounded to the nearest minute, like the library cards and the normal mode (1.6 min = 2 min).
 export const formatPlayTime = (milliseconds: number) => {
-  const { hours, minutes } = getPlayTimeHoursAndMinutes(milliseconds);
+  const { hours, minutes } = getPlayTimeHoursAndMinutes(
+    Math.round(Math.max(0, milliseconds) / 60_000) * 60_000
+  );
   if (!hours && !minutes) return null;
   return hours ? `${hours} h ${minutes} min` : `${minutes} min`;
 };

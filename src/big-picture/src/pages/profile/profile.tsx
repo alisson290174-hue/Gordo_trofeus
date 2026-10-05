@@ -1,3 +1,4 @@
+import { getHeroArt } from "@renderer/helpers/ps5-game";
 import "./profile.scss";
 
 import {
@@ -43,7 +44,6 @@ import {
   useMemo,
   useRef,
   useState,
-  type CSSProperties,
   type ReactNode,
   type SyntheticEvent,
 } from "react";
@@ -198,15 +198,6 @@ type ProfileHeroAction = {
 };
 
 const appIconUrl = new URL("../../assets/app-icon.svg", import.meta.url).href;
-const WEEKLY_BAR_PLACEHOLDER = [
-  { day: "monday", label: "M", height: 0.62 },
-  { day: "tuesday", label: "T", height: 0.14 },
-  { day: "wednesday", label: "W", height: 0.36 },
-  { day: "thursday", label: "T", height: 0.26 },
-  { day: "friday", label: "F", height: 0.34 },
-  { day: "saturday", label: "S", height: 0.42 },
-  { day: "sunday", label: "S", height: 0.72 },
-];
 const LOCKED_ACHIEVEMENT_PREVIEW = {
   gameTitle: "Achievement preview",
   gameIconUrl:
@@ -675,7 +666,21 @@ function ProfileHero({
   firstContentFocusId,
   onSignOut,
 }: Readonly<ProfileHeroProps>) {
-  const heroImageUrl = profileUser?.backgroundImageUrl ?? null;
+  const { library } = useLibrary();
+  // No profile background chosen: your last played game fills the banner instead of a black band.
+  const lastPlayedHero = useMemo(() => {
+    if (!profileUser?.isOwnProfile) return null;
+    const recent = library
+      .filter((game) => !game.isDeleted && game.lastTimePlayed)
+      .sort(
+        (a, b) =>
+          new Date(b.lastTimePlayed!).getTime() -
+          new Date(a.lastTimePlayed!).getTime()
+      )
+      .find((game) => getHeroArt(game));
+    return recent ? getHeroArt(recent) : null;
+  }, [library, profileUser?.isOwnProfile]);
+  const heroImageUrl = profileUser?.backgroundImageUrl || lastPlayedHero;
   const { backgroundLayers, getLayerEventHandlers } =
     useHeroBackgroundLayers(heroImageUrl);
   const usernameLabel = profileUser?.username || profileUser?.id || "";
@@ -902,13 +907,34 @@ function ProfileHeroActions({
 interface ProfileStatsProps {
   userStats: UserStats | null;
   favoriteGame: ProfileFavoriteGame | null;
+  /** Own profile: counts come from this PC's library (games actually opened, not all of them). */
+  ownLibrary: LibraryGame[] | null;
 }
 
 function ProfileStats({
   userStats,
   favoriteGame,
+  ownLibrary,
 }: Readonly<ProfileStatsProps>) {
   const { t } = useTranslation(["game_details", "big_picture"]);
+  const played = useMemo(() => {
+    if (!ownLibrary) return null;
+    const games = ownLibrary.filter(
+      (game) => !game.isDeleted && getDisplayedPlayTimeInMilliseconds(game) > 0
+    );
+    const totalSeconds =
+      games.reduce(
+        (sum, game) => sum + getDisplayedPlayTimeInMilliseconds(game),
+        0
+      ) / 1000;
+    return { count: games.length, totalSeconds };
+  }, [ownLibrary]);
+  const playedCount = played ? played.count : userStats?.libraryCount;
+  const averageLabel = played
+    ? played.count > 0
+      ? formatHours(played.totalSeconds / played.count, t)
+      : "--"
+    : formatAveragePlaytime(userStats, t);
   const favoriteGameImageUrl = getFavoriteGameImage(favoriteGame);
   const favoriteGamePlaytimeInSeconds =
     getFavoriteGamePlaytimeInSeconds(favoriteGame);
@@ -924,40 +950,16 @@ function ProfileStats({
                 {formatHours(userStats?.totalPlayTimeInSeconds.value, t)}
               </span>
             </div>
-
-            <div
-              className="profile-page__weekly-bars"
-              aria-label="Weekly playtime data unavailable"
-            >
-              <div className="profile-page__weekly-bars-track">
-                {WEEKLY_BAR_PLACEHOLDER.map(({ day, height }) => (
-                  <span
-                    key={day}
-                    className="profile-page__weekly-bar"
-                    style={
-                      {
-                        "--profile-weekly-bar-height": `${Math.round(height * 100)}%`,
-                      } as CSSProperties
-                    }
-                  />
-                ))}
-              </div>
-              <div className="profile-page__weekly-labels">
-                {WEEKLY_BAR_PLACEHOLDER.map(({ day, label }) => (
-                  <span key={day}>{label}</span>
-                ))}
-              </div>
-            </div>
           </div>
           <div className="profile-page__stat-label">Hours Played</div>
         </article>
 
         <ProfileStatPair
           leftIcon={<GameControllerIcon size={36} />}
-          leftValue={formatCompactNumber(userStats?.libraryCount)}
+          leftValue={formatCompactNumber(playedCount)}
           leftLabel="Games Played"
           rightIcon={<ClockIcon size={36} />}
-          rightValue={formatAveragePlaytime(userStats, t)}
+          rightValue={averageLabel}
           rightLabel="Avg. Playtime"
         />
 
@@ -3236,7 +3238,11 @@ function ProfileContent({ userId }: Readonly<ProfileContentProps>) {
 
         {profileUser ? (
           <div className="profile-page__sections">
-            <ProfileStats userStats={userStats} favoriteGame={favoriteGame} />
+            <ProfileStats
+              userStats={userStats}
+              favoriteGame={favoriteGame}
+              ownLibrary={profileUser?.isOwnProfile ? library : null}
+            />
 
             <ProfileSouvenirs
               souvenirs={souvenirs}

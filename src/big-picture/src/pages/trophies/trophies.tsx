@@ -234,14 +234,15 @@ export default function BigPictureTrophies() {
                     })}
                     onClick={openTrophies}
                   >
-                    <span
-                      className="bp-trophies__cover"
-                      style={
-                        cover
-                          ? { backgroundImage: `url("${cover}")` }
-                          : undefined
-                      }
-                    >
+                    <span className="bp-trophies__cover">
+                      {cover && (
+                        <img
+                          src={cover}
+                          alt=""
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      )}
                       {platinum && (
                         <img
                           className="bp-trophies__cover-plat"

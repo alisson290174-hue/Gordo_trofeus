@@ -10,6 +10,18 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.50",
+    date: "05/10/2026",
+    items: [
+      "Big Picture bem mais leve: a Biblioteca e os Troféus só carregam as capas que estão perto da tela (antes eram todas de uma vez — quase 2 GB de imagens).",
+      "Atualizações do Opus passam a baixar só o que mudou, em vez do instalador inteiro (depois da atualização do servidor).",
+      "Perfil: o fundo volta a aparecer, os números contam só os jogos que você jogou de verdade e o gráfico semanal falso saiu.",
+      "Troféus: jogos com troféus online (como Red Dead Redemption 2) não aparecem mais como platinados sem estar.",
+      "Página do jogo e troféus: logo que não carrega vira o nome do jogo; tempo de jogo igual em todo lugar; cores no tom do Opus.",
+      "Correções internas: menos erros no registro (capas personalizadas, páginas de jogos sem dados no servidor).",
+    ],
+  },
+  {
     version: "1.0.49",
     date: "05/10/2026",
     items: [
