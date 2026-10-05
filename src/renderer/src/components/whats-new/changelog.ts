@@ -10,6 +10,13 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.47",
+    date: "05/10/2026",
+    items: [
+      "A página de jogos adicionados à mão (e dos jogos do app Xbox) volta a mostrar a imagem de fundo escolhida.",
+    ],
+  },
+  {
     version: "1.0.46",
     date: "05/10/2026",
     items: [

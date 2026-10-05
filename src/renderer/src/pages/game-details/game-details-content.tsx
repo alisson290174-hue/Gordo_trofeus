@@ -252,7 +252,10 @@ export function GameDetailsContent() {
     isLaunchboxGame && !classicsUseHeroLayout && !hasClassicsFanart;
 
   const heroImage = isCustomGame
-    ? game?.libraryHeroImageUrl || game?.iconUrl || ""
+    ? game?.customHeroImageUrl ||
+      game?.libraryHeroImageUrl ||
+      game?.iconUrl ||
+      ""
     : getImageWithCustomPriority(
         game?.customHeroImageUrl,
         shopDetails?.assets?.libraryHeroImageUrl,
