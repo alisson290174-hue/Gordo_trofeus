@@ -10,6 +10,14 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.52",
+    date: "05/10/2026",
+    items: [
+      "Big Picture: os consoles do Início ficam numa linha só, que rola junto com o controle (antes alguns sobravam sozinhos numa segunda linha).",
+      "Big Picture: sumiu o contorno laranja que aparecia por dentro do anel azul de seleção.",
+    ],
+  },
+  {
     version: "1.0.51",
     date: "05/10/2026",
     items: [

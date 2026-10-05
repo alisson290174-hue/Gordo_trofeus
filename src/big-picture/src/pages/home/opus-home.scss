@@ -236,16 +236,26 @@
     }
   }
 
+  // One row that scrolls with the focus (wrapping left one or two chips alone on a 2nd line).
   &__consoles {
     margin-top: auto;
     margin-bottom: 28px;
+    margin-left: -12px;
+    margin-right: calc(var(--opus-gutter) * -1);
     display: flex;
-    flex-wrap: wrap;
+    flex-wrap: nowrap;
     gap: 14px;
-    padding: 10px 4px;
+    padding: 14px var(--opus-gutter) 14px 12px;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 
   &__chip {
+    flex: none;
     height: 52px;
     padding: 0 22px;
     border-radius: 999px;

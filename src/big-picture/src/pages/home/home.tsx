@@ -104,6 +104,26 @@ export default function Home() {
   const selected =
     strip.find((game) => gameKey(game) === selectedKey) ?? strip[0] ?? null;
 
+  // Console chips: one scrolling row; keep the focused chip fully visible.
+  useEffect(() => {
+    if (!currentFocusId?.startsWith("home-console-")) return;
+    const frame = globalThis.requestAnimationFrame(() => {
+      const row = globalThis.document.querySelector<HTMLElement>(
+        ".opus-home__consoles"
+      );
+      const chip = row?.querySelector<HTMLElement>('[data-focused="true"]');
+      if (!row || !chip) return;
+      const margin = 48;
+      const left = chip.offsetLeft - margin;
+      const right =
+        chip.offsetLeft + chip.offsetWidth + margin - row.clientWidth;
+      if (left < row.scrollLeft) row.scrollTo({ left, behavior: "smooth" });
+      else if (right > row.scrollLeft)
+        row.scrollTo({ left: right, behavior: "smooth" });
+    });
+    return () => globalThis.cancelAnimationFrame(frame);
+  }, [currentFocusId]);
+
   // Keep the focused tile on screen (PS5 style: it sits near the left, the previous one peeking).
   useEffect(() => {
     if (!currentFocusId?.startsWith(TILE_PREFIX)) return;

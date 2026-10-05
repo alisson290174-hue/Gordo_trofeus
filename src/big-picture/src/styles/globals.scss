@@ -218,6 +218,13 @@ li {
   padding: 0;
 }
 
+// Big Picture draws its own focus ring (white + blue); the browser's default outline (an orange
+// line inside the ring on buttons) is never wanted here.
+#big-picture :is(button, a, [tabindex]):focus,
+#big-picture :is(button, a, [tabindex]):focus-visible {
+  outline: none;
+}
+
 [data-bp-input-mode="mouse"] [data-focused="true"] {
   outline: none !important;
   box-shadow: none !important;
