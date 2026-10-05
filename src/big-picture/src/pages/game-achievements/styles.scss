@@ -348,3 +348,38 @@
     color: var(--text-secondary);
   }
 }
+
+.game-achievements-page__empty {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 32px 40px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--opus-text);
+  outline: none;
+
+  svg {
+    flex: none;
+    color: var(--opus-muted);
+  }
+
+  h2 {
+    margin: 0 0 8px;
+    font-size: 28px;
+    font-weight: 500;
+  }
+
+  p {
+    margin: 0;
+    max-width: 70ch;
+    font-size: 19px;
+    line-height: 1.5;
+    color: var(--opus-muted);
+  }
+
+  &[data-focused="true"] {
+    box-shadow: var(--opus-ring);
+  }
+}

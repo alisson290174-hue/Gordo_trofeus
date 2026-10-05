@@ -44,6 +44,8 @@ const useClock = () => {
   return now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 };
 
+let lastSectionIndex = 1; // Biblioteca when a game page is the first screen
+
 /**
  * PS5-style top bar: the sections sit in one row and LB / RB move between them from anywhere on
  * the screen (pages with their own tabs use LT / RT). Replaces the old left sidebar.
@@ -71,18 +73,13 @@ export function TopNav() {
         key: "library",
         label: "Library",
         path: `${BASE_PATH}/library`,
-        matches: (p) =>
-          p.startsWith("/library") ||
-          (p.startsWith("/game/") && !p.endsWith("/achievements")),
+        matches: (p) => p.startsWith("/library"),
       },
       {
         key: "trophies",
         label: "Trophies",
         path: `${BASE_PATH}/trophies`,
-        matches: (p) =>
-          p.startsWith("/trophies") ||
-          p.startsWith("/profile") ||
-          /^\/game\/[^/]+\/[^/]+\/achievements/.test(p),
+        matches: (p) => p.startsWith("/trophies") || p.startsWith("/profile"),
       },
       {
         key: "settings",
@@ -94,10 +91,18 @@ export function TopNav() {
     []
   );
 
-  const activeIndex = Math.max(
-    0,
-    sections.findIndex((section) => section.matches(normalized))
+  // A game page (or its trophies) belongs to the section it was opened from: Início, Biblioteca
+  // or Troféus stay highlighted instead of jumping to another tab.
+  const matchedIndex = sections.findIndex((section) =>
+    section.matches(normalized)
   );
+  if (matchedIndex >= 0) lastSectionIndex = matchedIndex;
+  const activeIndex =
+    matchedIndex >= 0
+      ? matchedIndex
+      : normalized.startsWith("/game/")
+        ? lastSectionIndex
+        : 0;
 
   // Coming up from a page lands on the current section, not on the last button of the bar.
   const activeSectionKey = sections[activeIndex]?.key;

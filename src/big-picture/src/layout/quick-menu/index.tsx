@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import {
@@ -19,6 +19,7 @@ import {
 import { NavigationAudioService } from "../../services";
 import { useNavigationStore, useVirtualKeyboardStore } from "../../stores";
 import { BIG_PICTURE_APP_LAYER_ID } from "../navigation";
+import { openFriendsPanel } from "../friends-panel";
 import "./styles.scss";
 
 const QUICK_MENU_REGION_ID = "quick-menu";
@@ -70,6 +71,7 @@ export function QuickMenu() {
   );
 
   const close = useCallback(() => setOpen(false), []);
+  const openerFocusIdRef = useRef<string | null>(null);
 
   // Start toggles the menu through Big Picture's screen actions (same path as every other screen
   // button); only from the main screen, never under a modal or the on-screen keyboard.
@@ -80,6 +82,7 @@ export function QuickMenu() {
       const { currentFocusId, nodes } = useNavigationStore.getState();
       const focused = nodes.find((node) => node.id === currentFocusId);
       if (focused && focused.layerId !== BIG_PICTURE_APP_LAYER_ID) return false;
+      openerFocusIdRef.current = currentFocusId;
       NavigationAudioService.getInstance().play("select");
       return true;
     });
@@ -110,8 +113,12 @@ export function QuickMenu() {
     list.push(
       {
         label: "Friends",
+        // After this menu is gone, so the panel hands the focus back to where you were.
         run: () =>
-          IS_DESKTOP && void globalThis.window.electron.openFriendsWindow(),
+          globalThis.setTimeout(
+            () => openFriendsPanel(openerFocusIdRef.current),
+            260
+          ),
       },
       { label: "Library", run: () => navigate(`${BASE_PATH}/library`) },
       { label: "Settings", run: () => navigate(`${BASE_PATH}/settings`) },

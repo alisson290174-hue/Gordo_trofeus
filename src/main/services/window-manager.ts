@@ -493,6 +493,14 @@ export class WindowManager {
       this.bigPicture?.focus();
     });
 
+    // Another window (or a closing game) can leave Big Picture windowed with the taskbar on top;
+    // whenever it gets the focus back it goes fullscreen again.
+    this.bigPicture.on("focus", () => {
+      const bigPicture = this.bigPicture;
+      if (bigPicture && !bigPicture.isDestroyed() && !bigPicture.isFullScreen())
+        bigPicture.setFullScreen(true);
+    });
+
     this.bigPicture.on("closed", () => {
       this.bigPicture = null;
       const main = this.mainWindow;

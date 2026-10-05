@@ -10,6 +10,16 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.49",
+    date: "05/10/2026",
+    items: [
+      "Big Picture: Amigos agora é um painel do próprio Big Picture, usado só com o controle (A abre o perfil, B fecha) — não abre mais uma janela por cima nem faz a barra de tarefas aparecer.",
+      "Big Picture: se a barra de tarefas do Windows aparecer, o Big Picture volta para a tela cheia assim que recebe o foco.",
+      'Big Picture: jogos sem troféus mostram "Este jogo não tem troféus" (e o botão Troféus some do Início para eles).',
+      "Big Picture: abrir um jogo pela Biblioteca ou pelo Início mantém essa aba destacada no menu de cima.",
+    ],
+  },
+  {
     version: "1.0.48",
     date: "05/10/2026",
     items: [

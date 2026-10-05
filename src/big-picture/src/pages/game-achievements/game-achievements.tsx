@@ -1,7 +1,9 @@
 import type { GameShop, UserAchievement } from "@types";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { VerticalFocusGroup } from "../../components";
+import { TrophyIcon } from "@phosphor-icons/react";
+import { FocusItem, VerticalFocusGroup } from "../../components";
+import { tr } from "../../helpers/opus-text";
 import {
   AchievementRow,
   AvailablePointsBar,
@@ -83,7 +85,9 @@ export default function GameAchievements() {
     return (
       <VerticalFocusGroup regionId={GAME_ACHIEVEMENTS_PAGE_REGION_ID} asChild>
         <div className="game-achievements-page">
-          <p style={{ color: "white", padding: 24 }}>Loading...</p>
+          <p style={{ color: "white", padding: 24 }}>
+            {tr("Loading...", "Carregando...")}
+          </p>
         </div>
       </VerticalFocusGroup>
     );
@@ -94,52 +98,86 @@ export default function GameAchievements() {
       <div className="game-achievements-page">
         <GameAchievementsHero shopDetails={shopDetails} game={game} />
 
-        <div className="game-achievements-page__content">
-          <UserAchievementsSummary
-            userDetails={userDetails}
-            unlockedCount={unlockedCount}
-            totalCount={achievements.length}
-            stealFocusOnAppear
-            navigationOverrides={{
-              up: { type: "block" },
-              down: firstAchievementRowId
-                ? { type: "item", itemId: firstAchievementRowId }
-                : { type: "block" },
-            }}
-          />
-
-          <section className="game-achievements-page__list-section">
-            <AvailablePointsBar
-              earnedPoints={earnedPoints}
-              totalPoints={totalPoints}
-            />
-
-            <VerticalFocusGroup
-              regionId={GAME_ACHIEVEMENTS_LIST_REGION_ID}
+        {achievements.length === 0 ? (
+          <div className="game-achievements-page__content">
+            <FocusItem
+              id={GAME_ACHIEVEMENTS_SUMMARY_FOCUS_ID}
+              stealFocusOnAppear
+              actions={{ primary: () => navigate(-1) }}
               asChild
             >
-              <ul className="game-achievements-page__list">
-                {achievements.map((achievement, index) => (
-                  <AchievementRow
-                    key={achievement.name}
-                    achievement={achievement}
-                    navigationOverrides={
-                      index === 0
-                        ? {
-                            up: {
-                              type: "item",
-                              itemId: GAME_ACHIEVEMENTS_SUMMARY_FOCUS_ID,
-                            },
-                          }
-                        : undefined
-                    }
-                    onSouvenirActivate={handleSouvenirActivate}
-                  />
-                ))}
-              </ul>
-            </VerticalFocusGroup>
-          </section>
-        </div>
+              <div className="game-achievements-page__empty">
+                <TrophyIcon size={56} weight="duotone" />
+                <div>
+                  <h2>
+                    {tr(
+                      "This game has no trophies",
+                      "Este jogo não tem troféus"
+                    )}
+                  </h2>
+                  <p>
+                    {shop === "launchbox"
+                      ? tr(
+                          "Console games get trophies through RetroAchievements (PS1, PS2, SNES, N64, GBA, DS…). Switch, 3DS, PS3 and PS4 games have none yet.",
+                          "Jogos de console ganham troféus pelo RetroAchievements (PS1, PS2, SNES, N64, GBA, DS…). Jogos de Switch, 3DS, PS3 e PS4 ainda não têm."
+                        )
+                      : tr(
+                          "No trophy list was found for this game.",
+                          "Não foi encontrada uma lista de troféus para este jogo."
+                        )}
+                  </p>
+                </div>
+              </div>
+            </FocusItem>
+          </div>
+        ) : (
+          <div className="game-achievements-page__content">
+            <UserAchievementsSummary
+              userDetails={userDetails}
+              unlockedCount={unlockedCount}
+              totalCount={achievements.length}
+              stealFocusOnAppear
+              navigationOverrides={{
+                up: { type: "block" },
+                down: firstAchievementRowId
+                  ? { type: "item", itemId: firstAchievementRowId }
+                  : { type: "block" },
+              }}
+            />
+
+            <section className="game-achievements-page__list-section">
+              <AvailablePointsBar
+                earnedPoints={earnedPoints}
+                totalPoints={totalPoints}
+              />
+
+              <VerticalFocusGroup
+                regionId={GAME_ACHIEVEMENTS_LIST_REGION_ID}
+                asChild
+              >
+                <ul className="game-achievements-page__list">
+                  {achievements.map((achievement, index) => (
+                    <AchievementRow
+                      key={achievement.name}
+                      achievement={achievement}
+                      navigationOverrides={
+                        index === 0
+                          ? {
+                              up: {
+                                type: "item",
+                                itemId: GAME_ACHIEVEMENTS_SUMMARY_FOCUS_ID,
+                              },
+                            }
+                          : undefined
+                      }
+                      onSouvenirActivate={handleSouvenirActivate}
+                    />
+                  ))}
+                </ul>
+              </VerticalFocusGroup>
+            </section>
+          </div>
+        )}
 
         {souvenir?.imageUrl ? (
           <GameAchievementsSouvenirViewer

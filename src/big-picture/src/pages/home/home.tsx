@@ -312,25 +312,27 @@ export default function Home() {
                 Play
               </button>
             </FocusItem>
-            <FocusItem
-              id="home-trophies"
-              actions={{
-                primary: () =>
-                  navigate(getBigPictureGameAchievementsPath(selected)),
-              }}
-              asChild
-            >
-              <button
-                type="button"
-                className="opus-home__button"
-                onClick={() =>
-                  navigate(getBigPictureGameAchievementsPath(selected))
-                }
+            {achievements > 0 && (
+              <FocusItem
+                id="home-trophies"
+                actions={{
+                  primary: () =>
+                    navigate(getBigPictureGameAchievementsPath(selected)),
+                }}
+                asChild
               >
-                <TrophyIcon size={26} />
-                Trophies
-              </button>
-            </FocusItem>
+                <button
+                  type="button"
+                  className="opus-home__button"
+                  onClick={() =>
+                    navigate(getBigPictureGameAchievementsPath(selected))
+                  }
+                >
+                  <TrophyIcon size={26} />
+                  Trophies
+                </button>
+              </FocusItem>
+            )}
             <FocusItem
               id="home-more"
               actions={{ primary: () => openGamePage(selected) }}

@@ -13,6 +13,7 @@ import {
   getBigPictureContentEntryRegionIdFromPathname,
   ButtonHints,
   ConsoleOverlays,
+  FriendsPanel,
   Header,
   normalizeBigPicturePathname,
   QuickMenu,
@@ -239,6 +240,7 @@ export default function App() {
           </NavigationLayer>
 
           <QuickMenu />
+          <FriendsPanel />
           <ConsoleOverlays />
           <InputModeProvider />
           <NavigationDiagnostics />
