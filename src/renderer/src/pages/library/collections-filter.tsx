@@ -76,9 +76,11 @@ export function CollectionsFilter({
           <span className="collections-filter__trigger-label">
             {selectedCollection ? selectedCollection.name : t("collections")}
           </span>
-          <Icon name="chevron-down"
+          <Icon
+            name="chevron-down"
             size={LIBRARY_DROPDOWN_CHEVRON_SIZE}
-            className="collections-filter__chevron" />
+            className="collections-filter__chevron"
+          />
         </button>
       </DropdownMenuPrimitive.Trigger>
 

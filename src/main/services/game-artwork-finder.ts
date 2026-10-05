@@ -41,14 +41,22 @@ export type FindArtworkResult =
 type ArtworkSlot = "cover" | "hero" | "logo" | "icon";
 
 const SLOTS = [
-  { slot: "cover", field: "customCoverImageUrl", asset: "grid", from: "coverUrl" },
+  {
+    slot: "cover",
+    field: "customCoverImageUrl",
+    asset: "grid",
+    from: "coverUrl",
+  },
   { slot: "hero", field: "customHeroImageUrl", asset: "hero", from: "heroUrl" },
   { slot: "logo", field: "customLogoImageUrl", asset: "logo", from: "logoUrl" },
   { slot: "icon", field: "customIconUrl", asset: "icon", from: "iconUrl" },
 ] as const;
 
 // Steam's image hosts only — the server never returns anything else, and we don't trust more.
-const ALLOWED_HOSTS = ["shared.steamstatic.com", "cdn.cloudflare.steamstatic.com"];
+const ALLOWED_HOSTS = [
+  "shared.steamstatic.com",
+  "cdn.cloudflare.steamstatic.com",
+];
 
 const EXTENSION_BY_MIME: Record<string, string> = {
   "image/jpeg": "jpg",
@@ -69,7 +77,8 @@ const isAllowedImageUrl = (value: string) => {
 /** Whether what the game shows today actually loads. */
 async function isWorking(url: string | null | undefined) {
   if (!url) return false;
-  if (url.startsWith("local:")) return fs.existsSync(url.slice("local:".length));
+  if (url.startsWith("local:"))
+    return fs.existsSync(url.slice("local:".length));
   if (!/^https?:\/\//.test(url)) return false;
   const response = await axios
     .head(url, { timeout: 8000, validateStatus: () => true })
@@ -77,7 +86,10 @@ async function isWorking(url: string | null | undefined) {
   return Boolean(response && response.status >= 200 && response.status < 400);
 }
 
-async function downloadToAssets(url: string, asset: string): Promise<string | null> {
+async function downloadToAssets(
+  url: string,
+  asset: string
+): Promise<string | null> {
   if (!isAllowedImageUrl(url)) return null;
 
   const directory = path.join(ASSETS_PATH, "custom-games");
@@ -104,7 +116,11 @@ async function downloadToAssets(url: string, asset: string): Promise<string | nu
     return `local:${finalPath}`;
   } catch (error) {
     await fs.promises.unlink(partial).catch(() => {});
-    logger.warn("[artwork-finder] download failed", url, (error as Error)?.message ?? error);
+    logger.warn(
+      "[artwork-finder] download failed",
+      url,
+      (error as Error)?.message ?? error
+    );
     return null;
   }
 }
@@ -135,8 +151,12 @@ export async function findAndApplyGameArtwork(
       shopAssets?.coverImageUrl ??
       shopAssets?.libraryImageUrl ??
       game.coverImageUrl,
-    hero: game.customHeroImageUrl ?? shopAssets?.libraryHeroImageUrl ?? game.libraryHeroImageUrl,
-    logo: game.customLogoImageUrl ?? shopAssets?.logoImageUrl ?? game.logoImageUrl,
+    hero:
+      game.customHeroImageUrl ??
+      shopAssets?.libraryHeroImageUrl ??
+      game.libraryHeroImageUrl,
+    logo:
+      game.customLogoImageUrl ?? shopAssets?.logoImageUrl ?? game.logoImageUrl,
     icon: game.customIconUrl ?? shopAssets?.iconUrl ?? game.iconUrl,
   };
 
@@ -152,9 +172,17 @@ export async function findAndApplyGameArtwork(
     applied.push(slot);
   }
 
-  if (applied.length === 0) return { status: "complete", matchedTitle: lookup.title };
+  if (applied.length === 0)
+    return { status: "complete", matchedTitle: lookup.title };
 
-  await applyGameCustomAssets({ shop, objectId, title: game.title, ...updates });
-  logger.info(`[artwork-finder] ${shop}:${objectId} → ${lookup.appId} applied ${applied.join(", ")}`);
+  await applyGameCustomAssets({
+    shop,
+    objectId,
+    title: game.title,
+    ...updates,
+  });
+  logger.info(
+    `[artwork-finder] ${shop}:${objectId} → ${lookup.appId} applied ${applied.join(", ")}`
+  );
   return { status: "applied", matchedTitle: lookup.title, applied };
 }

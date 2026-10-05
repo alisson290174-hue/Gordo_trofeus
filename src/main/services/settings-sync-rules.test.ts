@@ -1,7 +1,12 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 
-import { looksLikeFreshInstall, mergePreferences, stripSecrets, type SettingsSnapshot } from "./settings-sync-rules";
+import {
+  looksLikeFreshInstall,
+  mergePreferences,
+  stripSecrets,
+  type SettingsSnapshot,
+} from "./settings-sync-rules";
 
 describe("settings sync", () => {
   it("never uploads keys or tokens", () => {
@@ -12,7 +17,10 @@ describe("settings sync", () => {
       retroAchievementsWebApiKey: "secret",
       bigPictureSoundsEnabled: true,
     });
-    assert.deepEqual(stripped, { language: "pt-BR", bigPictureSoundsEnabled: true });
+    assert.deepEqual(stripped, {
+      language: "pt-BR",
+      bigPictureSoundsEnabled: true,
+    });
   });
 
   it("restores preferences without overwriting local secrets", () => {
@@ -28,14 +36,22 @@ describe("settings sync", () => {
       version: 1,
       preferences: {},
       emulatorsBaseDir: null,
-      emulators: { ps2: { executablePath: null, biosPath: null, romFolders: [] } },
+      emulators: {
+        ps2: { executablePath: null, biosPath: null, romFolders: [] },
+      },
       retroarch: { executablePath: null, romFolders: [] },
     };
     assert.equal(looksLikeFreshInstall(empty), true);
     assert.equal(
       looksLikeFreshInstall({
         ...empty,
-        emulators: { ps2: { executablePath: null, biosPath: null, romFolders: [{ path: "D:\\ps2", scanSubfolders: true }] } },
+        emulators: {
+          ps2: {
+            executablePath: null,
+            biosPath: null,
+            romFolders: [{ path: "D:\\ps2", scanSubfolders: true }],
+          },
+        },
       }),
       false
     );

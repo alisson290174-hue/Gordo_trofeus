@@ -880,7 +880,8 @@ export const launchGame = async (options: LaunchGameOptions) => {
   // watcher has learned their .exe inside steamapps/common (that path is only for tracking).
   if (
     options.shop === "steam" &&
-    (!hasLaunchableExecutable(options.executablePath) || isInsideSteamLibrary(options.executablePath))
+    (!hasLaunchableExecutable(options.executablePath) ||
+      isInsideSteamLibrary(options.executablePath))
   ) {
     const record = await gamesSublevel
       .get(levelKeys.game("steam", options.objectId))

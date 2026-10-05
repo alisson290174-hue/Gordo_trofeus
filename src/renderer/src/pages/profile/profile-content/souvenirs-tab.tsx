@@ -89,7 +89,7 @@ function SouvenirCard({
   );
   const hasAchievementIcon = Boolean(
     primaryAchievement.achievementIcon &&
-      primaryAchievement.achievementIcon !== failedAchievementIconUrl
+    primaryAchievement.achievementIcon !== failedAchievementIconUrl
   );
   const hasGameIcon = Boolean(
     achievement.gameIconUrl && achievement.gameIconUrl !== failedGameIconUrl
@@ -297,7 +297,11 @@ function SouvenirGameGroup({
           onClick={() => setIsExpanded(!isExpanded)}
           aria-expanded={isExpanded}
         >
-          {isExpanded ? <Icon name="chevron-down"  /> : <Icon name="chevron-right"  />}
+          {isExpanded ? (
+            <Icon name="chevron-down" />
+          ) : (
+            <Icon name="chevron-right" />
+          )}
 
           <span className="profile-content__souvenirs-group-icon">
             {hasGameIcon ? (
@@ -770,13 +774,15 @@ export function SouvenirsTab({
                 disabled={isRetryingSync || isLoadingSyncDetails}
                 onClick={() => void handleRetrySync()}
               >
-                <Icon name="sync"
+                <Icon
+                  name="sync"
                   size={14}
                   className={
                     isRetryingSync
                       ? "profile-content__souvenirs-sync-status-icon--spinning"
                       : undefined
-                  } />
+                  }
+                />
                 {tSettings("retry_souvenir_sync")}
               </Button>
             ) : null}

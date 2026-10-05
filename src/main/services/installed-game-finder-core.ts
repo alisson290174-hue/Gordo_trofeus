@@ -19,7 +19,16 @@ const normalize = (value: string) =>
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
 
-const STOP_WORDS = new Set(["the", "of", "and", "a", "edition", "definitive", "remastered", "goty"]);
+const STOP_WORDS = new Set([
+  "the",
+  "of",
+  "and",
+  "a",
+  "edition",
+  "definitive",
+  "remastered",
+  "goty",
+]);
 const significantWords = (value: string) =>
   normalize(value)
     .split(" ")
@@ -55,7 +64,10 @@ const executableNameScore = (gameTitle: string, fileName: string) => {
 
 const iconExecutable = (icon: string | null) => {
   if (!icon) return null;
-  const candidate = icon.replace(/^"/, "").replace(/"?,\s*-?\d+$/, "").replace(/"$/, "");
+  const candidate = icon
+    .replace(/^"/, "")
+    .replace(/"?,\s*-?\d+$/, "")
+    .replace(/"$/, "");
   return candidate.toLowerCase().endsWith(".exe") ? candidate : null;
 };
 
@@ -75,9 +87,16 @@ function listExecutables(directory: string, depth = 0): string[] {
 }
 
 /** The game's executable inside its install folder: the registered icon, else the best-named exe. */
-export function pickGameExecutable(gameTitle: string, entry: UninstallEntry): string | null {
+export function pickGameExecutable(
+  gameTitle: string,
+  entry: UninstallEntry
+): string | null {
   const fromIcon = iconExecutable(entry.icon);
-  if (fromIcon && fs.existsSync(fromIcon) && !IGNORED_EXECUTABLE.test(path.basename(fromIcon))) {
+  if (
+    fromIcon &&
+    fs.existsSync(fromIcon) &&
+    !IGNORED_EXECUTABLE.test(path.basename(fromIcon))
+  ) {
     return fromIcon;
   }
 
@@ -102,9 +121,16 @@ export function pickGameExecutable(gameTitle: string, entry: UninstallEntry): st
       /* unreadable — keep 0 */
     }
     const depth = path.relative(folder, file).split(path.sep).length;
-    return { file, name: executableNameScore(gameTitle, path.basename(file, ".exe")), depth, size };
+    return {
+      file,
+      name: executableNameScore(gameTitle, path.basename(file, ".exe")),
+      depth,
+      size,
+    };
   });
-  scored.sort((a, b) => b.name - a.name || a.depth - b.depth || b.size - a.size);
+  scored.sort(
+    (a, b) => b.name - a.name || a.depth - b.depth || b.size - a.size
+  );
   return scored[0].file;
 }
 
@@ -118,4 +144,3 @@ export function findEntryForGame(gameTitle: string, entries: UninstallEntry[]) {
     .sort((a, b) => b.score - a.score);
   return ranked[0]?.entry ?? null;
 }
-

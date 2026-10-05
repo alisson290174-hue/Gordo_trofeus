@@ -12,7 +12,12 @@ export type GenerateGoldbergResult =
   | { ok: true; count: number; path: string }
   | {
       ok: false;
-      reason: "not_steam" | "unknown_game" | "no_executable" | "no_schema" | "write_failed";
+      reason:
+        | "not_steam"
+        | "unknown_game"
+        | "no_executable"
+        | "no_schema"
+        | "write_failed";
     };
 
 /**
@@ -48,9 +53,11 @@ const generateGoldbergAchievements = async (
     return { ok: false, reason: "no_executable" };
   }
 
-  const achievements = await getGameAchievementData(objectId, shop, false).catch(
-    () => [] as SteamAchievement[]
-  );
+  const achievements = await getGameAchievementData(
+    objectId,
+    shop,
+    false
+  ).catch(() => [] as SteamAchievement[]);
   if (!achievements.length) return { ok: false, reason: "no_schema" };
 
   const steamSettingsDir = path.join(

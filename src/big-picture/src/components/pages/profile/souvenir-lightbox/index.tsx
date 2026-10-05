@@ -515,7 +515,7 @@ function SouvenirSummary({
   );
   const hasAchievementIcon = Boolean(
     primaryAchievement.achievementIcon &&
-      primaryAchievement.achievementIcon !== failedAchievementIconUrl
+    primaryAchievement.achievementIcon !== failedAchievementIconUrl
   );
 
   return (

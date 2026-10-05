@@ -78,9 +78,11 @@ export function SetupStepScanning({
       <div className="setup-modal__progress-meta">
         <span className="setup-modal__progress-status">
           {isDone ? (
-            <Icon name="check-circle-fill"
+            <Icon
+              name="check-circle-fill"
               size={14}
-              className="setup-modal__progress-check" />
+              className="setup-modal__progress-check"
+            />
           ) : (
             <ClassicsSpinner size={14} />
           )}
@@ -105,9 +107,11 @@ export function SetupStepScanning({
 
       {!isDone && currentFile && (
         <div className="setup-modal__scan-file">
-          <Icon name="file-directory"
+          <Icon
+            name="file-directory"
             size={14}
-            className="setup-modal__scan-file-icon" />
+            className="setup-modal__scan-file-icon"
+          />
           <span className="setup-modal__scan-file-name">{currentFile}</span>
           {status && (
             <span
@@ -135,7 +139,11 @@ export function SetupStepScanning({
         </div>
         <div className="setup-modal__stat">
           <div className="setup-modal__stat-head">
-            <Icon name="database" size={16} className="setup-modal__stat-icon" />
+            <Icon
+              name="database"
+              size={16}
+              className="setup-modal__stat-icon"
+            />
             <span className="setup-modal__stat-label">{t("stat_storage")}</span>
           </div>
           <span className="setup-modal__stat-value">
@@ -168,9 +176,11 @@ export function SetupStepScanning({
                   key={`${file.name}-${index}`}
                   className="setup-modal__unmatched-item"
                 >
-                  <Icon name="file-directory"
+                  <Icon
+                    name="file-directory"
                     size={14}
-                    className="setup-modal__unmatched-icon" />
+                    className="setup-modal__unmatched-icon"
+                  />
                   <span className="setup-modal__unmatched-name">
                     {file.name}
                   </span>

@@ -3,7 +3,8 @@ import assert from "node:assert/strict";
 
 import { getPlatformBadge } from "./platform-badge";
 
-const tag = (platform: string | null, shop = "launchbox") => getPlatformBadge({ shop, platform }).label;
+const tag = (platform: string | null, shop = "launchbox") =>
+  getPlatformBadge({ shop, platform }).label;
 
 describe("getPlatformBadge", () => {
   it("names every console Opus emulates", () => {

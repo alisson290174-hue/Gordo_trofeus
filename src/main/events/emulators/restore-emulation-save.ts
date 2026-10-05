@@ -15,9 +15,7 @@ import type {
 import { getDownloadsPath } from "../helpers/get-downloads-path";
 
 type EmulationSaveMetadataInput =
-  | EmulationSaveMetadata
-  | Record<string, unknown>
-  | null;
+  EmulationSaveMetadata | Record<string, unknown> | null;
 
 const isPspMetadata = (
   metadata: EmulationSaveMetadataInput

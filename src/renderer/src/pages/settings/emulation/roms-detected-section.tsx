@@ -3,7 +3,6 @@ import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
-
 import { TextField } from "@renderer/components";
 import {
   buildGameDetailsPath,

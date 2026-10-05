@@ -1,4 +1,3 @@
-
 import type { CSSProperties } from "react";
 import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";

@@ -5,7 +5,11 @@ import { net } from "electron";
 import { logger } from "../logger";
 import { getRetroArchConfig } from "../retroarch/retroarch-repository";
 import { setIniValue } from "./duckstation-souvenir-config-value";
-import { duckstationConfigCandidates, findExistingConfig, pcsx2ConfigCandidates } from "./emulator-config";
+import {
+  duckstationConfigCandidates,
+  findExistingConfig,
+  pcsx2ConfigCandidates,
+} from "./emulator-config";
 import { dolphinUserDirectoryCandidates } from "./emulator-log-paths";
 import { getEmulatorConfig } from "./emulators-repository";
 
@@ -22,13 +26,23 @@ export type RaEmulatorLoginResult =
 
 const loginForToken = async (username: string, password: string) => {
   const body = new URLSearchParams({ r: "login2", u: username, p: password });
-  const response = await net.fetch("https://retroachievements.org/dorequest.php", {
-    method: "POST",
-    headers: { "content-type": "application/x-www-form-urlencoded", "user-agent": "OpusLauncher" },
-    body: body.toString(),
-    signal: AbortSignal.timeout(20_000),
-  });
-  const data = (await response.json().catch(() => null)) as { Success?: boolean; User?: string; Token?: string } | null;
+  const response = await net.fetch(
+    "https://retroachievements.org/dorequest.php",
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/x-www-form-urlencoded",
+        "user-agent": "OpusLauncher",
+      },
+      body: body.toString(),
+      signal: AbortSignal.timeout(20_000),
+    }
+  );
+  const data = (await response.json().catch(() => null)) as {
+    Success?: boolean;
+    User?: string;
+    Token?: string;
+  } | null;
   if (!data?.Success || !data.Token) return null;
   return { user: data.User ?? username, token: data.Token };
 };
@@ -36,7 +50,8 @@ const loginForToken = async (username: string, password: string) => {
 const writeIni = (file: string, entries: [string, string, string][]) => {
   const content = fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "";
   let next = content;
-  for (const [section, key, value] of entries) next = setIniValue(next, section, key, value);
+  for (const [section, key, value] of entries)
+    next = setIniValue(next, section, key, value);
   fs.mkdirSync(path.dirname(file), { recursive: true });
   fs.writeFileSync(file, next, "utf8");
 };
@@ -44,7 +59,9 @@ const writeIni = (file: string, entries: [string, string, string][]) => {
 const setCfg = (content: string, key: string, value: string) => {
   const line = `${key} = "${value}"`;
   const re = new RegExp(`^${key}\\s*=.*$`, "m");
-  return re.test(content) ? content.replace(re, line) : `${content.trimEnd()}${content ? "\n" : ""}${line}\n`;
+  return re.test(content)
+    ? content.replace(re, line)
+    : `${content.trimEnd()}${content ? "\n" : ""}${line}\n`;
 };
 
 export const loginRetroAchievementsInEmulators = async (
@@ -75,7 +92,10 @@ export const loginRetroAchievementsInEmulators = async (
   const retroArch = await getRetroArchConfig();
   if (retroArch.executablePath) {
     attempt("RetroArch", () => {
-      const file = path.join(path.dirname(retroArch.executablePath as string), "retroarch.cfg");
+      const file = path.join(
+        path.dirname(retroArch.executablePath as string),
+        "retroarch.cfg"
+      );
       let content = fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "";
       content = setCfg(content, "cheevos_enable", "true");
       content = setCfg(content, "cheevos_username", user);
@@ -85,7 +105,9 @@ export const loginRetroAchievementsInEmulators = async (
     });
   }
 
-  const duckstation = findExistingConfig(duckstationConfigCandidates()) ?? duckstationConfigCandidates()[0];
+  const duckstation =
+    findExistingConfig(duckstationConfigCandidates()) ??
+    duckstationConfigCandidates()[0];
   if (duckstation) {
     attempt("DuckStation (PS1)", () =>
       writeIni(duckstation, [
@@ -98,7 +120,9 @@ export const loginRetroAchievementsInEmulators = async (
   }
 
   const pcsx2 = await getEmulatorConfig("ps2");
-  const pcsx2Ini = pcsx2.executablePath ? findExistingConfig(pcsx2ConfigCandidates(pcsx2.executablePath)) : null;
+  const pcsx2Ini = pcsx2.executablePath
+    ? findExistingConfig(pcsx2ConfigCandidates(pcsx2.executablePath))
+    : null;
   if (pcsx2Ini) {
     attempt("PCSX2 (PS2)", () =>
       writeIni(pcsx2Ini, [
@@ -111,7 +135,9 @@ export const loginRetroAchievementsInEmulators = async (
   }
 
   const dolphin = await getEmulatorConfig("dolphin");
-  const dolphinDir = dolphin.executablePath ? dolphinUserDirectoryCandidates(dolphin.executablePath)[0] : null;
+  const dolphinDir = dolphin.executablePath
+    ? dolphinUserDirectoryCandidates(dolphin.executablePath)[0]
+    : null;
   if (dolphinDir) {
     attempt("Dolphin (GameCube/Wii)", () =>
       writeIni(path.join(dolphinDir, "Config", "RetroAchievements.ini"), [

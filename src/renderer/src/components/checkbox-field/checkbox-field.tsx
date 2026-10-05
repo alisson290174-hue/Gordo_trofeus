@@ -3,11 +3,10 @@ import { Icon } from "@renderer/components/icon/icon";
 
 import "./checkbox-field.scss";
 
-export interface CheckboxFieldProps
-  extends React.DetailedHTMLProps<
-    React.InputHTMLAttributes<HTMLInputElement>,
-    HTMLInputElement
-  > {
+export interface CheckboxFieldProps extends React.DetailedHTMLProps<
+  React.InputHTMLAttributes<HTMLInputElement>,
+  HTMLInputElement
+> {
   label: string | React.ReactNode;
 }
 
@@ -28,7 +27,7 @@ export function CheckboxField({ label, ...props }: CheckboxFieldProps) {
         <span
           className={`checkbox-field__icon ${props.checked ? "checked" : ""}`}
         >
-          <Icon name="check"  />
+          <Icon name="check" />
         </span>
       </div>
       <label htmlFor={id} className="checkbox-field__label">

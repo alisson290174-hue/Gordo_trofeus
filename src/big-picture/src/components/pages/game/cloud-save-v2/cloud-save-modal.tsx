@@ -59,9 +59,7 @@ export interface BigPictureCloudSavePanelProps {
   hasExecutablePath: boolean;
   hasError: boolean;
   errorMessageKey:
-    | "cloud_save_v2_load_error"
-    | "cloud_save_v2_sync_error"
-    | null;
+    "cloud_save_v2_load_error" | "cloud_save_v2_sync_error" | null;
   progress: CloudSaveSyncProgressPayload | null;
   onSync: () => void;
   onSelectExecutable: () => void;

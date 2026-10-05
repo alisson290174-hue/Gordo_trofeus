@@ -3,7 +3,6 @@ import { Icon } from "@renderer/components/icon/icon";
 import type { FormEventHandler } from "react";
 import { Trans, useTranslation } from "react-i18next";
 
-
 import { Button, Link, TextField, WindowTitleBar } from "@renderer/components";
 import retroAchievementsLogo from "@renderer/assets/icons/retroachievements.png";
 import {

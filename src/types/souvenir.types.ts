@@ -68,9 +68,7 @@ export interface LocalSouvenirAsset {
 export type GameContentWarningLevel = "unknown" | "none" | "mature" | "adult";
 
 export type GameContentWarningReason =
-  | "age_restricted"
-  | "nudity"
-  | "sexual_content";
+  "age_restricted" | "nudity" | "sexual_content";
 
 export type GameContentWarningSource = "steam" | "launchbox";
 
@@ -89,11 +87,7 @@ export interface AchievementSouvenirUploadAuthorization {
 }
 
 export type SouvenirReportReason =
-  | "hate"
-  | "sexual_content"
-  | "violence"
-  | "spam"
-  | "other";
+  "hate" | "sexual_content" | "violence" | "spam" | "other";
 
 export interface SouvenirReportValues {
   reason: SouvenirReportReason;

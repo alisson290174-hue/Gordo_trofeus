@@ -517,21 +517,26 @@ contextBridge.exposeInMainWorld("electron", {
   loginRetroAchievementsInEmulators: (username: string, password: string) =>
     ipcRenderer.invoke("loginRetroAchievementsInEmulators", username, password),
   checkEmulatorUpdates: () => ipcRenderer.invoke("checkEmulatorUpdates"),
-  downloadAllTranslationsOnline: () => ipcRenderer.invoke("downloadAllTranslationsOnline"),
+  downloadAllTranslationsOnline: () =>
+    ipcRenderer.invoke("downloadAllTranslationsOnline"),
   onEmulatorsUpdated: (cb: (updated: string[]) => void) => {
-    const listener = (_event: Electron.IpcRendererEvent, updated: string[]) => cb(updated);
+    const listener = (_event: Electron.IpcRendererEvent, updated: string[]) =>
+      cb(updated);
     ipcRenderer.on("on-emulators-updated", listener);
     return () => ipcRenderer.removeListener("on-emulators-updated", listener);
   },
-  getEmulatorsBaseDir: (): Promise<string> => ipcRenderer.invoke("getEmulatorsBaseDir"),
+  getEmulatorsBaseDir: (): Promise<string> =>
+    ipcRenderer.invoke("getEmulatorsBaseDir"),
   setEmulatorsBaseDir: (dir: string): Promise<string> =>
     ipcRenderer.invoke("setEmulatorsBaseDir", dir),
   onEmulatorAutoSetupProgress: (
     cb: (payload: EmulatorAutoSetupProgress) => void
   ) => {
-    const listener = (_event: unknown, payload: EmulatorAutoSetupProgress) => cb(payload);
+    const listener = (_event: unknown, payload: EmulatorAutoSetupProgress) =>
+      cb(payload);
     ipcRenderer.on("on-emulator-autosetup-progress", listener);
-    return () => ipcRenderer.removeListener("on-emulator-autosetup-progress", listener);
+    return () =>
+      ipcRenderer.removeListener("on-emulator-autosetup-progress", listener);
   },
   /* RetroArch */
   getRetroArchConfig: () => ipcRenderer.invoke("getRetroArchConfig"),
@@ -1114,8 +1119,11 @@ contextBridge.exposeInMainWorld("electron", {
   installSwitchMods: (shop: GameShop, objectId: string) =>
     ipcRenderer.invoke("installSwitchMods", shop, objectId),
   installAllSwitchMods: () => ipcRenderer.invoke("installAllSwitchMods"),
-  installGameTranslation: (shop: GameShop, objectId: string, sourcePath: string) =>
-    ipcRenderer.invoke("installGameTranslation", shop, objectId, sourcePath),
+  installGameTranslation: (
+    shop: GameShop,
+    objectId: string,
+    sourcePath: string
+  ) => ipcRenderer.invoke("installGameTranslation", shop, objectId, sourcePath),
   openClassicsGame: (
     shop: GameShop,
     objectId: string,
@@ -1687,7 +1695,8 @@ contextBridge.exposeInMainWorld("electron", {
   listEpicGames: () => ipcRenderer.invoke("listEpicGames"),
   syncEpicLibrary: () => ipcRenderer.invoke("syncEpicLibrary"),
   getEpicInstalls: () => ipcRenderer.invoke("getEpicInstalls"),
-  getEpicInstallPlan: (appName: string) => ipcRenderer.invoke("getEpicInstallPlan", appName),
+  getEpicInstallPlan: (appName: string) =>
+    ipcRenderer.invoke("getEpicInstallPlan", appName),
   installEpicGame: (appName: string, title: string, folder?: string) =>
     ipcRenderer.invoke("installEpicGame", appName, title, folder),
   cancelEpicInstall: (appName: string) =>
@@ -1695,10 +1704,13 @@ contextBridge.exposeInMainWorld("electron", {
   uninstallEpicGame: (appName: string) =>
     ipcRenderer.invoke("uninstallEpicGame", appName),
   onEpicInstallProgress: (cb: (state: EpicInstallState) => void) => {
-    const listener = (_event: Electron.IpcRendererEvent, state: EpicInstallState) =>
-      cb(state);
+    const listener = (
+      _event: Electron.IpcRendererEvent,
+      state: EpicInstallState
+    ) => cb(state);
     ipcRenderer.on("on-epic-install-progress", listener);
-    return () => ipcRenderer.removeListener("on-epic-install-progress", listener);
+    return () =>
+      ipcRenderer.removeListener("on-epic-install-progress", listener);
   },
   openRetroAchievementsConnectionWindow: () =>
     ipcRenderer.invoke("openRetroAchievementsConnectionWindow"),

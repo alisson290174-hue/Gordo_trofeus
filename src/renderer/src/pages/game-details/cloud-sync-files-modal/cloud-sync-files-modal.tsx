@@ -4,14 +4,15 @@ import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { cloudSyncContext, gameDetailsContext } from "@renderer/context";
 import { useTranslation } from "react-i18next";
 
-
 import "./cloud-sync-files-modal.scss";
 import { formatBytes } from "@shared";
 import { useToast } from "@renderer/hooks";
 import { useForm } from "react-hook-form";
 
-export interface CloudSyncFilesModalProps
-  extends Omit<ModalProps, "children" | "title"> {}
+export interface CloudSyncFilesModalProps extends Omit<
+  ModalProps,
+  "children" | "title"
+> {}
 
 export enum FileMappingMethod {
   Automatic = "AUTOMATIC",
@@ -114,7 +115,7 @@ export function CloudSyncFilesModal({
               onClick={() => handleFileMappingMethodClick(mappingMethod)}
             >
               {selectedFileMappingMethod === mappingMethod && (
-                <Icon name="check-circle-fill"  />
+                <Icon name="check-circle-fill" />
               )}
               {t(`mapping_method_${mappingMethod.toLowerCase()}`)}
             </Button>
@@ -138,7 +139,7 @@ export function CloudSyncFilesModal({
                 theme="outline"
                 onClick={handleAddCustomPathClick}
               >
-                <Icon name="file-directory"  />
+                <Icon name="file-directory" />
                 {t("select_executable")}
               </Button>
             }

@@ -1,5 +1,3 @@
-
-
 import { Button, Modal, SelectField, TextField } from "@renderer/components";
 import { Icon } from "@renderer/components/icon/icon";
 import { useCallback, useContext, useEffect, useState } from "react";

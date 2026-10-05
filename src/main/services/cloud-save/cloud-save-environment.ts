@@ -10,10 +10,7 @@ const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 export type PrefixIdentityMode =
-  | "marker"
-  | "local-fallback"
-  | "filesystem"
-  | "session";
+  "marker" | "local-fallback" | "filesystem" | "session";
 
 export interface PrefixGenerationStore {
   get(key: string): Promise<string | undefined>;
@@ -31,8 +28,7 @@ export interface CloudSavePrefixGenerationOverride {
   prefixIdentityMode: PrefixIdentityMode;
 }
 
-export interface RotatedCloudSavePrefixGeneration
-  extends CloudSavePrefixGenerationOverride {
+export interface RotatedCloudSavePrefixGeneration extends CloudSavePrefixGenerationOverride {
   durable: boolean;
 }
 

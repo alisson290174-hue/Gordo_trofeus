@@ -438,66 +438,59 @@ export function Tabs<TValue extends string = string>({
       ? GamepadButtonType.RIGHT_TRIGGER
       : GamepadButtonType.RIGHT_BUMPER;
 
-    const removeLeftBumper = onButtonPressed(
-      previousButton,
-      (event) => {
-        if (!isActiveGamepadEvent(event)) return;
-        if (!canHandleBumperPress()) return;
+    const removeLeftBumper = onButtonPressed(previousButton, (event) => {
+      if (!isActiveGamepadEvent(event)) return;
+      if (!canHandleBumperPress()) return;
 
-        const currentIndex = resolvedItems.findIndex(
-          (item) => item.value === selectedValue
-        );
+      const currentIndex = resolvedItems.findIndex(
+        (item) => item.value === selectedValue
+      );
 
-        if (currentIndex <= 0) return;
+      if (currentIndex <= 0) return;
 
-        const nextIndex = findNextEnabledIndex(currentIndex, -1);
+      const nextIndex = findNextEnabledIndex(currentIndex, -1);
 
-        if (nextIndex === -1) return;
+      if (nextIndex === -1) return;
 
-        const nextItem = resolvedItems[nextIndex];
+      const nextItem = resolvedItems[nextIndex];
 
-        if (!nextItem || nextItem.value === selectedValue) return;
+      if (!nextItem || nextItem.value === selectedValue) return;
 
-        handleSelect(nextItem.value);
+      handleSelect(nextItem.value);
 
-        if (itemsFocusable && isCurrentFocusInsideTabList()) {
-          NavigationService.getInstance().setFocus(nextItem.resolvedId);
-        }
-
-        NavigationAudioService.getInstance().play("scroll");
+      if (itemsFocusable && isCurrentFocusInsideTabList()) {
+        NavigationService.getInstance().setFocus(nextItem.resolvedId);
       }
-    );
 
-    const removeRightBumper = onButtonPressed(
-      nextButton,
-      (event) => {
-        if (!isActiveGamepadEvent(event)) return;
-        if (!canHandleBumperPress()) return;
+      NavigationAudioService.getInstance().play("scroll");
+    });
 
-        const currentIndex = resolvedItems.findIndex(
-          (item) => item.value === selectedValue
-        );
+    const removeRightBumper = onButtonPressed(nextButton, (event) => {
+      if (!isActiveGamepadEvent(event)) return;
+      if (!canHandleBumperPress()) return;
 
-        if (currentIndex < 0 || currentIndex >= resolvedItems.length - 1)
-          return;
+      const currentIndex = resolvedItems.findIndex(
+        (item) => item.value === selectedValue
+      );
 
-        const nextIndex = findNextEnabledIndex(currentIndex, 1);
+      if (currentIndex < 0 || currentIndex >= resolvedItems.length - 1) return;
 
-        if (nextIndex === -1) return;
+      const nextIndex = findNextEnabledIndex(currentIndex, 1);
 
-        const nextItem = resolvedItems[nextIndex];
+      if (nextIndex === -1) return;
 
-        if (!nextItem || nextItem.value === selectedValue) return;
+      const nextItem = resolvedItems[nextIndex];
 
-        handleSelect(nextItem.value);
+      if (!nextItem || nextItem.value === selectedValue) return;
 
-        if (itemsFocusable && isCurrentFocusInsideTabList()) {
-          NavigationService.getInstance().setFocus(nextItem.resolvedId);
-        }
+      handleSelect(nextItem.value);
 
-        NavigationAudioService.getInstance().play("scroll");
+      if (itemsFocusable && isCurrentFocusInsideTabList()) {
+        NavigationService.getInstance().setFocus(nextItem.resolvedId);
       }
-    );
+
+      NavigationAudioService.getInstance().play("scroll");
+    });
 
     return () => {
       removeLeftBumper();

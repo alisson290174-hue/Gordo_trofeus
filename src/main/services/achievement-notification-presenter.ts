@@ -50,12 +50,7 @@ export interface AchievementNotificationPresenterDependencies {
 }
 
 type PresenterStage =
-  | "idle"
-  | "loading"
-  | "ready"
-  | "positioning"
-  | "preparing"
-  | "visible";
+  "idle" | "loading" | "ready" | "positioning" | "preparing" | "visible";
 
 export class AchievementNotificationPresenter {
   private queue: QueueItem[] = [];

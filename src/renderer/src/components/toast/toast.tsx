@@ -114,7 +114,7 @@ export function Toast({
               onClick={startAnimateClosing}
               aria-label={t("catalogue.close", { defaultValue: "Close" })}
             >
-              <Icon name="x"  />
+              <Icon name="x" />
             </button>
           </div>
 

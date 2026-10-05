@@ -38,8 +38,17 @@ const firstImage = (...urls: (string | null | undefined)[]) => {
  * Epic serves its key art at full size (1200x1600 PNG/JPEG, ~0.6 MB each): ask its CDN for the
  * size the screen needs, ~13x lighter, so the library and the Início strip paint at once.
  */
-export const sizedEpicArt = (url: string | null, width: number, height: number) => {
-  if (!url || !/^https:\/\/cdn\d*\.epicgames\.com\//.test(url) || url.includes("?")) return url;
+export const sizedEpicArt = (
+  url: string | null,
+  width: number,
+  height: number
+) => {
+  if (
+    !url ||
+    !/^https:\/\/cdn\d*\.epicgames\.com\//.test(url) ||
+    url.includes("?")
+  )
+    return url;
   return `${url}?h=${height}&quality=medium&resize=1&w=${width}`;
 };
 
@@ -73,7 +82,9 @@ export interface TileArt {
  * 3DS/PSP/NES boxes a banner across the top. Title screens looked worse (pixel art on black or
  * flat colour), so these consoles use the framed box instead.
  */
-const BOX_FRAMES: Partial<Record<PlatformTone, { size: string; position: string }>> = {
+const BOX_FRAMES: Partial<
+  Record<PlatformTone, { size: string; position: string }>
+> = {
   snes: { size: "auto 122%", position: "50% 12%" },
   // Landscape box: keep the logo whole and leave the red "NINTENDO 64" edge out.
   n64: { size: "cover", position: "25% 50%" },
@@ -106,7 +117,10 @@ export const getTileArt = (game: GameArt): TileArt | null => {
   if (game.shop === "launchbox" && cover) {
     const tone = getPlatformBadge(game).tone;
     // PS3 games without a box scan only have the disc's landscape ICON0: no frame for that.
-    const frame = tone === "ps3" && !cover.includes("aldostools") ? undefined : BOX_FRAMES[tone];
+    const frame =
+      tone === "ps3" && !cover.includes("aldostools")
+        ? undefined
+        : BOX_FRAMES[tone];
     if (frame) return { url: cover, ...frame };
   }
 
@@ -140,7 +154,8 @@ export const getHeaderArt = (game: GameArt) =>
     getShowcaseArt(game, "header"),
     steamAsset(game, "header.jpg"),
     // Classics: the fanart is landscape; the box scan would be cropped to a strip.
-    game.shop === "launchbox" && !game.libraryHeroImageUrl?.includes("xlenore/ps2-covers")
+    game.shop === "launchbox" &&
+      !game.libraryHeroImageUrl?.includes("xlenore/ps2-covers")
       ? game.libraryHeroImageUrl
       : null,
     game.libraryImageUrl,
@@ -215,7 +230,9 @@ export const fetchGameSummary = (
 
 export const formatSummaryMeta = (summary: GameSummary | null | undefined) =>
   summary
-    ? [summary.developer, summary.year, summary.genre].filter(Boolean).join(" · ")
+    ? [summary.developer, summary.year, summary.genre]
+        .filter(Boolean)
+        .join(" · ")
     : "";
 
 export interface TrophyProgress {
@@ -233,7 +250,12 @@ export const getTrophyProgress = (game: {
   const unlocked = Math.min(game.unlockedAchievementCount ?? 0, total);
   const percent = total > 0 ? Math.round((unlocked / total) * 100) : 0;
 
-  return { unlocked, total, percent, isPlatinum: total > 0 && unlocked >= total };
+  return {
+    unlocked,
+    total,
+    percent,
+    isPlatinum: total > 0 && unlocked >= total,
+  };
 };
 
 export const countPlatinums = (library: LibraryGame[]) =>
@@ -283,7 +305,8 @@ export type RarityTone = "ultra_rare" | "very_rare" | "rare" | "common";
 export const getRarityTone = (
   percent: number | null | undefined
 ): { tone: RarityTone; color: string } => {
-  if (percent == null) return { tone: "common", color: "rgba(233,238,247,0.45)" };
+  if (percent == null)
+    return { tone: "common", color: "rgba(233,238,247,0.45)" };
   if (percent < 5) return { tone: "ultra_rare", color: "#f4b43a" };
   if (percent < 15) return { tone: "very_rare", color: "#e0a56a" };
   if (percent < 35) return { tone: "rare", color: "#9fb4d8" };

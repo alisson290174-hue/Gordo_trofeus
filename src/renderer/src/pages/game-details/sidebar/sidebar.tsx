@@ -377,9 +377,9 @@ export function Sidebar() {
             dangerouslySetInnerHTML={{
               __html: sanitizeRichHtml(
                 shopDetails?.pc_requirements?.[activeRequirement] ??
-                t(`no_${activeRequirement}_requirements`, {
-                  gameTitle,
-                })
+                  t(`no_${activeRequirement}_requirements`, {
+                    gameTitle,
+                  })
               ),
             }}
           />

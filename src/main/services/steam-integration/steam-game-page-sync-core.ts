@@ -53,8 +53,14 @@ export const createSteamGamePageSync = (
       } catch (error) {
         // No Steam web session (Opus signs in with Steam OpenID only) is the normal state, not a
         // failure — keep the error log for real problems.
-        if (error instanceof Error && error.name === "SteamSessionRequiredError") {
-          dependencies.log("Steam game page sync skipped (no Steam session)", steamAppId);
+        if (
+          error instanceof Error &&
+          error.name === "SteamSessionRequiredError"
+        ) {
+          dependencies.log(
+            "Steam game page sync skipped (no Steam session)",
+            steamAppId
+          );
           return false;
         }
         dependencies.logError("Steam game page sync failed", steamAppId, error);

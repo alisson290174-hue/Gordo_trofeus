@@ -12,13 +12,16 @@ import { db } from "@main/level";
  */
 const BASE_DIR_KEY = "baloi:emulatorsBaseDir";
 
-export const defaultEmulatorsBaseDir = () => path.join(os.homedir(), "Baloi", "Emuladores");
+export const defaultEmulatorsBaseDir = () =>
+  path.join(os.homedir(), "Baloi", "Emuladores");
 
 export async function getEmulatorsBaseDir(): Promise<string> {
   const saved = await db
     .get<string, string>(BASE_DIR_KEY, { valueEncoding: "utf8" })
     .catch(() => null);
-  return typeof saved === "string" && path.isAbsolute(saved) ? saved : defaultEmulatorsBaseDir();
+  return typeof saved === "string" && path.isAbsolute(saved)
+    ? saved
+    : defaultEmulatorsBaseDir();
 }
 
 export async function setEmulatorsBaseDir(dir: string): Promise<string> {
@@ -29,8 +32,13 @@ export async function setEmulatorsBaseDir(dir: string): Promise<string> {
   // Emulators refuse to run from temporary folders (RPCS3 aborts outright), and Windows may
   // clean them up: never install there.
   const temp = path.normalize(os.tmpdir()).toLowerCase();
-  if (normalized.toLowerCase() === temp || normalized.toLowerCase().startsWith(temp + path.sep)) {
-    throw new Error("The emulators folder can't be inside the temporary folder");
+  if (
+    normalized.toLowerCase() === temp ||
+    normalized.toLowerCase().startsWith(temp + path.sep)
+  ) {
+    throw new Error(
+      "The emulators folder can't be inside the temporary folder"
+    );
   }
   await fs.promises.mkdir(normalized, { recursive: true });
   await db.put(BASE_DIR_KEY, normalized, { valueEncoding: "utf8" });

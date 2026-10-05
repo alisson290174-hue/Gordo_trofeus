@@ -55,16 +55,21 @@ export const buildSidecarMap = (
     const base = basenameNoExt(f.name);
     // Multi-track discs ("Game (Track 2).bin") and odd names ("Game.cue.cue") only line up
     // through the cue sheet itself, not by sharing the cue's base name.
-    const cueTracks = extOf(f.name) === ".cue" ? readCueTracks(f.fullPath) : new Set<string>();
+    const cueTracks =
+      extOf(f.name) === ".cue" ? readCueTracks(f.fullPath) : new Set<string>();
     // A cue whose track files aren't here can't be played; it claims nothing, so its .bin
     // stays a game on its own (applyPairedRules drops the cue itself).
-    if (cueTracks.size > 0 && ![...cueTracks].some((track) => names.has(track))) continue;
+    if (cueTracks.size > 0 && ![...cueTracks].some((track) => names.has(track)))
+      continue;
     const matched: Candidate[] = [];
     for (const other of group) {
       if (other === f) continue;
       const sameBase = basenameNoExt(other.name) === base;
       const listedInCue = cueTracks.has(other.name.toLowerCase());
-      if ((sameBase || listedInCue) && sidecarExts.includes(extOf(other.name))) {
+      if (
+        (sameBase || listedInCue) &&
+        sidecarExts.includes(extOf(other.name))
+      ) {
         matched.push(other);
         skipped.add(other.fullPath);
       }
@@ -104,7 +109,8 @@ export const applyPairedRules = (
     // .bin it was meant for still shows up on its own.
     if (ext === ".cue") {
       const tracks = readCueTracks(f.fullPath);
-      if (tracks.size > 0 && ![...tracks].some((track) => names.has(track))) continue;
+      if (tracks.size > 0 && ![...tracks].some((track) => names.has(track)))
+        continue;
     }
     if (primaryExts.has(ext)) {
       out.push({ primary: f, sidecars: sidecarOf.get(f.fullPath) ?? [] });
@@ -114,4 +120,3 @@ export const applyPairedRules = (
   }
   return out;
 };
-

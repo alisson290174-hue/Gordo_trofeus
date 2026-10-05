@@ -1,4 +1,3 @@
-
 import { useEpicInstalls } from "@renderer/hooks/use-epic-installs";
 import { Button, ConfirmationModal } from "@renderer/components";
 import { Icon } from "@renderer/components/icon/icon";
@@ -295,7 +294,7 @@ export function HeroPanelActions() {
       onClick={addGameToLibrary}
       className="hero-panel-actions__action hero-panel-actions__primary"
     >
-      <Icon name="plus-circle"  />
+      <Icon name="plus-circle" />
       {t("add_to_library")}
     </Button>
   );
@@ -352,7 +351,11 @@ export function HeroPanelActions() {
       game?.shop === "launchbox" && (game?.discs?.length ?? 0) > 0;
 
     // Steam account game with no copy of its own: install / play through the Steam client.
-    if (game?.shop === "steam" && game.hasActiveSteamImport && !game.executablePath) {
+    if (
+      game?.shop === "steam" &&
+      game.hasActiveSteamImport &&
+      !game.executablePath
+    ) {
       if (game.steamInstalled) {
         return (
           <Button
@@ -391,7 +394,10 @@ export function HeroPanelActions() {
             onClick={() => window.electron.cancelEpicInstall(game.objectId)}
             title={t("dashboard:epic_cancel_install")}
           >
-            <span className="hero-panel-actions__fill" style={{ width: `${percent}%` }} />
+            <span
+              className="hero-panel-actions__fill"
+              style={{ width: `${percent}%` }}
+            />
             <Icon name="download" size={18} />
             <span>
               {install.status === "downloading"
@@ -415,7 +421,9 @@ export function HeroPanelActions() {
           className="hero-panel-actions__action hero-panel-actions__primary"
         >
           <Icon name="download" size={18} />
-          {install?.status === "error" ? t("dashboard:epic_retry_install") : t("dashboard:epic_install")}
+          {install?.status === "error"
+            ? t("dashboard:epic_retry_install")
+            : t("dashboard:epic_install")}
         </Button>
       );
     }
@@ -440,9 +448,11 @@ export function HeroPanelActions() {
       return (
         <Button
           onClick={() => {
-            void window.electron.openGameInstaller(game.shop, game.objectId).then((opened) => {
-              if (!opened) showErrorToast(t("executable_not_found_title"));
-            });
+            void window.electron
+              .openGameInstaller(game.shop, game.objectId)
+              .then((opened) => {
+                if (!opened) showErrorToast(t("executable_not_found_title"));
+              });
           }}
           theme="outline"
           disabled={deleting}

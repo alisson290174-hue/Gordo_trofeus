@@ -7,7 +7,12 @@ import type {
 } from "@types";
 import { UserNotLoggedInError } from "@shared";
 
-import { db, gamesShopCacheSublevel, gamesSublevel, levelKeys } from "@main/level";
+import {
+  db,
+  gamesShopCacheSublevel,
+  gamesSublevel,
+  levelKeys,
+} from "@main/level";
 import { HydraApi } from "../hydra-api";
 import { logger } from "../logger";
 import { getGameAchievementData } from "../achievements/get-game-achievement-data";
@@ -133,21 +138,33 @@ const resolveByDiscHash = (objectId: string, shop: GameShop) => {
   let attempt = discHashAttempts.get(key);
   if (!attempt) {
     attempt = (async () => {
-      const game = await gamesSublevel.get(levelKeys.game(shop, objectId)).catch(() => null);
-      const discPath = game?.selectedDiscPath ?? game?.discs?.[0]?.path ?? game?.executablePath;
+      const game = await gamesSublevel
+        .get(levelKeys.game(shop, objectId))
+        .catch(() => null);
+      const discPath =
+        game?.selectedDiscPath ??
+        game?.discs?.[0]?.path ??
+        game?.executablePath;
       const raConsole = raConsoleForPlatform(game?.platform);
       if (!discPath || !raConsole) return null;
 
       const hash = await computeRaHash(raConsole, discPath).catch((error) => {
-        logger.warn("[retroachievements] could not hash disc", { discPath, error: String(error) });
+        logger.warn("[retroachievements] could not hash disc", {
+          discPath,
+          error: String(error),
+        });
         return null;
       });
       if (!hash) return null;
 
-      const result = await HydraApi.post<{ retroAchievementsGameId: number | null }>(
-        "/profile/retroachievements/resolve",
-        { shop, objectId, hash, consoleId: RA_CONSOLE[raConsole] }
-      ).catch((error) => {
+      const result = await HydraApi.post<{
+        retroAchievementsGameId: number | null;
+      }>("/profile/retroachievements/resolve", {
+        shop,
+        objectId,
+        hash,
+        consoleId: RA_CONSOLE[raConsole],
+      }).catch((error) => {
         logger.warn("[retroachievements] resolve failed", String(error));
         discHashAttempts.delete(key); // transient (offline, not connected yet): retry later
         return null;
@@ -328,9 +345,12 @@ export const syncRetroAchievements = async ({
   // Trophies earned during this session: same popup + Windows toast as every other source. Done
   // before the memory store is updated, so mergeAchievements still sees them as new.
   if (freshUnlocks.length > 0) {
-    const game = await gamesSublevel.get(levelKeys.game(shop, objectId)).catch(() => null);
+    const game = await gamesSublevel
+      .get(levelKeys.game(shop, objectId))
+      .catch(() => null);
     if (game) {
-      const { mergeAchievements } = await import("../achievements/merge-achievements");
+      const { mergeAchievements } =
+        await import("../achievements/merge-achievements");
       await mergeAchievements(game, freshUnlocks, true).catch((error) =>
         logger.error("Failed to announce RetroAchievements unlocks", error)
       );

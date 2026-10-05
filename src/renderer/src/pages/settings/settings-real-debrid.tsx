@@ -9,7 +9,6 @@ import { useAppSelector, useToast } from "@renderer/hooks";
 
 import { settingsContext } from "@renderer/context";
 
-
 const realDebridReferralId = import.meta.env
   .RENDERER_VITE_REAL_DEBRID_REFERRAL_ID;
 
@@ -110,7 +109,7 @@ export function SettingsRealDebrid() {
           to={REAL_DEBRID_URL}
           className="settings-real-debrid__create-account"
         >
-          <Icon name="link-external"  />
+          <Icon name="link-external" />
           {t("create_real_debrid_account")}
         </Link>
       </div>

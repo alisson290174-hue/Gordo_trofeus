@@ -244,7 +244,7 @@ export function CloudSyncPanel({
           {uploadingBackup ? (
             <Icon name="sync" className="cloud-sync-panel__sync-icon" />
           ) : (
-            <Icon name="upload"  />
+            <Icon name="upload" />
           )}
           {t("create_backup")}
         </Button>
@@ -280,7 +280,7 @@ export function CloudSyncPanel({
                       <span className="cloud-sync-panel__artifact-label-text">
                         {artifactName}
                       </span>
-                      <Icon name="pencil"  />
+                      <Icon name="pencil" />
                     </button>
                     <small>{formatBytes(artifact.artifactLengthInBytes)}</small>
                   </div>
@@ -310,9 +310,12 @@ export function CloudSyncPanel({
                     theme="outline"
                   >
                     {restoringBackup ? (
-                      <Icon name="sync" className="cloud-sync-panel__sync-icon" />
+                      <Icon
+                        name="sync"
+                        className="cloud-sync-panel__sync-icon"
+                      />
                     ) : (
-                      <Icon name="history"  />
+                      <Icon name="history" />
                     )}
                     {t("install_backup")}
                   </Button>
@@ -324,9 +327,9 @@ export function CloudSyncPanel({
                           ? t("unfreeze_backup")
                           : t("freeze_backup"),
                         icon: artifact.isFrozen ? (
-                          <Icon name="pin-slash"  />
+                          <Icon name="pin-slash" />
                         ) : (
-                          <Icon name="pin"  />
+                          <Icon name="pin" />
                         ),
                         onClick: () =>
                           handleFreezeArtifactClick(
@@ -337,7 +340,7 @@ export function CloudSyncPanel({
                       },
                       {
                         label: t("delete_backup"),
-                        icon: <Icon name="trash"  />,
+                        icon: <Icon name="trash" />,
                         onClick: () => handleDeleteArtifactClick(artifact.id),
                         disabled: disableActions || artifact.isFrozen,
                       },

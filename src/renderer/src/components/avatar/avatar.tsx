@@ -4,14 +4,13 @@ import { Icon } from "@renderer/components/icon/icon";
 
 import "./avatar.scss";
 
-export interface AvatarProps
-  extends Omit<
-    React.DetailedHTMLProps<
-      React.ImgHTMLAttributes<HTMLImageElement>,
-      HTMLImageElement
-    >,
-    "src"
-  > {
+export interface AvatarProps extends Omit<
+  React.DetailedHTMLProps<
+    React.ImgHTMLAttributes<HTMLImageElement>,
+    HTMLImageElement
+  >,
+  "src"
+> {
   size: number;
   src?: string | null;
 }

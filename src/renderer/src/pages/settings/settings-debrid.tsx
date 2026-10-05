@@ -101,9 +101,11 @@ export function SettingsDebrid() {
             {t("debrid_provider_real_debrid")}
           </h3>
           {userPreferences?.realDebridApiToken && (
-            <Icon name="check-circle-fill"
+            <Icon
+              name="check-circle-fill"
               size={16}
-              className="settings-debrid__check-icon" />
+              className="settings-debrid__check-icon"
+            />
           )}
         </div>
 
@@ -145,9 +147,11 @@ export function SettingsDebrid() {
               {t("debrid_provider_premiumize")}
             </h3>
             {userPreferences?.premiumizeApiToken && (
-              <Icon name="check-circle-fill"
+              <Icon
+                name="check-circle-fill"
                 size={16}
-                className="settings-debrid__check-icon" />
+                className="settings-debrid__check-icon"
+              />
             )}
           </div>
 
@@ -190,9 +194,11 @@ export function SettingsDebrid() {
               {t("debrid_provider_alldebrid")}
             </h3>
             {userPreferences?.allDebridApiToken && (
-              <Icon name="check-circle-fill"
+              <Icon
+                name="check-circle-fill"
                 size={16}
-                className="settings-debrid__check-icon" />
+                className="settings-debrid__check-icon"
+              />
             )}
           </div>
 
@@ -235,9 +241,11 @@ export function SettingsDebrid() {
               {t("debrid_provider_torbox")}
             </h3>
             {userPreferences?.torBoxApiToken && (
-              <Icon name="check-circle-fill"
+              <Icon
+                name="check-circle-fill"
                 size={16}
-                className="settings-debrid__check-icon" />
+                className="settings-debrid__check-icon"
+              />
             )}
           </div>
 

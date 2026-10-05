@@ -66,7 +66,7 @@ export function ResetAchievementsModal({
             to={RETRO_ACHIEVEMENTS_SETTINGS_URL}
             className="reset-achievements-modal__retroachievements-link"
           >
-            <Icon name="link-external"  />
+            <Icon name="link-external" />
             {t("reset_achievements_retroachievements_link")}
           </Link>
 

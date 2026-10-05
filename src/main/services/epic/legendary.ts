@@ -81,7 +81,9 @@ function sealSession() {
   if (!canEncrypt()) return;
   try {
     if (fs.existsSync(sessionFile())) {
-      const sealed = safeStorage.encryptString(fs.readFileSync(sessionFile(), "utf8"));
+      const sealed = safeStorage.encryptString(
+        fs.readFileSync(sessionFile(), "utf8")
+      );
       const temp = `${sealedFile()}.tmp`;
       fs.writeFileSync(temp, sealed, { mode: 0o600 });
       fs.renameSync(temp, sealedFile());
@@ -97,7 +99,12 @@ function sealSession() {
 
 /** Writes user.json back from the sealed copy for a Legendary run. */
 function unsealSession() {
-  if (!canEncrypt() || fs.existsSync(sessionFile()) || !fs.existsSync(sealedFile())) return;
+  if (
+    !canEncrypt() ||
+    fs.existsSync(sessionFile()) ||
+    !fs.existsSync(sealedFile())
+  )
+    return;
   try {
     const plain = safeStorage.decryptString(fs.readFileSync(sealedFile()));
     fs.writeFileSync(sessionFile(), plain, { mode: 0o600 });

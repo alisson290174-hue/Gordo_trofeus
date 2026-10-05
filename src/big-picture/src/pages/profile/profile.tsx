@@ -188,10 +188,7 @@ type ProfileClassicsAssetFields = {
 };
 
 type ProfileFriendAction =
-  | FriendRequestAction
-  | "BLOCK"
-  | "UNDO_FRIENDSHIP"
-  | "SEND";
+  FriendRequestAction | "BLOCK" | "UNDO_FRIENDSHIP" | "SEND";
 
 type ProfileHeroAction = {
   label: string;
@@ -200,8 +197,7 @@ type ProfileHeroAction = {
   onClick: () => void;
 };
 
-const appIconUrl = new URL("../../assets/app-icon.svg", import.meta.url)
-  .href;
+const appIconUrl = new URL("../../assets/app-icon.svg", import.meta.url).href;
 const WEEKLY_BAR_PLACEHOLDER = [
   { day: "monday", label: "M", height: 0.62 },
   { day: "tuesday", label: "T", height: 0.14 },
@@ -1986,7 +1982,7 @@ function ProfileSouvenirCopy({
   const otherAchievementCount = Math.max(0, souvenir.achievements.length - 1);
   const hasAchievementIcon = Boolean(
     primaryAchievement.achievementIcon &&
-      primaryAchievement.achievementIcon !== failedAchievementIconUrl
+    primaryAchievement.achievementIcon !== failedAchievementIconUrl
   );
   const hasGameIcon = Boolean(
     souvenir.gameIconUrl && souvenir.gameIconUrl !== failedGameIconUrl

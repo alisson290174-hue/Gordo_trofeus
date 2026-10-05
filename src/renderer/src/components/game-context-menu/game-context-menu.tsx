@@ -138,9 +138,14 @@ export function GameContextMenu({
   const handleFindArtwork = async () => {
     showSuccessToast(t("find_artwork_searching"));
     try {
-      const result = await window.electron.findGameArtwork(game.shop, game.objectId);
+      const result = await window.electron.findGameArtwork(
+        game.shop,
+        game.objectId
+      );
       if (result.status === "applied") {
-        showSuccessToast(t("find_artwork_applied", { title: result.matchedTitle }));
+        showSuccessToast(
+          t("find_artwork_applied", { title: result.matchedTitle })
+        );
       } else if (result.status === "complete") {
         showSuccessToast(t("find_artwork_complete"));
       } else {
@@ -315,14 +320,19 @@ export function GameContextMenu({
             onClick: async () => {
               const result = await window.electron
                 .generateGoldbergAchievements(game.objectId, game.shop)
-                .catch(() => ({ ok: false as const, reason: "write_failed" as const }));
+                .catch(() => ({
+                  ok: false as const,
+                  reason: "write_failed" as const,
+                }));
 
               if (result.ok) {
                 showSuccessToast(
                   t("generate_achievements_success", { count: result.count })
                 );
               } else {
-                showErrorToast(t(`generate_achievements_error_${result.reason}`));
+                showErrorToast(
+                  t(`generate_achievements_error_${result.reason}`)
+                );
               }
             },
           },
@@ -336,13 +346,20 @@ export function GameContextMenu({
       icon: <Icon name="download" size={16} />,
       disabled: isDeleting,
       onClick: async () => {
-        showSuccessToast(t("download_translation_searching"), t("download_translation_searching_hint"), 120_000);
+        showSuccessToast(
+          t("download_translation_searching"),
+          t("download_translation_searching_hint"),
+          120_000
+        );
         const result = await window.electron
           .downloadGameTranslation(game.shop, game.objectId)
           .catch(() => "failed" as const);
-        if (result === "installed") showSuccessToast(t("download_translation_installed"));
-        else if (result === "already_installed") showSuccessToast(t("download_translation_already"));
-        else if (result === "failed") showErrorToast(t("download_translation_failed"));
+        if (result === "installed")
+          showSuccessToast(t("download_translation_installed"));
+        else if (result === "already_installed")
+          showSuccessToast(t("download_translation_already"));
+        else if (result === "failed")
+          showErrorToast(t("download_translation_failed"));
         else showErrorToast(t("download_translation_unavailable"));
       },
     },
@@ -357,9 +374,13 @@ export function GameContextMenu({
             icon: <Icon name="search" size={16} />,
             disabled: isDeleting,
             onClick: () => {
-              const title = game.title.replace(/\s*(PT-?BR|\(.*?\)|\[.*?\])\s*/gi, " ").trim();
+              const title = game.title
+                .replace(/\s*(PT-?BR|\(.*?\)|\[.*?\])\s*/gi, " ")
+                .trim();
               const query = `"${title}" ${game.platform ?? ""} tradução PT-BR (site:joao13traducoes.com OR site:ggames.com.br OR site:romhacking.net)`;
-              void window.electron.openExternal(`https://www.google.com/search?q=${encodeURIComponent(query)}`);
+              void window.electron.openExternal(
+                `https://www.google.com/search?q=${encodeURIComponent(query)}`
+              );
             },
           },
         ]
@@ -379,8 +400,13 @@ export function GameContextMenu({
                 .installSwitchMods(game.shop, game.objectId)
                 .catch(() => ({ status: "failed" as const, mods: [] }));
               if (result.status === "installed") {
-                showSuccessToast(t("switch_mods_installed", { mods: (result.mods ?? []).join(", ") }));
-              } else if (result.status === "failed") showErrorToast(t("switch_mods_failed"));
+                showSuccessToast(
+                  t("switch_mods_installed", {
+                    mods: (result.mods ?? []).join(", "),
+                  })
+                );
+              } else if (result.status === "failed")
+                showErrorToast(t("switch_mods_failed"));
               else showErrorToast(t("switch_mods_unavailable"));
             },
           },
@@ -398,14 +424,24 @@ export function GameContextMenu({
             onClick: async () => {
               const picked = await window.electron.showOpenDialog({
                 properties: ["openFile"],
-                filters: [{ name: t("install_translation_filter"), extensions: ["zip", "7z", "rar", "bps", "xdelta"] }],
+                filters: [
+                  {
+                    name: t("install_translation_filter"),
+                    extensions: ["zip", "7z", "rar", "bps", "xdelta"],
+                  },
+                ],
               });
               if (picked.canceled || picked.filePaths.length === 0) return;
               const result = await window.electron
-                .installGameTranslation(game.shop, game.objectId, picked.filePaths[0])
+                .installGameTranslation(
+                  game.shop,
+                  game.objectId,
+                  picked.filePaths[0]
+                )
                 .catch(() => ({ ok: false as const, reason: "unreadable" }));
               if (result.ok) showSuccessToast(t("install_translation_success"));
-              else showErrorToast(t(`install_translation_error_${result.reason}`));
+              else
+                showErrorToast(t(`install_translation_error_${result.reason}`));
             },
           },
         ]

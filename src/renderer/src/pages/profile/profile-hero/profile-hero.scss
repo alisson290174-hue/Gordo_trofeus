@@ -39,8 +39,18 @@
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(0deg, ps5.$bg 0%, rgba(7, 11, 22, 0.55) 40%, rgba(7, 11, 22, 0) 75%),
-      linear-gradient(90deg, rgba(6, 9, 18, 0.9) 0%, rgba(6, 9, 18, 0.45) 55%, rgba(6, 9, 18, 0.1) 100%);
+      linear-gradient(
+        0deg,
+        ps5.$bg 0%,
+        rgba(7, 11, 22, 0.55) 40%,
+        rgba(7, 11, 22, 0) 75%
+      ),
+      linear-gradient(
+        90deg,
+        rgba(6, 9, 18, 0.9) 0%,
+        rgba(6, 9, 18, 0.45) 55%,
+        rgba(6, 9, 18, 0.1) 100%
+      );
     pointer-events: none;
   }
 

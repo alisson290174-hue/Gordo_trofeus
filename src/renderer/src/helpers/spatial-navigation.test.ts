@@ -3,7 +3,12 @@ import assert from "node:assert/strict";
 
 import { pickNeighbor, type Box } from "./spatial-navigation";
 
-const box = (left: number, top: number, width = 100, height = 50): Box => ({ left, top, width, height });
+const box = (left: number, top: number, width = 100, height = 50): Box => ({
+  left,
+  top,
+  width,
+  height,
+});
 
 describe("spatial navigation", () => {
   // A row of three cards and a second row under the first one.

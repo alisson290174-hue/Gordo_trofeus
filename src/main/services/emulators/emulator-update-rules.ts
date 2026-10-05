@@ -1,5 +1,7 @@
 /** First dotted number in a version/tag string: "v2.2.0" → [2,2,0], "0.0.43-20184-d5213de6" → [0,0,43]. */
-export const versionNumbers = (value: string | null | undefined): number[] | null => {
+export const versionNumbers = (
+  value: string | null | undefined
+): number[] | null => {
   const match = /\d+(?:\.\d+)+/.exec(value ?? "");
   return match ? match[0].split(".").map(Number) : null;
 };

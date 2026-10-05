@@ -31,7 +31,10 @@ export function displayGameTitle(
   shop?: string | null
 ): string {
   const base = shop === "steam" ? (title ?? "").trim() : cleanRomTitle(title);
-  return base.replace(/[™®©]/g, "").replace(/\s{2,}/g, " ").trim();
+  return base
+    .replace(/[™®©]/g, "")
+    .replace(/\s{2,}/g, " ")
+    .trim();
 }
 
 /**

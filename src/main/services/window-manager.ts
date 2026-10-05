@@ -918,7 +918,9 @@ export class WindowManager {
    */
   public static bringLauncherToFront() {
     const target =
-      this.bigPicture && !this.bigPicture.isDestroyed() ? this.bigPicture : this.mainWindow;
+      this.bigPicture && !this.bigPicture.isDestroyed()
+        ? this.bigPicture
+        : this.mainWindow;
     if (!target || target.isDestroyed()) {
       this.createMainWindow();
       return;

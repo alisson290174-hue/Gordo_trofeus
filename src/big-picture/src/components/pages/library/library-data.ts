@@ -15,7 +15,11 @@ export function getLibraryConsoleTabs(library: LibraryGame[]) {
   }
   return [...counts.entries()]
     .sort((a, b) => b[1].count - a[1].count)
-    .map(([tone, { label, count }]) => ({ value: `${CONSOLE_TAB_PREFIX}${tone}`, label, count }));
+    .map(([tone, { label, count }]) => ({
+      value: `${CONSOLE_TAB_PREFIX}${tone}`,
+      label,
+      count,
+    }));
 }
 
 export const BUILTIN_LIBRARY_TABS = [
@@ -42,10 +46,7 @@ export type LibrarySortOption =
   | "added_desc"
   | "added_asc";
 export type LibrarySecondaryFilter =
-  | "all_games"
-  | "installed"
-  | "not_installed"
-  | "never_played";
+  "all_games" | "installed" | "not_installed" | "never_played";
 
 export const LIBRARY_VIEW_MODE_STORAGE_KEY =
   "hydra:big-picture:library-view-mode";

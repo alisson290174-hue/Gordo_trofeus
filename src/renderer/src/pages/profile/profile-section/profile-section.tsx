@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@renderer/components/icon/icon";
 import "./profile-section.scss";
@@ -38,10 +37,12 @@ export function ProfileSection({
           onClick={() => setIsOpen(!isOpen)}
           className="profile-section__button"
         >
-          <Icon name="chevron-down"
+          <Icon
+            name="chevron-down"
             className={`profile-section__chevron ${
               isOpen ? "profile-section__chevron--open" : ""
-            }`} />
+            }`}
+          />
           <span>{title}</span>
           {count !== undefined && (
             <span className="profile-section__count">{count}</span>

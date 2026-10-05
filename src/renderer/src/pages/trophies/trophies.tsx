@@ -43,12 +43,18 @@ const achievementCache = new Map<string, UserAchievement[]>();
 type TrophyFilter = "all" | "earned" | "locked";
 type GameFilter = "all" | "platinum" | "progress" | "not_started";
 
-const GAME_FILTERS: GameFilter[] = ["all", "platinum", "progress", "not_started"];
+const GAME_FILTERS: GameFilter[] = [
+  "all",
+  "platinum",
+  "progress",
+  "not_started",
+];
 
 const matchesGameFilter = (game: LibraryGame, filter: GameFilter) => {
   const progress = getTrophyProgress(game);
   if (filter === "platinum") return progress.isPlatinum;
-  if (filter === "progress") return !progress.isPlatinum && progress.unlocked > 0;
+  if (filter === "progress")
+    return !progress.isPlatinum && progress.unlocked > 0;
   if (filter === "not_started") return progress.unlocked === 0;
   return true;
 };
@@ -108,7 +114,11 @@ export default function Trophies() {
       buffer = {};
       setAchievementsByGame((prev) => ({ ...prev, ...batch }));
     };
-    const store = (key: string, list: UserAchievement[], immediate: boolean) => {
+    const store = (
+      key: string,
+      list: UserAchievement[],
+      immediate: boolean
+    ) => {
       achievementCache.set(key, list);
       buffer[key] = list;
       if (immediate) flush();
@@ -195,7 +205,10 @@ export default function Trophies() {
   const gameFilterCounts = useMemo(
     () =>
       Object.fromEntries(
-        GAME_FILTERS.map((key) => [key, games.filter((game) => matchesGameFilter(game, key)).length])
+        GAME_FILTERS.map((key) => [
+          key,
+          games.filter((game) => matchesGameFilter(game, key)).length,
+        ])
       ) as Record<GameFilter, number>,
     [games]
   );
@@ -204,7 +217,8 @@ export default function Trophies() {
     const query = search.trim().toLowerCase();
     return sortedGames.filter(
       (game) =>
-        matchesGameFilter(game, gameFilter) && (!query || game.title.toLowerCase().includes(query))
+        matchesGameFilter(game, gameFilter) &&
+        (!query || game.title.toLowerCase().includes(query))
     );
   }, [gameFilter, search, sortedGames]);
 
@@ -223,7 +237,11 @@ export default function Trophies() {
       .catch(() => [] as UserAchievement[])
       .then((list) => {
         achievementCache.set(selectedKey, list ?? []);
-        if (!cancelled) setAchievementsByGame((prev) => ({ ...prev, [selectedKey]: list ?? [] }));
+        if (!cancelled)
+          setAchievementsByGame((prev) => ({
+            ...prev,
+            [selectedKey]: list ?? [],
+          }));
       });
     return () => {
       cancelled = true;
@@ -408,7 +426,9 @@ export default function Trophies() {
                   onClick={() => setGameFilter(key)}
                 >
                   <span>{t(`trophies_games_${key}`)}</span>
-                  <span className="trophies__chip-count">{gameFilterCounts[key]}</span>
+                  <span className="trophies__chip-count">
+                    {gameFilterCounts[key]}
+                  </span>
                 </button>
               ))}
             </div>
@@ -441,7 +461,9 @@ export default function Trophies() {
                 >
                   <div
                     className="trophies__game-cover"
-                    style={cover ? { backgroundImage: `url("${cover}")` } : undefined}
+                    style={
+                      cover ? { backgroundImage: `url("${cover}")` } : undefined
+                    }
                   >
                     {platinum && (
                       <img
@@ -453,7 +475,10 @@ export default function Trophies() {
                   </div>
                   <div className="trophies__game-info">
                     <span className="trophies__game-name">
-                      <PlatformBadge game={game} className="trophies__game-badge" />
+                      <PlatformBadge
+                        game={game}
+                        className="trophies__game-badge"
+                      />
                       {game.title}
                     </span>
                     <div className="ps5-bar">
@@ -562,7 +587,9 @@ export default function Trophies() {
                   ))}
 
                 {selectedAchievements !== undefined && rows.length === 0 && (
-                  <p className="trophies__list-empty">{t("no_trophies_data")}</p>
+                  <p className="trophies__list-empty">
+                    {t("no_trophies_data")}
+                  </p>
                 )}
 
                 {visibleRows.map((row) => {
@@ -578,7 +605,11 @@ export default function Trophies() {
                           row.isPlatinumRow && achievement.unlocked,
                       })}
                     >
-                      <TrophyArt achievement={achievement} tier={tier} size={54} />
+                      <TrophyArt
+                        achievement={achievement}
+                        tier={tier}
+                        size={54}
+                      />
                       <div
                         className="trophies__row-text"
                         style={{ opacity: achievement.unlocked ? 1 : 0.55 }}
@@ -601,11 +632,11 @@ export default function Trophies() {
                         </span>
                       </div>
                       <div className="trophies__row-side">
-                        <RarityLabel percent={achievement.globalUnlockPercent} />
+                        <RarityLabel
+                          percent={achievement.globalUnlockPercent}
+                        />
                         <span className="trophies__row-date">
-                          {achievement.unlocked
-                            ? (date ?? "")
-                            : t("locked")}
+                          {achievement.unlocked ? (date ?? "") : t("locked")}
                         </span>
                       </div>
                     </div>

@@ -7,14 +7,21 @@ export interface Box {
   height: number;
 }
 
-const center = (box: Box) => ({ x: box.left + box.width / 2, y: box.top + box.height / 2 });
+const center = (box: Box) => ({
+  x: box.left + box.width / 2,
+  y: box.top + box.height / 2,
+});
 
 /**
  * The closest box in a direction from `from`, the way a TV remote moves: only boxes that are
  * really on that side count, and moving straight is preferred over drifting sideways.
  * Returns the index in `candidates`, or -1.
  */
-export const pickNeighbor = (from: Box, candidates: Box[], direction: Direction): number => {
+export const pickNeighbor = (
+  from: Box,
+  candidates: Box[],
+  direction: Direction
+): number => {
   const origin = center(from);
   let best = -1;
   let bestScore = Number.POSITIVE_INFINITY;

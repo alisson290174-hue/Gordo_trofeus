@@ -97,9 +97,8 @@ const updateAchievementSouvenirPreference = async (
   }
 
   stopAllLinuxGameCaptureSessions();
-  const { stopAllEmulatorSouvenirCaptureSessions } = await import(
-    "@main/services/emulators/emulator-session-tracker"
-  );
+  const { stopAllEmulatorSouvenirCaptureSessions } =
+    await import("@main/services/emulators/emulator-session-tracker");
   await Promise.all([
     stopAllEmulatorSouvenirCaptureSessions(),
     restoreRetroArchAchievementScreenshots(),
@@ -155,7 +154,9 @@ const updateUserPreferences = async (
   );
 
   Wine.syncUserPreferences(updatedPreferences);
-  void import("@main/services/settings-sync").then(({ SettingsSync }) => SettingsSync.touch());
+  void import("@main/services/settings-sync").then(({ SettingsSync }) =>
+    SettingsSync.touch()
+  );
 
   await updateAchievementSouvenirPreference(preferences);
 

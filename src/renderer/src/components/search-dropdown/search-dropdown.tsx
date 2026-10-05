@@ -161,9 +161,11 @@ export function SearchDropdown({
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => onSelectHistory(item.query)}
                   >
-                    <Icon name="hourglass"
+                    <Icon
+                      name="hourglass"
                       size={16}
-                      className="search-dropdown__item-icon" />
+                      className="search-dropdown__item-icon"
+                    />
                     <span className="search-dropdown__item-text">
                       {item.query}
                     </span>
@@ -246,9 +248,11 @@ export function SearchDropdown({
                           className="search-dropdown__item-icon search-dropdown__item-icon--image"
                         />
                       ) : (
-                        <Icon name="search"
+                        <Icon
+                          name="search"
                           size={16}
-                          className="search-dropdown__item-icon" />
+                          className="search-dropdown__item-icon"
+                        />
                       )}
                       <span className="search-dropdown__item-text">
                         <HighlightText text={item.title} query={currentQuery} />

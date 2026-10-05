@@ -15,14 +15,28 @@ export function repairStartMenuShortcutIcon() {
 
   const exePath = process.execPath;
   const roots = [
-    path.join(app.getPath("appData"), "Microsoft", "Windows", "Start Menu", "Programs"),
-    path.join(process.env.ProgramData ?? "C:\\ProgramData", "Microsoft", "Windows", "Start Menu", "Programs"),
+    path.join(
+      app.getPath("appData"),
+      "Microsoft",
+      "Windows",
+      "Start Menu",
+      "Programs"
+    ),
+    path.join(
+      process.env.ProgramData ?? "C:\\ProgramData",
+      "Microsoft",
+      "Windows",
+      "Start Menu",
+      "Programs"
+    ),
   ];
 
   for (const root of roots) {
     let entries: string[] = [];
     try {
-      entries = fs.readdirSync(root).filter((name) => name.toLowerCase().endsWith(".lnk"));
+      entries = fs
+        .readdirSync(root)
+        .filter((name) => name.toLowerCase().endsWith(".lnk"));
     } catch {
       continue;
     }
@@ -31,7 +45,11 @@ export function repairStartMenuShortcutIcon() {
       const shortcutPath = path.join(root, name);
       try {
         const link = shell.readShortcutLink(shortcutPath);
-        if (path.resolve(link.target).toLowerCase() !== path.resolve(exePath).toLowerCase()) continue;
+        if (
+          path.resolve(link.target).toLowerCase() !==
+          path.resolve(exePath).toLowerCase()
+        )
+          continue;
         if (link.icon && fs.existsSync(link.icon)) continue;
 
         const fixed = shell.writeShortcutLink(shortcutPath, "replace", {
@@ -39,7 +57,9 @@ export function repairStartMenuShortcutIcon() {
           icon: exePath,
           iconIndex: 0,
         });
-        logger.info(`[shortcut] ${fixed ? "repaired" : "could not repair"} icon of ${shortcutPath}`);
+        logger.info(
+          `[shortcut] ${fixed ? "repaired" : "could not repair"} icon of ${shortcutPath}`
+        );
       } catch {
         // Not a readable shortcut (or no permission for the all-users one) — leave it alone.
       }

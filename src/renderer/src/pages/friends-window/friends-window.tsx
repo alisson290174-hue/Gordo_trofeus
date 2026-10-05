@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 
-
 import { Avatar, Img } from "@renderer/components";
 import GameIconPlaceholder from "@renderer/assets/icons/game-icon-placeholder.png";
 import { useAppSelector, useUserDetails } from "@renderer/hooks";
@@ -583,7 +582,11 @@ export default function FriendsWindow() {
       <div className="friends-window__content">
         <div className="friends-window__search-row">
           <div className="friends-window__search">
-            <Icon name="search" size={16} className="friends-window__search-icon" />
+            <Icon
+              name="search"
+              size={16}
+              className="friends-window__search-icon"
+            />
             <input
               type="text"
               value={search}

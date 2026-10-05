@@ -23,7 +23,11 @@ export function GameLogo({ game, shopDetails }: Readonly<GameLogoProps>) {
     : getImageWithCustomPriority(
         game?.customLogoImageUrl,
         shopDetails?.assets?.logoImageUrl,
-        game ? getLogoArt(game) : shopDetails ? getLogoArt({ shop: "steam", objectId: shopDetails.objectId }) : null
+        game
+          ? getLogoArt(game)
+          : shopDetails
+            ? getLogoArt({ shop: "steam", objectId: shopDetails.objectId })
+            : null
       );
 
   const title = game?.title || shopDetails?.name || "";

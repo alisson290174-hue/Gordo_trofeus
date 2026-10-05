@@ -49,9 +49,11 @@ export function LibrarySelect({
           <span className="library-select__trigger-label">
             {selected?.label ?? ""}
           </span>
-          <Icon name="chevron-down"
+          <Icon
+            name="chevron-down"
             size={LIBRARY_DROPDOWN_CHEVRON_SIZE}
-            className="library-select__chevron" />
+            className="library-select__chevron"
+          />
         </button>
       </DropdownMenuPrimitive.Trigger>
 

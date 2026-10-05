@@ -19,7 +19,9 @@ const getRetroAchievementsAchievements = async (
 
   if (result.status === "no_mapping") {
     // PS3 has no RetroAchievements: its trophies come from RPCS3's own files.
-    const game = await gamesSublevel.get(levelKeys.game(shop, objectId)).catch(() => null);
+    const game = await gamesSublevel
+      .get(levelKeys.game(shop, objectId))
+      .catch(() => null);
     if (game && /playstation\s*3|\bps3\b/i.test(game.platform ?? "")) {
       await syncPs3Trophies(game, false);
     }

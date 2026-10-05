@@ -9,10 +9,7 @@ import type {
 } from "@types";
 
 export type CloudSavePresentationTone =
-  | "synced"
-  | "outdated"
-  | "conflict"
-  | "neutral";
+  "synced" | "outdated" | "conflict" | "neutral";
 
 export type CloudSavePresentationIcon =
   | "cloud"
@@ -76,9 +73,7 @@ export const hasCloudSaveDataToDelete = (
 
 export type CloudSaveUploadLimitError = "snapshot-too-large" | "too-many-files";
 export type CloudSaveSyncErrorKind =
-  | CloudSaveUploadLimitError
-  | "restore-metadata"
-  | "generic";
+  CloudSaveUploadLimitError | "restore-metadata" | "generic";
 
 const getErrorMessage = (error: unknown) => {
   if (typeof error === "string") return error;

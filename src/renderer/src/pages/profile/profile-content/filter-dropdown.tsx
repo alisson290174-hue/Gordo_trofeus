@@ -68,7 +68,11 @@ export function FilterDropdown<T extends string>({
             <span>{selected.label}</span>
           </span>
         )}
-        <Icon name="chevron-down" size={14} className="filter-dropdown__chevron" />
+        <Icon
+          name="chevron-down"
+          size={14}
+          className="filter-dropdown__chevron"
+        />
       </button>
 
       {open && (
@@ -94,7 +98,11 @@ export function FilterDropdown<T extends string>({
                   {option.label}
                 </span>
                 {isActive && (
-                  <Icon name="check" size={14} className="filter-dropdown__check" />
+                  <Icon
+                    name="check"
+                    size={14}
+                    className="filter-dropdown__check"
+                  />
                 )}
               </button>
             );

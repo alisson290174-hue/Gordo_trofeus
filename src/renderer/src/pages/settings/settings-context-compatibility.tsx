@@ -315,7 +315,7 @@ export function SettingsContextCompatibility() {
                         className="settings-behavior__gamemode-link"
                       >
                         GameMode
-                        <Icon name="link-external"  />
+                        <Icon name="link-external" />
                       </Link>
                     </span>
                   }
@@ -364,7 +364,7 @@ export function SettingsContextCompatibility() {
                         className="settings-behavior__mangohud-link"
                       >
                         MangoHud
-                        <Icon name="link-external"  />
+                        <Icon name="link-external" />
                       </Link>
                     </span>
                   }
@@ -401,7 +401,7 @@ export function SettingsContextCompatibility() {
             className="settings-general__common-redist-button"
             disabled={!canInstallCommonRedist || installingCommonRedist}
           >
-            <Icon name="desktop-download"  />
+            <Icon name="desktop-download" />
             {installingCommonRedist
               ? t("installing_common_redist")
               : t("install_common_redist")}

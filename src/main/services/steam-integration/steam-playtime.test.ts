@@ -103,8 +103,7 @@ describe("Steam import lookup", () => {
     t.mock.timers.enable({ apis: ["setTimeout"] });
     let signal: AbortSignal | undefined;
     let finish:
-      | ((status: { hasActiveSteamImport: boolean }) => void)
-      | undefined;
+      ((status: { hasActiveSteamImport: boolean }) => void) | undefined;
     const result = resolveActiveSteamImport(true, (requestSignal) => {
       signal = requestSignal;
       return new Promise((resolve) => {

@@ -37,7 +37,13 @@
     inset: 0;
     z-index: 0;
     pointer-events: none;
-    background: linear-gradient(115deg, #1b2a4a 0%, #0f1a33 38%, #2a1c3f 70%, #3b1f2b 100%);
+    background: linear-gradient(
+      115deg,
+      #1b2a4a 0%,
+      #0f1a33 38%,
+      #2a1c3f 70%,
+      #3b1f2b 100%
+    );
   }
 
   &__hero {
@@ -53,7 +59,12 @@
     position: absolute;
     inset: 0;
     background:
-      linear-gradient(90deg, rgba(7, 11, 22, 0.96) 0%, rgba(7, 11, 22, 0.75) 42%, rgba(7, 11, 22, 0.1) 75%),
+      linear-gradient(
+        90deg,
+        rgba(7, 11, 22, 0.96) 0%,
+        rgba(7, 11, 22, 0.75) 42%,
+        rgba(7, 11, 22, 0.1) 75%
+      ),
       linear-gradient(0deg, rgba(7, 11, 22, 0.95) 0%, rgba(7, 11, 22, 0) 45%);
   }
 
@@ -202,7 +213,9 @@
     align-items: center;
     gap: 14px;
     cursor: pointer;
-    transition: box-shadow 160ms ease, background 160ms ease;
+    transition:
+      box-shadow 160ms ease,
+      background 160ms ease;
 
     &--primary {
       padding: 0 44px;

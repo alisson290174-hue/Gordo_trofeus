@@ -12,8 +12,7 @@ import { getVerticalCoverCardImageSources } from "./vertical-cover-card-image-so
 
 import "./vertical-cover-card.scss";
 
-export interface VerticalCoverCardProps
-  extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface VerticalCoverCardProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   gameTitle: string;
   coverImageUrls: readonly (string | null | undefined)[];
   children?: ReactNode;

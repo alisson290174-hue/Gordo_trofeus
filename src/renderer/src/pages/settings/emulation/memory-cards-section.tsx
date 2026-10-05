@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 
-
 import { Button, ConfirmationModal, TextField } from "@renderer/components";
 import { DropdownMenu } from "@renderer/components/dropdown-menu/dropdown-menu";
 import { useToast, useUserDetails } from "@renderer/hooks";
@@ -509,7 +508,9 @@ export function MemoryCardsSection({ config, onUploaded }: Readonly<Props>) {
                                     align="end"
                                     items={[
                                       {
-                                        icon: <Icon name="download" size={16} />,
+                                        icon: (
+                                          <Icon name="download" size={16} />
+                                        ),
                                         label: exporting
                                           ? t("memcard_exporting")
                                           : t(
@@ -538,9 +539,11 @@ export function MemoryCardsSection({ config, onUploaded }: Readonly<Props>) {
                                       className="emulator-detail__memcard-menu"
                                       aria-label={title}
                                     >
-                                      <Icon name="kebab-horizontal"
+                                      <Icon
+                                        name="kebab-horizontal"
                                         size={16}
-                                        className="emulator-detail__cloud-menu-icon" />
+                                        className="emulator-detail__cloud-menu-icon"
+                                      />
                                     </button>
                                   </DropdownMenu>
                                 </div>

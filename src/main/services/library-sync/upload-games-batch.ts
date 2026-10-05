@@ -13,7 +13,9 @@ export const uploadGamesBatch = async () => {
     .then((results) => {
       return results.filter(
         (game) =>
-          !game.isDeleted && game.remoteId === null && !isLocalOnlyShop(game.shop)
+          !game.isDeleted &&
+          game.remoteId === null &&
+          !isLocalOnlyShop(game.shop)
       );
     });
 

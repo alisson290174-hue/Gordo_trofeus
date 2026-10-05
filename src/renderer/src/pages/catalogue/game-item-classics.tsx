@@ -1,4 +1,3 @@
-
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
@@ -213,7 +212,11 @@ export function GameItemClassics({ game }: GameItemClassicsProps) {
         aria-label={added ? t("already_in_library") : t("add_to_library")}
         disabled={added || isAddingToLibrary}
       >
-        {added ? <Icon name="check" size={16} /> : <Icon name="plus" size={16} />}
+        {added ? (
+          <Icon name="check" size={16} />
+        ) : (
+          <Icon name="plus" size={16} />
+        )}
       </button>
     </article>
   );

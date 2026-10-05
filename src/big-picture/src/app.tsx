@@ -147,13 +147,7 @@ export default function App() {
     if (focusedId) {
       setPendingRouteFocusPathname(null);
     }
-  }, [
-    nodes,
-    pathname,
-    pendingRouteFocusPathname,
-    regions,
-    setFocusRegion,
-  ]);
+  }, [nodes, pathname, pendingRouteFocusPathname, regions, setFocusRegion]);
 
   useEffect(() => {
     NavigationAudioService.getInstance().setEnabled(

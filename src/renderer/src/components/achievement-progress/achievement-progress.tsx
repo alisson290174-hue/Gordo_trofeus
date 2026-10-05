@@ -1,4 +1,3 @@
-
 import { isGameCompleted } from "@renderer/helpers";
 import { Icon } from "@renderer/components/icon/icon";
 import { ProgressBar } from "../progress-bar/progress-bar";
@@ -36,9 +35,11 @@ export function AchievementProgress({
       <div className={`${classNamePrefix}__achievement-header`}>
         <div className={`${classNamePrefix}__achievements-gap`}>
           {!isCompleted && (
-            <Icon name="trophy"
+            <Icon
+              name="trophy"
               size={trophyIconSize}
-              className={`${classNamePrefix}__achievement-trophy`} />
+              className={`${classNamePrefix}__achievement-trophy`}
+            />
           )}
           <span className={`${classNamePrefix}__achievement-count`}>
             {unlockedAchievementCount} / {achievementCount}

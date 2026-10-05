@@ -12,7 +12,10 @@ interface Props {
  * One login that signs every emulator into RetroAchievements. The password is sent once to
  * retroachievements.org by the main process and never kept; each emulator receives the token.
  */
-export function RetroAchievementsEmulatorsModal({ visible, onClose }: Readonly<Props>) {
+export function RetroAchievementsEmulatorsModal({
+  visible,
+  onClose,
+}: Readonly<Props>) {
   const { t } = useTranslation("settings");
   const { showSuccessToast, showErrorToast } = useToast();
   const [username, setUsername] = useState("");
@@ -33,12 +36,21 @@ export function RetroAchievementsEmulatorsModal({ visible, onClose }: Readonly<P
     if (!username.trim() || !password) return;
     setBusy(true);
     try {
-      const result = await window.electron.loginRetroAchievementsInEmulators(username, password);
+      const result = await window.electron.loginRetroAchievementsInEmulators(
+        username,
+        password
+      );
       if (result.ok) {
         showSuccessToast(t("ra_emulators_done"), result.configured.join(", "));
         onClose();
       } else {
-        showErrorToast(t(result.reason === "invalid_credentials" ? "ra_emulators_bad_login" : "ra_emulators_network"));
+        showErrorToast(
+          t(
+            result.reason === "invalid_credentials"
+              ? "ra_emulators_bad_login"
+              : "ra_emulators_network"
+          )
+        );
       }
     } finally {
       setPassword("");
@@ -54,7 +66,15 @@ export function RetroAchievementsEmulatorsModal({ visible, onClose }: Readonly<P
       onClose={() => !busy && onClose()}
       clickOutsideToClose={!busy}
     >
-      <form onSubmit={submit} style={{ display: "flex", flexDirection: "column", gap: 16, minWidth: 380 }}>
+      <form
+        onSubmit={submit}
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          gap: 16,
+          minWidth: 380,
+        }}
+      >
         <TextField
           label={t("ra_emulators_username")}
           value={username}
@@ -69,10 +89,18 @@ export function RetroAchievementsEmulatorsModal({ visible, onClose }: Readonly<P
           autoComplete="current-password"
         />
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
-          <Button type="button" theme="outline" onClick={onClose} disabled={busy}>
+          <Button
+            type="button"
+            theme="outline"
+            onClick={onClose}
+            disabled={busy}
+          >
             {t("cancel")}
           </Button>
-          <Button type="submit" disabled={busy || !username.trim() || !password}>
+          <Button
+            type="submit"
+            disabled={busy || !username.trim() || !password}
+          >
             {busy ? t("ra_emulators_working") : t("ra_emulators_submit")}
           </Button>
         </div>

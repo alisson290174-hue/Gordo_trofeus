@@ -1209,9 +1209,11 @@ export function GameAssetsSettings({
           !classicsUseHeroLayout &&
           (selectedAssetType === "hero" || selectedAssetType === "logo") && (
             <div className="game-assets-settings__warning">
-              <Icon name="alert"
+              <Icon
+                name="alert"
                 size={16}
-                className="game-assets-settings__warning-icon" />
+                className="game-assets-settings__warning-icon"
+              />
               <span className="game-assets-settings__warning-text">
                 {t("classics_hero_layout_warning")}
               </span>

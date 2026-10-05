@@ -15,12 +15,18 @@ export interface XInputPad {
 const le16 = (hex: string) => hex.slice(2, 4) + hex.slice(0, 2);
 
 /** SDL's GUID for a pad driven through XInput: USB bus, VID, PID, revision, then 'x' + 0x01. */
-export const sdlGuidForXInput = (vendorId: string, productId: string, revision: string) =>
+export const sdlGuidForXInput = (
+  vendorId: string,
+  productId: string,
+  revision: string
+) =>
   `03000000${le16(vendorId)}0000${le16(productId)}0000${le16(revision)}7801`.toLowerCase();
 
 /** "USB\VID_2DC8&PID_310B&REV_0114&MI_00" → the pad's GUID. */
 export const parseXInputHardwareId = (hardwareId: string): XInputPad | null => {
-  const match = /VID_([0-9A-F]{4})&PID_([0-9A-F]{4})&REV_([0-9A-F]{4})/i.exec(hardwareId);
+  const match = /VID_([0-9A-F]{4})&PID_([0-9A-F]{4})&REV_([0-9A-F]{4})/i.exec(
+    hardwareId
+  );
   if (!match) return null;
   const [, vendorId, productId, revision] = match;
   return {
@@ -94,7 +100,11 @@ export const PCSX2_PAD: Record<string, string> = {
 };
 
 /** True when a pad section already points at a controller (anything but the keyboard). */
-const padSectionUsesController = (content: string, section: string, keys: string[]) =>
+const padSectionUsesController = (
+  content: string,
+  section: string,
+  keys: string[]
+) =>
   keys.some((key) => {
     const line = getIniLine(content, section, key);
     return line !== null && /=\s*(SDL|XInput|DInput)-/i.test(line);
@@ -108,7 +118,8 @@ export const applySdlPadBindings = (
   const keys = Object.keys(bindings).filter((key) => key !== "Type");
   if (padSectionUsesController(content, "Pad1", keys)) return content;
   let next = content;
-  for (const [key, value] of Object.entries(bindings)) next = setIniValue(next, "Pad1", key, value);
+  for (const [key, value] of Object.entries(bindings))
+    next = setIniValue(next, "Pad1", key, value);
   next = setIniValue(next, "InputSources", "SDL", "true");
   return next;
 };
@@ -125,11 +136,16 @@ const XINPUT_FACE: Record<string, string> = {
   FaceNorth: "Y",
 };
 
-export const toXInputBindings = (bindings: Record<string, string>): Record<string, string> =>
+export const toXInputBindings = (
+  bindings: Record<string, string>
+): Record<string, string> =>
   Object.fromEntries(
     Object.entries(bindings).map(([key, value]) => [
       key,
-      value.replace(/^SDL-0\/(.+)$/, (_m, name: string) => `XInput-0/${XINPUT_FACE[name] ?? name}`),
+      value.replace(
+        /^SDL-0\/(.+)$/,
+        (_m, name: string) => `XInput-0/${XINPUT_FACE[name] ?? name}`
+      ),
     ])
   );
 
@@ -149,7 +165,8 @@ export const applyXInputPadBindings = (
   });
   if (alreadyXInput) return content;
   let next = content;
-  for (const [key, value] of Object.entries(bindings)) next = setIniValue(next, "Pad1", key, value);
+  for (const [key, value] of Object.entries(bindings))
+    next = setIniValue(next, "Pad1", key, value);
   next = setIniValue(next, "InputSources", "XInput", "true");
   return next;
 };
@@ -192,7 +209,9 @@ export const RPCS3_XINPUT_PLAYER1 = `Player 1 Input:
 /** Pure: an RPCS3 input file whose player 1 is the keyboard (or missing) gets the Xbox pad. */
 export const shouldWriteRpcs3Input = (content: string | null) => {
   if (!content) return true;
-  const handler = /Player 1 Input:\s*\n\s*Handler:\s*"?([^"\n]+)"?/.exec(content)?.[1]?.trim();
+  const handler = /Player 1 Input:\s*\n\s*Handler:\s*"?([^"\n]+)"?/
+    .exec(content)?.[1]
+    ?.trim();
   return !handler || handler === "Keyboard" || handler === "Null";
 };
 
@@ -268,15 +287,23 @@ export const shouldWriteDolphinPad = (content: string | null) => {
 // ---- Azahar / Eden ----
 
 /** Qt ini "key=value" (no spaces), with the matching "key\default=false" Qt writes alongside. */
-export const setQtIniValue = (content: string, section: string, key: string, value: string) => {
+export const setQtIniValue = (
+  content: string,
+  section: string,
+  key: string,
+  value: string
+) => {
   const lines = content.length > 0 ? content.split(/\r?\n/) : [];
   let start = lines.findIndex((line) => line.trim() === `[${section}]`);
   if (start === -1) {
-    if (lines.length > 0 && lines[lines.length - 1].trim() !== "") lines.push("");
+    if (lines.length > 0 && lines[lines.length - 1].trim() !== "")
+      lines.push("");
     lines.push(`[${section}]`);
     start = lines.length - 1;
   }
-  let end = lines.findIndex((line, index) => index > start && line.trim().startsWith("["));
+  let end = lines.findIndex(
+    (line, index) => index > start && line.trim().startsWith("[")
+  );
   if (end === -1) end = lines.length;
 
   const upsert = (name: string, val: string) => {
@@ -300,7 +327,8 @@ const getQtIniValue = (content: string, key: string) =>
     .find((line) => line.startsWith(`${key}=`))
     ?.slice(key.length + 1) ?? null;
 
-const sdl = (guid: string, params: string) => `"engine:sdl,guid:${guid},port:0,${params}"`;
+const sdl = (guid: string, params: string) =>
+  `"engine:sdl,guid:${guid},port:0,${params}"`;
 
 /** 3DS buttons on the Xbox layout (A=A, B=B, …), as Azahar's "profiles\1" entries. */
 export const azaharBindings = (guid: string): Record<string, string> => ({
@@ -363,7 +391,7 @@ export const applyQtPadBindings = (
   const current = getQtIniValue(content, probeKey);
   if (current && /engine:sdl/.test(current)) return content;
   let next = content;
-  for (const [key, value] of Object.entries(bindings)) next = setQtIniValue(next, section, key, value);
+  for (const [key, value] of Object.entries(bindings))
+    next = setQtIniValue(next, section, key, value);
   return next;
 };
-

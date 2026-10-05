@@ -253,8 +253,13 @@ const finalizeEmulatorSession = async (gameKey: string): Promise<void> => {
     });
 
   // PS3: RPCS3 records the game's own trophies; read them as soon as the session ends.
-  if (game.shop === "launchbox" && /playstation\s*3|\bps3\b/i.test(game.platform ?? "")) {
-    void import("./ps3-trophies").then(({ syncPs3Trophies }) => syncPs3Trophies(game, true));
+  if (
+    game.shop === "launchbox" &&
+    /playstation\s*3|\bps3\b/i.test(game.platform ?? "")
+  ) {
+    void import("./ps3-trophies").then(({ syncPs3Trophies }) =>
+      syncPs3Trophies(game, true)
+    );
   }
 
   if (game.shop === "launchbox") {

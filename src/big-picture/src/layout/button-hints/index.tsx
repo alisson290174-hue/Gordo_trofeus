@@ -63,7 +63,9 @@ export function ButtonHints() {
     <footer className="button-hints" aria-label="Controls">
       {hintsFor(pathname).map((hint) => (
         <span key={hint.key + hint.label} className="button-hints__hint">
-          <i className={`opus-key opus-key--${hint.key}`}>{KEY_LABEL[hint.key]}</i>
+          <i className={`opus-key opus-key--${hint.key}`}>
+            {KEY_LABEL[hint.key]}
+          </i>
           {hint.label}
         </span>
       ))}

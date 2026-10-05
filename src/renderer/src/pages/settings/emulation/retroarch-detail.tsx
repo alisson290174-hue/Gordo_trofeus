@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 
-
 import { Button, RetroArchScanIndicator } from "@renderer/components";
 import { useRetroArchScan, useToast } from "@renderer/hooks";
 import { formatBytes } from "@shared";
@@ -480,13 +479,15 @@ export function RetroArchDetail({
                   onClick={handleRedetectCores}
                   disabled={busy || installingCores}
                 >
-                  <Icon name="sync"
+                  <Icon
+                    name="sync"
                     size={13}
                     className={
                       installingCores
                         ? "emulator-detail__redetect-icon--spinning"
                         : undefined
-                    } />
+                    }
+                  />
                   <span>{t("re_detect")}</span>
                 </Button>
                 <Button

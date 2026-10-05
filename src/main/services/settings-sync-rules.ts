@@ -7,8 +7,12 @@ export const SETTINGS_SNAPSHOT_VERSION = 1;
 
 const SECRET_KEY = /(api)?(key|token|password|secret|cookie)$/i;
 
-export const stripSecrets = (preferences: Record<string, unknown>): Record<string, unknown> =>
-  Object.fromEntries(Object.entries(preferences).filter(([key]) => !SECRET_KEY.test(key)));
+export const stripSecrets = (
+  preferences: Record<string, unknown>
+): Record<string, unknown> =>
+  Object.fromEntries(
+    Object.entries(preferences).filter(([key]) => !SECRET_KEY.test(key))
+  );
 
 export interface SyncedFolder {
   path: string;
@@ -26,13 +30,17 @@ export interface SettingsSnapshot {
   preferences: Record<string, unknown>;
   emulatorsBaseDir: string | null;
   emulators: Record<string, SyncedEmulator>;
-  retroarch: { executablePath: string | null; romFolders: SyncedFolder[] } | null;
+  retroarch: {
+    executablePath: string | null;
+    romFolders: SyncedFolder[];
+  } | null;
 }
 
 /** A fresh install: no game folder linked anywhere yet. Only then is the server copy applied. */
 export const looksLikeFreshInstall = (snapshot: SettingsSnapshot) =>
-  Object.values(snapshot.emulators).every((emulator) => emulator.romFolders.length === 0) &&
-  (snapshot.retroarch?.romFolders.length ?? 0) === 0;
+  Object.values(snapshot.emulators).every(
+    (emulator) => emulator.romFolders.length === 0
+  ) && (snapshot.retroarch?.romFolders.length ?? 0) === 0;
 
 /**
  * Restored preferences: the server copy, with whatever the new install already holds for secrets

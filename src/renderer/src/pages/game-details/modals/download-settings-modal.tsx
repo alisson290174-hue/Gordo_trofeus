@@ -811,8 +811,7 @@ export function DownloadSettingsModal({
     setTorrentFilesError(null);
 
     let response:
-      | { ok: true; data: TorrentFilesResponse }
-      | { ok: false; error: string };
+      { ok: true; data: TorrentFilesResponse } | { ok: false; error: string };
 
     try {
       response = await window.electron.getTorrentFiles(selectedMagnetUri);
@@ -971,7 +970,10 @@ export function DownloadSettingsModal({
     if (downloadStarting) {
       return (
         <>
-          <Icon name="sync" className="download-settings-modal__loading-spinner" />
+          <Icon
+            name="sync"
+            className="download-settings-modal__loading-spinner"
+          />
           {t("loading")}
         </>
       );
@@ -980,7 +982,7 @@ export function DownloadSettingsModal({
     if (hasActiveDownload) {
       return (
         <>
-          <Icon name="plus"  />
+          <Icon name="plus" />
           {t("add_to_queue")}
         </>
       );
@@ -988,7 +990,7 @@ export function DownloadSettingsModal({
 
     return (
       <>
-        <Icon name="download"  />
+        <Icon name="download" />
         {t("download_now")}
       </>
     );
@@ -1136,12 +1138,14 @@ export function DownloadSettingsModal({
                   isChecked && !isIndeterminate ? "checked" : ""
                 }`}
               >
-                <Icon name="check"  />
+                <Icon name="check" />
               </span>
             </button>
-            <Icon name="file-directory"
+            <Icon
+              name="file-directory"
               size={14}
-              className="download-settings-modal__torrent-node-icon" />
+              className="download-settings-modal__torrent-node-icon"
+            />
             <button
               type="button"
               className="download-settings-modal__torrent-row-trigger download-settings-modal__torrent-row-trigger--label"
@@ -1184,12 +1188,14 @@ export function DownloadSettingsModal({
             <span
               className={`checkbox-field__icon ${row.selected ? "checked" : ""}`}
             >
-              <Icon name="check"  />
+              <Icon name="check" />
             </span>
           </button>
-          <Icon name="file"
+          <Icon
+            name="file"
             size={14}
-            className="download-settings-modal__torrent-node-icon" />
+            className="download-settings-modal__torrent-node-icon"
+          />
           <button
             type="button"
             className="download-settings-modal__torrent-row-trigger download-settings-modal__torrent-row-trigger--label"
@@ -1350,9 +1356,11 @@ export function DownloadSettingsModal({
                           damping: 20,
                         }}
                       >
-                        <Icon name="check-circle-fill"
+                        <Icon
+                          name="check-circle-fill"
                           size={16}
-                          className="download-settings-modal__check-icon" />
+                          className="download-settings-modal__check-icon"
+                        />
                       </motion.div>
                     );
                   }
@@ -1581,7 +1589,7 @@ export function DownloadSettingsModal({
                       allTorrentFilesSelected ? "checked" : ""
                     }`}
                   >
-                    <Icon name="check"  />
+                    <Icon name="check" />
                   </span>
                 </div>
                 <span className="download-settings-modal__torrent-file-path download-settings-modal__torrent-file-path--bold">

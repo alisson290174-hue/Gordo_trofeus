@@ -1,10 +1,7 @@
 import type { SteamIntegrationStatus, SteamSyncState } from "@types";
 
 export type SteamIntegrationViewState =
-  | "disconnected"
-  | "connected"
-  | "reconnect-required"
-  | "snapshot-preserved";
+  "disconnected" | "connected" | "reconnect-required" | "snapshot-preserved";
 
 const getSteamIntegrationViewState = (
   integration: SteamIntegrationStatus,

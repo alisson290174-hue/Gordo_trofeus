@@ -140,9 +140,11 @@ export function UserLibraryGameCard({
                 data-tooltip-id={game.objectId}
               >
                 {game.hasManuallyUpdatedPlaytime ? (
-                  <Icon name="alert-fill"
+                  <Icon
+                    name="alert-fill"
                     size={11}
-                    className="user-library-game__manual-playtime" />
+                    className="user-library-game__manual-playtime"
+                  />
                 ) : (
                   <Icon name="hourglass" size={11} />
                 )}
@@ -184,7 +186,6 @@ export function UserLibraryGameCard({
                         {game.achievementCount}
                       </span>
                     </div>
-
                   </div>
 
                   <span

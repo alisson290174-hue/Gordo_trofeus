@@ -1,10 +1,7 @@
 import type { SnapshotFile, UserLocationCoverage } from "@types";
 
 export type CloudSaveCustomPathSelectionFailure =
-  | "empty"
-  | "environment-unavailable"
-  | "foreign-environment"
-  | "unreadable";
+  "empty" | "environment-unavailable" | "foreign-environment" | "unreadable";
 
 export const hasEligibleCloudSaveCustomPathFiles = (
   files: Pick<SnapshotFile, "rawPath">[],

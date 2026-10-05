@@ -85,7 +85,8 @@ export function GameItem({ game }: GameItemProps) {
   const remoteCover = getShowcaseArt(game, "cover") ?? game.libraryImageUrl;
   const cover = !coverFailed && remoteCover ? remoteCover : CoverPlaceholder;
   const visibleSources = game.downloadSources.slice(0, 2);
-  const hiddenSourcesCount = game.downloadSources.length - visibleSources.length;
+  const hiddenSourcesCount =
+    game.downloadSources.length - visibleSources.length;
 
   const rawProtonValue =
     game.tier ??

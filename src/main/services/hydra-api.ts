@@ -102,9 +102,8 @@ export class HydraApi {
       subscription: null,
     };
 
-    const { AchievementWatcherManager } = await import(
-      "./achievements/achievement-watcher-manager"
-    );
+    const { AchievementWatcherManager } =
+      await import("./achievements/achievement-watcher-manager");
     AchievementWatcherManager.resetSessionState();
 
     logger.log(
@@ -128,28 +127,32 @@ export class HydraApi {
       }
     });
 
-    const { groupedSouvenirWorker } = await import(
-      "./achievements/grouped-souvenir-worker"
-    );
+    const { groupedSouvenirWorker } =
+      await import("./achievements/grouped-souvenir-worker");
     void groupedSouvenirWorker.trigger();
 
-    const { startSteamSyncOnStartup } = await import(
-      "./steam-integration/steam-startup-sync"
-    );
+    const { startSteamSyncOnStartup } =
+      await import("./steam-integration/steam-startup-sync");
     void startSteamSyncOnStartup();
 
     if (WindowManager.mainWindow) {
       WindowManager.mainWindow.webContents.send("on-signin");
       // A new install signing in for the first time gets the user's setup back.
-      void import("./settings-sync").then(({ SettingsSync }) => SettingsSync.start());
+      void import("./settings-sync").then(({ SettingsSync }) =>
+        SettingsSync.start()
+      );
       await clearGamesRemoteIds();
       void uploadGamesBatch();
 
       // A first sign-in must bring the Steam account games (and their trophies) right away, not
       // only on the next app start.
-      const { syncSteamOwnedLibrary } = await import("./steam-owned/steam-owned-library");
+      const { syncSteamOwnedLibrary } =
+        await import("./steam-owned/steam-owned-library");
       void syncSteamOwnedLibrary().catch((error) =>
-        logger.warn("[steam-owned] sync after sign-in skipped", error?.message ?? error)
+        logger.warn(
+          "[steam-owned] sync after sign-in skipped",
+          error?.message ?? error
+        )
       );
 
       SSEClient.close();
@@ -168,22 +171,18 @@ export class HydraApi {
       subscription: null,
     };
 
-    const { AchievementWatcherManager } = await import(
-      "./achievements/achievement-watcher-manager"
-    );
+    const { AchievementWatcherManager } =
+      await import("./achievements/achievement-watcher-manager");
     AchievementWatcherManager.resetSessionState();
-    const { stopAllLinuxGameCaptureSessions } = await import(
-      "./linux-game-capture-session"
-    );
+    const { stopAllLinuxGameCaptureSessions } =
+      await import("./linux-game-capture-session");
     stopAllLinuxGameCaptureSessions();
-    const { groupedSouvenirWorker } = await import(
-      "./achievements/grouped-souvenir-worker"
-    );
+    const { groupedSouvenirWorker } =
+      await import("./achievements/grouped-souvenir-worker");
     groupedSouvenirWorker.stop();
 
-    const { resetSteamStartupSync } = await import(
-      "./steam-integration/steam-startup-sync"
-    );
+    const { resetSteamStartupSync } =
+      await import("./steam-integration/steam-startup-sync");
     resetSteamStartupSync();
 
     this.sendSignOutEvent();
@@ -352,7 +351,9 @@ export class HydraApi {
     // A 401 on a normal call usually means the short access token was rejected (server restart
     // with a new signing secret, clock skew), not that the session is gone: renew it once and keep
     // the user signed in. Only a refresh that is itself refused ends the session.
-    const isRefreshCall = err instanceof AxiosError && /\/auth\/refresh$/.test(err.config?.url ?? "");
+    const isRefreshCall =
+      err instanceof AxiosError &&
+      /\/auth\/refresh$/.test(err.config?.url ?? "");
     if (
       err instanceof AxiosError &&
       err.response?.status === 401 &&
@@ -384,18 +385,15 @@ export class HydraApi {
         subscription: null,
       };
 
-      const { AchievementWatcherManager } = await import(
-        "./achievements/achievement-watcher-manager"
-      );
+      const { AchievementWatcherManager } =
+        await import("./achievements/achievement-watcher-manager");
       AchievementWatcherManager.resetSessionState();
 
-      const { stopAllLinuxGameCaptureSessions } = await import(
-        "./linux-game-capture-session"
-      );
+      const { stopAllLinuxGameCaptureSessions } =
+        await import("./linux-game-capture-session");
       stopAllLinuxGameCaptureSessions();
-      const { groupedSouvenirWorker } = await import(
-        "./achievements/grouped-souvenir-worker"
-      );
+      const { groupedSouvenirWorker } =
+        await import("./achievements/grouped-souvenir-worker");
       groupedSouvenirWorker.stop();
 
       db.batch([

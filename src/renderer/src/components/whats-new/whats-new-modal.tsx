@@ -32,7 +32,10 @@ export function WhatsNewModal() {
       .then((current: string) => {
         // Nothing recorded (first run, or an update from a version without this summary): show it once.
         const seen = readSeen();
-        if (seen !== current && CHANGELOG.some((entry) => entry.version === current)) {
+        if (
+          seen !== current &&
+          CHANGELOG.some((entry) => entry.version === current)
+        ) {
           setVersion(current);
         }
       })

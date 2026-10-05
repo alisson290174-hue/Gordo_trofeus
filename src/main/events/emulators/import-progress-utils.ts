@@ -41,7 +41,10 @@ export const cleanRomTitle = (fileName: string): string => {
  * older cleaner that left the extension) rather than typed by the user or taken from a catalogue
  * — only those get replaced by a better title on the next scan.
  */
-export const isFileNameTitle = (title: string | null | undefined, fileName: string): boolean =>
+export const isFileNameTitle = (
+  title: string | null | undefined,
+  fileName: string
+): boolean =>
   !title ||
   title === baseNameWithoutExt(fileName) ||
   title === cleanRomTitle(fileName) ||

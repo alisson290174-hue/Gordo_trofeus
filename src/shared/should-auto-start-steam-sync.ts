@@ -1,8 +1,5 @@
 export type SteamAutoStartRunStatus =
-  | "PENDING"
-  | "RUNNING"
-  | "SUCCEEDED"
-  | "FAILED";
+  "PENDING" | "RUNNING" | "SUCCEEDED" | "FAILED";
 
 export const shouldAutoStartSteamSync = ({
   connected,

@@ -6,8 +6,20 @@ import path from "node:path";
 
 import { applyPairedRules, type Candidate } from "./rom-pairing";
 
-const PS1_PRIMARY = new Set([".cue", ".ccd", ".mds", ".chd", ".pbp", ".iso", ".ecm"]);
-const PS1_PAIRS = { ".cue": [".bin"], ".ccd": [".img", ".sub"], ".mds": [".mdf"] };
+const PS1_PRIMARY = new Set([
+  ".cue",
+  ".ccd",
+  ".mds",
+  ".chd",
+  ".pbp",
+  ".iso",
+  ".ecm",
+]);
+const PS1_PAIRS = {
+  ".cue": [".bin"],
+  ".ccd": [".img", ".sub"],
+  ".mds": [".mdf"],
+};
 
 describe("rom-pairing (PS1 cue sheets)", () => {
   let dir: string;
@@ -22,7 +34,8 @@ describe("rom-pairing (PS1 cue sheets)", () => {
       "Dino Crisis 2 (Track 1) (BR).bin": "x",
       "Dino Crisis 2 (Track 2) (BR).bin": "x",
       // Broken cue pointing at a file that isn't there; the real bin must stay the game.
-      "Parasite Eve II (CD1).cue.cue": 'FILE "Parasite Eve II (USA) (Disc 1).bin" BINARY\n',
+      "Parasite Eve II (CD1).cue.cue":
+        'FILE "Parasite Eve II (USA) (Disc 1).bin" BINARY\n',
       "Parasite Eve II (CD1).bin": "x",
       // Broken cue with the same base name as its bin (FILE points elsewhere): the bin is the game.
       "Harvest Moon (BR).cue": 'FILE "Harvest Moon (USA).bin" BINARY\n',
@@ -42,7 +55,9 @@ describe("rom-pairing (PS1 cue sheets)", () => {
 
   it("groups cue-listed tracks and ignores cues whose tracks are missing", () => {
     const games = applyPairedRules(group, PS1_PRIMARY, PS1_PAIRS);
-    const byName = Object.fromEntries(games.map((g) => [g.primary.name, g.sidecars.map((s) => s.name).sort()]));
+    const byName = Object.fromEntries(
+      games.map((g) => [g.primary.name, g.sidecars.map((s) => s.name).sort()])
+    );
     assert.deepEqual(Object.keys(byName).sort(), [
       "Dino Crisis 2 (BR).cue",
       "Harvest Moon (BR).bin",
@@ -54,6 +69,9 @@ describe("rom-pairing (PS1 cue sheets)", () => {
       "Dino Crisis 2 (Track 1) (BR).bin",
       "Dino Crisis 2 (Track 2) (BR).bin",
     ]);
-    assert.deepEqual(byName["Parasite Eve CD 01.ccd"], ["Parasite Eve CD 01.img", "Parasite Eve CD 01.sub"]);
+    assert.deepEqual(byName["Parasite Eve CD 01.ccd"], [
+      "Parasite Eve CD 01.img",
+      "Parasite Eve CD 01.sub",
+    ]);
   });
 });

@@ -51,12 +51,10 @@ const redactSensitiveUrlParameters = (value: string) => {
 
 const parseSerializedPayload = (value: string): unknown => {
   const trimmed = value.trim();
-  if (
-    !(
-      (trimmed.startsWith("{") && trimmed.endsWith("}")) ||
-      (trimmed.startsWith("[") && trimmed.endsWith("]"))
-    )
-  ) {
+  if (!(
+    (trimmed.startsWith("{") && trimmed.endsWith("}")) ||
+    (trimmed.startsWith("[") && trimmed.endsWith("]"))
+  )) {
     return value;
   }
 

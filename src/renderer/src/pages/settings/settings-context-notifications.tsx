@@ -17,7 +17,6 @@ import type {
   UserPreferences,
 } from "@types";
 
-
 import "./settings-general.scss";
 
 const buildForm = (preferences: UserPreferences | null) => ({
@@ -218,7 +217,11 @@ export function SettingsContextNotifications() {
               {t("achievement_sound_volume")}
             </label>
             <div className="settings-general__volume-slider-wrapper">
-              <Icon name="unmute" size={16} className="settings-general__volume-icon" />
+              <Icon
+                name="unmute"
+                size={16}
+                className="settings-general__volume-icon"
+              />
               <input
                 id="achievement-volume"
                 type="range"

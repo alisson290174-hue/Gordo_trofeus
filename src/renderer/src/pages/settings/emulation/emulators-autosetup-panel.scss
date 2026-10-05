@@ -5,7 +5,11 @@
   padding: 20px 24px;
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.07);
-  background: linear-gradient(135deg, rgba(0, 112, 243, 0.12), rgba(255, 255, 255, 0.02));
+  background: linear-gradient(
+    135deg,
+    rgba(0, 112, 243, 0.12),
+    rgba(255, 255, 255, 0.02)
+  );
 
   &__header-actions {
     display: flex;

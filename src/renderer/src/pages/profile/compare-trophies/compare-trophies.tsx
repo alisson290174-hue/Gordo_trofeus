@@ -56,14 +56,21 @@ function Person({
   );
 
   return (
-    <div className={cn("cmp-person", { "cmp-person--right": align === "right" })}>
+    <div
+      className={cn("cmp-person", { "cmp-person--right": align === "right" })}
+    >
       <span className="cmp-person__avatar">
-        {imageUrl ? <img src={imageUrl} alt="" /> : name.charAt(0).toUpperCase()}
+        {imageUrl ? (
+          <img src={imageUrl} alt="" />
+        ) : (
+          name.charAt(0).toUpperCase()
+        )}
       </span>
       <span className="cmp-person__text">
         <span className="cmp-person__name">{name}</span>
         <span className="cmp-person__meta">
-          {t("level_n", { level })} · {t("trophies_n", { count: counts?.total ?? 0 })}
+          {t("level_n", { level })} ·{" "}
+          {t("trophies_n", { count: counts?.total ?? 0 })}
         </span>
         <span className="cmp-person__meta">
           {t("ahead_in", { count: ahead })}
@@ -107,12 +114,23 @@ export default function CompareTrophies() {
   const rows = useMemo<CompareRow[]>(() => {
     const map = new Map<string, CompareRow>();
     for (const game of mySummary?.games ?? []) {
-      map.set(keyOf(game), { key: keyOf(game), base: game, mine: game, theirs: null });
+      map.set(keyOf(game), {
+        key: keyOf(game),
+        base: game,
+        mine: game,
+        theirs: null,
+      });
     }
     for (const game of theirSummary?.games ?? []) {
       const existing = map.get(keyOf(game));
       if (existing) existing.theirs = game;
-      else map.set(keyOf(game), { key: keyOf(game), base: game, mine: null, theirs: game });
+      else
+        map.set(keyOf(game), {
+          key: keyOf(game),
+          base: game,
+          mine: null,
+          theirs: game,
+        });
     }
 
     const lastActivity = (row: CompareRow) =>
@@ -126,19 +144,38 @@ export default function CompareTrophies() {
   }, [mySummary, theirSummary]);
 
   const aheadMine = rows.filter(
-    (row) => row.mine && (!row.theirs || percentOf(row.mine) > percentOf(row.theirs))
+    (row) =>
+      row.mine && (!row.theirs || percentOf(row.mine) > percentOf(row.theirs))
   ).length;
   const aheadTheirs = rows.filter(
-    (row) => row.theirs && (!row.mine || percentOf(row.theirs) > percentOf(row.mine))
+    (row) =>
+      row.theirs && (!row.mine || percentOf(row.theirs) > percentOf(row.mine))
   ).length;
 
-  const filters: { key: CompareFilter; label: string; test: (row: CompareRow) => boolean }[] = [
+  const filters: {
+    key: CompareFilter;
+    label: string;
+    test: (row: CompareRow) => boolean;
+  }[] = [
     { key: "all", label: t("filter_all"), test: () => true },
-    { key: "common", label: t("in_common"), test: (row) => Boolean(row.mine && row.theirs) },
-    { key: "mine", label: t("only_you"), test: (row) => Boolean(row.mine && !row.theirs) },
-    { key: "theirs", label: t("only_them", { name: theirName }), test: (row) => Boolean(row.theirs && !row.mine) },
+    {
+      key: "common",
+      label: t("in_common"),
+      test: (row) => Boolean(row.mine && row.theirs),
+    },
+    {
+      key: "mine",
+      label: t("only_you"),
+      test: (row) => Boolean(row.mine && !row.theirs),
+    },
+    {
+      key: "theirs",
+      label: t("only_them", { name: theirName }),
+      test: (row) => Boolean(row.theirs && !row.mine),
+    },
   ];
-  const activeFilter = filters.find((item) => item.key === filter) ?? filters[0];
+  const activeFilter =
+    filters.find((item) => item.key === filter) ?? filters[0];
   const visibleRows = rows.filter(activeFilter.test);
 
   if (!userDetails) {
@@ -187,17 +224,31 @@ export default function CompareTrophies() {
             const max = Math.max(mine, theirs, 1);
             return (
               <div key={tier} className="cmp-duel__row">
-                <span className={cn("cmp-duel__num cmp-duel__num--mine", { "cmp-duel__num--ahead": mine > theirs })}>
+                <span
+                  className={cn("cmp-duel__num cmp-duel__num--mine", {
+                    "cmp-duel__num--ahead": mine > theirs,
+                  })}
+                >
                   {tier === "platinum" || hasTierData ? mine : "—"}
                 </span>
                 <span className="cmp-duel__track cmp-duel__track--mine">
-                  <span className={`cmp-duel__fill cmp-duel__fill--${tier}`} style={{ width: `${(mine / max) * 100}%` }} />
+                  <span
+                    className={`cmp-duel__fill cmp-duel__fill--${tier}`}
+                    style={{ width: `${(mine / max) * 100}%` }}
+                  />
                 </span>
                 <img src={TIER_BADGE_IMAGES[tier]} alt={t(`tier_${tier}`)} />
                 <span className="cmp-duel__track">
-                  <span className={`cmp-duel__fill cmp-duel__fill--${tier}`} style={{ width: `${(theirs / max) * 100}%` }} />
+                  <span
+                    className={`cmp-duel__fill cmp-duel__fill--${tier}`}
+                    style={{ width: `${(theirs / max) * 100}%` }}
+                  />
                 </span>
-                <span className={cn("cmp-duel__num", { "cmp-duel__num--ahead": theirs > mine })}>
+                <span
+                  className={cn("cmp-duel__num", {
+                    "cmp-duel__num--ahead": theirs > mine,
+                  })}
+                >
                   {tier === "platinum" || hasTierData ? theirs : "—"}
                 </span>
               </div>
@@ -219,11 +270,15 @@ export default function CompareTrophies() {
           <button
             key={item.key}
             type="button"
-            className={cn("cmp-chip", { "cmp-chip--active": filter === item.key })}
+            className={cn("cmp-chip", {
+              "cmp-chip--active": filter === item.key,
+            })}
             onClick={() => setFilter(item.key)}
           >
             {item.label}
-            <span className="cmp-chip__count">{rows.filter(item.test).length}</span>
+            <span className="cmp-chip__count">
+              {rows.filter(item.test).length}
+            </span>
           </button>
         ))}
       </div>
@@ -235,9 +290,13 @@ export default function CompareTrophies() {
           <span>{theirName}</span>
         </div>
 
-        {isLoading && rows.length === 0 &&
+        {isLoading &&
+          rows.length === 0 &&
           Array.from({ length: 5 }).map((_, index) => (
-            <div key={index} className="cmp-list__row cmp-list__row--skeleton ps5-shimmer" />
+            <div
+              key={index}
+              className="cmp-list__row cmp-list__row--skeleton ps5-shimmer"
+            />
           ))}
 
         {!isLoading && rows.length === 0 && (
@@ -250,8 +309,10 @@ export default function CompareTrophies() {
           const cover = getCoverArt(row.base);
           const mine = row.mine;
           const theirs = row.theirs;
-          const mineAhead = mine && (!theirs || percentOf(mine) > percentOf(theirs));
-          const theirsAhead = theirs && (!mine || percentOf(theirs) > percentOf(mine));
+          const mineAhead =
+            mine && (!theirs || percentOf(mine) > percentOf(theirs));
+          const theirsAhead =
+            theirs && (!mine || percentOf(theirs) > percentOf(mine));
           const isCommon = Boolean(mine && theirs);
 
           return (
@@ -282,13 +343,25 @@ export default function CompareTrophies() {
                       </span>
                       <span className="cmp-side__tiers">{tiersLine(mine)}</span>
                     </span>
-                    <span className={cn("cmp-side__pct", { "cmp-side__pct--ahead": mineAhead })}>
+                    <span
+                      className={cn("cmp-side__pct", {
+                        "cmp-side__pct--ahead": mineAhead,
+                      })}
+                    >
                       {percentOf(mine)}%
                     </span>
-                    {mine.isPlatinum && <img className="cmp-side__plat" src={TIER_BADGE_IMAGES.platinum} alt="" />}
+                    {mine.isPlatinum && (
+                      <img
+                        className="cmp-side__plat"
+                        src={TIER_BADGE_IMAGES.platinum}
+                        alt=""
+                      />
+                    )}
                   </>
                 ) : (
-                  <span className="cmp-side__missing">{t("doesnt_have_game")}</span>
+                  <span className="cmp-side__missing">
+                    {t("doesnt_have_game")}
+                  </span>
                 )}
               </span>
 
@@ -302,8 +375,18 @@ export default function CompareTrophies() {
               <span className="cmp-side">
                 {theirs ? (
                   <>
-                    {theirs.isPlatinum && <img className="cmp-side__plat" src={TIER_BADGE_IMAGES.platinum} alt="" />}
-                    <span className={cn("cmp-side__pct", { "cmp-side__pct--ahead": theirsAhead })}>
+                    {theirs.isPlatinum && (
+                      <img
+                        className="cmp-side__plat"
+                        src={TIER_BADGE_IMAGES.platinum}
+                        alt=""
+                      />
+                    )}
+                    <span
+                      className={cn("cmp-side__pct", {
+                        "cmp-side__pct--ahead": theirsAhead,
+                      })}
+                    >
                       {percentOf(theirs)}%
                     </span>
                     <span className="cmp-side__detail">
@@ -316,11 +399,15 @@ export default function CompareTrophies() {
                           style={{ width: `${percentOf(theirs)}%` }}
                         />
                       </span>
-                      <span className="cmp-side__tiers">{tiersLine(theirs)}</span>
+                      <span className="cmp-side__tiers">
+                        {tiersLine(theirs)}
+                      </span>
                     </span>
                   </>
                 ) : (
-                  <span className="cmp-side__missing">{t("doesnt_have_game")}</span>
+                  <span className="cmp-side__missing">
+                    {t("doesnt_have_game")}
+                  </span>
                 )}
               </span>
             </button>

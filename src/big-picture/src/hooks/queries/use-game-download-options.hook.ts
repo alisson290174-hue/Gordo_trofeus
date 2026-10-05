@@ -9,9 +9,7 @@ import {
 import { orderBy } from "lodash-es";
 
 export type DownloadOptionsEmptyStateReason =
-  | "no-configured-sources"
-  | "no-game-sources"
-  | "no-download-options";
+  "no-configured-sources" | "no-game-sources" | "no-download-options";
 
 function getKnownGameSourcesEmptyStateReason(
   downloadSources: string[] | undefined

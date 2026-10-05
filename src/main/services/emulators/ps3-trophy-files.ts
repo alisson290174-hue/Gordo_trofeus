@@ -24,7 +24,9 @@ const decodeXml = (value: string) =>
     .replace(/&amp;/g, "&")
     .trim();
 
-export const parseTropconf = (xml: string): { title: string | null; trophies: Ps3Trophy[] } => {
+export const parseTropconf = (
+  xml: string
+): { title: string | null; trophies: Ps3Trophy[] } => {
   const title = /<title-name>([\s\S]*?)<\/title-name>/.exec(xml)?.[1] ?? null;
   const trophies: Ps3Trophy[] = [];
   for (const match of xml.matchAll(/<trophy\s([^>]*)>([\s\S]*?)<\/trophy>/g)) {
@@ -34,8 +36,12 @@ export const parseTropconf = (xml: string): { title: string | null; trophies: Ps
     if (!id || !grade) continue;
     trophies.push({
       id,
-      displayName: decodeXml(/<name>([\s\S]*?)<\/name>/.exec(match[2])?.[1] ?? ""),
-      description: decodeXml(/<detail>([\s\S]*?)<\/detail>/.exec(match[2])?.[1] ?? ""),
+      displayName: decodeXml(
+        /<name>([\s\S]*?)<\/name>/.exec(match[2])?.[1] ?? ""
+      ),
+      description: decodeXml(
+        /<detail>([\s\S]*?)<\/detail>/.exec(match[2])?.[1] ?? ""
+      ),
       hidden: /\bhidden="yes"/.test(attrs),
       grade,
     });
@@ -52,9 +58,14 @@ const UNIX_EPOCH_TICKS = 62135596800000000n;
 /** Unlocked trophies (by numeric id) → unlock time in ms (null when RPCS3 stored no time). */
 export const parseTropusr = (data: Buffer): Map<number, number | null> => {
   const unlocked = new Map<number, number | null>();
-  if (data.length < HEADER_SIZE || data.readUInt32BE(0) !== TROPUSR_MAGIC) return unlocked;
+  if (data.length < HEADER_SIZE || data.readUInt32BE(0) !== TROPUSR_MAGIC)
+    return unlocked;
   const tables = data.readUInt32BE(8);
-  for (let t = 0; t < tables && HEADER_SIZE + (t + 1) * TABLE_HEADER_SIZE <= data.length; t += 1) {
+  for (
+    let t = 0;
+    t < tables && HEADER_SIZE + (t + 1) * TABLE_HEADER_SIZE <= data.length;
+    t += 1
+  ) {
     const header = HEADER_SIZE + t * TABLE_HEADER_SIZE;
     const type = data.readUInt32BE(header);
     const entrySize = data.readUInt32BE(header + 4);
@@ -69,11 +80,21 @@ export const parseTropusr = (data: Buffer): Map<number, number | null> => {
       const state = data.readUInt32BE(entry + 0x14);
       if (state !== 1) continue;
       const ticks = data.readBigUInt64BE(entry + 0x20);
-      unlocked.set(trophyId, ticks > UNIX_EPOCH_TICKS ? Number((ticks - UNIX_EPOCH_TICKS) / 1000n) : null);
+      unlocked.set(
+        trophyId,
+        ticks > UNIX_EPOCH_TICKS
+          ? Number((ticks - UNIX_EPOCH_TICKS) / 1000n)
+          : null
+      );
     }
   }
   return unlocked;
 };
 
 /** Opus tiers come from rarity; each PS3 grade gets a rarity inside its tier. */
-export const PS3_GRADE_PERCENT: Record<Ps3Grade, number> = { P: 1, G: 5, S: 25, B: 60 };
+export const PS3_GRADE_PERCENT: Record<Ps3Grade, number> = {
+  P: 1,
+  G: 5,
+  S: 25,
+  B: 60,
+};

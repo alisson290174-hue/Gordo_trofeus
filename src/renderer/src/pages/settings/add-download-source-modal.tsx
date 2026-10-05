@@ -116,7 +116,10 @@ export function AddDownloadSourceModal({
 
             <Button type="submit" disabled={isSubmitting || isLoading}>
               {isLoading && (
-                <Icon name="sync" className="add-download-source-modal__spinner" />
+                <Icon
+                  name="sync"
+                  className="add-download-source-modal__spinner"
+                />
               )}
               {isLoading ? t("adding") : t("add_download_source")}
             </Button>

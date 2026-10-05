@@ -180,7 +180,7 @@ export function SettingsAccount() {
             theme="outline"
             onClick={() => window.electron.openAuthWindow(AuthPage.UpdateEmail)}
           >
-            <Icon name="mail"  />
+            <Icon name="mail" />
             {t("update_email")}
           </Button>
 
@@ -190,7 +190,7 @@ export function SettingsAccount() {
               window.electron.openAuthWindow(AuthPage.UpdatePassword)
             }
           >
-            <Icon name="key"  />
+            <Icon name="key" />
             {t("update_password")}
           </Button>
         </div>
@@ -240,7 +240,7 @@ export function SettingsAccount() {
                     onClick={() => handleUnblockClick(user.id)}
                     disabled={isUnblocking}
                   >
-                    <Icon name="x-circle-fill"  />
+                    <Icon name="x-circle-fill" />
                   </button>
                 </li>
               );

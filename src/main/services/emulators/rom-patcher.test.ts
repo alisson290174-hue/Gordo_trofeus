@@ -44,7 +44,10 @@ const makeBps = (source: Uint8Array, target: Uint8Array) => {
 
 /** VCDIFF: source "ABCDEFGH" → target "ABCDXYZ" (COPY 4 from source, ADD "XYZ"). */
 const VCDIFF = new Uint8Array([
-  0xd6, 0xc3, 0xc4, 0x00, // magic + version
+  0xd6,
+  0xc3,
+  0xc4,
+  0x00, // magic + version
   0x00, // header indicator: nothing extra
   0x01, // window: VCD_SOURCE
   0x08, // source segment length
@@ -55,8 +58,11 @@ const VCDIFF = new Uint8Array([
   0x03, // data section length
   0x02, // instruction section length
   0x01, // address section length
-  0x58, 0x59, 0x5a, // data "XYZ"
-  20, 4, // COPY size 4 mode 0, ADD size 3
+  0x58,
+  0x59,
+  0x5a, // data "XYZ"
+  20,
+  4, // COPY size 4 mode 0, ADD size 3
   0x00, // address 0
 ]);
 
@@ -71,9 +77,15 @@ describe("ROM patcher", () => {
     const source = new TextEncoder().encode("HELLO WORLD");
     const target = new TextEncoder().encode("HELLO MUNDO");
     const patch = makeBps(source, target);
-    assert.equal(new TextDecoder().decode(applyBps(source, patch)), "HELLO MUNDO");
-    assert.throws(() => applyBps(new TextEncoder().encode("HELLO THERE"), patch), (error: unknown) =>
-      error instanceof RomPatchError && error.reason === "wrong_rom");
+    assert.equal(
+      new TextDecoder().decode(applyBps(source, patch)),
+      "HELLO MUNDO"
+    );
+    assert.throws(
+      () => applyBps(new TextEncoder().encode("HELLO THERE"), patch),
+      (error: unknown) =>
+        error instanceof RomPatchError && error.reason === "wrong_rom"
+    );
   });
 
   it("applies a plain VCDIFF (xdelta3) patch", async () => {
@@ -91,7 +103,10 @@ describe("ROM patcher", () => {
     const patch = path.join(dir, "fix.ips");
     fs.writeFileSync(source, "ABCD");
     fs.writeFileSync(patch, "PATCHxxxxEOF");
-    await assert.rejects(applyRomPatch(source, patch, path.join(dir, "o.bin")), (error: unknown) =>
-      error instanceof RomPatchError && error.reason === "unsupported_format");
+    await assert.rejects(
+      applyRomPatch(source, patch, path.join(dir, "o.bin")),
+      (error: unknown) =>
+        error instanceof RomPatchError && error.reason === "unsupported_format"
+    );
   });
 });

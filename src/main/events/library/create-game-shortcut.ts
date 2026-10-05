@@ -232,7 +232,9 @@ const createGameShortcut = async (
 
   fs.mkdirSync(outputPath, { recursive: true });
 
-  const assets = isLocalOnlyShop(shop) ? null : await getGameAssets(objectId, shop);
+  const assets = isLocalOnlyShop(shop)
+    ? null
+    : await getGameAssets(objectId, shop);
   const iconPath = await downloadIcon(shop, objectId, [
     game.customIconUrl,
     assets?.iconUrl,

@@ -5,7 +5,10 @@ import {
   WindowManager,
 } from "@main/services";
 import { db, levelKeys } from "@main/level";
-import { generateAchievementCustomNotificationTest, getAchievementTier } from "@shared";
+import {
+  generateAchievementCustomNotificationTest,
+  getAchievementTier,
+} from "@shared";
 import type { UserPreferences } from "@types";
 import { t } from "i18next";
 import bronzeIconPath from "@resources/achievement-icon-placeholder-bronze.png?asset";
@@ -20,8 +23,10 @@ const TIER_ICON_URLS = {
   platinum: nativeImage.createFromPath(platinumIconPath).toDataURL(),
 };
 
-const getTierIconUrl = (isPlatinum: boolean, globalUnlockPercent: number | null) =>
-  TIER_ICON_URLS[getAchievementTier({ isPlatinum, globalUnlockPercent })];
+const getTierIconUrl = (
+  isPlatinum: boolean,
+  globalUnlockPercent: number | null
+) => TIER_ICON_URLS[getAchievementTier({ isPlatinum, globalUnlockPercent })];
 
 const showAchievementTestNotification = async (
   _event: Electron.IpcMainInvokeEvent

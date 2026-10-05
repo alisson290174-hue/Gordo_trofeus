@@ -29,7 +29,8 @@ export const classifyAchievementSupportFromFiles = (
   }
 
   const unlockedCount = achievementFiles.reduce(
-    (total, file) => total + parseAchievementFile(file.filePath, file.type).length,
+    (total, file) =>
+      total + parseAchievementFile(file.filePath, file.type).length,
     0
   );
 

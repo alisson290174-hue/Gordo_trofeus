@@ -16,7 +16,8 @@ import { parsePs3UpdateList } from "./ps3-update-list";
  * the MD5 Sony puts in the file's own CDN path, and RPCS3 validating the PUP's Sony signatures
  * while installing (a tampered firmware is rejected). Installed headless: no window, then exits.
  */
-const UPDATE_LIST = "http://fus01.ps3.update.playstation.net/update/ps3/list/us/ps3-updatelist.txt";
+const UPDATE_LIST =
+  "http://fus01.ps3.update.playstation.net/update/ps3/list/us/ps3-updatelist.txt";
 const INSTALL_TIMEOUT_MS = 15 * 60 * 1000;
 
 const md5File = async (filePath: string) => {
@@ -27,12 +28,16 @@ const md5File = async (filePath: string) => {
 
 const runHeadlessInstall = (executablePath: string, pupPath: string) =>
   new Promise<number | null>((resolve) => {
-    const child = spawn(executablePath, ["--headless", "--installfw", pupPath], {
-      cwd: path.dirname(executablePath),
-      stdio: "ignore",
-      windowsHide: true,
-      shell: false,
-    });
+    const child = spawn(
+      executablePath,
+      ["--headless", "--installfw", pupPath],
+      {
+        cwd: path.dirname(executablePath),
+        stdio: "ignore",
+        windowsHide: true,
+        shell: false,
+      }
+    );
     const timer = setTimeout(() => {
       child.kill();
       resolve(null);
@@ -63,11 +68,15 @@ export async function installPs3FirmwareIfMissing(
     if (!pup) throw new Error("PS3 update list has no full firmware image");
 
     await downloadToFile(pup.url, pupPath, () => {});
-    if ((await md5File(pupPath)) !== pup.md5) throw new Error("PS3 firmware MD5 mismatch");
+    if ((await md5File(pupPath)) !== pup.md5)
+      throw new Error("PS3 firmware MD5 mismatch");
 
     const exitCode = await runHeadlessInstall(executablePath, pupPath);
     const installed = await isPs3FirmwareInstalled(executablePath);
-    logger.info("[ps3-firmware] headless install finished", { exitCode, installed });
+    logger.info("[ps3-firmware] headless install finished", {
+      exitCode,
+      installed,
+    });
     return installed ? "installed" : "failed";
   } catch (error) {
     logger.error("[ps3-firmware] install failed", error);

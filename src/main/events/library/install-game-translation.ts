@@ -22,9 +22,12 @@ const resolveTitleId = async (
   objectId: string
 ): Promise<string | null> => {
   if (system === "3ds" && discPath) {
-    return (await emulators.read3dsHeader(discPath))?.titleId?.toUpperCase() ?? null;
+    return (
+      (await emulators.read3dsHeader(discPath))?.titleId?.toUpperCase() ?? null
+    );
   }
-  const fromSku = /[0-9a-f]{16}/i.exec(sku ?? "") ?? /[0-9a-f]{16}/i.exec(objectId);
+  const fromSku =
+    /[0-9a-f]{16}/i.exec(sku ?? "") ?? /[0-9a-f]{16}/i.exec(objectId);
   return fromSku ? fromSku[0].toUpperCase() : null;
 };
 
@@ -47,14 +50,25 @@ const installGameTranslation = async (
   if (system !== "3ds" && system !== "switch") {
     const romPath = game.selectedDiscPath ?? game.discs?.[0]?.path ?? null;
     if (!romPath) return { ok: false as const, reason: "unreadable" as const };
-    const result = await applyTranslationArchive({ title: game.title, platform: game.platform, romPath }, sourcePath);
+    const result = await applyTranslationArchive(
+      { title: game.title, platform: game.platform, romPath },
+      sourcePath
+    );
     if (result.ok) void reimportAfterManualPatch(game.platform);
     return result.ok
-      ? { ok: true as const, titleId: "", target: result.outputPath, fileCount: 1 }
+      ? {
+          ok: true as const,
+          titleId: "",
+          target: result.outputPath,
+          fileCount: 1,
+        }
       : { ok: false as const, reason: result.reason };
   }
   const disc = game.selectedDiscPath ?? game.discs?.[0]?.path ?? null;
-  const sku = game.discs?.find((d) => d.path === disc)?.sku ?? game.discs?.[0]?.sku ?? null;
+  const sku =
+    game.discs?.find((d) => d.path === disc)?.sku ??
+    game.discs?.[0]?.sku ??
+    null;
   const config = await emulators.getEmulatorConfig(system);
   return installTranslation({
     system,
@@ -67,11 +81,7 @@ const installGameTranslation = async (
 registerEvent("installGameTranslation", installGameTranslation);
 
 export type DownloadGameTranslationResult =
-  | "installed"
-  | "already_installed"
-  | "not_found"
-  | "unsupported"
-  | "failed";
+  "installed" | "already_installed" | "not_found" | "unsupported" | "failed";
 
 /**
  * "Baixar tradução": searches the online PT-BR repositories for this one game and installs what it
@@ -89,17 +99,26 @@ const downloadGameTranslation = async (
   if (!disc) return "failed";
 
   if (system !== "3ds" && system !== "switch") {
-    const outcome = await findOnlineRomTranslation({ title: game.title, platform: game.platform, romPath: disc });
-    if (outcome.status === "installed") void reimportAfterManualPatch(game.platform);
+    const outcome = await findOnlineRomTranslation({
+      title: game.title,
+      platform: game.platform,
+      romPath: disc,
+    });
+    if (outcome.status === "installed")
+      void reimportAfterManualPatch(game.platform);
     return outcome.status === "already" ? "already_installed" : outcome.status;
   }
 
   const config = await emulators.getEmulatorConfig(system);
   if (!config.executablePath) return "failed";
-  const sku = game.discs?.find((d) => d.path === disc)?.sku ?? game.discs?.[0]?.sku ?? null;
+  const sku =
+    game.discs?.find((d) => d.path === disc)?.sku ??
+    game.discs?.[0]?.sku ??
+    null;
   const titleId = await resolveTitleId(system, disc, sku, objectId);
   if (!titleId) return "not_found";
-  if (hasInstalledMod(system, config.executablePath, titleId)) return "already_installed";
+  if (hasInstalledMod(system, config.executablePath, titleId))
+    return "already_installed";
   const results = await fetchOnlineTranslations({
     system,
     executablePath: config.executablePath,
@@ -107,7 +126,9 @@ const downloadGameTranslation = async (
     saveFolder: path.join(app.getPath("userData"), "translations", system),
   });
   if (results.length === 0) return "not_found";
-  return results.some((result) => result.status === "installed") ? "installed" : "failed";
+  return results.some((result) => result.status === "installed")
+    ? "installed"
+    : "failed";
 };
 
 registerEvent("downloadGameTranslation", downloadGameTranslation);

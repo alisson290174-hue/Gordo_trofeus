@@ -588,8 +588,10 @@ interface StartEmulatorSouvenirWatcherOptions {
   screenshotDirectories?: string[];
 }
 
-interface StartConfiguredLogWatcherOptions
-  extends Omit<StartLogWatcherOptions, "logPath"> {
+interface StartConfiguredLogWatcherOptions extends Omit<
+  StartLogWatcherOptions,
+  "logPath"
+> {
   logPath: string | null;
 }
 

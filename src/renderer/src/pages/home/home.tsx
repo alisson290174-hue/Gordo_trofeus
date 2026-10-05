@@ -77,11 +77,9 @@ function DiscoverCard({
     if (sub !== null) return;
     let cancelled = false;
 
-    fetchGameSummary(game.objectId, game.shop, i18n.language).then(
-      (result) => {
-        if (!cancelled) setSummary(result);
-      }
-    );
+    fetchGameSummary(game.objectId, game.shop, i18n.language).then((result) => {
+      if (!cancelled) setSummary(result);
+    });
 
     return () => {
       cancelled = true;
@@ -140,8 +138,10 @@ export default function Home() {
     const played = orderBy(
       libraryGames,
       [
-        (game) => (game.lastTimePlayed ? new Date(game.lastTimePlayed).getTime() : 0),
-        (game) => (game.addedToLibraryAt ? new Date(game.addedToLibraryAt).getTime() : 0),
+        (game) =>
+          game.lastTimePlayed ? new Date(game.lastTimePlayed).getTime() : 0,
+        (game) =>
+          game.addedToLibraryAt ? new Date(game.addedToLibraryAt).getTime() : 0,
       ],
       ["desc", "desc"]
     ).slice(0, HERO_TILE_COUNT);
@@ -179,13 +179,15 @@ export default function Home() {
     if (!focus || focus.key in summaries) return;
     let cancelled = false;
 
-    fetchGameSummary(focus.asset.objectId, focus.asset.shop, i18n.language).then(
-      (summary) => {
-        if (!cancelled) {
-          setSummaries((prev) => ({ ...prev, [focus.key]: summary }));
-        }
+    fetchGameSummary(
+      focus.asset.objectId,
+      focus.asset.shop,
+      i18n.language
+    ).then((summary) => {
+      if (!cancelled) {
+        setSummaries((prev) => ({ ...prev, [focus.key]: summary }));
       }
-    );
+    });
 
     return () => {
       cancelled = true;
@@ -249,7 +251,9 @@ export default function Home() {
             // No landscape art (classics before the PS2 index fills in): a box scan blown up to
             // full screen pixelates, so it becomes a soft blurred backdrop instead.
             "home-hero__art--from-cover":
-              Boolean(focusHero) && focus && focusHero === getCoverArt(focus.asset),
+              Boolean(focusHero) &&
+              focus &&
+              focusHero === getCoverArt(focus.asset),
           })}
           style={
             focusHero ? { backgroundImage: `url("${focusHero}")` } : undefined

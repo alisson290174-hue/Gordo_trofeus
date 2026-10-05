@@ -18,7 +18,9 @@ describe("PS3 update list", () => {
 
   it("ignores firmware URLs on any other host", () => {
     assert.equal(
-      parse("CDN=http://evil.example/update/ps3/image/us/2026_0318_c0ffee00c0ffee00c0ffee00c0ffee00/PS3UPDAT.PUP;"),
+      parse(
+        "CDN=http://evil.example/update/ps3/image/us/2026_0318_c0ffee00c0ffee00c0ffee00c0ffee00/PS3UPDAT.PUP;"
+      ),
       null
     );
   });

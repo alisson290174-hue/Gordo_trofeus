@@ -119,7 +119,7 @@ export function CompatibilitySettingsSection({
                 theme="outline"
                 onClick={onChangeWinePrefixPath}
               >
-                <Icon name="file-directory"  />
+                <Icon name="file-directory" />
                 {t("select_executable")}
               </Button>
               {game.winePrefixPath && (
@@ -195,7 +195,7 @@ export function CompatibilitySettingsSection({
                   className="game-options-modal__gamemode-link"
                 >
                   GameMode
-                  <Icon name="link-external"  />
+                  <Icon name="link-external" />
                 </Link>
               </span>
             }
@@ -242,7 +242,7 @@ export function CompatibilitySettingsSection({
                   className="game-options-modal__mangohud-link"
                 >
                   MangoHud
-                  <Icon name="link-external"  />
+                  <Icon name="link-external" />
                 </Link>
               </span>
             }

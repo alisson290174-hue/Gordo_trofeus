@@ -20,7 +20,10 @@ const coverUrlOf = (game: Game) =>
 
 const isMissing = async (url: string) => {
   try {
-    const response = await net.fetch(url, { method: "HEAD", signal: AbortSignal.timeout(10_000) });
+    const response = await net.fetch(url, {
+      method: "HEAD",
+      signal: AbortSignal.timeout(10_000),
+    });
     return response.status === 404;
   } catch {
     return false; // offline / timeout: try again another day
@@ -29,11 +32,14 @@ const isMissing = async (url: string) => {
 
 export const repairMissingSteamCovers = async () => {
   const checked = new Set<string>(
-    await db.get<string, string[]>(CHECKED_KEY, { valueEncoding: "json" }).catch(() => [] as string[])
+    await db
+      .get<string, string[]>(CHECKED_KEY, { valueEncoding: "json" })
+      .catch(() => [] as string[])
   );
   const games: Game[] = [];
   for await (const [, game] of gamesSublevel.iterator()) {
-    if (game.shop !== "steam" || game.isDeleted || game.customCoverImageUrl) continue;
+    if (game.shop !== "steam" || game.isDeleted || game.customCoverImageUrl)
+      continue;
     if (checked.has(game.objectId)) continue;
     games.push(game);
   }
@@ -44,7 +50,10 @@ export const repairMissingSteamCovers = async () => {
   const worker = async () => {
     for (let game = queue.shift(); game; game = queue.shift()) {
       if (await isMissing(coverUrlOf(game))) {
-        const result = await findAndApplyGameArtwork(game.shop, game.objectId).catch(() => null);
+        const result = await findAndApplyGameArtwork(
+          game.shop,
+          game.objectId
+        ).catch(() => null);
         if (result?.status === "applied") repaired += 1;
       }
       checked.add(game.objectId);
@@ -52,5 +61,6 @@ export const repairMissingSteamCovers = async () => {
   };
   await Promise.all(Array.from({ length: CONCURRENCY }, worker));
   await db.put(CHECKED_KEY, [...checked], { valueEncoding: "json" });
-  if (repaired) logger.info("[covers] replaced missing Steam covers", { repaired });
+  if (repaired)
+    logger.info("[covers] replaced missing Steam covers", { repaired });
 };

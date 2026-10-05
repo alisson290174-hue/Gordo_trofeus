@@ -11,22 +11,48 @@ describe("emulator updates", () => {
   });
 
   it("updates when the tag Opus installed is no longer the latest", () => {
-    assert.equal(decideEmulatorUpdate({ installedTag: "v1.21", installedVersion: null, latestTag: "v1.22" }), "update");
     assert.equal(
-      decideEmulatorUpdate({ installedTag: "v1.22", installedVersion: null, latestTag: "v1.22" }),
+      decideEmulatorUpdate({
+        installedTag: "v1.21",
+        installedVersion: null,
+        latestTag: "v1.22",
+      }),
+      "update"
+    );
+    assert.equal(
+      decideEmulatorUpdate({
+        installedTag: "v1.22",
+        installedVersion: null,
+        latestTag: "v1.22",
+      }),
       "up_to_date"
     );
   });
 
   it("compares numbers for emulators Opus didn't install, and adopts when it can't tell", () => {
     assert.equal(
-      decideEmulatorUpdate({ installedTag: null, installedVersion: "0.0.42-1", latestTag: "v0.0.43" }),
+      decideEmulatorUpdate({
+        installedTag: null,
+        installedVersion: "0.0.42-1",
+        latestTag: "v0.0.43",
+      }),
       "update"
     );
     assert.equal(
-      decideEmulatorUpdate({ installedTag: null, installedVersion: "0.0.43-20184", latestTag: "v0.0.43" }),
+      decideEmulatorUpdate({
+        installedTag: null,
+        installedVersion: "0.0.43-20184",
+        latestTag: "v0.0.43",
+      }),
       "adopt"
     );
-    assert.equal(decideEmulatorUpdate({ installedTag: null, installedVersion: "dev", latestTag: "latest" }), "adopt");
+    assert.equal(
+      decideEmulatorUpdate({
+        installedTag: null,
+        installedVersion: "dev",
+        latestTag: "latest",
+      }),
+      "adopt"
+    );
   });
 });

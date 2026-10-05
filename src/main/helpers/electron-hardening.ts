@@ -32,7 +32,8 @@ const isAppUrl = (raw: string) => {
 function hardenSession(session: Session) {
   session.setPermissionRequestHandler((_contents, permission, callback) => {
     const allowed = ALLOWED_PERMISSIONS.has(permission);
-    if (!allowed) logger.info(`[hardening] denied permission request: ${permission}`);
+    if (!allowed)
+      logger.info(`[hardening] denied permission request: ${permission}`);
     callback(allowed);
   });
   session.setPermissionCheckHandler((_contents, permission) =>
@@ -57,9 +58,13 @@ function hardenContents(contents: WebContents) {
 
 export function applyElectronHardening() {
   app.on("session-created", hardenSession);
-  app.on("web-contents-created", (_event, contents) => hardenContents(contents));
+  app.on("web-contents-created", (_event, contents) =>
+    hardenContents(contents)
+  );
   app.whenReady().then(() => {
     // The default session already exists by the time hooks are registered.
-    void import("electron").then(({ session }) => hardenSession(session.defaultSession));
+    void import("electron").then(({ session }) =>
+      hardenSession(session.defaultSession)
+    );
   });
 }

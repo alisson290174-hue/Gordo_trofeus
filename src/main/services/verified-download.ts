@@ -28,7 +28,9 @@ export function assertTrustedDownloadUrl(raw: string) {
     throw new UntrustedDownloadError("Invalid download URL");
   }
   if (url.protocol !== "https:" || !TRUSTED_HOSTS.has(url.hostname)) {
-    throw new UntrustedDownloadError(`Untrusted download host: ${url.hostname}`);
+    throw new UntrustedDownloadError(
+      `Untrusted download host: ${url.hostname}`
+    );
   }
   return url;
 }

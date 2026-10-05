@@ -129,7 +129,11 @@ export function SidebarGameItem({
             )}
 
           {game.favorite && (
-            <Icon name="heart-fill" size={12} className="sidebar__game-favorite-icon" />
+            <Icon
+              name="heart-fill"
+              size={12}
+              className="sidebar__game-favorite-icon"
+            />
           )}
         </button>
       </li>

@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 
-
 import type { RetroArchInstallOption, RetroArchInstallProgress } from "@types";
 
 import { RETROARCH_EMULATOR_ICON } from "../../emulator-icons";
@@ -164,7 +163,6 @@ export function SetupStepRetroArchDownload() {
             onOpen={openUrl}
           />
         ))}
-
       </div>
     </>
   );

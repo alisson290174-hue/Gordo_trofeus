@@ -2,8 +2,10 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 import { Icon } from "@renderer/components/icon/icon";
 import "./guide-link.scss";
 
-export interface GuideLinkProps
-  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "type"> {
+export interface GuideLinkProps extends Omit<
+  ButtonHTMLAttributes<HTMLButtonElement>,
+  "type"
+> {
   article: string;
   children: ReactNode;
   iconSize?: number;

@@ -1,12 +1,5 @@
 export type EmulatorSystem =
-  | "ps1"
-  | "ps2"
-  | "ps3"
-  | "ps4"
-  | "psp"
-  | "dolphin"
-  | "switch"
-  | "3ds";
+  "ps1" | "ps2" | "ps3" | "ps4" | "psp" | "dolphin" | "switch" | "3ds";
 
 export type EmulatorBinary =
   | "duckstation"
@@ -138,10 +131,7 @@ export type MemcardExportResult = Ps2ExportResult;
 
 export type EmulationSavePlatform = "ps1" | "ps2" | "psp" | "gamecube" | "wii";
 export type EmulationSaveEmulator =
-  | "duckstation"
-  | "pcsx2"
-  | "ppsspp"
-  | "dolphin";
+  "duckstation" | "pcsx2" | "ppsspp" | "dolphin";
 
 export type EmulationSaveMetadata =
   | {
@@ -198,8 +188,7 @@ export interface EmulationCloudSave {
 export type MemcardFormatState = "formatted" | "unformatted" | "unreadable";
 
 export type MemcardRestoreErrorReason =
-  | "unformatted"
-  | "manual-import-required";
+  "unformatted" | "manual-import-required";
 
 /** Result of writing a downloaded cloud save back into a local card. */
 export interface MemcardRestoreResult {
@@ -246,11 +235,7 @@ export interface ResolvedInstallOption {
 }
 
 export type EmulatorInstallPhase =
-  | "downloading"
-  | "extracting"
-  | "running"
-  | "done"
-  | "error";
+  "downloading" | "extracting" | "running" | "done" | "error";
 
 export interface EmulatorInstallProgress {
   binary: EmulatorBinary;
@@ -265,7 +250,8 @@ export interface EmulatorInstallProgress {
 /** Automatic emulator setup (install + configure), one event per emulator. */
 export interface EmulatorAutoSetupProgress {
   target: EmulatorSystem | "retroarch";
-  status: "working" | "ready" | "found" | "installed" | "unavailable" | "failed";
+  status:
+    "working" | "ready" | "found" | "installed" | "unavailable" | "failed";
   executablePath?: string | null;
   reason?: string;
 }

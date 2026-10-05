@@ -412,7 +412,11 @@ export function SettingsGeneral() {
             {t("achievement_sound_volume")}
           </label>
           <div className="settings-general__volume-slider-wrapper">
-            <Icon name="unmute" size={16} className="settings-general__volume-icon" />
+            <Icon
+              name="unmute"
+              size={16}
+              className="settings-general__volume-icon"
+            />
             <input
               id="achievement-volume"
               type="range"
@@ -450,7 +454,7 @@ export function SettingsGeneral() {
         className="settings-general__common-redist-button"
         disabled={!canInstallCommonRedist || installingCommonRedist}
       >
-        <Icon name="desktop-download"  />
+        <Icon name="desktop-download" />
         {installingCommonRedist
           ? t("installing_common_redist")
           : t("install_common_redist")}

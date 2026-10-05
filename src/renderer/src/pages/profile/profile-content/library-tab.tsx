@@ -142,7 +142,11 @@ export function LibraryTab({
   );
 
   const platformOptions: FilterDropdownOption<ProfilePlatform>[] = [
-    { value: "all", label: t("platform_all"), icon: <Icon name="stack" size={14} /> },
+    {
+      value: "all",
+      label: t("platform_all"),
+      icon: <Icon name="stack" size={14} />,
+    },
     {
       value: "pc",
       label: t("platform_pc"),

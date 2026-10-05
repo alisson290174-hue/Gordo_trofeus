@@ -488,11 +488,22 @@ const computeFolderRollups = (
 };
 
 /** Box art for the games built from file names (they come with no assets). */
-const attachLocalBoxart = async (aggregated: AggregatedMatches): Promise<void> => {
+const attachLocalBoxart = async (
+  aggregated: AggregatedMatches
+): Promise<void> => {
   for (const entry of aggregated.matchedEntries.values()) {
     const info = aggregated.titleInfo.get(entry.objectId);
-    if (!info || !entry.data || entry.data.assets || !entry.objectId.startsWith("rom-")) continue;
-    const cover = await findRetroArchBoxart(info.platform, entry.data.title).catch(() => null);
+    if (
+      !info ||
+      !entry.data ||
+      entry.data.assets ||
+      !entry.objectId.startsWith("rom-")
+    )
+      continue;
+    const cover = await findRetroArchBoxart(
+      info.platform,
+      entry.data.title
+    ).catch(() => null);
     if (!cover) continue;
     entry.data.assets = {
       objectId: entry.objectId,
@@ -521,9 +532,10 @@ const persistMatchedTitles = async (
     // Cartridge boxes (often landscape) crop badly into the Início strip's square: title screen.
     const tileUrl =
       info && entry.data?.title
-        ? await findLibretroTitleScreen(retroArchSystemFolder(info.platform), entry.data.title).catch(
-            () => null
-          )
+        ? await findLibretroTitleScreen(
+            retroArchSystemFolder(info.platform),
+            entry.data.title
+          ).catch(() => null)
         : null;
     await persistEntryLocally(
       entry,

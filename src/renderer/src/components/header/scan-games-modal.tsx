@@ -359,7 +359,11 @@ export function ScanGamesModal({
         {scanResult && pending.length === 0 && (
           <div className="scan-games-modal__results">
             <div className="scan-games-modal__warning">
-              <Icon name="alert" size={14} className="scan-games-modal__warning-icon" />
+              <Icon
+                name="alert"
+                size={14}
+                className="scan-games-modal__warning-icon"
+              />
               <span>{t("scan_games_detection_warning")}</span>
             </div>
 

@@ -951,7 +951,8 @@ const runScan = async (
     .then((results) =>
       results
         .filter(
-          ([_key, game]) => game.isDeleted === false && !isLocalOnlyShop(game.shop)
+          ([_key, game]) =>
+            game.isDeleted === false && !isLocalOnlyShop(game.shop)
         )
         .map(([key, game]) => ({ key, game }))
     );

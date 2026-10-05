@@ -7,9 +7,13 @@ describe("applyDuckStationLaunchSettings", () => {
   const bios = String.raw`D:\EMULADORES\Emulador PS2\Bios`;
 
   it("points DuckStation at Opus's BIOS folder and skips the setup wizard", () => {
-    const before = "[Main]\nUngrouped = true\n\n[BIOS]\nFastForwardBoot = false\nSearchDirectory = bios\n\n[Console]\nRegion = Auto\n";
+    const before =
+      "[Main]\nUngrouped = true\n\n[BIOS]\nFastForwardBoot = false\nSearchDirectory = bios\n\n[Console]\nRegion = Auto\n";
     const after = applyDuckStationLaunchSettings(before, bios);
-    assert.match(after, /\[BIOS\][^[]*SearchDirectory = D:\\EMULADORES\\Emulador PS2\\Bios/);
+    assert.match(
+      after,
+      /\[BIOS\][^[]*SearchDirectory = D:\\EMULADORES\\Emulador PS2\\Bios/
+    );
     assert.match(after, /\[Main\][^[]*SetupWizardIncomplete = false/);
     assert.match(after, /\[Console\]\nRegion = Auto/);
     assert.equal(after.match(/SearchDirectory/g)?.length, 1);

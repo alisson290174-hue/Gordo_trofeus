@@ -1,7 +1,11 @@
 import type { LibraryGame, ShopDetailsWithAssets } from "@types";
 import { getDisplayedPlayTimeInMilliseconds } from "@shared";
 import { PlatformBadge } from "@renderer/components/platform-badge/platform-badge";
-import { formatLastPlayed, formatPlayTime, tr } from "../../../../helpers/opus-text";
+import {
+  formatLastPlayed,
+  formatPlayTime,
+  tr,
+} from "../../../../helpers/opus-text";
 
 const hasTranslation = (game: LibraryGame) =>
   /\bPT-?BR\b/i.test(game.title) ||
@@ -17,7 +21,12 @@ export function GameEyebrow({
   const meta = [studio, year].filter(Boolean).join(" · ");
   return (
     <div className="opus-game__eyebrow">
-      <PlatformBadge game={game ?? { shop: shopDetails.assets?.shop ?? "steam", platform: null }} className="opus-game__badge" />
+      <PlatformBadge
+        game={
+          game ?? { shop: shopDetails.assets?.shop ?? "steam", platform: null }
+        }
+        className="opus-game__badge"
+      />
       {meta && <span>{meta}</span>}
     </div>
   );
@@ -36,17 +45,26 @@ export function GameFacts({ game }: Readonly<{ game: LibraryGame | null }>) {
   return (
     <div className="opus-game__facts">
       <div className="opus-game__fact">
-        <span className="opus-game__fact-label">{tr("PLAY TIME", "TEMPO DE JOGO")}</span>
-        <span className="opus-game__fact-value">{playTime ?? tr("Not played yet", "Ainda não jogado")}</span>
-        {lastPlayed && <span className="opus-game__fact-note">{lastPlayed}</span>}
+        <span className="opus-game__fact-label">
+          {tr("PLAY TIME", "TEMPO DE JOGO")}
+        </span>
+        <span className="opus-game__fact-value">
+          {playTime ?? tr("Not played yet", "Ainda não jogado")}
+        </span>
+        {lastPlayed && (
+          <span className="opus-game__fact-note">{lastPlayed}</span>
+        )}
       </div>
 
       {total > 0 && (
         <div className="opus-game__fact opus-game__fact--wide">
           <div className="opus-game__fact-row">
-            <span className="opus-game__fact-label">{tr("TROPHIES", "TROFÉUS")}</span>
+            <span className="opus-game__fact-label">
+              {tr("TROPHIES", "TROFÉUS")}
+            </span>
             <span className="opus-game__fact-note">
-              {tr(`${unlocked} of ${total}`, `${unlocked} de ${total}`)} · {percent}%
+              {tr(`${unlocked} of ${total}`, `${unlocked} de ${total}`)} ·{" "}
+              {percent}%
             </span>
           </div>
           <div className="opus-game__bar">
@@ -62,9 +80,15 @@ export function GameFacts({ game }: Readonly<{ game: LibraryGame | null }>) {
 
       {translated && (
         <div className="opus-game__fact">
-          <span className="opus-game__fact-label">{tr("LANGUAGE", "IDIOMA")}</span>
-          <span className="opus-game__fact-value">{tr("PT-BR translation", "Tradução PT-BR")}</span>
-          <span className="opus-game__fact-note opus-game__fact-note--ok">{tr("Installed", "Instalada")}</span>
+          <span className="opus-game__fact-label">
+            {tr("LANGUAGE", "IDIOMA")}
+          </span>
+          <span className="opus-game__fact-value">
+            {tr("PT-BR translation", "Tradução PT-BR")}
+          </span>
+          <span className="opus-game__fact-note opus-game__fact-note--ok">
+            {tr("Installed", "Instalada")}
+          </span>
         </div>
       )}
     </div>

@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 
-
 import {
   useAppSelector,
   useDownload,
@@ -172,9 +171,11 @@ export function BottomPanel() {
             className="bottom-panel__help-button"
             data-open-support-chat
           >
-            <Icon name="comment-discussion"
+            <Icon
+              name="comment-discussion"
               size={14}
-              className="bottom-panel__help-icon" />
+              className="bottom-panel__help-icon"
+            />
             <small>{t("need_help", { ns: "sidebar" })}</small>
           </button>
         )}

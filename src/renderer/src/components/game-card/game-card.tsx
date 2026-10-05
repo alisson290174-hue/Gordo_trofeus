@@ -1,4 +1,3 @@
-
 import type { GameStats, ShopAssets } from "@types";
 import { Icon } from "@renderer/components/icon/icon";
 import { Img } from "@renderer/components/img/img";
@@ -15,11 +14,10 @@ import { StarRating } from "../star-rating/star-rating";
 import { useCallback, useState } from "react";
 import { useFormat } from "@renderer/hooks";
 
-export interface GameCardProps
-  extends React.DetailedHTMLProps<
-    React.ButtonHTMLAttributes<HTMLButtonElement>,
-    HTMLButtonElement
-  > {
+export interface GameCardProps extends React.DetailedHTMLProps<
+  React.ButtonHTMLAttributes<HTMLButtonElement>,
+  HTMLButtonElement
+> {
   game: ShopAssets;
 }
 
@@ -95,13 +93,13 @@ export function GameCard({ game, ...props }: GameCardProps) {
 
           <div className="game-card__specifics">
             <div className="game-card__specifics-item">
-              <Icon name="download"  />
+              <Icon name="download" />
               <span>
                 {stats ? numberFormatter.format(stats.downloadCount) : "…"}
               </span>
             </div>
             <div className="game-card__specifics-item">
-              <Icon name="people"  />
+              <Icon name="people" />
               <span>
                 {stats ? numberFormatter.format(stats.playerCount) : "…"}
               </span>

@@ -19,11 +19,7 @@ import { RETROARCH_LABEL } from "../../retroarch-meta";
 import "../setup-shell.scss";
 
 type RetroArchStepKind =
-  | "find_emulator"
-  | "cores"
-  | "rom_folder"
-  | "scanning"
-  | "done";
+  "find_emulator" | "cores" | "rom_folder" | "scanning" | "done";
 
 const STEPS: RetroArchStepKind[] = [
   "find_emulator",

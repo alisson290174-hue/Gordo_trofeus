@@ -77,8 +77,10 @@ export const LibraryPs5Card = memo(function LibraryPs5Card({
         className={cn("ps5-card__cover", {
           "ps5-card__cover--platinum": progress.isPlatinum,
           // Box scans with the console's header strip on top (PS2) / band + spine (PS3).
-          "ps5-card__cover--ps2-box": typeof src === "string" && src.includes("ps2-covers"),
-          "ps5-card__cover--ps3-box": typeof src === "string" && src.includes("aldostools"),
+          "ps5-card__cover--ps2-box":
+            typeof src === "string" && src.includes("ps2-covers"),
+          "ps5-card__cover--ps3-box":
+            typeof src === "string" && src.includes("aldostools"),
         })}
       >
         <img
@@ -106,23 +108,21 @@ export const LibraryPs5Card = memo(function LibraryPs5Card({
         {!isReady && (
           <div className="ps5-card__pill">
             <Icon name="download" size={12} />
-            <span>
-              {isDownloading ? t("downloading") : t("not_installed")}
-            </span>
+            <span>{isDownloading ? t("downloading") : t("not_installed")}</span>
           </div>
         )}
 
         {isReady &&
           game.achievementSupport &&
           SUPPORT_BADGES_SHOWN.has(game.achievementSupport) && (
-          <div className="ps5-card__support">
-            <AchievementSupportBadge
-              support={game.achievementSupport}
-              variant="dot"
-              size={14}
-            />
-          </div>
-        )}
+            <div className="ps5-card__support">
+              <AchievementSupportBadge
+                support={game.achievementSupport}
+                variant="dot"
+                size={14}
+              />
+            </div>
+          )}
 
         {progress.total > 0 && (
           <div className="ps5-card__progress">

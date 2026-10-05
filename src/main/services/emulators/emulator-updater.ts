@@ -13,7 +13,10 @@ import {
   resolveEmulatorInstallOptions,
 } from "./emulator-installer";
 import { decideEmulatorUpdate } from "./emulator-update-rules";
-import { getEmulatorConfig, updateEmulatorConfig } from "./emulators-repository";
+import {
+  getEmulatorConfig,
+  updateEmulatorConfig,
+} from "./emulators-repository";
 import { getEmulatorVersion } from "./get-emulator-version";
 import { KNOWN_BINARIES } from "./known-binaries";
 
@@ -22,7 +25,9 @@ let running = false;
 
 const isInside = (child: string, parent: string) => {
   const relative = path.relative(parent, child);
-  return relative !== "" && !relative.startsWith("..") && !path.isAbsolute(relative);
+  return (
+    relative !== "" && !relative.startsWith("..") && !path.isAbsolute(relative)
+  );
 };
 
 /**
@@ -39,11 +44,20 @@ export const checkEmulatorUpdates = async (): Promise<string[]> => {
     for (const system of EMULATOR_SYSTEMS as EmulatorSystem[]) {
       if (getGamesRunning().length > 0) break;
       const config = await getEmulatorConfig(system);
-      if (!config.executablePath || !existsSync(config.executablePath)) continue;
+      if (!config.executablePath || !existsSync(config.executablePath))
+        continue;
       const binary = KNOWN_BINARIES[system];
-      if (!isInside(config.executablePath, await emulatorInstallDirectory(binary.binary))) continue;
+      if (
+        !isInside(
+          config.executablePath,
+          await emulatorInstallDirectory(binary.binary)
+        )
+      )
+        continue;
 
-      const option = pickPortableOption(await resolveEmulatorInstallOptions(binary.binary).catch(() => []));
+      const option = pickPortableOption(
+        await resolveEmulatorInstallOptions(binary.binary).catch(() => [])
+      );
       if (!option?.version) continue;
       const decision = decideEmulatorUpdate({
         installedTag: config.releaseTag,
@@ -52,21 +66,36 @@ export const checkEmulatorUpdates = async (): Promise<string[]> => {
       });
       if (decision === "up_to_date") continue;
       if (decision === "adopt") {
-        await updateEmulatorConfig(system, (current) => ({ ...current, releaseTag: option.version }));
+        await updateEmulatorConfig(system, (current) => ({
+          ...current,
+          releaseTag: option.version,
+        }));
         continue;
       }
 
-      logger.info("[emulator-update] updating", { system, from: config.releaseTag ?? config.detectedVersion, to: option.version });
-      const result = await downloadAndInstallEmulator(binary.binary, option.id, { silent: true });
+      logger.info("[emulator-update] updating", {
+        system,
+        from: config.releaseTag ?? config.detectedVersion,
+        to: option.version,
+      });
+      const result = await downloadAndInstallEmulator(
+        binary.binary,
+        option.id,
+        { silent: true }
+      );
       if (!result.ok || !result.executablePath) {
-        logger.warn("[emulator-update] update failed", { system, reason: result.reason });
+        logger.warn("[emulator-update] update failed", {
+          system,
+          reason: result.reason,
+        });
         continue;
       }
       const executablePath = result.executablePath;
       await updateEmulatorConfig(system, (current) => ({
         ...current,
         executablePath,
-        detectedVersion: getEmulatorVersion(executablePath, binary) ?? option.version,
+        detectedVersion:
+          getEmulatorVersion(executablePath, binary) ?? option.version,
         detectedAt: Date.now(),
         releaseTag: option.version,
       }));

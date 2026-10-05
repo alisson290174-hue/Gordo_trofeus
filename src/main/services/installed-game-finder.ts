@@ -41,8 +41,7 @@ export async function readUninstallEntries(): Promise<UninstallEntry[]> {
   if (!output.trim()) return [];
   try {
     const parsed = JSON.parse(output) as
-      | Record<string, string | null>
-      | Record<string, string | null>[];
+      Record<string, string | null> | Record<string, string | null>[];
     return (Array.isArray(parsed) ? parsed : [parsed]).map((row) => ({
       key: String(row.PSPath ?? ""),
       name: String(row.DisplayName ?? "").trim(),
@@ -54,11 +53,22 @@ export async function readUninstallEntries(): Promise<UninstallEntry[]> {
   }
 }
 
-async function saveExecutable(game: Game, executablePath: string, source: string) {
+async function saveExecutable(
+  game: Game,
+  executablePath: string,
+  source: string
+) {
   const key = levelKeys.game(game.shop, game.objectId);
   const latest = await gamesSublevel.get(key).catch(() => null);
-  if (!latest || (latest.executablePath && fs.existsSync(latest.executablePath))) return false;
-  await gamesSublevel.put(key, updateGameExecutablePath(latest, executablePath));
+  if (
+    !latest ||
+    (latest.executablePath && fs.existsSync(latest.executablePath))
+  )
+    return false;
+  await gamesSublevel.put(
+    key,
+    updateGameExecutablePath(latest, executablePath)
+  );
   logger.info(`[installed-game-finder] ${key} → ${executablePath} (${source})`);
   WindowManager.sendToAppWindows("on-library-batch-complete");
   return true;
@@ -78,7 +88,9 @@ export async function watchGameInstallation(game: Game) {
   if (watching.has(key)) return;
 
   const title = displayGameTitle(game.title, game.shop);
-  const before = new Set((await readUninstallEntries()).map((entry) => entry.key));
+  const before = new Set(
+    (await readUninstallEntries()).map((entry) => entry.key)
+  );
   const startedAt = Date.now();
 
   const tick = async () => {
@@ -91,7 +103,8 @@ export async function watchGameInstallation(game: Game) {
       await saveExecutable(game, exe, `installed as "${entry!.name}"`);
       return;
     }
-    if (Date.now() - startedAt < WATCH_FOR_MS) watching.set(key, setTimeout(tick, POLL_MS));
+    if (Date.now() - startedAt < WATCH_FOR_MS)
+      watching.set(key, setTimeout(tick, POLL_MS));
   };
 
   watching.set(key, setTimeout(tick, POLL_MS));
@@ -120,7 +133,11 @@ export async function findInstalledDownloadedGames() {
     const title = displayGameTitle(game.title, game.shop);
     const entry = findEntryForGame(title, entries);
     const exe = entry ? pickGameExecutable(title, entry) : null;
-    if (exe && (await saveExecutable(game, exe, `found installed as "${entry!.name}"`))) found += 1;
+    if (
+      exe &&
+      (await saveExecutable(game, exe, `found installed as "${entry!.name}"`))
+    )
+      found += 1;
   }
   return found;
 }

@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 
-
 import { Button, ClassicsScanIndicator } from "@renderer/components";
 import { showExecutableOpenDialog } from "@renderer/helpers";
 import { useClassicsScan, useToast } from "@renderer/hooks";
@@ -76,7 +75,10 @@ export function EmulatorDetail({
   const [cloudNonce, setCloudNonce] = useState(0);
   const [romsNonce, setRomsNonce] = useState(0);
   const system = config.system;
-  const gameCounts = useEmulatorGameCounts([system], `${romsNonce}:${config.lastScanAt}`);
+  const gameCounts = useEmulatorGameCounts(
+    [system],
+    `${romsNonce}:${config.lastScanAt}`
+  );
   const [folderToRemove, setFolderToRemove] = useState<RomFolder | null>(null);
   const [removeOpen, setRemoveOpen] = useState(false);
   const [executableExists, setExecutableExists] = useState<boolean>(true);

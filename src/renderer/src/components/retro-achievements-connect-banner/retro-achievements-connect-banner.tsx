@@ -3,7 +3,6 @@ import { Icon } from "@renderer/components/icon/icon";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-
 import { gameDetailsContext } from "@renderer/context";
 import { useAppSelector } from "@renderer/hooks";
 import retroAchievementsLogo from "@renderer/assets/icons/retroachievements.png";

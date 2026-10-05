@@ -18,7 +18,6 @@ import {
   TextField,
 } from "@renderer/components";
 
-
 import "./collection-context-menu.context.scss";
 
 export interface CollectionContextMenuContextValue {

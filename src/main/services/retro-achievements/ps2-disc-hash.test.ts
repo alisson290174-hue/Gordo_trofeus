@@ -11,7 +11,10 @@ const SECTOR = 2048;
 
 /** Minimal ISO 9660 image: PVD at 16, root dir at 20, SYSTEM.CNF at 21, ELF at 22+. */
 function buildIso(bootName: string, elf: Buffer) {
-  const cnf = Buffer.from(`BOOT2 = cdrom0:\\${bootName};1\r\nVER = 1.00\r\n`, "latin1");
+  const cnf = Buffer.from(
+    `BOOT2 = cdrom0:\\${bootName};1\r\nVER = 1.00\r\n`,
+    "latin1"
+  );
   const elfSectors = Math.ceil(elf.length / SECTOR);
   const image = Buffer.alloc((22 + elfSectors) * SECTOR);
 
@@ -68,8 +71,14 @@ describe("ps2-disc-hash", () => {
   after(() => fs.rmSync(dir, { recursive: true, force: true }));
 
   it("parses BOOT2 like rcheevos", () => {
-    assert.equal(parseBootExecutable("BOOT2 = cdrom0:\\SLUS_212.68;1\r\n"), "SLUS_212.68");
-    assert.equal(parseBootExecutable("VER=1\nBOOT2=cdrom0:\\DATA\\MAIN.ELF;1"), "DATA\\MAIN.ELF");
+    assert.equal(
+      parseBootExecutable("BOOT2 = cdrom0:\\SLUS_212.68;1\r\n"),
+      "SLUS_212.68"
+    );
+    assert.equal(
+      parseBootExecutable("VER=1\nBOOT2=cdrom0:\\DATA\\MAIN.ELF;1"),
+      "DATA\\MAIN.ELF"
+    );
     assert.equal(parseBootExecutable("BOOT = cdrom:\\SLPS_000.01;1"), null);
   });
 
@@ -85,7 +94,10 @@ describe("ps2-disc-hash", () => {
     assert.equal(await computePs2DiscHash(bin), expected);
 
     const cue = path.join(dir, "game.cue");
-    fs.writeFileSync(cue, 'FILE "game.bin" BINARY\n  TRACK 01 MODE2/2352\n    INDEX 01 00:00:00\n');
+    fs.writeFileSync(
+      cue,
+      'FILE "game.bin" BINARY\n  TRACK 01 MODE2/2352\n    INDEX 01 00:00:00\n'
+    );
     assert.equal(await computePs2DiscHash(cue), expected);
   });
 

@@ -23,7 +23,11 @@ export interface N3dsHeader {
   encrypted: boolean;
 }
 
-const readAt = async (handle: fs.FileHandle, offset: number, length: number) => {
+const readAt = async (
+  handle: fs.FileHandle,
+  offset: number,
+  length: number
+) => {
   const buffer = Buffer.alloc(length);
   const { bytesRead } = await handle.read(buffer, 0, length, offset);
   return buffer.subarray(0, bytesRead);
@@ -34,8 +38,15 @@ const ncchAt = async (
   ncchOffset: number
 ): Promise<N3dsHeader | null> => {
   const header = await readAt(handle, ncchOffset, 0x200);
-  if (header.length < 0x190 || header.toString("latin1", 0x100, 0x104) !== "NCCH") return null;
-  const code = header.toString("latin1", 0x150, 0x160).replace(/\0+$/, "").trim();
+  if (
+    header.length < 0x190 ||
+    header.toString("latin1", 0x100, 0x104) !== "NCCH"
+  )
+    return null;
+  const code = header
+    .toString("latin1", 0x150, 0x160)
+    .replace(/\0+$/, "")
+    .trim();
   const programId = header.readBigUInt64LE(0x118);
   return {
     productCode: PRODUCT_CODE_RE.test(code) ? code : null,
@@ -47,7 +58,9 @@ const ncchAt = async (
 const align64 = (value: number) => Math.ceil(value / 64) * 64;
 
 /** Offset of the first content (the game's NCCH) inside a CIA. */
-const ciaContentOffset = async (handle: fs.FileHandle): Promise<number | null> => {
+const ciaContentOffset = async (
+  handle: fs.FileHandle
+): Promise<number | null> => {
   const header = await readAt(handle, 0, 0x20);
   if (header.length < 0x20) return null;
   const headerSize = header.readUInt32LE(0x00);
@@ -60,7 +73,9 @@ const ciaContentOffset = async (handle: fs.FileHandle): Promise<number | null> =
   );
 };
 
-export const read3dsHeader = async (filePath: string): Promise<N3dsHeader | null> => {
+export const read3dsHeader = async (
+  filePath: string
+): Promise<N3dsHeader | null> => {
   const extension = path.extname(filePath).toLowerCase();
   if (!HEADER_EXTENSIONS.has(extension)) return null;
 
@@ -70,10 +85,19 @@ export const read3dsHeader = async (filePath: string): Promise<N3dsHeader | null
       const contentOffset = await ciaContentOffset(handle);
       if (contentOffset === null) return null;
       // A CIA whose content is encrypted with the title key hides even the NCCH magic.
-      return (await ncchAt(handle, contentOffset)) ?? { productCode: null, titleId: null, encrypted: true };
+      return (
+        (await ncchAt(handle, contentOffset)) ?? {
+          productCode: null,
+          titleId: null,
+          encrypted: true,
+        }
+      );
     }
     const ncsd = await readAt(handle, 0, 0x200);
-    if (ncsd.length >= 0x128 && ncsd.toString("latin1", 0x100, 0x104) === "NCSD") {
+    if (
+      ncsd.length >= 0x128 &&
+      ncsd.toString("latin1", 0x100, 0x104) === "NCSD"
+    ) {
       return await ncchAt(handle, ncsd.readUInt32LE(0x120) * MEDIA_UNIT);
     }
     return await ncchAt(handle, 0);
@@ -84,7 +108,9 @@ export const read3dsHeader = async (filePath: string): Promise<N3dsHeader | null
   }
 };
 
-export const extract3dsProductCode = async (filePath: string): Promise<string | null> =>
+export const extract3dsProductCode = async (
+  filePath: string
+): Promise<string | null> =>
   (await read3dsHeader(filePath))?.productCode ?? null;
 
 /** True only when the header proves the dump is encrypted; unknown formats count as playable. */
@@ -97,7 +123,10 @@ const SD_ID = "0".repeat(32);
 const azaharUserDirs = (executablePath: string): string[] => {
   const dirs = [path.join(path.dirname(executablePath), "user")];
   if (process.env.APPDATA) {
-    dirs.push(path.join(process.env.APPDATA, "Azahar"), path.join(process.env.APPDATA, "Citra"));
+    dirs.push(
+      path.join(process.env.APPDATA, "Azahar"),
+      path.join(process.env.APPDATA, "Citra")
+    );
   }
   return dirs;
 };
@@ -113,11 +142,20 @@ export const findInstalled3dsTitle = async (
   if (!/^[0-9a-f]{16}$/.test(titleId)) return null;
   for (const userDir of azaharUserDirs(executablePath)) {
     const contentDir = path.join(
-      userDir, "sdmc", "Nintendo 3DS", SD_ID, SD_ID, "title",
-      titleId.slice(0, 8), titleId.slice(8), "content"
+      userDir,
+      "sdmc",
+      "Nintendo 3DS",
+      SD_ID,
+      SD_ID,
+      "title",
+      titleId.slice(0, 8),
+      titleId.slice(8),
+      "content"
     );
     const apps = await fs.readdir(contentDir).catch(() => [] as string[]);
-    const app = apps.filter((name) => /^[0-9a-f]{8}\.app$/i.test(name)).sort()[0];
+    const app = apps
+      .filter((name) => /^[0-9a-f]{8}\.app$/i.test(name))
+      .sort()[0];
     if (app) return path.join(contentDir, app);
   }
   return null;

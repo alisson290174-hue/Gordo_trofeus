@@ -1,4 +1,3 @@
-
 import type { AchievementSouvenirSyncItem } from "@types";
 import { Icon } from "@renderer/components/icon/icon";
 import { Button, Modal } from "@renderer/components";

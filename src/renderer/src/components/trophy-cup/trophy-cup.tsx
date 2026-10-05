@@ -76,7 +76,13 @@ export function TrophySprite() {
             d="M21.5 28h5v9h-5zM15 37h18l2.5 6h-23zM12 44h24v3H12z"
             fill="url(#baloi-plat-body)"
           />
-          <ellipse cx="24" cy="15" rx="12" ry="13" fill="url(#baloi-plat-orb)" />
+          <ellipse
+            cx="24"
+            cy="15"
+            rx="12"
+            ry="13"
+            fill="url(#baloi-plat-orb)"
+          />
           <g fill="rgba(255,255,255,0.85)" stroke="none">
             <path d="M24 8.5l1.9 3.3h-3.8z" />
             <rect x="16.4" y="13" width="3.2" height="3.2" rx="0.5" />

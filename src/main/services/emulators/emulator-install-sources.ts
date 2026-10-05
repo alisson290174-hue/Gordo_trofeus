@@ -53,7 +53,10 @@ interface ForgejoAssetSource {
 
 type EmulatorSourceEntry = GithubAssetSource | ForgejoAssetSource | LinkSource;
 
-const azaharEntries = (os: InstallOs, arch: InstallArch): EmulatorSourceEntry[] => {
+const azaharEntries = (
+  os: InstallOs,
+  arch: InstallArch
+): EmulatorSourceEntry[] => {
   if (os === "win32" && arch === "x64") {
     return [
       {
@@ -79,7 +82,10 @@ const azaharEntries = (os: InstallOs, arch: InstallArch): EmulatorSourceEntry[] 
   ];
 };
 
-const edenEntries = (os: InstallOs, arch: InstallArch): EmulatorSourceEntry[] => {
+const edenEntries = (
+  os: InstallOs,
+  arch: InstallArch
+): EmulatorSourceEntry[] => {
   if (os === "win32") {
     return [
       {
@@ -209,7 +215,9 @@ const pcsx2Entries = (
               channel: "release" as const,
               channelLabel: "release" as const,
               assetPattern:
-                arch === "arm64" ? /windows-arm64-Qt\.7z$/i : /windows-x64-Qt\.7z$/i,
+                arch === "arm64"
+                  ? /windows-arm64-Qt\.7z$/i
+                  : /windows-x64-Qt\.7z$/i,
               kind: "windows-archive" as const,
             },
           ]
@@ -434,7 +442,10 @@ const resolveDolphinOptions = async (
   ];
 };
 
-const shadps4Entries = (os: InstallOs, arch: InstallArch): EmulatorSourceEntry[] => {
+const shadps4Entries = (
+  os: InstallOs,
+  arch: InstallArch
+): EmulatorSourceEntry[] => {
   if (os === "win32" && arch === "x64") {
     return [
       {
@@ -605,12 +616,19 @@ const resolveForgejoOption = async (
     linkKind: "release_page",
   };
   try {
-    const { data } = await axios.get<ForgejoRelease[]>(`${entry.apiRepo}/releases?limit=10`, {
-      headers: { Accept: "application/json", "User-Agent": "HydraLauncher" },
-      timeout: GITHUB_API_TIMEOUT_MS,
-    });
-    const release = data.find((candidate) => !candidate.draft && !candidate.prerelease);
-    const asset = release?.assets.find((candidate) => entry.assetPattern.test(candidate.name));
+    const { data } = await axios.get<ForgejoRelease[]>(
+      `${entry.apiRepo}/releases?limit=10`,
+      {
+        headers: { Accept: "application/json", "User-Agent": "HydraLauncher" },
+        timeout: GITHUB_API_TIMEOUT_MS,
+      }
+    );
+    const release = data.find(
+      (candidate) => !candidate.draft && !candidate.prerelease
+    );
+    const asset = release?.assets.find((candidate) =>
+      entry.assetPattern.test(candidate.name)
+    );
     if (!release || !asset) return fallback;
     return {
       id: entry.id,

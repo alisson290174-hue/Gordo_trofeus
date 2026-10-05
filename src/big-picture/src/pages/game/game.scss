@@ -1511,7 +1511,12 @@
   gap: 22px;
   padding: calc(var(--big-picture-header-height) + 48px) var(--opus-gutter) 48px;
   background:
-    linear-gradient(90deg, rgba(7, 11, 22, 0.96) 0%, rgba(7, 11, 22, 0.78) 42%, rgba(7, 11, 22, 0.12) 78%),
+    linear-gradient(
+      90deg,
+      rgba(7, 11, 22, 0.96) 0%,
+      rgba(7, 11, 22, 0.78) 42%,
+      rgba(7, 11, 22, 0.12) 78%
+    ),
     linear-gradient(0deg, rgba(7, 11, 22, 1) 0%, rgba(7, 11, 22, 0) 50%);
   color: var(--opus-text);
 }

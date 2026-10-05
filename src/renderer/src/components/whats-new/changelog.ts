@@ -22,14 +22,14 @@ export const CHANGELOG: ChangelogEntry[] = [
     version: "1.0.43",
     date: "04/10/2026",
     items: [
-      "Botão direito no jogo → \"Pesquisar tradução na internet\": abre a busca pronta nos sites de tradução PT-BR (João13, GGames, Romhacking). Baixou o arquivo? Use \"Instalar tradução\" e o Opus aplica sozinho.",
+      'Botão direito no jogo → "Pesquisar tradução na internet": abre a busca pronta nos sites de tradução PT-BR (João13, GGames, Romhacking). Baixou o arquivo? Use "Instalar tradução" e o Opus aplica sozinho.',
     ],
   },
   {
     version: "1.0.42",
     date: "04/10/2026",
     items: [
-      "Melhorias para jogos de Switch: 60 FPS, mais detalhe à distância e resolução fixa, instaladas com um clique (botão direito no jogo → \"Instalar melhorias\", ou em Configurações → Emulação para todos).",
+      'Melhorias para jogos de Switch: 60 FPS, mais detalhe à distância e resolução fixa, instaladas com um clique (botão direito no jogo → "Instalar melhorias", ou em Configurações → Emulação para todos).',
       "Os patches só valem para a versão certa do jogo: atualize o jogo no emulador para aproveitar todos.",
     ],
   },
@@ -46,7 +46,7 @@ export const CHANGELOG: ChangelogEntry[] = [
     version: "1.0.40",
     date: "04/10/2026",
     items: [
-      "RetroAchievements em todos os emuladores de uma vez: Configurações → Emulação → \"RetroAchievements nos emuladores\" (a senha não é guardada).",
+      'RetroAchievements em todos os emuladores de uma vez: Configurações → Emulação → "RetroAchievements nos emuladores" (a senha não é guardada).',
       "Big Picture: o direcional para a esquerda e para cima voltou a funcionar na aba Início.",
       "Fechar um jogo não abre mais o Big Picture sozinho.",
       "Select + Start também fecha jogos de PC que abrem por um launcher.",
@@ -62,7 +62,7 @@ export const CHANGELOG: ChangelogEntry[] = [
       "Select + Start agora fecha o jogo de verdade (o atalho não iniciava em alguns PCs).",
       "Controle no app normal: o direcional não ficava preso numa janela escondida — agora navega por todas as telas.",
       "Big Picture: o botão Start abre o menu rápido.",
-      "Jogos de PS4 aparecem como \"PS4\" (não mais como PS1) e não tentam buscar conquistas de PS1.",
+      'Jogos de PS4 aparecem como "PS4" (não mais como PS1) e não tentam buscar conquistas de PS1.',
       "Jogos da Steam sem capa ganham uma capa automaticamente.",
     ],
   },
@@ -89,8 +89,8 @@ export const CHANGELOG: ChangelogEntry[] = [
       "Select + Start no controle fecha o jogo e volta para o Opus (vale também no Big Picture).",
       "Controle funcionando no app normal: direcional/analógico move, A abre, B volta, LB/RB trocam de aba, Start abre o Big Picture.",
       "PS1 e PS2: controle ligado pelo XInput — não perde mais o mapeamento quando outro dispositivo é conectado.",
-      "Botão direito em qualquer jogo → \"Baixar tradução\": o Opus procura na internet e instala sozinho, ou avisa que não há tradução.",
-      "Emulação: \"Baixar\" e \"Configurar\" separados em cada emulador, \"Verificar atualizações\" e \"Baixar traduções online\". Os emuladores agora se atualizam sozinhos.",
+      'Botão direito em qualquer jogo → "Baixar tradução": o Opus procura na internet e instala sozinho, ou avisa que não há tradução.',
+      'Emulação: "Baixar" e "Configurar" separados em cada emulador, "Verificar atualizações" e "Baixar traduções online". Os emuladores agora se atualizam sozinhos.',
       "Biblioteca separada por console (PS2, Switch, SNES…), do lado de Steam, Epic e Torrent.",
       "Conquistas abre bem mais rápido e não fica pulando enquanto carrega.",
       "Troféus do RetroAchievements aparecem na hora, durante o jogo.",
@@ -122,7 +122,7 @@ export const CHANGELOG: ChangelogEntry[] = [
     version: "1.0.33",
     date: "03/10/2026",
     items: [
-      "Traduções para N64, DS, GBA, SNES, PSP, PS1, PS2, GameCube e Wii: o Opus aplica o patch (.bps/.xdelta) numa cópia do jogo e ela aparece como \"PT-BR\" na biblioteca — a original continua lá, com os troféus.",
+      'Traduções para N64, DS, GBA, SNES, PSP, PS1, PS2, GameCube e Wii: o Opus aplica o patch (.bps/.xdelta) numa cópia do jogo e ela aparece como "PT-BR" na biblioteca — a original continua lá, com os troféus.',
       "Busca online dessas traduções ao sincronizar, com arquivos conferidos.",
       "GameCube/Wii em .rvz reconhecidos com nome, console e capa; PSP com capa.",
     ],
@@ -137,7 +137,7 @@ export const CHANGELOG: ChangelogEntry[] = [
     date: "03/10/2026",
     items: [
       "Nintendo DS: núcleo melonDS DS no RetroArch (sem BIOS). Coloque os .nds em uma pasta, vincule e jogue com o controle.",
-      "Jogos de emulador sem descrição não mostram mais \"Não foi possível obter os detalhes da loja\".",
+      'Jogos de emulador sem descrição não mostram mais "Não foi possível obter os detalhes da loja".',
     ],
   },
   {
@@ -195,8 +195,8 @@ export const CHANGELOG: ChangelogEntry[] = [
     version: "1.0.24",
     date: "03/10/2026",
     items: [
-      "Traduções automáticas: deixe uma pasta \"traducoes\" ao lado da pasta de ROMs de Switch ou 3DS e o Opus instala cada tradução no jogo certo ao sincronizar.",
-      "Configurações → Emulação ganhou \"Traduções de uma pasta\" para instalar todas de uma vez.",
+      'Traduções automáticas: deixe uma pasta "traducoes" ao lado da pasta de ROMs de Switch ou 3DS e o Opus instala cada tradução no jogo certo ao sincronizar.',
+      'Configurações → Emulação ganhou "Traduções de uma pasta" para instalar todas de uma vez.',
       "Gráficos ajustados à sua placa de vídeo: PS1, PS2, GameCube/Wii e 3DS em alta resolução em PCs mais fortes (só onde você não mudou nada).",
       "Jogos de Switch com o ID da atualização no nome (ex.: Luigi's Mansion 3) voltam a aparecer na biblioteca.",
       "Este resumo de novidades a cada atualização.",
@@ -206,9 +206,9 @@ export const CHANGELOG: ChangelogEntry[] = [
     version: "1.0.23",
     date: "03/10/2026",
     items: [
-      "Um botão \"Instalar e configurar\" para cada emulador.",
+      'Um botão "Instalar e configurar" para cada emulador.',
       "Controle de Xbox mapeado sozinho em todos os emuladores.",
-      "\"Instalar tradução…\" no menu dos jogos de 3DS e Switch.",
+      '"Instalar tradução…" no menu dos jogos de 3DS e Switch.',
       "Capas de SNES, N64, PS1, GBA e 3DS no padrão do Início.",
     ],
   },

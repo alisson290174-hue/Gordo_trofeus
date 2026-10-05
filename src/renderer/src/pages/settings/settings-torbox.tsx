@@ -9,7 +9,6 @@ import { useAppSelector, useToast } from "@renderer/hooks";
 
 import { settingsContext } from "@renderer/context";
 
-
 const torBoxReferralCode = import.meta.env.RENDERER_VITE_TORBOX_REFERRAL_CODE;
 
 const TORBOX_URL = torBoxReferralCode
@@ -98,7 +97,7 @@ export function SettingsTorBox() {
           {t("torbox_description")}
         </p>
         <Link to={TORBOX_URL} className="settings-torbox__create-account">
-          <Icon name="link-external"  />
+          <Icon name="link-external" />
           {t("create_torbox_account")}
         </Link>
       </div>

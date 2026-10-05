@@ -16,11 +16,7 @@ import { REVIEW_MIN_PLAYTIME_IN_MS } from "@renderer/constants";
 import { getDisplayedPlayTimeInMilliseconds } from "@shared";
 
 type ReviewSortOption =
-  | "newest"
-  | "oldest"
-  | "score_high"
-  | "score_low"
-  | "most_voted";
+  "newest" | "oldest" | "score_high" | "score_low" | "most_voted";
 
 interface GameReviewsProps {
   shop: GameShop;
@@ -159,8 +155,7 @@ export function GameReviews({
         }
 
         const typedResponse = response as unknown as
-          | { reviews: GameReview[]; totalCount: number }
-          | undefined;
+          { reviews: GameReview[]; totalCount: number } | undefined;
         const reviewsData = typedResponse?.reviews || [];
         const reviewCount = typedResponse?.totalCount || 0;
 

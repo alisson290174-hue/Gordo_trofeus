@@ -154,7 +154,9 @@ export function ConsoleCard({
           <div className="console-card__stats">
             <div className="console-card__stat-row">
               <span className="console-card__stat-dot" />
-              <span className="console-card__stat-number">{totalGames ?? totalFiles}</span>
+              <span className="console-card__stat-number">
+                {totalGames ?? totalFiles}
+              </span>
               <span className="console-card__stat-label">
                 {t("games_found_other", { count: totalGames ?? totalFiles })
                   .replace(`${totalGames ?? totalFiles}`, "")

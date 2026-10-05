@@ -108,10 +108,12 @@ export function FilterSection({
         onClick={() => setIsOpen((open) => !open)}
         aria-expanded={isOpen}
       >
-        <Icon name="chevron-down"
+        <Icon
+          name="chevron-down"
           className={`filter-section__chevron ${
             isOpen ? "filter-section__chevron--open" : ""
-          }`} />
+          }`}
+        />
         <div className="filter-section__header">
           <div
             className="filter-section__orb"

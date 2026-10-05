@@ -79,9 +79,7 @@ export function Header() {
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  const { draggingDisabled } = useAppSelector(
-    (state) => state.window
-  );
+  const { draggingDisabled } = useAppSelector((state) => state.window);
 
   const catalogueSearchValue = useAppSelector(
     (state) => state.catalogueSearch.filters.title

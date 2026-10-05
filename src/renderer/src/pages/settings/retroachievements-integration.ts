@@ -11,9 +11,7 @@ export type RetroAchievementsIntegration =
     };
 
 export type RetroAchievementsConnectErrorField =
-  | "password"
-  | "webApiKey"
-  | "form";
+  "password" | "webApiKey" | "form";
 
 export const getRetroAchievementsConnectErrorField = (
   message?: string

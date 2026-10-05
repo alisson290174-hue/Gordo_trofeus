@@ -3,7 +3,6 @@ import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
-
 import { Button, ConfirmationModal, GuideLink } from "@renderer/components";
 import {
   getEmulationSaveMetadataSku,
@@ -190,9 +189,11 @@ export function GameEmulationSaves({
               disabled={uploadingKey === "wii-data-bin"}
             >
               {uploadingKey === "wii-data-bin" ? (
-                <Icon name="sync"
+                <Icon
+                  name="sync"
                   size={14}
-                  className="game-emulation-saves__sync-icon" />
+                  className="game-emulation-saves__sync-icon"
+                />
               ) : (
                 <Icon name="upload" size={14} />
               )}
@@ -201,9 +202,11 @@ export function GameEmulationSaves({
           )}
           {(hasAnyLocalStorage || !isMemoryCardPlatform) && (
             <Button theme="outline" onClick={load} disabled={loading}>
-              <Icon name="sync"
+              <Icon
+                name="sync"
                 size={13}
-                className={loading ? "game-emulation-saves__sync-icon" : ""} />
+                className={loading ? "game-emulation-saves__sync-icon" : ""}
+              />
               <span>{t("cloud_refresh")}</span>
             </Button>
           )}
@@ -308,9 +311,11 @@ export function GameEmulationSaves({
                             disabled={uploading}
                           >
                             {uploading ? (
-                              <Icon name="sync"
+                              <Icon
+                                name="sync"
                                 size={14}
-                                className="game-emulation-saves__sync-icon" />
+                                className="game-emulation-saves__sync-icon"
+                              />
                             ) : (
                               <Icon name="upload" size={14} />
                             )}

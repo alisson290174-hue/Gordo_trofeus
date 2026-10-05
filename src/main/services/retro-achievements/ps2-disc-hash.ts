@@ -33,7 +33,12 @@ async function openSectorReader(filePath: string): Promise<SectorReader> {
   return {
     async read(lba, length = SECTOR) {
       const buffer = Buffer.alloc(length);
-      const { bytesRead } = await handle.read(buffer, 0, length, lba * sectorSize + dataOffset);
+      const { bytesRead } = await handle.read(
+        buffer,
+        0,
+        length,
+        lba * sectorSize + dataOffset
+      );
       return buffer.subarray(0, bytesRead);
     },
     close: () => handle.close(),
@@ -56,13 +61,20 @@ async function readDirectory(reader: SectorReader, dir: DirEntry) {
       const length = sector[offset];
       if (length === 0) break; // records never span sectors; the rest is padding
       const nameLength = sector[offset + 32];
-      const rawName = sector.toString("latin1", offset + 33, offset + 33 + nameLength);
+      const rawName = sector.toString(
+        "latin1",
+        offset + 33,
+        offset + 33 + nameLength
+      );
       if (nameLength > 1 || (rawName !== "\0" && rawName !== "\x01")) {
-        entries.set(rawName.replace(/;\d+$/, "").replace(/\.$/, "").toUpperCase(), {
-          lba: sector.readUInt32LE(offset + 2),
-          size: sector.readUInt32LE(offset + 10),
-          isDir: (sector[offset + 25] & 0x02) !== 0,
-        });
+        entries.set(
+          rawName.replace(/;\d+$/, "").replace(/\.$/, "").toUpperCase(),
+          {
+            lba: sector.readUInt32LE(offset + 2),
+            size: sector.readUInt32LE(offset + 10),
+            isDir: (sector[offset + 25] & 0x02) !== 0,
+          }
+        );
       }
       offset += length;
     }
@@ -70,7 +82,11 @@ async function readDirectory(reader: SectorReader, dir: DirEntry) {
   return entries;
 }
 
-async function findFile(reader: SectorReader, root: DirEntry, filePath: string) {
+async function findFile(
+  reader: SectorReader,
+  root: DirEntry,
+  filePath: string
+) {
   let current: DirEntry | undefined = root;
   for (const part of filePath.split(/[\\/]+/).filter(Boolean)) {
     if (!current?.isDir) return null;
@@ -83,7 +99,10 @@ async function findFile(reader: SectorReader, root: DirEntry, filePath: string) 
  * `BOOT2 = cdrom0:\SLUS_212.68;1` → `SLUS_212.68` (PS2) and `BOOT = cdrom:\SLUS_007.08;1` →
  * `SLUS_007.08` (PS1); subfolders kept, as rcheevos does.
  */
-export function parseBootExecutable(systemCnf: string, key: "BOOT2" | "BOOT" = "BOOT2"): string | null {
+export function parseBootExecutable(
+  systemCnf: string,
+  key: "BOOT2" | "BOOT" = "BOOT2"
+): string | null {
   const re =
     key === "BOOT2"
       ? /^\s*BOOT2\s*=\s*(?:cdrom0:)?\\*([^\s;]+)/i
@@ -101,8 +120,10 @@ async function resolveCueTarget(cuePath: string) {
   return match ? path.resolve(path.dirname(cuePath), match[1]) : null;
 }
 
-export const computePs2DiscHash = (discPath: string) => computePlaystationDiscHash(discPath, "ps2");
-export const computePs1DiscHash = (discPath: string) => computePlaystationDiscHash(discPath, "ps1");
+export const computePs2DiscHash = (discPath: string) =>
+  computePlaystationDiscHash(discPath, "ps2");
+export const computePs1DiscHash = (discPath: string) =>
+  computePlaystationDiscHash(discPath, "ps1");
 
 /**
  * rcheevos `rc_hash_ps2` / `rc_hash_psx`: MD5 of the boot executable's name followed by its bytes.
@@ -116,7 +137,8 @@ async function computePlaystationDiscHash(
   const extension = path.extname(discPath).toLowerCase();
   if (![".iso", ".bin", ".img", ".cue"].includes(extension)) return null;
 
-  const imagePath = extension === ".cue" ? await resolveCueTarget(discPath) : discPath;
+  const imagePath =
+    extension === ".cue" ? await resolveCueTarget(discPath) : discPath;
   if (!imagePath) return null;
 
   const reader = await openSectorReader(imagePath);
@@ -133,7 +155,9 @@ async function computePlaystationDiscHash(
     let bootName: string | null = null;
     if (systemCnf) {
       bootName = parseBootExecutable(
-        (await reader.read(systemCnf.lba, Math.min(systemCnf.size, SECTOR - 1))).toString("latin1"),
+        (
+          await reader.read(systemCnf.lba, Math.min(systemCnf.size, SECTOR - 1))
+        ).toString("latin1"),
         kind === "ps2" ? "BOOT2" : "BOOT"
       );
     } else if (kind === "ps1") {

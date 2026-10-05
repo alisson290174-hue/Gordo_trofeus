@@ -202,7 +202,9 @@ const syncCustomAssetsToCloud = (
 };
 
 /** Same path as the "Customize" screen — also used by "Find cover and info". */
-export const applyGameCustomAssets = async (params: UpdateGameCustomAssetsParams) => {
+export const applyGameCustomAssets = async (
+  params: UpdateGameCustomAssetsParams
+) => {
   const {
     shop,
     objectId,

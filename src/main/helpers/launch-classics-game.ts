@@ -81,7 +81,9 @@ const resolve3dsBootTarget = async (
   if (header?.encrypted) {
     for (const candidate of otherDiscs) {
       if (candidate === selectedPath) continue;
-      const candidateHeader = await emulators.read3dsHeader(candidate).catch(() => null);
+      const candidateHeader = await emulators
+        .read3dsHeader(candidate)
+        .catch(() => null);
       if (candidateHeader && !candidateHeader.encrypted) {
         romPath = candidate;
         header = candidateHeader;
@@ -91,7 +93,10 @@ const resolve3dsBootTarget = async (
   }
   if (header?.encrypted) throw new RomEncryptedError(system);
   if (header?.titleId && romPath.toLowerCase().endsWith(".cia")) {
-    const installed = await emulators.findInstalled3dsTitle(executablePath, header.titleId);
+    const installed = await emulators.findInstalled3dsTitle(
+      executablePath,
+      header.titleId
+    );
     if (installed) return installed;
   }
   return romPath;
@@ -250,7 +255,10 @@ export const launchClassicsGame = async (
     try {
       prepareDuckStationForLaunch(config.biosPath);
     } catch (error) {
-      logger.warn("Could not prepare DuckStation settings before launch", error);
+      logger.warn(
+        "Could not prepare DuckStation settings before launch",
+        error
+      );
     }
   }
 

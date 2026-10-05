@@ -1,7 +1,8 @@
 /** Pure rules of the .cue repair (no Electron/logger imports, unit-tested). */
 
 /** "Game (BR).cue" or "Game (BR).cue.cue" → "Game (BR)". */
-export const cueBaseName = (cueFileName: string) => cueFileName.replace(/(\.cue)+$/i, "");
+export const cueBaseName = (cueFileName: string) =>
+  cueFileName.replace(/(\.cue)+$/i, "");
 
 /** Pure: the repaired .cue text, or null when it's fine or can't be repaired safely. */
 export const repairCueText = (
@@ -17,4 +18,3 @@ export const repairCueText = (
   if (!exists(candidate)) return null;
   return cueText.replace(files[0][0], files[0][0].replace(current, candidate));
 };
-

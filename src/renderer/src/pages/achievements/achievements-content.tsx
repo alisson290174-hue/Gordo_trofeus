@@ -11,7 +11,12 @@ import {
 
 import { gameDetailsContext } from "@renderer/context";
 import type { ComparedAchievements, UserAchievement } from "@types";
-import { Link, ProgressBar, TrophyCup, TrophySprite } from "@renderer/components";
+import {
+  Link,
+  ProgressBar,
+  TrophyCup,
+  TrophySprite,
+} from "@renderer/components";
 import { getAchievementTier, type AchievementTier } from "@shared";
 import { ComparedAchievementList } from "./compared-achievement-list";
 import { AchievementList } from "./achievement-list";
@@ -197,7 +202,10 @@ function TrophySummary({ achievements }: { achievements: UserAchievement[] }) {
       <div className="trophy-summary__divider" />
       <div className="trophy-summary__cups">
         {TROPHY_TIERS.map((tier) => (
-          <div key={tier} className={`trophy-summary__cup trophy-summary__cup--${tier}`}>
+          <div
+            key={tier}
+            className={`trophy-summary__cup trophy-summary__cup--${tier}`}
+          >
             <TrophyCup tier={tier} />
             <b>{counts[tier]}</b>
             <small>{t(`trophy_${tier}`)}</small>

@@ -3,10 +3,7 @@ const DEFAULT_REQUEST_TIMEOUT_MS = 10_000;
 const MIN_REQUEST_TIMEOUT_MS = 1_000;
 
 export type TorrentMethod =
-  | "status"
-  | "seed_status"
-  | "torrent_files"
-  | "action";
+  "status" | "seed_status" | "torrent_files" | "action";
 
 export interface TorrentBackend {
   initialize: (port: number) => Promise<void>;
@@ -84,8 +81,7 @@ export class TorrentClient {
         .then((raw) => {
           if (!this.pending.has(fail)) return;
           const payload = JSON.parse(raw) as
-            | { result: T }
-            | { error: { code: string; message: string } };
+            { result: T } | { error: { code: string; message: string } };
           if ("error" in payload) {
             fail(new TorrentError(payload.error.code, payload.error.message));
           } else {

@@ -17,7 +17,8 @@ describe("verified-download", () => {
   let file: string;
   const content = Buffer.from("emulator archive bytes");
   const sha = createHash("sha256").update(content).digest("hex");
-  const githubUrl = "https://github.com/PCSX2/pcsx2/releases/download/v2.8.2/pcsx2.7z";
+  const githubUrl =
+    "https://github.com/PCSX2/pcsx2/releases/download/v2.8.2/pcsx2.7z";
 
   before(() => {
     dir = fs.mkdtempSync(path.join(os.tmpdir(), "vdl-"));
@@ -34,7 +35,9 @@ describe("verified-download", () => {
 
   it("only allows https on the official hosts", () => {
     assert.doesNotThrow(() => assertTrustedDownloadUrl(githubUrl));
-    assert.doesNotThrow(() => assertTrustedDownloadUrl("https://dl.dolphin-emu.org/x.7z"));
+    assert.doesNotThrow(() =>
+      assertTrustedDownloadUrl("https://dl.dolphin-emu.org/x.7z")
+    );
     for (const bad of [
       "http://github.com/x.7z",
       "https://github.com.evil.example/x.7z",
@@ -42,7 +45,11 @@ describe("verified-download", () => {
       "file:///C:/x.7z",
       "not a url",
     ]) {
-      assert.throws(() => assertTrustedDownloadUrl(bad), UntrustedDownloadError, bad);
+      assert.throws(
+        () => assertTrustedDownloadUrl(bad),
+        UntrustedDownloadError,
+        bad
+      );
     }
   });
 
@@ -51,14 +58,24 @@ describe("verified-download", () => {
   });
 
   it("refuses a tampered GitHub file", async () => {
-    await assert.rejects(assertDownloadIntegrity(githubUrl, file, "0".repeat(64)), UntrustedDownloadError);
+    await assert.rejects(
+      assertDownloadIntegrity(githubUrl, file, "0".repeat(64)),
+      UntrustedDownloadError
+    );
   });
 
   it("refuses a GitHub file without a published digest", async () => {
-    await assert.rejects(assertDownloadIntegrity(githubUrl, file, null), UntrustedDownloadError);
+    await assert.rejects(
+      assertDownloadIntegrity(githubUrl, file, null),
+      UntrustedDownloadError
+    );
   });
 
   it("accepts hash-less official hosts over https", async () => {
-    await assertDownloadIntegrity("https://buildbot.libretro.com/x.zip", file, null);
+    await assertDownloadIntegrity(
+      "https://buildbot.libretro.com/x.zip",
+      file,
+      null
+    );
   });
 });

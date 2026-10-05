@@ -1,8 +1,10 @@
 import { useState } from "react";
 import type { ImgHTMLAttributes, SyntheticEvent } from "react";
 
-export interface ImgProps
-  extends Omit<ImgHTMLAttributes<HTMLImageElement>, "src"> {
+export interface ImgProps extends Omit<
+  ImgHTMLAttributes<HTMLImageElement>,
+  "src"
+> {
   /** Image to load. When it is empty or fails to load, {@link fallback} is shown instead. */
   src?: string | null;
   /** Bundled placeholder shown when {@link src} is empty or errors out. */

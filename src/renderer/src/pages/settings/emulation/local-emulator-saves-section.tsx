@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 
-
 import { Button, GuideLink } from "@renderer/components";
 import { DropdownMenu } from "@renderer/components/dropdown-menu/dropdown-menu";
 import { getSkuRegion, getSkuRegionFlag } from "@renderer/helpers";
@@ -115,11 +114,13 @@ export function LocalEmulatorSavesSection({
         </div>
         <div className="emulator-detail__section-actions">
           <Button theme="outline" onClick={load} disabled={loading}>
-            <Icon name="sync"
+            <Icon
+              name="sync"
               size={13}
               className={
                 loading ? "emulator-detail__redetect-icon--spinning" : ""
-              } />
+              }
+            />
             <span>{t("cloud_refresh")}</span>
           </Button>
         </div>

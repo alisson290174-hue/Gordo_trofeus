@@ -1,12 +1,19 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 
-import { cartridgeHashBytes, raConsoleForPlatform, toBigEndianN64 } from "./rom-hash";
+import {
+  cartridgeHashBytes,
+  raConsoleForPlatform,
+  toBigEndianN64,
+} from "./rom-hash";
 import { parseBootExecutable } from "./ps2-disc-hash";
 
 describe("RetroAchievements ROM hashing", () => {
   it("maps Opus platforms to RetroAchievements consoles", () => {
-    assert.equal(raConsoleForPlatform("Super Nintendo Entertainment System"), "snes");
+    assert.equal(
+      raConsoleForPlatform("Super Nintendo Entertainment System"),
+      "snes"
+    );
     assert.equal(raConsoleForPlatform("Nintendo Game Boy Advance"), "gba");
     assert.equal(raConsoleForPlatform("Nintendo 64"), "n64");
     assert.equal(raConsoleForPlatform("PlayStation"), "ps1");
@@ -21,7 +28,11 @@ describe("RetroAchievements ROM hashing", () => {
     const withHeader = Buffer.concat([Buffer.alloc(512, 1), body]);
     assert.deepEqual(cartridgeHashBytes("snes", withHeader), body);
     assert.deepEqual(cartridgeHashBytes("snes", body), body);
-    const nes = Buffer.concat([Buffer.from("NES\x1a", "latin1"), Buffer.alloc(12), body]);
+    const nes = Buffer.concat([
+      Buffer.from("NES\x1a", "latin1"),
+      Buffer.alloc(12),
+      body,
+    ]);
     assert.deepEqual(cartridgeHashBytes("nes", nes), body);
   });
 
@@ -35,8 +46,17 @@ describe("RetroAchievements ROM hashing", () => {
   });
 
   it("reads the PS1 boot executable like rcheevos", () => {
-    assert.equal(parseBootExecutable("BOOT = cdrom:\\SLUS_007.08;1\nTCB = 4", "BOOT"), "SLUS_007.08");
-    assert.equal(parseBootExecutable("BOOT=cdrom:SCES_001.63;1", "BOOT"), "SCES_001.63");
-    assert.equal(parseBootExecutable("BOOT2 = cdrom0:\\SLUS_212.68;1"), "SLUS_212.68");
+    assert.equal(
+      parseBootExecutable("BOOT = cdrom:\\SLUS_007.08;1\nTCB = 4", "BOOT"),
+      "SLUS_007.08"
+    );
+    assert.equal(
+      parseBootExecutable("BOOT=cdrom:SCES_001.63;1", "BOOT"),
+      "SCES_001.63"
+    );
+    assert.equal(
+      parseBootExecutable("BOOT2 = cdrom0:\\SLUS_212.68;1"),
+      "SLUS_212.68"
+    );
   });
 });

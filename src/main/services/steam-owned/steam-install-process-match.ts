@@ -16,7 +16,8 @@ let cache: { at: number; key: string; dirs: Map<string, string> } | null = null;
 
 async function installDirectories(appIds: string[]) {
   const key = appIds.slice().sort().join(",");
-  if (cache && cache.key === key && Date.now() - cache.at < CACHE_MS) return cache.dirs;
+  if (cache && cache.key === key && Date.now() - cache.at < CACHE_MS)
+    return cache.dirs;
   const dirs = await getSteamAppInstallDirectories(appIds);
   cache = { at: Date.now(), key, dirs };
   return dirs;
@@ -28,7 +29,8 @@ async function installDirectories(appIds: string[]) {
  */
 export const needsSteamExecutable = (game: Game) =>
   !game.executablePath ||
-  (isInsideSteamLibrary(game.executablePath) && !fs.existsSync(game.executablePath));
+  (isInsideSteamLibrary(game.executablePath) &&
+    !fs.existsSync(game.executablePath));
 
 /** Steam-installed games (account games with no executable yet) → running .exe inside their folder. */
 export async function matchSteamGamesToRunningProcesses(
@@ -36,18 +38,22 @@ export async function matchSteamGamesToRunningProcesses(
   processMap: Map<string, Set<string>>
 ): Promise<Map<Game, string>> {
   const candidates = games.filter(
-    (game) => game.shop === "steam" && game.steamInstalled && needsSteamExecutable(game)
+    (game) =>
+      game.shop === "steam" && game.steamInstalled && needsSteamExecutable(game)
   );
   const matches = new Map<Game, string>();
   if (candidates.length === 0) return matches;
 
-  const dirs = await installDirectories(candidates.map((game) => game.objectId));
+  const dirs = await installDirectories(
+    candidates.map((game) => game.objectId)
+  );
   if (dirs.size === 0) return matches;
 
   const runningPaths: string[] = [];
   for (const paths of processMap.values()) {
     for (const processPath of paths) {
-      if (path.extname(processPath).toLowerCase() === ".exe") runningPaths.push(processPath);
+      if (path.extname(processPath).toLowerCase() === ".exe")
+        runningPaths.push(processPath);
     }
   }
 
@@ -68,4 +74,6 @@ export async function matchSteamGamesToRunningProcesses(
 
 /** Whether an executable sits inside a Steam library (then the game must start through Steam). */
 export const isInsideSteamLibrary = (executablePath?: string | null) =>
-  Boolean(executablePath && /[\\/]steamapps[\\/]common[\\/]/i.test(executablePath));
+  Boolean(
+    executablePath && /[\\/]steamapps[\\/]common[\\/]/i.test(executablePath)
+  );

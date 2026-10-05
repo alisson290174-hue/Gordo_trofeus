@@ -2,7 +2,6 @@ import { useTranslation } from "react-i18next";
 import { Icon } from "@renderer/components/icon/icon";
 import cn from "classnames";
 
-
 import { Button, CheckboxField, ConfirmationModal } from "@renderer/components";
 import { useFormat } from "@renderer/hooks";
 import type { RomFolder } from "@types";
@@ -287,13 +286,15 @@ export function DetailHeader({
         </div>
         <div className="emulator-detail__hero-actions">
           <Button theme="primary" onClick={onRescan} disabled={rescanDisabled}>
-            <Icon name="sync"
+            <Icon
+              name="sync"
               size={16}
               className={
                 rescanSpinning
                   ? "emulator-detail__redetect-icon--spinning"
                   : undefined
-              } />
+              }
+            />
             <span>{t("rescan_library")}</span>
           </Button>
         </div>
@@ -372,11 +373,13 @@ export function ExecutableRow({
       actions={
         <>
           <Button theme="outline" onClick={onRedetect} disabled={busy}>
-            <Icon name="sync"
+            <Icon
+              name="sync"
               size={13}
               className={
                 busy ? "emulator-detail__redetect-icon--spinning" : undefined
-              } />
+              }
+            />
             <span>{t("re_detect")}</span>
           </Button>
           <Button theme="primary" onClick={onBrowse} disabled={busy}>

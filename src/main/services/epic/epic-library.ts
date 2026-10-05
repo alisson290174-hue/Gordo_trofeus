@@ -20,7 +20,9 @@ interface InstalledEntry {
 }
 
 export async function getEpicInstalled(): Promise<Map<string, InstalledEntry>> {
-  const { stdout } = await runLegendary(["list-installed", "--json"], { timeoutMs: 60_000 });
+  const { stdout } = await runLegendary(["list-installed", "--json"], {
+    timeoutMs: 60_000,
+  });
   const entries = JSON.parse(stdout) as InstalledEntry[];
   return new Map(entries.map((entry) => [entry.app_name, entry]));
 }
@@ -33,7 +35,10 @@ let syncing: Promise<number> | null = null;
 /** Adds/updates owned Epic games; games no longer owned are hidden. Returns how many are in the library. */
 export function syncEpicLibrary(): Promise<number> {
   syncing ??= (async () => {
-    const [owned, installed] = await Promise.all([listEpicGames(), getEpicInstalled()]);
+    const [owned, installed] = await Promise.all([
+      listEpicGames(),
+      getEpicInstalled(),
+    ]);
     const games = owned.filter((game) => !game.isDlc);
     const ownedKeys = new Set<string>();
 
@@ -49,7 +54,8 @@ export function syncEpicLibrary(): Promise<number> {
         objectId: epicGame.appName,
         shop: "epic",
         iconUrl: existing?.iconUrl ?? null,
-        libraryHeroImageUrl: epicGame.wideUrl ?? existing?.libraryHeroImageUrl ?? null,
+        libraryHeroImageUrl:
+          epicGame.wideUrl ?? existing?.libraryHeroImageUrl ?? null,
         coverImageUrl: epicGame.coverUrl ?? existing?.coverImageUrl ?? null,
         logoImageUrl: existing?.logoImageUrl ?? null,
         remoteId: null,
@@ -59,7 +65,8 @@ export function syncEpicLibrary(): Promise<number> {
         addedToLibraryAt: existing?.addedToLibraryAt ?? new Date(),
         platform: existing?.platform ?? null,
         executablePath: install ? epicExecutablePath(install) : null,
-        installedSizeInBytes: install?.install_size ?? existing?.installedSizeInBytes ?? null,
+        installedSizeInBytes:
+          install?.install_size ?? existing?.installedSizeInBytes ?? null,
       } as Game;
 
       await gamesSublevel.put(key, next);

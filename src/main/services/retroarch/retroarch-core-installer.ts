@@ -18,7 +18,10 @@ import { SevenZip } from "../7zip";
 import { SystemPath } from "../system-path";
 import { WindowManager } from "../window-manager";
 import { downloadToFile, removeFileQuietly } from "../download-to-file";
-import { assertDownloadIntegrity, assertTrustedDownloadUrl } from "../verified-download";
+import {
+  assertDownloadIntegrity,
+  assertTrustedDownloadUrl,
+} from "../verified-download";
 import { getRetroArchVersion } from "./detect-retroarch";
 import { swapCoreLibrary } from "./swap-core-library";
 import { removeDirectoryQuietly, swapDirectory } from "./swap-directory";

@@ -30,15 +30,20 @@ registerEvent("getEmulatorSetupStates", () => getEmulatorSetupStates());
 
 registerEvent("getEmulatorsBaseDir", () => getEmulatorsBaseDir());
 
-registerEvent("setEmulatorsBaseDir", (_event, dir: string) => setEmulatorsBaseDir(dir));
+registerEvent("setEmulatorsBaseDir", (_event, dir: string) =>
+  setEmulatorsBaseDir(dir)
+);
 
 const assertTarget = (target: AutoSetupTarget) => {
-  if (target !== "retroarch" && !EMULATOR_SYSTEMS.includes(target)) throw new Error("Unknown emulator");
+  if (target !== "retroarch" && !EMULATOR_SYSTEMS.includes(target))
+    throw new Error("Unknown emulator");
   return target;
 };
 
 // The two halves of "Instalar e configurar", as separate buttons on each emulator card.
-registerEvent("installEmulatorOnly", (_event, target: AutoSetupTarget) => installEmulatorOnly(assertTarget(target)));
+registerEvent("installEmulatorOnly", (_event, target: AutoSetupTarget) =>
+  installEmulatorOnly(assertTarget(target))
+);
 registerEvent("configureEmulatorOnly", (_event, target: AutoSetupTarget) =>
   configureEmulatorOnly(assertTarget(target))
 );
@@ -46,12 +51,19 @@ registerEvent("getEmulatorVersions", () => getEmulatorVersions());
 registerEvent("checkEmulatorUpdates", () => checkEmulatorUpdates());
 
 // "Conectar RetroAchievements nos emuladores": one login, a token written into every emulator.
-registerEvent("loginRetroAchievementsInEmulators", async (_event, username: string, password: string) => {
-  if (typeof username !== "string" || typeof password !== "string" || !username.trim() || !password) {
-    return { ok: false as const, reason: "invalid_credentials" as const };
+registerEvent(
+  "loginRetroAchievementsInEmulators",
+  async (_event, username: string, password: string) => {
+    if (
+      typeof username !== "string" ||
+      typeof password !== "string" ||
+      !username.trim() ||
+      !password
+    ) {
+      return { ok: false as const, reason: "invalid_credentials" as const };
+    }
+    const { loginRetroAchievementsInEmulators } =
+      await import("@main/services/emulators/retroachievements-emulator-login");
+    return loginRetroAchievementsInEmulators(username, password);
   }
-  const { loginRetroAchievementsInEmulators } = await import(
-    "@main/services/emulators/retroachievements-emulator-login"
-  );
-  return loginRetroAchievementsInEmulators(username, password);
-});
+);

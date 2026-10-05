@@ -1,4 +1,3 @@
-
 import useEmblaCarousel from "embla-carousel-react";
 import { Icon } from "@renderer/components/icon/icon";
 import { useCallback, useEffect, useState, type ReactNode } from "react";

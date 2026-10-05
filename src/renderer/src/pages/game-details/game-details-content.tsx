@@ -44,11 +44,7 @@ import {
   CLASSICS_PS_PLATFORM_LABELS,
   resolveClassicsBadge,
 } from "@renderer/helpers";
-import {
-  Ps5HeroStats,
-  Ps5InfoCard,
-  Ps5TrophiesCard,
-} from "./ps5/ps5-details";
+import { Ps5HeroStats, Ps5InfoCard, Ps5TrophiesCard } from "./ps5/ps5-details";
 import "./game-details.scss";
 import "./hero.scss";
 
@@ -175,7 +171,6 @@ export function GameDetailsContent() {
     dismissPrompt({ persist: true });
   };
 
-
   useLayoutEffect(() => {
     const el = descriptionRef.current;
     if (!el) {
@@ -250,8 +245,8 @@ export function GameDetailsContent() {
     null;
   const hasClassicsFanart = Boolean(
     launchboxHero &&
-      !launchboxHero.includes("xlenore/ps2-covers") &&
-      launchboxHero !== game?.coverImageUrl
+    !launchboxHero.includes("xlenore/ps2-covers") &&
+    launchboxHero !== game?.coverImageUrl
   );
   const renderClassicsHero =
     isLaunchboxGame && !classicsUseHeroLayout && !hasClassicsFanart;
@@ -292,10 +287,15 @@ export function GameDetailsContent() {
     : "";
 
   const classicsPlatformLabel = isLaunchboxGame
-    ? (resolveClassicsBadge("launchbox", launchboxPlatform, CLASSICS_PS_PLATFORM_LABELS, {
-        emulatorIcons: {},
-        retroarchIcon: "",
-      }).label ?? launchboxPlatform)
+    ? (resolveClassicsBadge(
+        "launchbox",
+        launchboxPlatform,
+        CLASSICS_PS_PLATFORM_LABELS,
+        {
+          emulatorIcons: {},
+          retroarchIcon: "",
+        }
+      ).label ?? launchboxPlatform)
     : null;
 
   const heroImageContent = resolvedHeroImage ? (

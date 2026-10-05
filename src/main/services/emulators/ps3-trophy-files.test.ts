@@ -35,7 +35,13 @@ describe("PS3 trophy files", () => {
     </trophyconf>`;
     const { title, trophies } = parseTropconf(xml);
     assert.equal(title, "Wolverine Trophies");
-    assert.deepEqual(trophies.map((t) => [t.id, t.grade, t.hidden]), [["000", "P", true], ["001", "B", false]]);
+    assert.deepEqual(
+      trophies.map((t) => [t.id, t.grade, t.hidden]),
+      [
+        ["000", "P", true],
+        ["001", "B", false],
+      ]
+    );
     assert.equal(trophies[0].description, "All & more");
   });
 

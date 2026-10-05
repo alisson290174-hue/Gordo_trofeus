@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import { Icon } from "@renderer/components/icon/icon";
 import cn from "classnames";
 
-
 interface ResourcePath {
   text: string | null;
   placeholder: string;

@@ -32,20 +32,27 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 /** Remote sync of achievements only runs after the watcher's first pass — wait for it. */
 async function waitForAchievementPreSearch() {
   const deadline = Date.now() + PRE_SEARCH_WAIT_MS;
-  while (!AchievementWatcherManager.hasFinishedPreSearch && Date.now() < deadline) {
+  while (
+    !AchievementWatcherManager.hasFinishedPreSearch &&
+    Date.now() < deadline
+  ) {
     await sleep(2000);
   }
 }
 
 let running: Promise<number> | null = null;
 
-export function syncSteamOwnedAchievements(played: SteamPlayedGame[]): Promise<number> {
+export function syncSteamOwnedAchievements(
+  played: SteamPlayedGame[]
+): Promise<number> {
   running ??= (async () => {
     const pending: { appId: string; syncedFor: number }[] = [];
 
     for (const steamGame of played) {
       if (steamGame.playtimeMinutes <= 0) continue;
-      const game = await gamesSublevel.get(levelKeys.game("steam", steamGame.appId)).catch(() => null);
+      const game = await gamesSublevel
+        .get(levelKeys.game("steam", steamGame.appId))
+        .catch(() => null);
       if (!game || game.isDeleted) continue;
       const syncedFor = steamGame.lastPlayedAt ?? 0;
       if (game.steamAchievementsCheckedFor === syncedFor) continue;
@@ -57,7 +64,9 @@ export function syncSteamOwnedAchievements(played: SteamPlayedGame[]): Promise<n
     // Games new to the library still need their profile entry before achievements can sync.
     const withoutRemote: string[] = [];
     for (const { appId } of pending) {
-      const game = await gamesSublevel.get(levelKeys.game("steam", appId)).catch(() => null);
+      const game = await gamesSublevel
+        .get(levelKeys.game("steam", appId))
+        .catch(() => null);
       if (game && !game.remoteId) withoutRemote.push(appId);
     }
     if (withoutRemote.length > 0) {
@@ -81,12 +90,17 @@ export function syncSteamOwnedAchievements(played: SteamPlayedGame[]): Promise<n
 
     let unlockedTotal = 0;
     for (const batch of chunk(pending, SERVER_BATCH)) {
-      const data = await HydraApi.post<SteamAchievementsResponse>("/profile/steam/achievements", {
-        appIds: batch.map((item) => item.appId),
-      });
+      const data = await HydraApi.post<SteamAchievementsResponse>(
+        "/profile/steam/achievements",
+        {
+          appIds: batch.map((item) => item.appId),
+        }
+      );
 
       if (!data.visible) {
-        logger.info("[steam-achievements] game details are private on the Steam profile");
+        logger.info(
+          "[steam-achievements] game details are private on the Steam profile"
+        );
         break;
       }
 
@@ -99,20 +113,30 @@ export function syncSteamOwnedAchievements(played: SteamPlayedGame[]): Promise<n
         let merged = true;
         if (unlocks.length > 0) {
           // No pop-up or screenshot: these were unlocked earlier, inside Steam.
-          unlockedTotal += await mergeAchievements(game, unlocks, false).catch((error) => {
-            merged = false;
-            logger.warn(`[steam-achievements] merge failed for ${appId}`, error?.message ?? error);
-            return 0;
-          });
+          unlockedTotal += await mergeAchievements(game, unlocks, false).catch(
+            (error) => {
+              merged = false;
+              logger.warn(
+                `[steam-achievements] merge failed for ${appId}`,
+                error?.message ?? error
+              );
+              return 0;
+            }
+          );
         }
 
         // Only marked done once the unlocks could reach the profile: a game still without its
         // profile entry (remoteId), or whose merge failed, is tried again on the next run.
         const reachedProfile =
-          merged && Boolean(game.remoteId) && AchievementWatcherManager.hasFinishedPreSearch;
+          merged &&
+          Boolean(game.remoteId) &&
+          AchievementWatcherManager.hasFinishedPreSearch;
         const latest = await gamesSublevel.get(key).catch(() => null);
         if (latest && reachedProfile) {
-          await gamesSublevel.put(key, { ...latest, steamAchievementsCheckedFor: syncedFor });
+          await gamesSublevel.put(key, {
+            ...latest,
+            steamAchievementsCheckedFor: syncedFor,
+          });
         }
       }
     }

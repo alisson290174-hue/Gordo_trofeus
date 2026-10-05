@@ -2,7 +2,12 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
-import { Backdrop, FocusItem, NavigationLayer, VerticalFocusGroup } from "../../components";
+import {
+  Backdrop,
+  FocusItem,
+  NavigationLayer,
+  VerticalFocusGroup,
+} from "../../components";
 import { IS_BROWSER, IS_DESKTOP } from "../../constants";
 import type { LibraryGame } from "@types";
 import { getTileArt } from "@renderer/helpers/ps5-game";
@@ -46,18 +51,23 @@ export function QuickMenu() {
     const first = running[0];
     if (!first) return null;
     const separator = first.id.indexOf(":");
-    const shop = (first.shop ?? first.id.slice(0, separator)) as LibraryGame["shop"];
+    const shop = (first.shop ??
+      first.id.slice(0, separator)) as LibraryGame["shop"];
     const objectId = first.objectId ?? first.id.slice(separator + 1);
-    const game = library.find((entry) => entry.shop === shop && entry.objectId === objectId);
+    const game = library.find(
+      (entry) => entry.shop === shop && entry.objectId === objectId
+    );
     return {
       shop,
       objectId,
       title: first.title ?? game?.title ?? "",
-      art: game ? getTileArt(game)?.url ?? null : null,
+      art: game ? (getTileArt(game)?.url ?? null) : null,
       sessionDurationInMillis: first.sessionDurationInMillis,
     };
   }, [library, running]);
-  const keyboardOpen = useVirtualKeyboardStore((state) => state.target !== null);
+  const keyboardOpen = useVirtualKeyboardStore(
+    (state) => state.target !== null
+  );
 
   const close = useCallback(() => setOpen(false), []);
 
@@ -89,12 +99,20 @@ export function QuickMenu() {
         label: "Close game",
         meta: "saves and quits",
         run: () => {
-          if (IS_DESKTOP) void globalThis.window.electron.closeGame(current.shop, current.objectId);
+          if (IS_DESKTOP)
+            void globalThis.window.electron.closeGame(
+              current.shop,
+              current.objectId
+            );
         },
       });
     }
     list.push(
-      { label: "Friends", run: () => IS_DESKTOP && void globalThis.window.electron.openFriendsWindow() },
+      {
+        label: "Friends",
+        run: () =>
+          IS_DESKTOP && void globalThis.window.electron.openFriendsWindow(),
+      },
       { label: "Library", run: () => navigate(`${BASE_PATH}/library`) },
       { label: "Settings", run: () => navigate(`${BASE_PATH}/settings`) },
       {
@@ -121,7 +139,10 @@ export function QuickMenu() {
             exit={{ x: 80, opacity: 0 }}
             transition={{ duration: 0.2, ease: "easeOut" }}
           >
-            <NavigationLayer rootRegionId={QUICK_MENU_REGION_ID} initialFocusId={QUICK_MENU_FIRST_ID}>
+            <NavigationLayer
+              rootRegionId={QUICK_MENU_REGION_ID}
+              initialFocusId={QUICK_MENU_FIRST_ID}
+            >
               {current ? (
                 <div className="quick-menu__now">
                   {current.art ? (
@@ -131,15 +152,22 @@ export function QuickMenu() {
                   )}
                   <div className="quick-menu__now-text">
                     <span className="quick-menu__eyebrow">Playing now</span>
-                    <span className="quick-menu__now-title">{current.title}</span>
-                    <span className="quick-menu__meta">{formatSession(current.sessionDurationInMillis)}</span>
+                    <span className="quick-menu__now-title">
+                      {current.title}
+                    </span>
+                    <span className="quick-menu__meta">
+                      {formatSession(current.sessionDurationInMillis)}
+                    </span>
                   </div>
                 </div>
               ) : (
                 <span className="quick-menu__eyebrow">Quick menu</span>
               )}
 
-              <VerticalFocusGroup regionId={QUICK_MENU_REGION_ID} className="quick-menu__actions">
+              <VerticalFocusGroup
+                regionId={QUICK_MENU_REGION_ID}
+                className="quick-menu__actions"
+              >
                 {actions.map((action, index) => (
                   <FocusItem
                     key={action.label}
@@ -161,15 +189,21 @@ export function QuickMenu() {
                       }}
                     >
                       <span>{action.label}</span>
-                      {action.meta && <span className="quick-menu__meta">{action.meta}</span>}
+                      {action.meta && (
+                        <span className="quick-menu__meta">{action.meta}</span>
+                      )}
                     </button>
                   </FocusItem>
                 ))}
               </VerticalFocusGroup>
 
               <div className="quick-menu__hints">
-                <span><i className="opus-key opus-key--a">A</i>Select</span>
-                <span><i className="opus-key opus-key--b">B</i>Close menu</span>
+                <span>
+                  <i className="opus-key opus-key--a">A</i>Select
+                </span>
+                <span>
+                  <i className="opus-key opus-key--b">B</i>Close menu
+                </span>
               </div>
             </NavigationLayer>
           </motion.aside>

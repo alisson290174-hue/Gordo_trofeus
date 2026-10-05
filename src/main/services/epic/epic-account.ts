@@ -58,7 +58,8 @@ export async function getEpicStatus(): Promise<EpicStatus> {
       games_available: number;
       games_installed: number;
     };
-    const connected = Boolean(data.account) && data.account !== "<not logged in>";
+    const connected =
+      Boolean(data.account) && data.account !== "<not logged in>";
     return {
       connected,
       displayName: connected ? data.account : null,
@@ -67,7 +68,12 @@ export async function getEpicStatus(): Promise<EpicStatus> {
     };
   } catch (error) {
     logger.error("[epic] status failed", error);
-    return { connected: false, displayName: null, gamesAvailable: null, gamesInstalled: null };
+    return {
+      connected: false,
+      displayName: null,
+      gamesAvailable: null,
+      gamesInstalled: null,
+    };
   }
 }
 
@@ -111,7 +117,11 @@ export function loginToEpic(parent: BrowserWindow | null): Promise<boolean> {
             action: "allow",
             overrideBrowserWindowOptions: {
               autoHideMenuBar: true,
-              webPreferences: { session: loginSession, sandbox: true, contextIsolation: true },
+              webPreferences: {
+                session: loginSession,
+                sandbox: true,
+                contextIsolation: true,
+              },
             },
           }
         : { action: "deny" }
@@ -122,7 +132,8 @@ export function loginToEpic(parent: BrowserWindow | null): Promise<boolean> {
 
     win.webContents.on("did-finish-load", async () => {
       const current = win.webContents.getURL();
-      if (!current.startsWith("https://www.epicgames.com/id/api/redirect")) return;
+      if (!current.startsWith("https://www.epicgames.com/id/api/redirect"))
+        return;
 
       try {
         const body = await win.webContents.executeJavaScript(
@@ -137,7 +148,9 @@ export function loginToEpic(parent: BrowserWindow | null): Promise<boolean> {
           win.loadURL(LOGIN_URL);
           return;
         }
-        await runLegendary(["auth", "--code", authorizationCode], { timeoutMs: 60_000 });
+        await runLegendary(["auth", "--code", authorizationCode], {
+          timeoutMs: 60_000,
+        });
         logger.info("[epic] account connected");
         await finish(true);
       } catch (error) {
@@ -168,7 +181,9 @@ interface LegendaryListEntry {
 
 const imageOf = (entry: LegendaryListEntry, types: string[]) => {
   for (const type of types) {
-    const found = entry.metadata?.keyImages?.find((image) => image.type === type);
+    const found = entry.metadata?.keyImages?.find(
+      (image) => image.type === type
+    );
     if (found?.url) return found.url;
   }
   return null;
@@ -183,15 +198,25 @@ export async function listEpicGames(): Promise<EpicGame[]> {
 
   const owned = JSON.parse(list.stdout) as LegendaryListEntry[];
   const installedNames = new Set(
-    (JSON.parse(installed.stdout) as { app_name: string }[]).map((game) => game.app_name)
+    (JSON.parse(installed.stdout) as { app_name: string }[]).map(
+      (game) => game.app_name
+    )
   );
 
   return owned.map((entry) => ({
     appName: entry.app_name,
     title: entry.app_title,
     installed: installedNames.has(entry.app_name),
-    coverUrl: imageOf(entry, ["DieselGameBoxTall", "DieselGameBox", "Thumbnail"]),
-    wideUrl: imageOf(entry, ["DieselGameBox", "DieselGameBoxWide", "DieselGameBoxTall"]),
+    coverUrl: imageOf(entry, [
+      "DieselGameBoxTall",
+      "DieselGameBox",
+      "Thumbnail",
+    ]),
+    wideUrl: imageOf(entry, [
+      "DieselGameBox",
+      "DieselGameBoxWide",
+      "DieselGameBoxTall",
+    ]),
     isDlc: Boolean(
       entry.metadata?.categories?.some((category) => category.path === "addons")
     ),

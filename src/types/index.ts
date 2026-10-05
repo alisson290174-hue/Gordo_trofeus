@@ -478,9 +478,7 @@ export interface AchievementMetadataEntry {
 }
 
 export type GameLauncherStatus =
-  | "generating_achievements"
-  | "downloading_achievement_icons"
-  | "complete";
+  "generating_achievements" | "downloading_achievement_icons" | "complete";
 
 export interface GameLauncherStatusPayload {
   gameKey: string;
@@ -651,11 +649,7 @@ export interface CatalogueSearchPayload {
   genres: string[];
   developers: string[];
   protondbSupportBadges: (
-    | "borked"
-    | "bronze"
-    | "silver"
-    | "gold"
-    | "platinum"
+    "borked" | "bronze" | "silver" | "gold" | "platinum"
   )[];
   deckCompatibility: ("verified" | "playable" | "unsupported" | "unknown")[];
   releaseYear?: { gte?: number; lte?: number };
@@ -757,7 +751,8 @@ export interface EpicGame {
 export interface EpicInstallState {
   appName: string;
   title: string;
-  status: "preparing" | "downloading" | "verifying" | "done" | "error" | "cancelled";
+  status:
+    "preparing" | "downloading" | "verifying" | "done" | "error" | "cancelled";
   percent: number;
   downloadedBytes: number;
   totalBytes: number | null;

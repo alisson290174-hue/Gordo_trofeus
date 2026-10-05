@@ -69,8 +69,7 @@ export const validatePrepareResponse = (
       }
     } else if (file.status === "upload") {
       const headers = file.requiredHeaders as
-        | Record<string, unknown>
-        | undefined;
+        Record<string, unknown> | undefined;
       const uploadKeys = new Set([
         ...commonKeys,
         "uploadUrl",

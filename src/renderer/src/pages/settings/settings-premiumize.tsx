@@ -91,7 +91,7 @@ export function SettingsPremiumize() {
           to={PREMIUMIZE_URL}
           className="settings-premiumize__create-account"
         >
-          <Icon name="link-external"  />
+          <Icon name="link-external" />
           {t("create_premiumize_account")}
         </Link>
       </div>

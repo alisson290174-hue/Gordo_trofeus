@@ -45,7 +45,8 @@ function ClassicsDiscSection({ game }: Readonly<ClassicsDiscSectionProps>) {
   const renderDiscIcon = (disc: ClassicsDisc | null) => {
     const region = disc?.sku ? getSkuRegion(disc.sku) : null;
 
-    if (!region) return <Icon name="dot" size={18} className="disc-field__icon" />;
+    if (!region)
+      return <Icon name="dot" size={18} className="disc-field__icon" />;
 
     return (
       <img
@@ -210,7 +211,7 @@ function ClassicsDiscSection({ game }: Readonly<ClassicsDiscSectionProps>) {
           )}
 
           <Button type="button" theme="outline" onClick={handleAddDiscFile}>
-            <Icon name="file"  />
+            <Icon name="file" />
             {t("add_disc")}
           </Button>
           {system === "ps3" && (
@@ -536,7 +537,7 @@ export function GeneralSettingsSection({
                     theme="outline"
                     onClick={onChangeExecutableLocation}
                   >
-                    <Icon name="file"  />
+                    <Icon name="file" />
                     {t("select_executable")}
                   </Button>
                   {game.executablePath && (
@@ -614,7 +615,7 @@ export function GeneralSettingsSection({
                     theme="outline"
                     onClick={onAddTrackingExecutable}
                   >
-                    <Icon name="file"  />
+                    <Icon name="file" />
                     {t("add_tracking_executable")}
                   </Button>
                 </div>

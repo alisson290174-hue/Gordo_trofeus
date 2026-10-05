@@ -173,7 +173,7 @@ function SouvenirSummary({
   });
   const hasAchievementIcon = Boolean(
     primaryAchievement.achievementIcon &&
-      primaryAchievement.achievementIcon !== failedAchievementIconUrl
+    primaryAchievement.achievementIcon !== failedAchievementIconUrl
   );
   const hasGameIcon = Boolean(
     souvenir.gameIconUrl && souvenir.gameIconUrl !== failedGameIconUrl

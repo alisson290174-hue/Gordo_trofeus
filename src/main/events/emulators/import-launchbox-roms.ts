@@ -236,7 +236,8 @@ export const persistEntryLocally = async (
   // classics, and get-library falls back to these fields (PS2 has its own backfill for that).
   const coverUrl = assetsSource?.libraryImageUrl ?? null;
   const heroUrl = assetsSource?.libraryHeroImageUrl ?? coverUrl;
-  const tile = tileUrl ?? (platformToSystem(platform) === "switch" ? coverUrl : null);
+  const tile =
+    tileUrl ?? (platformToSystem(platform) === "switch" ? coverUrl : null);
 
   const existing = await gamesSublevel.get(gameKey);
   if (existing) {
@@ -252,7 +253,11 @@ export const persistEntryLocally = async (
     // A game first imported under its file name gets the catalogue title once it's recognised.
     const catalogueTitle = entry.data?.title;
     const fileName = discs[0]?.fileName;
-    if (catalogueTitle && fileName && isFileNameTitle(existing.title, fileName)) {
+    if (
+      catalogueTitle &&
+      fileName &&
+      isFileNameTitle(existing.title, fileName)
+    ) {
       existing.title = catalogueTitle;
     }
     existing.discs = discs;
@@ -577,7 +582,12 @@ const resolveSkus = async (
     // A Switch dump named without tags can still turn out to be an update/DLC once its
     // ticket is read; those never become games.
     // A base dump named with its update's ID ("…800" but "[v0]") is the game itself.
-    if (system === "switch" && sku && contentKindOfTitleId(sku) === "update" && /\[v0\]/i.test(game.name)) {
+    if (
+      system === "switch" &&
+      sku &&
+      contentKindOfTitleId(sku) === "update" &&
+      /\[v0\]/i.test(game.name)
+    ) {
       sku = `${sku.replace(/[^0-9a-f]/gi, "").slice(0, 13)}000`.toUpperCase();
     }
     if (system === "switch" && sku && contentKindOfTitleId(sku) !== "base") {
@@ -749,7 +759,13 @@ const aggregateMatches = (
     );
   }
 
-  return { unmatched, unmatchedFiles, titleByFolder, discsByTitle, unmatchedGroups };
+  return {
+    unmatched,
+    unmatchedFiles,
+    titleByFolder,
+    discsByTitle,
+    unmatchedGroups,
+  };
 };
 
 const rollupFolders = (
@@ -865,7 +881,9 @@ const dolphinPlatform = async (
 ): Promise<{ platform: string; libretroFolder: string }> => {
   const header = await readDolphinDiscHeader(primaryPath).catch(() => null);
   const isWii =
-    (header && header.length >= 0x1c && header.readUInt32BE(0x18) === 0x5d1c9ea3) ||
+    (header &&
+      header.length >= 0x1c &&
+      header.readUInt32BE(0x18) === 0x5d1c9ea3) ||
     (!header && /\.wbfs$/i.test(primaryPath));
   return isWii
     ? { platform: "Nintendo Wii", libretroFolder: "Nintendo - Wii" }
@@ -878,7 +896,9 @@ const dolphinPlatform = async (
  */
 const ps3GameTitle = async (markerPath: string): Promise<string | null> => {
   if (!/^ps3_game$/i.test(path.basename(markerPath))) return null;
-  const sfo = await fs.readFile(path.join(markerPath, "PARAM.SFO")).catch(() => null);
+  const sfo = await fs
+    .readFile(path.join(markerPath, "PARAM.SFO"))
+    .catch(() => null);
   const title = sfo ? emulators.parseParamSfoValue(sfo, "TITLE", true) : null;
   return title || cleanRomTitle(path.basename(path.dirname(markerPath)));
 };
@@ -901,7 +921,9 @@ const urlResponds = (url: string) =>
 /** PS4 game folder (primaryPath is its eboot.bin): title from sce_sys/param.sfo. */
 const ps4GameTitle = async (ebootPath: string): Promise<string | null> => {
   const gameDir = path.dirname(ebootPath);
-  const sfo = await fs.readFile(path.join(gameDir, "sce_sys", "param.sfo")).catch(() => null);
+  const sfo = await fs
+    .readFile(path.join(gameDir, "sce_sys", "param.sfo"))
+    .catch(() => null);
   const title = sfo ? emulators.parseParamSfoValue(sfo, "TITLE", true) : null;
   return title || cleanRomTitle(path.basename(gameDir));
 };
@@ -911,15 +933,21 @@ const ps4LocalArt = (ebootPath: string | undefined) => {
   if (!ebootPath) return { icon: null, pic: null };
   const sys = path.join(path.dirname(ebootPath), "sce_sys");
   const icon = path.join(sys, "icon0.png");
-  const pic = [path.join(sys, "pic1.png"), path.join(sys, "pic0.png")].find((candidate) => existsSync(candidate));
+  const pic = [path.join(sys, "pic1.png"), path.join(sys, "pic0.png")].find(
+    (candidate) => existsSync(candidate)
+  );
   return { icon: existsSync(icon) ? icon : null, pic: pic ?? null };
 };
 
 const ps3LocalArt = (markerPath: string | undefined) => {
-  if (!markerPath || !/^ps3_game$/i.test(path.basename(markerPath))) return { icon: null, pic: null };
+  if (!markerPath || !/^ps3_game$/i.test(path.basename(markerPath)))
+    return { icon: null, pic: null };
   const icon = path.join(markerPath, "ICON0.PNG");
   const pic = path.join(markerPath, "PIC1.PNG");
-  return { icon: existsSync(icon) ? icon : null, pic: existsSync(pic) ? pic : null };
+  return {
+    icon: existsSync(icon) ? icon : null,
+    pic: existsSync(pic) ? pic : null,
+  };
 };
 
 const resolveUnmatchedArt = async (
@@ -936,7 +964,12 @@ const resolveUnmatchedArt = async (
 }> => {
   if (system === "ps4") {
     const local = ps4LocalArt(primaryPath);
-    return { title, coverUrl: local.icon, heroUrl: local.pic, tileUrl: local.icon };
+    return {
+      title,
+      coverUrl: local.icon,
+      heroUrl: local.pic,
+      tileUrl: local.icon,
+    };
   }
 
   if (system === "switch") {
@@ -944,9 +977,16 @@ const resolveUnmatchedArt = async (
       title: string;
       coverUrl: string | null;
       heroUrl: string | null;
-    } | null>("/games/switch/search", { title }, { needsAuth: false }).catch(() => null);
+    } | null>("/games/switch/search", { title }, { needsAuth: false }).catch(
+      () => null
+    );
     return found
-      ? { title: found.title, coverUrl: found.coverUrl, heroUrl: found.heroUrl, tileUrl: found.coverUrl }
+      ? {
+          title: found.title,
+          coverUrl: found.coverUrl,
+          heroUrl: found.heroUrl,
+          tileUrl: found.coverUrl,
+        }
       : { title, coverUrl: null, heroUrl: null, tileUrl: null };
   }
 
@@ -954,7 +994,9 @@ const resolveUnmatchedArt = async (
   const libretroFolder = libretroFolderOverride ?? LIBRETRO_FOLDERS[system];
   if (libretroFolder) {
     // Boxes carry spines/labels that look off in the Início square; the title screen doesn't.
-    const tileUrl = await findLibretroTitleScreen(libretroFolder, title).catch(() => null);
+    const tileUrl = await findLibretroTitleScreen(libretroFolder, title).catch(
+      () => null
+    );
     if (serialCover && (await urlResponds(serialCover))) {
       return { title, coverUrl: serialCover, heroUrl: null, tileUrl };
     }
@@ -977,7 +1019,9 @@ const resolveUnmatchedArt = async (
         tileUrl: tileUrl ?? local.icon,
       };
     }
-    const fallback = await findLibretroBoxart(libretroFolder, title).catch(() => null);
+    const fallback = await findLibretroBoxart(libretroFolder, title).catch(
+      () => null
+    );
     return { title, coverUrl: fallback, heroUrl: null, tileUrl };
   }
   return { title, coverUrl: serialCover, heroUrl: null, tileUrl: null };
@@ -1080,12 +1124,19 @@ const persistUnmatchedGames = async (
       ? `rom-sku-${normalizeSku(serial)}`
       : `rom-${createHash("sha1").update(groupKey).digest("hex").slice(0, 16)}`;
     const sourceFileName = group.files[0].name;
-    const dolphin = system === "dolphin" ? await dolphinPlatform(group.files[0].primaryPath) : null;
+    const dolphin =
+      system === "dolphin"
+        ? await dolphinPlatform(group.files[0].primaryPath)
+        : null;
     const art = await resolveUnmatchedArt(
       system,
       serial,
-      (system === "ps3" ? await ps3GameTitle(group.files[0].primaryPath) : null) ??
-        (system === "ps4" ? await ps4GameTitle(group.files[0].primaryPath) : null) ??
+      (system === "ps3"
+        ? await ps3GameTitle(group.files[0].primaryPath)
+        : null) ??
+        (system === "ps4"
+          ? await ps4GameTitle(group.files[0].primaryPath)
+          : null) ??
         cleanRomTitle(sourceFileName),
       group.files[0].primaryPath,
       dolphin?.libretroFolder
@@ -1161,7 +1212,9 @@ const reconcileDeletedGames = async (
       scannedIds !== null &&
       !scannedIds.has(game.objectId) &&
       !(game.playTimeInMilliseconds > 0) &&
-      discs.every((disc) => folders.some((folder) => isWithin(disc.path, folder.path)));
+      discs.every((disc) =>
+        folders.some((folder) => isWithin(disc.path, folder.path))
+      );
     if (stillOnDisk && !orphaned) continue;
 
     game.isDeleted = true;
@@ -1218,11 +1271,17 @@ export async function runLaunchboxImport(
   // background (official build, checked download) while the games are read.
   // BIOS / keys / firmware kept next to the games are found and set up once the emulator exists.
   void autoSetupEmulator(system)
-    .then(() => provisionSystemFiles(system, folders.map((f) => f.path)))
+    .then(() =>
+      provisionSystemFiles(
+        system,
+        folders.map((f) => f.path)
+      )
+    )
     .catch(() => {});
   // Broken .cue files (renamed .bin) would import fine but never boot: fix them first.
   if (system === "ps1" || system === "ps2") {
-    for (const folder of folders) repairCuesInFolder(folder.path, folder.scanSubfolders);
+    for (const folder of folders)
+      repairCuesInFolder(folder.path, folder.scanSubfolders);
   }
 
   // Register the folders up front with empty counts. A cancelled scan returns
@@ -1300,30 +1359,35 @@ export async function runLaunchboxImport(
   }
   const matched = matchedEntries.size;
 
-  const { unmatched, unmatchedFiles, titleByFolder, discsByTitle, unmatchedGroups } =
-    aggregateMatches(
-      enriched,
-      groupCanonical,
-      signal,
-      (processed, total, currentFile, status, runningMatched, sizeBytes) =>
-        onProgress?.({
-          type: "progress",
-          phase: "matching",
+  const {
+    unmatched,
+    unmatchedFiles,
+    titleByFolder,
+    discsByTitle,
+    unmatchedGroups,
+  } = aggregateMatches(
+    enriched,
+    groupCanonical,
+    signal,
+    (processed, total, currentFile, status, runningMatched, sizeBytes) =>
+      onProgress?.({
+        type: "progress",
+        phase: "matching",
+        processed,
+        total,
+        percent: bandPercent(
+          SCAN_BAND + EXTRACT_BAND,
+          100 - (SCAN_BAND + EXTRACT_BAND),
           processed,
-          total,
-          percent: bandPercent(
-            SCAN_BAND + EXTRACT_BAND,
-            100 - (SCAN_BAND + EXTRACT_BAND),
-            processed,
-            total
-          ),
-          currentFile,
-          status,
-          discovered: totalGames,
-          matched: runningMatched,
-          sizeBytes,
-        })
-    );
+          total
+        ),
+        currentFile,
+        status,
+        discovered: totalGames,
+        matched: runningMatched,
+        sizeBytes,
+      })
+  );
 
   const { folderRollup, totalFileCount, totalSizeBytes } = rollupFolders(
     folders,
@@ -1361,7 +1425,11 @@ export async function runLaunchboxImport(
 
   // Add every ROM that matched no catalogue entry to the library under its filename, so bootlegs
   // and mods (which no catalogue has) still show up instead of silently vanishing after a scan.
-  const unmatchedIds = await persistUnmatchedGames(unmatchedGroups, system, signal);
+  const unmatchedIds = await persistUnmatchedGames(
+    unmatchedGroups,
+    system,
+    signal
+  );
   if (signal.cancelled) {
     return cancelledResult(
       totalFileCount,

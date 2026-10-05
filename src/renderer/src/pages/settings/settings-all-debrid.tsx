@@ -91,7 +91,7 @@ export function SettingsAllDebrid() {
           to={ALLDEBRID_URL}
           className="settings-all-debrid__create-account"
         >
-          <Icon name="link-external"  />
+          <Icon name="link-external" />
           {t("create_alldebrid_account")}
         </Link>
       </div>

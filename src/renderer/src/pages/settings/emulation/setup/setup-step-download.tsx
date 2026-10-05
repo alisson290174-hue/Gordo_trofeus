@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from "react";
 import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 
-
 import type {
   EmulatorBinary,
   EmulatorInstallProgress,
@@ -214,9 +213,11 @@ export function SetupStepDownload({ binary }: Readonly<Props>) {
                   <span className="setup-modal__download-card-url">
                     {visitLabel(option)}
                   </span>
-                  <Icon name="link-external"
+                  <Icon
+                    name="link-external"
                     size={14}
-                    className="setup-modal__download-card-ext" />
+                    className="setup-modal__download-card-ext"
+                  />
                 </button>
               )}
             </div>
@@ -255,13 +256,14 @@ export function SetupStepDownload({ binary }: Readonly<Props>) {
               <span className="setup-modal__download-card-url">
                 {firmwarePageUrl(i18n.language)}
               </span>
-              <Icon name="link-external"
+              <Icon
+                name="link-external"
                 size={14}
-                className="setup-modal__download-card-ext" />
+                className="setup-modal__download-card-ext"
+              />
             </span>
           </button>
         )}
-
       </div>
     </>
   );

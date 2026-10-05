@@ -38,7 +38,12 @@ export const prepareEmulatorSouvenirs = async (
 
   // No souvenir hook for these: anything past this point is a RetroArch core, and RetroArch's
   // "--appendconfig" makes Eden/Azahar treat the config path as the game and quit.
-  if (system === "ps2" || system === "ps3" || system === "switch" || system === "3ds") {
+  if (
+    system === "ps2" ||
+    system === "ps3" ||
+    system === "switch" ||
+    system === "3ds"
+  ) {
     return null;
   }
 

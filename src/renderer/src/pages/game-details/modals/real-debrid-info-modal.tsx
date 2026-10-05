@@ -40,7 +40,7 @@ export function RealDebridInfoModal({
             to={REAL_DEBRID_URL}
             className="real-debrid-info-modal__create-account"
           >
-            <Icon name="link-external"  />
+            <Icon name="link-external" />
             {tSettings("create_real_debrid_account")}
           </Link>
         </div>

@@ -2,7 +2,6 @@ import { useTranslation } from "react-i18next";
 import { Icon } from "@renderer/components/icon/icon";
 import cn from "classnames";
 
-
 import { useAppDispatch, useAppSelector } from "@renderer/hooks";
 import { setMode } from "@renderer/features";
 import { ClassicsIcon } from "@renderer/pages/library/category-filter";

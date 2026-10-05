@@ -14,20 +14,19 @@ import fs from "node:fs";
 const collectAssetPathsToDelete = (game: Game): string[] => {
   const assetPathsToDelete: string[] = [];
 
-  const assetUrls =
-    isLocalOnlyShop(game.shop)
-      ? [
-          game.iconUrl,
-          game.logoImageUrl,
-          game.libraryHeroImageUrl,
-          game.customCoverImageUrl,
-        ]
-      : [
-          game.customIconUrl,
-          game.customLogoImageUrl,
-          game.customHeroImageUrl,
-          game.customCoverImageUrl,
-        ];
+  const assetUrls = isLocalOnlyShop(game.shop)
+    ? [
+        game.iconUrl,
+        game.logoImageUrl,
+        game.libraryHeroImageUrl,
+        game.customCoverImageUrl,
+      ]
+    : [
+        game.customIconUrl,
+        game.customLogoImageUrl,
+        game.customHeroImageUrl,
+        game.customCoverImageUrl,
+      ];
 
   for (const url of assetUrls) {
     if (url?.startsWith("local:")) {

@@ -22,7 +22,10 @@ registerEvent("loginToEpic", async (event) => {
   const parent = BrowserWindow.fromWebContents(event.sender);
   const ok = await loginToEpic(parent);
   // Pull the account's games right away so they show up in the library.
-  if (ok) void syncEpicLibrary().catch((error) => logger.error("[epic] sync after login failed", error));
+  if (ok)
+    void syncEpicLibrary().catch((error) =>
+      logger.error("[epic] sync after login failed", error)
+    );
   return { ok, status: await getEpicStatus() };
 });
 
@@ -34,9 +37,17 @@ registerEvent("logoutFromEpic", async () => {
 registerEvent("listEpicGames", () => listEpicGames());
 registerEvent("syncEpicLibrary", () => syncEpicLibrary());
 registerEvent("getEpicInstalls", () => getEpicInstalls());
-registerEvent("getEpicInstallPlan", (_event, appName: string) => getEpicInstallPlan(appName));
-registerEvent("installEpicGame", (_event, appName: string, title: string, folder?: string) =>
-  installEpicGame(appName, title, folder)
+registerEvent("getEpicInstallPlan", (_event, appName: string) =>
+  getEpicInstallPlan(appName)
 );
-registerEvent("cancelEpicInstall", (_event, appName: string) => cancelEpicInstall(appName));
-registerEvent("uninstallEpicGame", (_event, appName: string) => uninstallEpicGame(appName));
+registerEvent(
+  "installEpicGame",
+  (_event, appName: string, title: string, folder?: string) =>
+    installEpicGame(appName, title, folder)
+);
+registerEvent("cancelEpicInstall", (_event, appName: string) =>
+  cancelEpicInstall(appName)
+);
+registerEvent("uninstallEpicGame", (_event, appName: string) =>
+  uninstallEpicGame(appName)
+);

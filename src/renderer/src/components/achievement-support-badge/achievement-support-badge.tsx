@@ -16,7 +16,11 @@ const VISIBLE: Record<
   AchievementSupport,
   { tone: string; icon: string; labelKey: string } | null
 > = {
-  working: { tone: "working", icon: "trophy", labelKey: "achievement_support_working" },
+  working: {
+    tone: "working",
+    icon: "trophy",
+    labelKey: "achievement_support_working",
+  },
   supported: {
     tone: "ready",
     icon: "trophy",

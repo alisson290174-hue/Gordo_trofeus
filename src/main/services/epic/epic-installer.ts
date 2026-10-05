@@ -21,7 +21,10 @@ import { epicExecutablePath, getEpicInstalled } from "./epic-library";
  * (which only handles the one download it started). Progress goes to the renderer as
  * "on-epic-install-progress". Cancelling keeps Legendary's resume data, so installing again resumes.
  */
-const installs = new Map<string, { state: EpicInstallState; child: ChildProcess }>();
+const installs = new Map<
+  string,
+  { state: EpicInstallState; child: ChildProcess }
+>();
 
 const MIB = 1024 * 1024;
 const PROGRESS_RE = /Progress:\s*([\d.]+)%.*?ETA:\s*(\d+):(\d+):(\d+)/;
@@ -62,12 +65,18 @@ async function defaultEpicInstallPath() {
 }
 
 /** Sizes from Epic's manifest (via Legendary) + the suggested folder, for the install dialog. */
-export async function getEpicInstallPlan(appName: string): Promise<EpicInstallPlan> {
+export async function getEpicInstallPlan(
+  appName: string
+): Promise<EpicInstallPlan> {
   if (!isValidAppName(appName)) throw new Error("invalid Epic app name");
   const defaultPath = await defaultEpicInstallPath();
   try {
-    const { stdout } = await runLegendary(["info", appName, "--json"], { timeoutMs: 60_000 });
-    const info = JSON.parse(stdout) as { manifest?: { download_size?: number; disk_size?: number } };
+    const { stdout } = await runLegendary(["info", appName, "--json"], {
+      timeoutMs: 60_000,
+    });
+    const info = JSON.parse(stdout) as {
+      manifest?: { download_size?: number; disk_size?: number };
+    };
     return {
       defaultPath,
       downloadBytes: info.manifest?.download_size ?? null,
@@ -81,7 +90,8 @@ export async function getEpicInstallPlan(appName: string): Promise<EpicInstallPl
 
 /** The chosen folder must be a real, absolute, writable directory (created if missing). */
 function resolveInstallFolder(folder: string) {
-  if (!folder || !path.isAbsolute(folder)) throw new Error("invalid install folder");
+  if (!folder || !path.isAbsolute(folder))
+    throw new Error("invalid install folder");
   const resolved = path.resolve(folder);
   fs.mkdirSync(resolved, { recursive: true });
   fs.accessSync(resolved, fs.constants.W_OK);
@@ -99,9 +109,13 @@ export async function installEpicGame(
   // Integrity check + private config happen inside runLegendary; a cheap call triggers both.
   await runLegendary(["--version"], { timeoutMs: 20_000 });
 
-  const basePath = folder ? resolveInstallFolder(folder) : await defaultEpicInstallPath();
+  const basePath = folder
+    ? resolveInstallFolder(folder)
+    : await defaultEpicInstallPath();
   if (folder) {
-    await db.put(EPIC_INSTALL_PATH_KEY, basePath, { valueEncoding: "utf8" }).catch(() => {});
+    await db
+      .put(EPIC_INSTALL_PATH_KEY, basePath, { valueEncoding: "utf8" })
+      .catch(() => {});
   }
   openEpicSession();
   const child = spawn(
@@ -144,7 +158,10 @@ export async function installEpicGame(
       if (progress) {
         state.status = "downloading";
         state.percent = Number(progress[1]);
-        state.etaSeconds = Number(progress[2]) * 3600 + Number(progress[3]) * 60 + Number(progress[4]);
+        state.etaSeconds =
+          Number(progress[2]) * 3600 +
+          Number(progress[3]) * 60 +
+          Number(progress[4]);
       }
       const downloaded = line.match(DOWNLOADED_RE);
       if (downloaded) state.downloadedBytes = Number(downloaded[1]) * MIB;
@@ -182,7 +199,8 @@ export async function installEpicGame(
       ).catch(() => {});
     } else {
       state.status = "error";
-      state.error = buffer.trim().split("\n").pop() || `legendary exited with ${code}`;
+      state.error =
+        buffer.trim().split("\n").pop() || `legendary exited with ${code}`;
       logger.error(`[epic] install of ${appName} failed (${code})`);
     }
     emit(state);
@@ -195,7 +213,12 @@ export function cancelEpicInstall(appName: string) {
   if (!entry?.child.pid) return;
   entry.state.status = "cancelled";
   // Kill the whole tree (the PyInstaller binary spawns a child process).
-  execFile("taskkill", ["/PID", String(entry.child.pid), "/T", "/F"], { windowsHide: true }, () => {});
+  execFile(
+    "taskkill",
+    ["/PID", String(entry.child.pid), "/T", "/F"],
+    { windowsHide: true },
+    () => {}
+  );
 }
 
 export async function uninstallEpicGame(appName: string) {
@@ -203,7 +226,12 @@ export async function uninstallEpicGame(appName: string) {
   await runLegendary(["uninstall", appName, "-y"], { timeoutMs: 600_000 });
   const key = levelKeys.game("epic", appName);
   const game = await gamesSublevel.get(key).catch(() => null);
-  if (game) await gamesSublevel.put(key, { ...game, executablePath: null, installedSizeInBytes: null });
+  if (game)
+    await gamesSublevel.put(key, {
+      ...game,
+      executablePath: null,
+      installedSizeInBytes: null,
+    });
   WindowManager.sendToAppWindows("on-library-batch-complete");
 }
 

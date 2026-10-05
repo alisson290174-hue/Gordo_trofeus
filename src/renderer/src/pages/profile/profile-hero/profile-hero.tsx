@@ -1,4 +1,11 @@
-import { useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { Icon } from "@renderer/components/icon/icon";
 import { userProfileContext } from "@renderer/context";
 import { buildGameDetailsPath } from "@renderer/helpers";
@@ -15,8 +22,7 @@ import { UploadBackgroundImageButton } from "../upload-background-image-button/u
 import "./profile-hero.scss";
 
 type FriendAction =
-  | FriendRequestAction
-  | ("BLOCK" | "UNDO_FRIENDSHIP" | "SEND");
+  FriendRequestAction | ("BLOCK" | "UNDO_FRIENDSHIP" | "SEND");
 
 interface MenuItem {
   key: string;
@@ -58,7 +64,8 @@ export function ProfileHero() {
   useEffect(() => {
     if (!isMenuOpen) return;
     const close = (event: MouseEvent) => {
-      if (!menuRef.current?.contains(event.target as Node)) setIsMenuOpen(false);
+      if (!menuRef.current?.contains(event.target as Node))
+        setIsMenuOpen(false);
     };
     document.addEventListener("mousedown", close);
     return () => document.removeEventListener("mousedown", close);
@@ -144,7 +151,11 @@ export function ProfileHero() {
   const currentGame = useMemo(() => {
     if (isMe) {
       return gameRunning
-        ? { title: gameRunning.title, objectId: gameRunning.objectId, shop: gameRunning.shop }
+        ? {
+            title: gameRunning.title,
+            objectId: gameRunning.objectId,
+            shop: gameRunning.shop,
+          }
         : null;
     }
     return userProfile?.currentGame ?? null;
@@ -160,22 +171,44 @@ export function ProfileHero() {
 
     if (isMe) {
       buttons.push(
-        <button key="edit" type="button" className="pf-hero__pill" onClick={() => setShowEditProfileModal(true)} disabled={isPerformingAction}>
+        <button
+          key="edit"
+          type="button"
+          className="pf-hero__pill"
+          onClick={() => setShowEditProfileModal(true)}
+          disabled={isPerformingAction}
+        >
           <Icon name="pencil" size={16} />
           {t("edit_profile")}
         </button>,
-        <button key="code" type="button" className="pf-hero__pill" onClick={copyFriendCode}>
+        <button
+          key="code"
+          type="button"
+          className="pf-hero__pill"
+          onClick={copyFriendCode}
+        >
           <Icon name={isCopied ? "check" : "copy"} size={16} />
           {isCopied ? t("copied") : t("dashboard:friend_code")}
         </button>
       );
-      menu.push({ key: "signout", label: t("sign_out"), icon: "sign-out", danger: true, onSelect: handleSignOut });
+      menu.push({
+        key: "signout",
+        label: t("sign_out"),
+        icon: "sign-out",
+        danger: true,
+        onSelect: handleSignOut,
+      });
       return { buttons, menu };
     }
 
     if (userDetails) {
       buttons.push(
-        <button key="compare" type="button" className="pf-hero__pill pf-hero__pill--primary" onClick={() => navigate(`/profile/${userProfile.id}/compare`)}>
+        <button
+          key="compare"
+          type="button"
+          className="pf-hero__pill pf-hero__pill--primary"
+          onClick={() => navigate(`/profile/${userProfile.id}/compare`)}
+        >
           <Icon name="trophy" size={17} />
           {t("dashboard:compare_trophies")}
         </button>
@@ -184,7 +217,13 @@ export function ProfileHero() {
 
     if (relation == null) {
       buttons.push(
-        <button key="add" type="button" className="pf-hero__pill" onClick={() => handleFriendAction(userProfile.id, "SEND")} disabled={isPerformingAction}>
+        <button
+          key="add"
+          type="button"
+          className="pf-hero__pill"
+          onClick={() => handleFriendAction(userProfile.id, "SEND")}
+          disabled={isPerformingAction}
+        >
           <Icon name="person-add" size={16} />
           {t("add_friend")}
         </button>
@@ -196,30 +235,73 @@ export function ProfileHero() {
           {t("dashboard:friends_label")}
         </span>
       );
-      menu.push({ key: "undo", label: t("undo_friendship"), icon: "x-circle", danger: true, onSelect: () => handleFriendAction(userProfile.id, "UNDO_FRIENDSHIP") });
+      menu.push({
+        key: "undo",
+        label: t("undo_friendship"),
+        icon: "x-circle",
+        danger: true,
+        onSelect: () => handleFriendAction(userProfile.id, "UNDO_FRIENDSHIP"),
+      });
     } else if (relation.BId === userProfile.id) {
       buttons.push(
-        <button key="cancel" type="button" className="pf-hero__pill" onClick={() => handleFriendAction(relation.BId, "CANCEL")} disabled={isPerformingAction}>
+        <button
+          key="cancel"
+          type="button"
+          className="pf-hero__pill"
+          onClick={() => handleFriendAction(relation.BId, "CANCEL")}
+          disabled={isPerformingAction}
+        >
           <Icon name="x-circle-fill" size={16} />
           {t("cancel_request")}
         </button>
       );
     } else {
       buttons.push(
-        <button key="accept" type="button" className="pf-hero__pill" onClick={() => handleFriendAction(relation.AId, "ACCEPTED")} disabled={isPerformingAction}>
+        <button
+          key="accept"
+          type="button"
+          className="pf-hero__pill"
+          onClick={() => handleFriendAction(relation.AId, "ACCEPTED")}
+          disabled={isPerformingAction}
+        >
           <Icon name="check-circle-fill" size={16} />
           {t("accept_request")}
         </button>,
-        <button key="ignore" type="button" className="pf-hero__pill" onClick={() => handleFriendAction(relation.AId, "REFUSED")} disabled={isPerformingAction}>
+        <button
+          key="ignore"
+          type="button"
+          className="pf-hero__pill"
+          onClick={() => handleFriendAction(relation.AId, "REFUSED")}
+          disabled={isPerformingAction}
+        >
           <Icon name="x-circle-fill" size={16} />
           {t("ignore_request")}
         </button>
       );
     }
 
-    menu.push({ key: "block", label: t("block_user"), icon: "blocked", danger: true, onSelect: () => handleFriendAction(userProfile.id, "BLOCK") });
+    menu.push({
+      key: "block",
+      label: t("block_user"),
+      icon: "blocked",
+      danger: true,
+      onSelect: () => handleFriendAction(userProfile.id, "BLOCK"),
+    });
     return { buttons, menu };
-  }, [userProfile, isMe, isPerformingAction, t, copyFriendCode, isCopied, handleSignOut, userDetails, navigate, relation, isFriend, handleFriendAction]);
+  }, [
+    userProfile,
+    isMe,
+    isPerformingAction,
+    t,
+    copyFriendCode,
+    isCopied,
+    handleSignOut,
+    userDetails,
+    navigate,
+    relation,
+    isFriend,
+    handleFriendAction,
+  ]);
 
   const eyebrow = isMe
     ? t("dashboard:your_profile")
@@ -228,10 +310,15 @@ export function ProfileHero() {
       : t("dashboard:player");
 
   const metaItems = [
-    userStats ? t("dashboard:games_count", { count: userStats.libraryCount }) : null,
+    userStats
+      ? t("dashboard:games_count", { count: userStats.libraryCount })
+      : null,
     userStats?.totalPlayTimeInSeconds?.value
       ? t("dashboard:played_hours", {
-          hours: formatHours(userStats.totalPlayTimeInSeconds.value * 1000, i18n.language),
+          hours: formatHours(
+            userStats.totalPlayTimeInSeconds.value * 1000,
+            i18n.language
+          ),
         })
       : null,
     userProfile ? t("dashboard:karma_n", { count: userProfile.karma }) : null,
@@ -241,7 +328,10 @@ export function ProfileHero() {
 
   return (
     <>
-      <EditProfileModal visible={showEditProfileModal} onClose={() => setShowEditProfileModal(false)} />
+      <EditProfileModal
+        visible={showEditProfileModal}
+        onClose={() => setShowEditProfileModal(false)}
+      />
 
       <FullscreenMediaModal
         visible={showFullscreenAvatar}
@@ -269,9 +359,16 @@ export function ProfileHero() {
         {isMe && <UploadBackgroundImageButton />}
 
         <div className="pf-hero__identity">
-          <button type="button" className="pf-hero__avatar" onClick={handleAvatarClick}>
+          <button
+            type="button"
+            className="pf-hero__avatar"
+            onClick={handleAvatarClick}
+          >
             {userProfile?.profileImageUrl ? (
-              <img src={userProfile.profileImageUrl} alt={userProfile.displayName} />
+              <img
+                src={userProfile.profileImageUrl}
+                alt={userProfile.displayName}
+              />
             ) : (
               <span>{initial}</span>
             )}
@@ -290,7 +387,9 @@ export function ProfileHero() {
                 <span className="pf-hero__playing">
                   <span className="pf-hero__playing-dot" />
                   {t("dashboard:playing")}{" "}
-                  <Link to={buildGameDetailsPath({ ...currentGame })}>{currentGame.title}</Link>
+                  <Link to={buildGameDetailsPath({ ...currentGame })}>
+                    {currentGame.title}
+                  </Link>
                 </span>
               )}
               {metaItems.map((item) => (

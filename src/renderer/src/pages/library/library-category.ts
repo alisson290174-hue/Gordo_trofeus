@@ -14,7 +14,9 @@ export type LibraryCategory =
 
 export const CONSOLE_CATEGORY_PREFIX = "console:";
 
-export const isConsoleCategory = (category: string): category is `console:${string}` =>
+export const isConsoleCategory = (
+  category: string
+): category is `console:${string}` =>
   category.startsWith(CONSOLE_CATEGORY_PREFIX);
 
 /** Filters shown on the library page, in order. */
@@ -70,7 +72,8 @@ export const filterLibraryGamesByCategory = <T extends LibraryCategoryGame>(
   if (isConsoleCategory(category)) {
     const tone = category.slice(CONSOLE_CATEGORY_PREFIX.length);
     return games.filter(
-      (game) => game.shop === "launchbox" && getPlatformBadge(game).tone === tone
+      (game) =>
+        game.shop === "launchbox" && getPlatformBadge(game).tone === tone
     );
   }
 

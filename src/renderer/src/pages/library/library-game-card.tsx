@@ -242,9 +242,11 @@ export const LibraryGameCard = memo(function LibraryGameCard({
           {!hideBadges && (
             <div className="library-game-card__playtime">
               {game.hasManuallyUpdatedPlaytime ? (
-                <Icon name="alert-fill"
+                <Icon
+                  name="alert-fill"
                   size={11}
-                  className="library-game-card__manual-playtime" />
+                  className="library-game-card__manual-playtime"
+                />
               ) : (
                 <Icon name="hourglass" size={11} />
               )}
@@ -284,9 +286,11 @@ export const LibraryGameCard = memo(function LibraryGameCard({
                       className="library-game-card__installed-emulator-icon"
                     />
                   ) : (
-                    <Icon name="check-circle-fill"
+                    <Icon
+                      name="check-circle-fill"
                       size={11}
-                      className="library-game-card__installed-icon" />
+                      className="library-game-card__installed-icon"
+                    />
                   )}
                   <span className="library-game-card__installed-text">
                     {t("installed")}

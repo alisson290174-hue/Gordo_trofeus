@@ -23,7 +23,9 @@ export const isSafeExternalUrl = (raw: string): boolean => {
 
 export async function openExternalSafe(raw: string): Promise<void> {
   if (typeof raw !== "string" || !isSafeExternalUrl(raw)) {
-    logger.warn(`[open-external] blocked non-allowed URL scheme: ${String(raw).slice(0, 40)}`);
+    logger.warn(
+      `[open-external] blocked non-allowed URL scheme: ${String(raw).slice(0, 40)}`
+    );
     return;
   }
   await shell.openExternal(raw);

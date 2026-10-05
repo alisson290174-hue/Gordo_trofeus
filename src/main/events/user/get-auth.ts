@@ -5,7 +5,10 @@ import { readAuth } from "@main/services/auth-store";
 const getAuth = async (_event: Electron.IpcMainInvokeEvent) => {
   const auth = await readAuth();
   return auth
-    ? { isLoggedIn: true, tokenExpirationTimestamp: auth.tokenExpirationTimestamp }
+    ? {
+        isLoggedIn: true,
+        tokenExpirationTimestamp: auth.tokenExpirationTimestamp,
+      }
     : null;
 };
 

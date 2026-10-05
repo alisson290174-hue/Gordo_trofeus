@@ -160,14 +160,30 @@ export const KNOWN_BINARIES: Record<EmulatorSystem, KnownBinary> = {
     binary: "azahar",
     displayName: "Azahar",
     linuxNames: ["azahar", "citra-qt", "lime3ds-gui"],
-    windowsNames: ["azahar.exe", "citra-qt.exe", "lime3ds-gui.exe", "lime3ds.exe"],
+    windowsNames: [
+      "azahar.exe",
+      "citra-qt.exe",
+      "lime3ds-gui.exe",
+      "lime3ds.exe",
+    ],
     macosBundleNames: ["Azahar.app"],
     flatpakIds: ["org.azahar_emu.Azahar"],
     // The Qt GUI opens its window even for --version, so the version isn't probed.
     versionFlags: [],
     // .cia install into the emulated SD card on first launch; the z* variants are Azahar's
     // compressed dumps.
-    romExtensions: [".3ds", ".cci", ".cxi", ".3dsx", ".app", ".cia", ".zcci", ".zcia", ".z3dsx", ".zcxi"],
+    romExtensions: [
+      ".3ds",
+      ".cci",
+      ".cxi",
+      ".3dsx",
+      ".app",
+      ".cia",
+      ".zcci",
+      ".zcia",
+      ".z3dsx",
+      ".zcxi",
+    ],
     romDirectoryMarkers: [],
   },
 };

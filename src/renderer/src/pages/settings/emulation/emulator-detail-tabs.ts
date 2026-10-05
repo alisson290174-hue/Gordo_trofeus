@@ -1,11 +1,7 @@
 import type { EmulatorSystem } from "@types";
 
 export type EmulatorTab =
-  | "emulator"
-  | "rom-folders"
-  | "memory-cards"
-  | "saves"
-  | "library";
+  "emulator" | "rom-folders" | "memory-cards" | "saves" | "library";
 
 const EMULATOR_TABS: EmulatorTab[] = [
   "emulator",

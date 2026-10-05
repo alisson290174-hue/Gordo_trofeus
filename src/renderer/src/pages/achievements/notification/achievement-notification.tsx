@@ -41,7 +41,10 @@ const getTierFallbackIconUrl = (
   globalUnlockPercent: number | null | undefined
 ) =>
   TIER_FALLBACK_ICON_URLS[
-    getAchievementTier({ isPlatinum, globalUnlockPercent: globalUnlockPercent ?? null })
+    getAchievementTier({
+      isPlatinum,
+      globalUnlockPercent: globalUnlockPercent ?? null,
+    })
   ];
 
 type NotificationPhase = "idle" | "prepared" | "playing" | "closing";

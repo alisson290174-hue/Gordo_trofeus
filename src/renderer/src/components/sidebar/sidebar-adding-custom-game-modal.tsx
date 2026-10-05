@@ -3,7 +3,6 @@ import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
-
 import { Modal, TextField, Button } from "@renderer/components";
 import { useLibrary, useToast } from "@renderer/hooks";
 import { buildGameDetailsPath } from "@renderer/helpers";
@@ -149,7 +148,7 @@ export function SidebarAddingCustomGameModal({
                 onClick={handleSelectExecutable}
                 disabled={isAdding}
               >
-                <Icon name="file-directory"  />
+                <Icon name="file-directory" />
                 {t("custom_game_modal_browse")}
               </Button>
             }

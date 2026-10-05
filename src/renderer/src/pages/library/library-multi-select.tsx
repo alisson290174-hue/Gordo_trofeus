@@ -68,9 +68,11 @@ export function LibraryMultiSelect({
           <span className="library-multi-select__trigger-label">
             {triggerLabel}
           </span>
-          <Icon name="chevron-down"
+          <Icon
+            name="chevron-down"
             size={LIBRARY_DROPDOWN_CHEVRON_SIZE}
-            className="library-multi-select__chevron" />
+            className="library-multi-select__chevron"
+          />
         </button>
       </DropdownMenuPrimitive.Trigger>
 

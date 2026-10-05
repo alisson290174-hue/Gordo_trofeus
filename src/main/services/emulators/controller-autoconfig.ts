@@ -65,8 +65,13 @@ export const detectXInputPad = async (): Promise<XInputPad | null> => {
 
 // ---- DuckStation / PCSX2 (SDL pad index 0) ------------------------------------------------------
 
-const writeIfChanged = (filePath: string, transform: (content: string) => string): boolean => {
-  const content = fs.existsSync(filePath) ? fs.readFileSync(filePath, "utf8") : "";
+const writeIfChanged = (
+  filePath: string,
+  transform: (content: string) => string
+): boolean => {
+  const content = fs.existsSync(filePath)
+    ? fs.readFileSync(filePath, "utf8")
+    : "";
   const next = transform(content);
   if (next === content) return false;
   fs.mkdirSync(path.dirname(filePath), { recursive: true });
@@ -75,12 +80,16 @@ const writeIfChanged = (filePath: string, transform: (content: string) => string
 };
 
 // An Xbox-class pad goes on XInput-0 (stable index); anything else on the first SDL device.
-const padBinder = (xinput: boolean) => (xinput ? applyXInputPadBindings : applySdlPadBindings);
+const padBinder = (xinput: boolean) =>
+  xinput ? applyXInputPadBindings : applySdlPadBindings;
 
 const configureDuckStation = (xinput: boolean) => {
   const configPath =
-    findExistingConfig(duckstationConfigCandidates()) ?? duckstationConfigCandidates()[0];
-  return writeIfChanged(configPath, (content) => padBinder(xinput)(content, DUCKSTATION_PAD));
+    findExistingConfig(duckstationConfigCandidates()) ??
+    duckstationConfigCandidates()[0];
+  return writeIfChanged(configPath, (content) =>
+    padBinder(xinput)(content, DUCKSTATION_PAD)
+  );
 };
 
 const configurePcsx2 = (executablePath: string, xinput: boolean) => {
@@ -88,13 +97,21 @@ const configurePcsx2 = (executablePath: string, xinput: boolean) => {
   const configPath = findExistingConfig(candidates);
   // PCSX2 writes its full ini on first run; before that there's nothing to merge into.
   if (!configPath) return false;
-  return writeIfChanged(configPath, (content) => padBinder(xinput)(content, PCSX2_PAD));
+  return writeIfChanged(configPath, (content) =>
+    padBinder(xinput)(content, PCSX2_PAD)
+  );
 };
 
 // ---- RPCS3 (XInput handler, pad #1) --------------------------------------------------------------
 
 const configureRpcs3 = (executablePath: string) => {
-  const file = path.join(path.dirname(executablePath), "config", "input_configs", "global", "Default.yml");
+  const file = path.join(
+    path.dirname(executablePath),
+    "config",
+    "input_configs",
+    "global",
+    "Default.yml"
+  );
   const content = fs.existsSync(file) ? fs.readFileSync(file, "utf8") : null;
   if (!shouldWriteRpcs3Input(content)) return false;
   fs.mkdirSync(path.dirname(file), { recursive: true });
@@ -113,7 +130,9 @@ const configureDolphin = (executablePath: string) => {
     ["WiimoteNew.ini", DOLPHIN_WIIMOTE],
   ] as const) {
     const target = path.join(userDir, "Config", file);
-    const content = fs.existsSync(target) ? fs.readFileSync(target, "utf8") : null;
+    const content = fs.existsSync(target)
+      ? fs.readFileSync(target, "utf8")
+      : null;
     if (!shouldWriteDolphinPad(content)) continue;
     fs.mkdirSync(path.dirname(target), { recursive: true });
     fs.writeFileSync(target, body, "utf8");
@@ -125,34 +144,62 @@ const configureDolphin = (executablePath: string) => {
 // ---- Azahar / Eden (Qt ini, SDL bindings pinned to the pad GUID) --------------------------------
 
 /** Azahar/Eden data folder: a "user" folder next to the executable (portable) or %APPDATA%. */
-export const qtEmulatorDataDir = (executablePath: string, appDataName: string) => {
+export const qtEmulatorDataDir = (
+  executablePath: string,
+  appDataName: string
+) => {
   const portable = path.join(path.dirname(executablePath), "user");
   return fs.existsSync(portable)
     ? portable
-    : path.join(process.env.APPDATA ?? path.join(os.homedir(), "AppData", "Roaming"), appDataName);
+    : path.join(
+        process.env.APPDATA ?? path.join(os.homedir(), "AppData", "Roaming"),
+        appDataName
+      );
 };
 
 const qtEmulatorConfig = (executablePath: string, appDataName: string) =>
-  path.join(qtEmulatorDataDir(executablePath, appDataName), "config", "qt-config.ini");
+  path.join(
+    qtEmulatorDataDir(executablePath, appDataName),
+    "config",
+    "qt-config.ini"
+  );
 
 const configureAzahar = (executablePath: string, pad: XInputPad) => {
   const azahar = azaharBindings(pad.guid);
   const bindings = Object.fromEntries(
     Object.entries(azahar).map(([key, value]) => [`profiles\\1\\${key}`, value])
   );
-  return writeIfChanged(qtEmulatorConfig(executablePath, "Azahar"), (content) => {
-    const next = applyQtPadBindings(content, "Controls", "profiles\\1\\button_a", bindings);
-    if (next === content) return content;
-    // A fresh Azahar config has no profile array yet; declare the one profile we filled in.
-    return /^profiles\\size=/m.test(next)
-      ? next
-      : setQtIniValue(setQtIniValue(next, "Controls", "profiles\\size", "1"), "Controls", "profile", "0");
-  });
+  return writeIfChanged(
+    qtEmulatorConfig(executablePath, "Azahar"),
+    (content) => {
+      const next = applyQtPadBindings(
+        content,
+        "Controls",
+        "profiles\\1\\button_a",
+        bindings
+      );
+      if (next === content) return content;
+      // A fresh Azahar config has no profile array yet; declare the one profile we filled in.
+      return /^profiles\\size=/m.test(next)
+        ? next
+        : setQtIniValue(
+            setQtIniValue(next, "Controls", "profiles\\size", "1"),
+            "Controls",
+            "profile",
+            "0"
+          );
+    }
+  );
 };
 
 const configureEden = (executablePath: string, pad: XInputPad) =>
   writeIfChanged(qtEmulatorConfig(executablePath, "eden"), (content) =>
-    applyQtPadBindings(content, "Controls", "player_0_button_a", edenBindings(pad.guid))
+    applyQtPadBindings(
+      content,
+      "Controls",
+      "player_0_button_a",
+      edenBindings(pad.guid)
+    )
   );
 
 // ---- Entry point ----------------------------------------------------------------------------------
@@ -171,7 +218,10 @@ export const configureControllerForEmulator = async (
       case "ps1":
         return configureDuckStation((await detectXInputPad()) !== null);
       case "ps2":
-        return configurePcsx2(executablePath, (await detectXInputPad()) !== null);
+        return configurePcsx2(
+          executablePath,
+          (await detectXInputPad()) !== null
+        );
       case "ps3":
         return configureRpcs3(executablePath);
       case "dolphin":

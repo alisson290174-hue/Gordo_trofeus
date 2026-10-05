@@ -71,7 +71,6 @@ export function App() {
 
   const { clearDownload, setLastPacket, lastPacket } = useDownload();
 
-
   const { fetchUserDetails, updateUserDetails, clearUserDetails } =
     useUserDetails();
 
@@ -101,7 +100,9 @@ export function App() {
   useEffect(
     () =>
       window.electron.onEmulatorsUpdated((updated) =>
-        showSuccessToast(t("emulators_updated", { ns: "settings", list: updated.join(", ") }))
+        showSuccessToast(
+          t("emulators_updated", { ns: "settings", list: updated.join(", ") })
+        )
       ),
     [showSuccessToast, t]
   );

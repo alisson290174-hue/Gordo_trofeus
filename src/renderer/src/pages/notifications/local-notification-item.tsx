@@ -99,7 +99,11 @@ export function LocalNotificationItem({
         {cover ? (
           <Img src={cover} fallback={GameIconPlaceholder} alt="" />
         ) : notification.pictureUrl ? (
-          <Img src={notification.pictureUrl} fallback={GameIconPlaceholder} alt="" />
+          <Img
+            src={notification.pictureUrl}
+            fallback={GameIconPlaceholder}
+            alt=""
+          />
         ) : (
           getIcon()
         )}
@@ -107,9 +111,7 @@ export function LocalNotificationItem({
 
       <div className="notification-item__content">
         <span className="notification-item__title">{notification.title}</span>
-        <span className="notification-item__description">
-          {description}
-        </span>
+        <span className="notification-item__description">{description}</span>
         <span className="notification-item__time">
           <Icon name="hourglass" size={12} />
           {formatDistance(new Date(notification.createdAt), new Date())}

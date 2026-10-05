@@ -14,27 +14,41 @@ interface EncryptedAuth {
 }
 
 const isEncrypted = (value: unknown): value is EncryptedAuth =>
-  Boolean(value) && (value as EncryptedAuth).v === 2 && typeof (value as EncryptedAuth).enc === "string";
+  Boolean(value) &&
+  (value as EncryptedAuth).v === 2 &&
+  typeof (value as EncryptedAuth).enc === "string";
 
 export async function writeAuth(auth: Auth): Promise<void> {
   if (!safeStorage.isEncryptionAvailable()) {
-    logger.warn("[auth-store] OS encryption unavailable; storing session unencrypted");
+    logger.warn(
+      "[auth-store] OS encryption unavailable; storing session unencrypted"
+    );
     await db.put<string, Auth>(levelKeys.auth, auth, { valueEncoding: "json" });
     return;
   }
-  const enc = safeStorage.encryptString(JSON.stringify(auth)).toString("base64");
-  await db.put<string, EncryptedAuth>(levelKeys.auth, { v: 2, enc }, { valueEncoding: "json" });
+  const enc = safeStorage
+    .encryptString(JSON.stringify(auth))
+    .toString("base64");
+  await db.put<string, EncryptedAuth>(
+    levelKeys.auth,
+    { v: 2, enc },
+    { valueEncoding: "json" }
+  );
 }
 
 export async function readAuth(): Promise<Auth | null> {
   const stored = await db
-    .get<string, Auth | EncryptedAuth>(levelKeys.auth, { valueEncoding: "json" })
+    .get<string, Auth | EncryptedAuth>(levelKeys.auth, {
+      valueEncoding: "json",
+    })
     .catch(() => null);
   if (!stored) return null;
 
   if (isEncrypted(stored)) {
     try {
-      return JSON.parse(safeStorage.decryptString(Buffer.from(stored.enc, "base64"))) as Auth;
+      return JSON.parse(
+        safeStorage.decryptString(Buffer.from(stored.enc, "base64"))
+      ) as Auth;
     } catch (error) {
       // Different Windows user / machine: the session can't be used here — sign in again.
       logger.error("[auth-store] could not decrypt stored session", error);
@@ -44,6 +58,7 @@ export async function readAuth(): Promise<Auth | null> {
 
   // Legacy plain record: migrate in place.
   const legacy = stored as Auth;
-  if (legacy.accessToken || legacy.refreshToken) await writeAuth(legacy).catch(() => {});
+  if (legacy.accessToken || legacy.refreshToken)
+    await writeAuth(legacy).catch(() => {});
   return legacy;
 }

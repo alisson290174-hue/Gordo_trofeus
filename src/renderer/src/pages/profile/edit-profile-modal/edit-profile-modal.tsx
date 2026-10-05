@@ -3,7 +3,6 @@ import { Icon } from "@renderer/components/icon/icon";
 import { Controller, useForm } from "react-hook-form";
 import { Trans, useTranslation } from "react-i18next";
 
-
 import {
   Avatar,
   Button,

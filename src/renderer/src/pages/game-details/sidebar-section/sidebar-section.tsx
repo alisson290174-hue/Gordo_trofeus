@@ -1,4 +1,3 @@
-
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@renderer/components/icon/icon";
 import "./sidebar-section.scss";
@@ -39,10 +38,12 @@ export function SidebarSection({
         />
 
         <span className="sidebar-section__button">
-          <Icon name="chevron-down"
+          <Icon
+            name="chevron-down"
             className={`sidebar-section__chevron ${
               isOpen ? "sidebar-section__chevron--open" : ""
-            }`} />
+            }`}
+          />
           <span>{title}</span>
         </span>
 

@@ -24,7 +24,11 @@ function KarmaLevelRing({ karma }: Readonly<{ karma: number }>) {
 
   return (
     <span className="user-stats__karma-ring">
-      <img src={KarmaLevelRingBg} alt="" className="user-stats__karma-ring__bg" />
+      <img
+        src={KarmaLevelRingBg}
+        alt=""
+        className="user-stats__karma-ring__bg"
+      />
       <svg viewBox="0 0 40 40" className="user-stats__karma-ring__progress">
         <circle
           cx="20"
@@ -83,7 +87,7 @@ export function UserStatsBox() {
             {userStats.unlockedAchievementSum !== undefined ? (
               <div className="user-stats__stats-row">
                 <p className="user-stats__list-description">
-                  <Icon name="trophy"  /> {userStats.unlockedAchievementSum}{" "}
+                  <Icon name="trophy" /> {userStats.unlockedAchievementSum}{" "}
                   {t("achievements")}
                 </p>
               </div>
@@ -101,27 +105,30 @@ export function UserStatsBox() {
           </li>
         )}
 
-        {userStats.platinumCount !== undefined && userStats.platinumCount > 0 && (
-          <li className="user-stats__list-item">
-            <h3 className="user-stats__list-title">{t("platinums_earned")}</h3>
-            <div className="user-stats__stats-row">
-              <p className="user-stats__list-description">
-                <img
-                  src={TierBadgePlatinum}
-                  alt=""
-                  className="user-stats__platinum-icon"
-                />{" "}
-                {userStats.platinumCount} {t("platinums")}
-              </p>
-            </div>
-          </li>
-        )}
+        {userStats.platinumCount !== undefined &&
+          userStats.platinumCount > 0 && (
+            <li className="user-stats__list-item">
+              <h3 className="user-stats__list-title">
+                {t("platinums_earned")}
+              </h3>
+              <div className="user-stats__stats-row">
+                <p className="user-stats__list-description">
+                  <img
+                    src={TierBadgePlatinum}
+                    alt=""
+                    className="user-stats__platinum-icon"
+                  />{" "}
+                  {userStats.platinumCount} {t("platinums")}
+                </p>
+              </div>
+            </li>
+          )}
 
         <li className="user-stats__list-item">
           <h3 className="user-stats__list-title">{t("total_play_time")}</h3>
           <div className="user-stats__stats-row">
             <p className="user-stats__list-description">
-              <Icon name="hourglass"  />
+              <Icon name="hourglass" />
               {formatPlayTime(userStats.totalPlayTimeInSeconds.value)}
             </p>
             <p title={t("ranking_updated_weekly")}>

@@ -1,7 +1,13 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { isSafeModFile, matchModPack, matchModPackByTitle, pickSwitchModFolders, titleIdOfPack } from "./switch-mods-rules";
+import {
+  isSafeModFile,
+  matchModPack,
+  matchModPackByTitle,
+  pickSwitchModFolders,
+  titleIdOfPack,
+} from "./switch-mods-rules";
 
 test("keeps one 60 FPS variant plus detail/resolution fixes, drops look-changing mods", () => {
   const picked = pickSwitchModFolders([
@@ -32,23 +38,43 @@ test("only patch and data files are copied", () => {
 });
 
 test("finds the pack by title id, tolerating the last digits", () => {
-  const files = ["Luigis Mansion 3 [0100DCA0064A6800][mods].zip", "Kirby Star Allies [01007e3006dda000][mods].zip"];
+  const files = [
+    "Luigis Mansion 3 [0100DCA0064A6800][mods].zip",
+    "Kirby Star Allies [01007e3006dda000][mods].zip",
+  ];
   assert.equal(matchModPack(files, "01007E3006DDA000"), files[1]);
   assert.equal(matchModPack(files, "0100DCA0064A6000"), files[0]);
   assert.equal(matchModPack(files, "0100000000010000"), null);
 });
 
 test("other frame rates and duplicate detail mods stay out", () => {
-  assert.deepEqual(pickSwitchModFolders(["[360FPS v2.1.0]", "[90FPS v13]", "[Level of Detail v13.0.4]"]), ["[Level of Detail v13.0.4]"]);
   assert.deepEqual(
-    pickSwitchModFolders(["[60FPS All Areas v4.0.0]", "[Improved Level of Detail v4.0.0]", "[Maximum Level of Detail v4.0.0]"]),
+    pickSwitchModFolders([
+      "[360FPS v2.1.0]",
+      "[90FPS v13]",
+      "[Level of Detail v13.0.4]",
+    ]),
+    ["[Level of Detail v13.0.4]"]
+  );
+  assert.deepEqual(
+    pickSwitchModFolders([
+      "[60FPS All Areas v4.0.0]",
+      "[Improved Level of Detail v4.0.0]",
+      "[Maximum Level of Detail v4.0.0]",
+    ]),
     ["[60FPS All Areas v4.0.0]", "[Improved Level of Detail v4.0.0]"]
   );
 });
 
 test("finds a pack by game title when the file has no title id", () => {
-  const files = ["Super Smash Bros Ultimate [01006A800016E000][mods].zip", "Pokemon Legends Arceus [01001F5010DFA000][mods].zip"];
-  assert.equal(matchModPackByTitle(files, "Super Smash Bros. Ultimate"), files[0]);
+  const files = [
+    "Super Smash Bros Ultimate [01006A800016E000][mods].zip",
+    "Pokemon Legends Arceus [01001F5010DFA000][mods].zip",
+  ];
+  assert.equal(
+    matchModPackByTitle(files, "Super Smash Bros. Ultimate"),
+    files[0]
+  );
   assert.equal(matchModPackByTitle(files, "Pokémon Legends: Arceus"), files[1]);
   assert.equal(titleIdOfPack(files[1]), "01001F5010DFA000");
 });

@@ -138,9 +138,11 @@ export function HeroPanelPlaytime() {
         }
       >
         {game.hasManuallyUpdatedPlaytime && (
-          <Icon name="alert-fill"
+          <Icon
+            name="alert-fill"
             size={16}
-            className="hero-panel-playtime__manual-warning" />
+            className="hero-panel-playtime__manual-warning"
+          />
         )}
         {t("play_time", {
           amount: formattedPlayTime,

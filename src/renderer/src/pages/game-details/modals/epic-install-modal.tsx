@@ -18,7 +18,12 @@ export interface EpicInstallModalProps {
  * folder (last one used by default) and the free space there — the install button stays off when
  * the game doesn't fit.
  */
-export function EpicInstallModal({ visible, appName, title, onClose }: EpicInstallModalProps) {
+export function EpicInstallModal({
+  visible,
+  appName,
+  title,
+  onClose,
+}: EpicInstallModalProps) {
   const { t } = useTranslation("game_details");
   const [plan, setPlan] = useState<EpicInstallPlan | null>(null);
   const [folder, setFolder] = useState("");
@@ -40,7 +45,10 @@ export function EpicInstallModal({ visible, appName, title, onClose }: EpicInsta
   useEffect(() => {
     if (!folder) return;
     setDisk(null);
-    void window.electron.getDiskFreeSpace(folder).then(setDisk).catch(() => setDisk(null));
+    void window.electron
+      .getDiskFreeSpace(folder)
+      .then(setDisk)
+      .catch(() => setDisk(null));
   }, [folder]);
 
   const chooseFolder = async () => {
@@ -67,20 +75,38 @@ export function EpicInstallModal({ visible, appName, title, onClose }: EpicInsta
   };
 
   return (
-    <Modal visible={visible} title={t("epic_install_title", { title })} onClose={onClose}>
+    <Modal
+      visible={visible}
+      title={t("epic_install_title", { title })}
+      onClose={onClose}
+    >
       <div className="epic-install-modal">
         <dl className="epic-install-modal__sizes">
           <div>
             <dt>{t("epic_install_download_size")}</dt>
-            <dd>{plan ? (plan.downloadBytes != null ? formatBytes(plan.downloadBytes) : "—") : "…"}</dd>
+            <dd>
+              {plan
+                ? plan.downloadBytes != null
+                  ? formatBytes(plan.downloadBytes)
+                  : "—"
+                : "…"}
+            </dd>
           </div>
           <div>
             <dt>{t("epic_install_disk_size")}</dt>
-            <dd>{plan ? (plan.installBytes != null ? formatBytes(plan.installBytes) : "—") : "…"}</dd>
+            <dd>
+              {plan
+                ? plan.installBytes != null
+                  ? formatBytes(plan.installBytes)
+                  : "—"
+                : "…"}
+            </dd>
           </div>
           <div>
             <dt>{t("epic_install_free_space")}</dt>
-            <dd className={notEnoughSpace ? "epic-install-modal__low" : undefined}>
+            <dd
+              className={notEnoughSpace ? "epic-install-modal__low" : undefined}
+            >
               {disk ? formatBytes(disk.free) : "…"}
             </dd>
           </div>
@@ -93,18 +119,27 @@ export function EpicInstallModal({ visible, appName, title, onClose }: EpicInsta
           label={t("epic_install_folder")}
           error={notEnoughSpace ? t("epic_install_not_enough_space") : error}
           rightContent={
-            <Button theme="outline" onClick={chooseFolder} disabled={starting || !plan}>
+            <Button
+              theme="outline"
+              onClick={chooseFolder}
+              disabled={starting || !plan}
+            >
               {t("change")}
             </Button>
           }
         />
-        <p className="epic-install-modal__hint">{t("epic_install_folder_hint")}</p>
+        <p className="epic-install-modal__hint">
+          {t("epic_install_folder_hint")}
+        </p>
 
         <div className="epic-install-modal__actions">
           <Button theme="outline" onClick={onClose} disabled={starting}>
             {t("cancel")}
           </Button>
-          <Button onClick={install} disabled={!plan || !folder || starting || notEnoughSpace}>
+          <Button
+            onClick={install}
+            disabled={!plan || !folder || starting || notEnoughSpace}
+          >
             {t("install")}
           </Button>
         </div>

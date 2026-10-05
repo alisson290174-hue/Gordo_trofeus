@@ -15,7 +15,12 @@ import { syncSteamOwnedAchievements } from "./steam-owned-achievements";
  */
 interface OwnedGamesResponse {
   visible: boolean;
-  games: { appId: string; title: string; playtimeMinutes: number; lastPlayedAt: number | null }[];
+  games: {
+    appId: string;
+    title: string;
+    playtimeMinutes: number;
+    lastPlayedAt: number | null;
+  }[];
 }
 
 export interface SteamOwnedSyncResult {
@@ -30,14 +35,20 @@ let syncing: Promise<SteamOwnedSyncResult> | null = null;
 
 export function syncSteamOwnedLibrary(): Promise<SteamOwnedSyncResult> {
   syncing ??= (async () => {
-    const data = await HydraApi.get<OwnedGamesResponse>("/profile/steam/owned-games");
+    const data = await HydraApi.get<OwnedGamesResponse>(
+      "/profile/steam/owned-games"
+    );
     if (!data.visible) {
-      logger.info("[steam-owned] game details are private on the Steam profile");
+      logger.info(
+        "[steam-owned] game details are private on the Steam profile"
+      );
       return { visible: false, total: 0, installed: 0 };
     }
 
     const games = data.games.filter((game) => isAppId(game.appId));
-    const installDirs = await getSteamAppInstallDirectories(games.map((game) => game.appId));
+    const installDirs = await getSteamAppInstallDirectories(
+      games.map((game) => game.appId)
+    );
     const owned = new Set<string>();
 
     for (const steamGame of games) {
@@ -69,12 +80,22 @@ export function syncSteamOwnedLibrary(): Promise<SteamOwnedSyncResult> {
 
     // No longer on the account → back to a plain catalogue entry (kept if it had its own copy).
     for (const [key, game] of await gamesSublevel.iterator().all()) {
-      if (game?.shop === "steam" && game.hasActiveSteamImport && !owned.has(key)) {
-        await gamesSublevel.put(key, { ...game, hasActiveSteamImport: false, steamInstalled: false });
+      if (
+        game?.shop === "steam" &&
+        game.hasActiveSteamImport &&
+        !owned.has(key)
+      ) {
+        await gamesSublevel.put(key, {
+          ...game,
+          hasActiveSteamImport: false,
+          steamInstalled: false,
+        });
       }
     }
 
-    logger.info(`[steam-owned] synced ${games.length} game(s), ${installDirs.size} installed via Steam`);
+    logger.info(
+      `[steam-owned] synced ${games.length} game(s), ${installDirs.size} installed via Steam`
+    );
     WindowManager.sendToAppWindows("on-library-batch-complete");
     // Trophies for the games played on Steam — in the background, the library is ready already.
     void syncSteamOwnedAchievements(games).catch((error) =>
@@ -93,9 +114,13 @@ export function syncSteamOwnedLibrary(): Promise<SteamOwnedSyncResult> {
  * (only games whose "last played" changed are asked again; the server caches the list 10 min).
  */
 export async function refreshSteamOwnedAchievements() {
-  const data = await HydraApi.get<OwnedGamesResponse>("/profile/steam/owned-games");
+  const data = await HydraApi.get<OwnedGamesResponse>(
+    "/profile/steam/owned-games"
+  );
   if (!data.visible) return 0;
-  return syncSteamOwnedAchievements(data.games.filter((game) => isAppId(game.appId)));
+  return syncSteamOwnedAchievements(
+    data.games.filter((game) => isAppId(game.appId))
+  );
 }
 
 /** Opens Steam's own install dialog for the game. */

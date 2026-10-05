@@ -15,7 +15,10 @@ const titles = (q: string) => filterGamesBySearch(games, q).map((g) => g.title);
 
 describe("filterGamesBySearch", () => {
   it("prefers titles containing the words", () => {
-    assert.deepEqual(titles("mario"), ["Mario Kart 8 Deluxe", "Super Mario Galaxy"]);
+    assert.deepEqual(titles("mario"), [
+      "Mario Kart 8 Deluxe",
+      "Super Mario Galaxy",
+    ]);
     assert.deepEqual(titles("super galaxy"), ["Super Mario Galaxy"]);
   });
 

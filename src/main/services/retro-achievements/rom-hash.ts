@@ -23,7 +23,9 @@ export const RA_CONSOLE = {
 export type RaConsoleKey = keyof typeof RA_CONSOLE;
 
 /** Opus's platform name → RetroAchievements console. */
-export const raConsoleForPlatform = (platform: string | null | undefined): RaConsoleKey | null => {
+export const raConsoleForPlatform = (
+  platform: string | null | undefined
+): RaConsoleKey | null => {
   const p = (platform ?? "").toLowerCase();
   if (/playstation\s*2|\bps2\b/.test(p)) return "ps2";
   if (/playstation\s*(3|4|portable)|\bps[34]\b|\bpsp\b/.test(p)) return null;
@@ -46,31 +48,46 @@ export const toBigEndianN64 = (rom: Buffer): Buffer => {
   const out = Buffer.from(rom);
   if (magic === 0x37804012) {
     // .v64: 16-bit byte-swapped
-    for (let i = 0; i + 1 < out.length; i += 2) [out[i], out[i + 1]] = [out[i + 1], out[i]];
+    for (let i = 0; i + 1 < out.length; i += 2)
+      [out[i], out[i + 1]] = [out[i + 1], out[i]];
   } else if (magic === 0x40123780) {
     // .n64: 32-bit little-endian
     for (let i = 0; i + 3 < out.length; i += 4) {
-      [out[i], out[i + 1], out[i + 2], out[i + 3]] = [out[i + 3], out[i + 2], out[i + 1], out[i]];
+      [out[i], out[i + 1], out[i + 2], out[i + 3]] = [
+        out[i + 3],
+        out[i + 2],
+        out[i + 1],
+        out[i],
+      ];
     }
   }
   return out;
 };
 
 /** Pure: the bytes RetroAchievements hashes for a cartridge ROM. */
-export const cartridgeHashBytes = (console: RaConsoleKey, rom: Buffer): Buffer => {
+export const cartridgeHashBytes = (
+  console: RaConsoleKey,
+  rom: Buffer
+): Buffer => {
   if (console === "snes" && rom.length % 8192 === 512) return rom.subarray(512); // copier header
-  if (console === "nes" && rom.subarray(0, 4).toString("latin1") === "NES\x1a") return rom.subarray(16);
+  if (console === "nes" && rom.subarray(0, 4).toString("latin1") === "NES\x1a")
+    return rom.subarray(16);
   if (console === "n64") return toBigEndianN64(rom);
   return rom;
 };
 
 /** RetroAchievements hash of a game file, or null when it can't be read (zip, chd, unknown). */
-export const computeRaHash = async (console: RaConsoleKey, filePath: string): Promise<string | null> => {
+export const computeRaHash = async (
+  console: RaConsoleKey,
+  filePath: string
+): Promise<string | null> => {
   if (console === "ps2") return computePs2DiscHash(filePath);
   if (console === "ps1") return computePs1DiscHash(filePath);
   if (/\.(zip|7z|rar|chd)$/i.test(path.extname(filePath))) return null;
   const stat = await fs.stat(filePath);
   if (stat.size === 0 || stat.size > MAX_ROM_BYTES) return null;
   const rom = await fs.readFile(filePath);
-  return createHash("md5").update(cartridgeHashBytes(console, rom)).digest("hex");
+  return createHash("md5")
+    .update(cartridgeHashBytes(console, rom))
+    .digest("hex");
 };

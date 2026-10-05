@@ -8,7 +8,12 @@ export type BigPictureRunningGame = Pick<
   Partial<
     Pick<
       GameRunning,
-      "title" | "objectId" | "shop" | "coverImageUrl" | "iconUrl" | "customIconUrl"
+      | "title"
+      | "objectId"
+      | "shop"
+      | "coverImageUrl"
+      | "iconUrl"
+      | "customIconUrl"
     >
   >;
 

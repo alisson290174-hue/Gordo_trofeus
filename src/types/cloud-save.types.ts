@@ -34,9 +34,7 @@ export interface CloudSaveCustomPath {
 }
 
 export type CloudSaveUnresolvedCustomPathState =
-  | "recoverable"
-  | "needs-confirmation"
-  | "invalid";
+  "recoverable" | "needs-confirmation" | "invalid";
 
 export type CloudSaveUnresolvedCustomPathReason =
   | "environment-unavailable"
@@ -63,8 +61,10 @@ export interface CloudSaveCustomPathBindings {
   unresolved: CloudSaveUnresolvedCustomPath[];
 }
 
-export interface CheckCloudSaveCustomPathOverlapInput
-  extends Omit<CloudSavePathContext, "storeUserContext"> {
+export interface CheckCloudSaveCustomPathOverlapInput extends Omit<
+  CloudSavePathContext,
+  "storeUserContext"
+> {
   rules: CloudSaveRule[];
   selectedPath: string;
   remoteRelativePaths: string[];
@@ -150,10 +150,7 @@ export interface KnownStoreAccount {
   steamId64?: string;
   accountId32?: string;
   source:
-    | "active-login"
-    | "known-login"
-    | "userdata-folder"
-    | "remote-snapshot";
+    "active-login" | "known-login" | "userdata-folder" | "remote-snapshot";
 }
 
 export interface StoreUserContext {
@@ -212,8 +209,7 @@ export interface UserLocationCoverage {
   warningCodes: string[];
 }
 
-export interface BuildLocalGameSnapshotPipelineInput
-  extends CloudSavePathContext {
+export interface BuildLocalGameSnapshotPipelineInput extends CloudSavePathContext {
   title?: string;
   remoteId?: string;
   userDataPath: string;
@@ -333,10 +329,7 @@ export interface CloudSaveAutomaticSyncModeChangedEvent {
 }
 
 export type CloudSaveV2FileComparisonStatus =
-  | "unchanged"
-  | "modified"
-  | "local-only"
-  | "remote-only";
+  "unchanged" | "modified" | "local-only" | "remote-only";
 
 interface CloudSaveV2FileBase extends CloudSaveFileIdentity {
   sizeBytes: number;
@@ -366,8 +359,7 @@ export interface CloudSaveV2LocalFileSource extends CloudSaveV2FileSourceBase {
   files: CloudSaveV2LocalFile[];
 }
 
-export interface CloudSaveV2ActiveSnapshotFileSource
-  extends CloudSaveV2FileSourceBase {
+export interface CloudSaveV2ActiveSnapshotFileSource extends CloudSaveV2FileSourceBase {
   kind: "active-snapshot";
   snapshotId: string;
   version: number;
@@ -376,8 +368,7 @@ export interface CloudSaveV2ActiveSnapshotFileSource
 }
 
 export type CloudSaveV2FileSource =
-  | CloudSaveV2LocalFileSource
-  | CloudSaveV2ActiveSnapshotFileSource;
+  CloudSaveV2LocalFileSource | CloudSaveV2ActiveSnapshotFileSource;
 
 export interface CloudSaveV2FileComparison extends CloudSaveFileIdentity {
   status: CloudSaveV2FileComparisonStatus;
@@ -412,11 +403,7 @@ export type CloudSaveSyncTrigger =
   | "post-exit";
 
 export type CloudSaveSyncAction =
-  | "none"
-  | "upload"
-  | "restore"
-  | "merge"
-  | "conflict";
+  "none" | "upload" | "restore" | "merge" | "conflict";
 
 export type CloudSaveConflictResolution = "keep-local" | "keep-remote";
 
@@ -465,11 +452,7 @@ export type CloudSaveAutomaticSyncEvent =
     };
 
 export type CloudSaveSyncProgressStage =
-  | "analyzing"
-  | "uploading"
-  | "restoring"
-  | "completed"
-  | "conflict";
+  "analyzing" | "uploading" | "restoring" | "completed" | "conflict";
 
 export interface CloudSaveSyncProgressPayload {
   gameId: CloudSaveGameId;
@@ -478,13 +461,14 @@ export interface CloudSaveSyncProgressPayload {
   totalFiles: number;
 }
 
-export interface CloudSaveSyncIpcProgressPayload
-  extends CloudSaveSyncProgressPayload {
+export interface CloudSaveSyncIpcProgressPayload extends CloudSaveSyncProgressPayload {
   operationId: string;
 }
 
-export interface ResolveRestoreTargetsInput
-  extends Omit<CloudSavePathContext, "storeUserContext"> {
+export interface ResolveRestoreTargetsInput extends Omit<
+  CloudSavePathContext,
+  "storeUserContext"
+> {
   approvedRules: Array<
     Pick<
       CloudSaveRule,
@@ -539,8 +523,7 @@ export interface VerifyDownloadedRestoreFileInput {
 }
 
 export type VerifyDownloadedRestoreFileResult =
-  | { ok: true }
-  | { ok: false; reason: "hash_mismatch" };
+  { ok: true } | { ok: false; reason: "hash_mismatch" };
 
 export interface ShouldSkipRestoreFileInput {
   localPath: string;
@@ -662,20 +645,17 @@ export interface LocalGameSnapshotSourceFile extends CloudSaveFileIdentity {
   provenance: string[];
 }
 
-export interface LocalGameSnapshotPipelineResult
-  extends LocalGameSnapshotWithHash {
+export interface LocalGameSnapshotPipelineResult extends LocalGameSnapshotWithHash {
   sourceFiles: LocalGameSnapshotSourceFile[];
 }
 
-export interface LocalGameSnapshotContext
-  extends LocalGameSnapshotPipelineResult {
+export interface LocalGameSnapshotContext extends LocalGameSnapshotPipelineResult {
   environmentId: string;
   pathContext: CloudSavePathContext;
   customPathRawPaths: string[];
 }
 
-export interface NativeLocalGameSnapshotPipelineResult
-  extends LocalGameSnapshotPipelineResult {
+export interface NativeLocalGameSnapshotPipelineResult extends LocalGameSnapshotPipelineResult {
   hashCache: LocalFileHashCacheEntry[];
 }
 

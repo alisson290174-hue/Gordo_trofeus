@@ -3,7 +3,6 @@ import { Icon } from "@renderer/components/icon/icon";
 import type { TFunction } from "i18next";
 import { useTranslation } from "react-i18next";
 
-
 export interface InstallProgressLike {
   phase: string;
   loaded?: number;
@@ -100,9 +99,11 @@ export function ExternalLinkCard({
       </div>
       <span className="setup-modal__download-card-footer">
         <span className="setup-modal__download-card-url">{url}</span>
-        <Icon name="link-external"
+        <Icon
+          name="link-external"
           size={14}
-          className="setup-modal__download-card-ext" />
+          className="setup-modal__download-card-ext"
+        />
       </span>
     </button>
   );

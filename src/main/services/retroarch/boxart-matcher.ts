@@ -18,7 +18,8 @@ export const compactTitle = (title: string): string =>
 
 const BAD_TAGS = /\((?:beta|proto|demo|sample|kiosk|pirate|unl|hack)[^)]*\)/i;
 
-const RERELEASE = /\((?:[^)]*\b(?:virtual console|switch online|classic mini|collection|aftermarket)\b[^)]*)\)/i;
+const RERELEASE =
+  /\((?:[^)]*\b(?:virtual console|switch online|classic mini|collection|aftermarket)\b[^)]*)\)/i;
 
 // Lower is better: the release a Brazilian player most likely recognises.
 const regionRank = (name: string): number => {
@@ -43,9 +44,14 @@ const TRANSLATED_TITLES: Record<string, string> = {
   supermundomario: "Super Mario World",
 };
 
-export function pickBoxart(title: string, names: readonly string[]): string | null {
+export function pickBoxart(
+  title: string,
+  names: readonly string[]
+): string | null {
   const own = compactTitle(title);
-  const wanted = TRANSLATED_TITLES[own] ? compactTitle(TRANSLATED_TITLES[own]) : own;
+  const wanted = TRANSLATED_TITLES[own]
+    ? compactTitle(TRANSLATED_TITLES[own])
+    : own;
   if (wanted.length < 3) return null;
 
   let best: { name: string; score: number; rank: number } | null = null;
@@ -67,7 +73,9 @@ export function pickBoxart(title: string, names: readonly string[]): string | nu
       !best ||
       score > best.score ||
       (score === best.score && rank < best.rank) ||
-      (score === best.score && rank === best.rank && name.length < best.name.length)
+      (score === best.score &&
+        rank === best.rank &&
+        name.length < best.name.length)
     ) {
       best = { name, score, rank };
     }

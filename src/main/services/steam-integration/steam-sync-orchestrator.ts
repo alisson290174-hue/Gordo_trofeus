@@ -379,8 +379,7 @@ class SteamSyncOrchestrator {
     }
 
     let achievements:
-      | SteamSnapshotPayload["games"][number]["achievements"]
-      | undefined;
+      SteamSnapshotPayload["games"][number]["achievements"] | undefined;
     try {
       const communitySession = await readSteamCommunitySession();
       if (communitySession.hasLoginCookie) {

@@ -43,9 +43,7 @@ export type SteamPreservedSnapshotStatus = SteamIntegrationAccount & {
 };
 
 export type SteamIntegrationStatus =
-  | SteamDisconnectedStatus
-  | SteamConnectedStatus
-  | SteamPreservedSnapshotStatus;
+  SteamDisconnectedStatus | SteamConnectedStatus | SteamPreservedSnapshotStatus;
 
 export interface SteamSourceLibraryGame {
   steamAppId: string;
@@ -90,10 +88,7 @@ export interface SteamGameSyncPayload {
 export type SteamSyncOrigin = "manual" | "startup";
 
 export type SteamSyncPhase =
-  | "starting"
-  | "library"
-  | "achievements"
-  | "publishing";
+  "starting" | "library" | "achievements" | "publishing";
 
 export type SteamSyncState =
   | { status: "idle"; requiresReconnect?: boolean }

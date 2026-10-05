@@ -103,7 +103,10 @@ const findSteamSettingsFiles = async (steamSettingsDirectories: string[]) => {
       );
 
       if (await isFile(flatFilePath)) {
-        achievementFiles.push({ type: Cracker.goldberg, filePath: flatFilePath });
+        achievementFiles.push({
+          type: Cracker.goldberg,
+          filePath: flatFilePath,
+        });
       }
 
       const entries = await readDirectorySafe(steamSettingsDirectory);

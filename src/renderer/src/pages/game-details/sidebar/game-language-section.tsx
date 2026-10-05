@@ -52,15 +52,25 @@ export function GameLanguageSection() {
                 {lang.language}
               </div>
               <div className="game-language-section__cell game-language-section__cell--center">
-                <Icon name="check" size={14} className="game-language-section__check" />
+                <Icon
+                  name="check"
+                  size={14}
+                  className="game-language-section__check"
+                />
               </div>
               <div className="game-language-section__cell game-language-section__cell--center">
                 {lang.hasAudio ? (
-                  <Icon name="check"
+                  <Icon
+                    name="check"
                     size={14}
-                    className="game-language-section__check" />
+                    className="game-language-section__check"
+                  />
                 ) : (
-                  <Icon name="x" size={14} className="game-language-section__cross" />
+                  <Icon
+                    name="x"
+                    size={14}
+                    className="game-language-section__cross"
+                  />
                 )}
               </div>
             </div>

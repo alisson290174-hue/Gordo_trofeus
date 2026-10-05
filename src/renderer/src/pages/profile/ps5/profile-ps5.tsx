@@ -137,14 +137,21 @@ export const buildActivity = (
     const path = buildGameDetailsPath(game);
     const platinumAt = toUnlockDate(game.platinumAt);
     if (platinumAt) {
-      items.push({ key: `plat-${game.shop}-${game.objectId}`, kind: "platinum", title: resolveTitle(game.shop, game.objectId, game.title) ?? game.title, date: platinumAt, path });
+      items.push({
+        key: `plat-${game.shop}-${game.objectId}`,
+        kind: "platinum",
+        title: resolveTitle(game.shop, game.objectId, game.title) ?? game.title,
+        date: platinumAt,
+        path,
+      });
     } else {
       const last = toUnlockDate(game.lastUnlockAt);
       if (last) {
         items.push({
           key: `tr-${game.shop}-${game.objectId}`,
           kind: "trophies",
-          title: resolveTitle(game.shop, game.objectId, game.title) ?? game.title,
+          title:
+            resolveTitle(game.shop, game.objectId, game.title) ?? game.title,
           detail: `${game.unlockedAchievementCount}/${game.achievementCount}`,
           date: last,
           path,
@@ -165,7 +172,11 @@ export const buildActivity = (
   }
 
   for (const souvenir of souvenirs) {
-    const title = resolveTitle(souvenir.shop, souvenir.objectId, souvenir.gameTitle);
+    const title = resolveTitle(
+      souvenir.shop,
+      souvenir.objectId,
+      souvenir.gameTitle
+    );
     if (!souvenir.capturedAt || !title) continue;
     items.push({
       key: `sv-${souvenir.id}`,
@@ -266,7 +277,8 @@ export function ProfileOverview({
   const emptySlots = Math.max(0, 2 - secondary.length);
 
   const activity = useMemo(
-    () => buildActivity(summary, recentGames, souvenirs, resolveTitle).slice(0, 5),
+    () =>
+      buildActivity(summary, recentGames, souvenirs, resolveTitle).slice(0, 5),
     [summary, recentGames, souvenirs, resolveTitle]
   );
 
@@ -387,9 +399,16 @@ export function ProfileOverview({
               </span>
               <span className="pf-shots__caption">
                 {[
-                  resolveTitle(souvenir.shop, souvenir.objectId, souvenir.gameTitle),
+                  resolveTitle(
+                    souvenir.shop,
+                    souvenir.objectId,
+                    souvenir.gameTitle
+                  ),
                   souvenir.capturedAt
-                    ? formatShortDate(toUnlockDate(souvenir.capturedAt), i18n.language)
+                    ? formatShortDate(
+                        toUnlockDate(souvenir.capturedAt),
+                        i18n.language
+                      )
                     : null,
                 ]
                   .filter(Boolean)

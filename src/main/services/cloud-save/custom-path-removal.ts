@@ -12,9 +12,7 @@ export interface CloudSaveCustomPathRemovalProposal {
 }
 
 export type CloudSaveCustomPathRemoteRemovalResult =
-  | "unchanged"
-  | "snapshot-updated"
-  | "snapshot-deleted";
+  "unchanged" | "snapshot-updated" | "snapshot-deleted";
 
 export const executeCloudSaveCustomPathRemoteRemoval = async ({
   proposal,

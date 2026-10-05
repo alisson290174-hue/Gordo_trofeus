@@ -1,4 +1,3 @@
-
 import { MoreVertical } from "lucide-react";
 import { Icon } from "@renderer/components/icon/icon";
 import { Button, ConfirmationModal } from "@renderer/components";
@@ -159,7 +158,7 @@ export function UploadBackgroundImageButton() {
           className="upload-background-image-button"
           onClick={() => showHydraCloudModal("customization")}
         >
-          <Icon name="upload"  />
+          <Icon name="upload" />
           {t("upload_banner")}
         </Button>
       </div>
@@ -192,7 +191,7 @@ export function UploadBackgroundImageButton() {
             onClick={handleReplaceBanner}
             disabled={isUploadingBackgroundImage}
           >
-            <Icon name="upload"  />
+            <Icon name="upload" />
             {isUploadingBackgroundImage
               ? t("uploading_banner")
               : t("upload_banner")}

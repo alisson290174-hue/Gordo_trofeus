@@ -41,8 +41,12 @@ export function EpicInstallsSection({
                   : install.status === "downloading"
                     ? [
                         `${percent}%`,
-                        install.totalBytes ? formatBytes(install.totalBytes) : null,
-                        install.speedBytes ? `${formatBytes(install.speedBytes)}/s` : null,
+                        install.totalBytes
+                          ? formatBytes(install.totalBytes)
+                          : null,
+                        install.speedBytes
+                          ? `${formatBytes(install.speedBytes)}/s`
+                          : null,
                       ]
                         .filter(Boolean)
                         .join(" · ")
@@ -53,7 +57,9 @@ export function EpicInstallsSection({
               <button
                 type="button"
                 className="epic-installs__cancel"
-                onClick={() => window.electron.cancelEpicInstall(install.appName)}
+                onClick={() =>
+                  window.electron.cancelEpicInstall(install.appName)
+                }
                 title={t("epic_cancel_install")}
               >
                 <Icon name="x" size={16} />

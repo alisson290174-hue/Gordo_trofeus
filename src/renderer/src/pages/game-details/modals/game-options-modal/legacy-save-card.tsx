@@ -78,7 +78,7 @@ export function LegacySaveCard({
             </>
           ) : (
             <>
-              <Icon name="download"  />
+              <Icon name="download" />
               {t("download")}
             </>
           )}
@@ -92,7 +92,7 @@ export function LegacySaveCard({
           disabled={actionsDisabled}
           onClick={() => onDelete(artifact.id, artifactName)}
         >
-          <Icon name="trash"  />
+          <Icon name="trash" />
         </Button>
       </div>
     </li>

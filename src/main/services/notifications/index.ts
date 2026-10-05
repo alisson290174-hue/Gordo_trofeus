@@ -190,7 +190,10 @@ export const publishNotificationUpdateReadyToInstall = async (
       const { response } = await dialog.showMessageBox({
         type: "question",
         buttons: [
-          t("restart_now", { ns: "notifications", defaultValue: "Restart now" }),
+          t("restart_now", {
+            ns: "notifications",
+            defaultValue: "Restart now",
+          }),
           t("cancel", { ns: "notifications", defaultValue: "Cancel" }),
         ],
         defaultId: 0,

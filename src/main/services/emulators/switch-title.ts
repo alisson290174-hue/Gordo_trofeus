@@ -11,7 +11,8 @@ export type SwitchContentKind = "base" | "update" | "dlc";
 const TITLE_ID_RE = /\b(01[0-9A-F]{14})\b/i;
 
 export const titleIdFromName = (fileName: string): string | null =>
-  TITLE_ID_RE.exec(fileName.replace(/[[\]()]/g, " "))?.[1].toUpperCase() ?? null;
+  TITLE_ID_RE.exec(fileName.replace(/[[\]()]/g, " "))?.[1].toUpperCase() ??
+  null;
 
 export const contentKindOfTitleId = (titleId: string): SwitchContentKind => {
   const id = titleId.toUpperCase();
@@ -36,7 +37,9 @@ export const contentKindFromName = (fileName: string): SwitchContentKind => {
  * Title ID of an NSP whose name doesn't carry one. NSPs are PFS0 archives with a plaintext file
  * table; the ticket is named after its rights ID, whose first 16 hex digits are the Title ID.
  */
-export const readNspTitleId = async (filePath: string): Promise<string | null> => {
+export const readNspTitleId = async (
+  filePath: string
+): Promise<string | null> => {
   if (path.extname(filePath).toLowerCase() !== ".nsp") return null;
   const handle = await fs.open(filePath, "r");
   try {
@@ -45,7 +48,8 @@ export const readNspTitleId = async (filePath: string): Promise<string | null> =
     if (header.toString("latin1", 0, 4) !== "PFS0") return null;
     const fileCount = header.readUInt32LE(4);
     const stringTableSize = header.readUInt32LE(8);
-    if (fileCount === 0 || fileCount > 4096 || stringTableSize > 1024 * 1024) return null;
+    if (fileCount === 0 || fileCount > 4096 || stringTableSize > 1024 * 1024)
+      return null;
 
     const table = Buffer.alloc(fileCount * 24 + stringTableSize);
     await handle.read(table, 0, table.length, 16);
@@ -53,7 +57,11 @@ export const readNspTitleId = async (filePath: string): Promise<string | null> =
     for (let i = 0; i < fileCount; i++) {
       const nameOffset = table.readUInt32LE(i * 24 + 16);
       const end = strings.indexOf(0, nameOffset);
-      const name = strings.toString("latin1", nameOffset, end === -1 ? undefined : end);
+      const name = strings.toString(
+        "latin1",
+        nameOffset,
+        end === -1 ? undefined : end
+      );
       const match = /^(01[0-9a-f]{14})[0-9a-f]{16}\.tik$/i.exec(name);
       if (match) return match[1].toUpperCase();
     }
@@ -63,5 +71,8 @@ export const readNspTitleId = async (filePath: string): Promise<string | null> =
   }
 };
 
-export const extractSwitchTitleId = async (filePath: string): Promise<string | null> =>
-  titleIdFromName(path.basename(filePath)) ?? (await readNspTitleId(filePath).catch(() => null));
+export const extractSwitchTitleId = async (
+  filePath: string
+): Promise<string | null> =>
+  titleIdFromName(path.basename(filePath)) ??
+  (await readNspTitleId(filePath).catch(() => null));

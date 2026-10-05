@@ -10,7 +10,11 @@ import { SevenZip } from "../7zip";
 import { logger } from "../logger";
 import { sha256File } from "../verified-download";
 import { applyRomPatch, RomPatchError, type PatchError } from "./rom-patcher";
-import { findExecutables, KNOWN_TRANSLATION_PASSWORDS, matchGameByName } from "./translation-rules";
+import {
+  findExecutables,
+  KNOWN_TRANSLATION_PASSWORDS,
+  matchGameByName,
+} from "./translation-rules";
 
 /**
  * Translations that ship as patches (BPS/xdelta) for cartridge and disc games — N64, DS, GBA, SNES,
@@ -26,18 +30,30 @@ export interface PatchableGame {
 
 export type RomTranslationResult =
   | { ok: true; outputPath: string }
-  | { ok: false; reason: PatchError | "no_patch" | "executable_inside" | "unreadable" | "already_translated" };
+  | {
+      ok: false;
+      reason:
+        | PatchError
+        | "no_patch"
+        | "executable_inside"
+        | "unreadable"
+        | "already_translated";
+    };
 
 const PATCH_RE = /\.(bps|xdelta|vcdiff)$/i;
 
 /** "D:\N64\Super Mario 64 (USA).z64" → "D:\N64\Super Mario 64 PT-BR.z64". */
 export const translatedCopyPath = (romPath: string) => {
   const ext = path.extname(romPath);
-  const base = path.basename(romPath, ext).replace(/\s*\([^)]*\)/g, "").trim();
+  const base = path
+    .basename(romPath, ext)
+    .replace(/\s*\([^)]*\)/g, "")
+    .trim();
   return path.join(path.dirname(romPath), `${base} PT-BR${ext}`);
 };
 
-const isTranslatedName = (filePath: string) => /\bPT-?BR\b|\(BR\)|traduzid/i.test(path.basename(filePath));
+const isTranslatedName = (filePath: string) =>
+  /\bPT-?BR\b|\(BR\)|traduzid/i.test(path.basename(filePath));
 
 const listFiles = (dir: string, base = dir): string[] => {
   const out: string[] = [];
@@ -51,8 +67,12 @@ const listFiles = (dir: string, base = dir): string[] => {
 };
 
 /** Applies the patch inside an archive (.rar/.zip/.7z) or a bare patch file to one game. */
-export const applyTranslationArchive = async (game: PatchableGame, sourcePath: string): Promise<RomTranslationResult> => {
-  if (isTranslatedName(game.romPath)) return { ok: false, reason: "already_translated" };
+export const applyTranslationArchive = async (
+  game: PatchableGame,
+  sourcePath: string
+): Promise<RomTranslationResult> => {
+  if (isTranslatedName(game.romPath))
+    return { ok: false, reason: "already_translated" };
   const outputPath = translatedCopyPath(game.romPath);
   const work = path.join(os.tmpdir(), `baloi-patch-${randomUUID()}`);
   try {
@@ -60,35 +80,57 @@ export const applyTranslationArchive = async (game: PatchableGame, sourcePath: s
     if (PATCH_RE.test(sourcePath)) {
       patches = [sourcePath];
     } else {
-      await SevenZip.extractFile({ filePath: sourcePath, outputPath: work, passwords: KNOWN_TRANSLATION_PASSWORDS });
+      await SevenZip.extractFile({
+        filePath: sourcePath,
+        outputPath: work,
+        passwords: KNOWN_TRANSLATION_PASSWORDS,
+      });
       const files = listFiles(work);
       // A patcher .exe/.bat is never run: the patch file next to it is all Opus needs. Only an
       // archive that is nothing but a patcher program can't be used.
-      patches = files.filter((file) => PATCH_RE.test(file)).map((file) => path.join(work, file));
-      if (patches.length === 0 && findExecutables(files).some((file) => !/\.(bat|cmd)$/i.test(file))) {
+      patches = files
+        .filter((file) => PATCH_RE.test(file))
+        .map((file) => path.join(work, file));
+      if (
+        patches.length === 0 &&
+        findExecutables(files).some((file) => !/\.(bat|cmd)$/i.test(file))
+      ) {
         return { ok: false, reason: "executable_inside" };
       }
     }
     if (patches.length === 0) return { ok: false, reason: "no_patch" };
 
     // Several patches (e.g. Ocarina of Time + Master Quest): the one named like the game first.
-    patches.sort((a, b) => Number(Boolean(matchGameByName(path.basename(b), [game]))) - Number(Boolean(matchGameByName(path.basename(a), [game]))));
+    patches.sort(
+      (a, b) =>
+        Number(Boolean(matchGameByName(path.basename(b), [game]))) -
+        Number(Boolean(matchGameByName(path.basename(a), [game])))
+    );
     let lastError: PatchError = "wrong_rom";
     for (const patch of patches) {
       try {
         await applyRomPatch(game.romPath, patch, outputPath);
-        logger.info("[rom-translation] applied", { game: game.title, outputPath });
+        logger.info("[rom-translation] applied", {
+          game: game.title,
+          outputPath,
+        });
         return { ok: true, outputPath };
       } catch (error) {
-        lastError = error instanceof RomPatchError ? error.reason : "corrupt_patch";
+        lastError =
+          error instanceof RomPatchError ? error.reason : "corrupt_patch";
       }
     }
     return { ok: false, reason: lastError };
   } catch (error) {
-    logger.warn("[rom-translation] failed", { game: game.title, error: String(error) });
+    logger.warn("[rom-translation] failed", {
+      game: game.title,
+      error: String(error),
+    });
     return { ok: false, reason: "unreadable" };
   } finally {
-    await fs.promises.rm(work, { recursive: true, force: true }).catch(() => {});
+    await fs.promises
+      .rm(work, { recursive: true, force: true })
+      .catch(() => {});
   }
 };
 
@@ -122,12 +164,26 @@ const listRepo = (repo: string, dir: string) => {
   if (!listing) {
     listing = (async () => {
       const url = `https://huggingface.co/api/models/${OWNER}/${repo}/tree/main${dir ? `/${encodeURIComponent(dir)}` : ""}`;
-      const response = await net.fetch(url, { signal: AbortSignal.timeout(30_000) });
+      const response = await net.fetch(url, {
+        signal: AbortSignal.timeout(30_000),
+      });
       if (!response.ok) return [];
-      const items = (await response.json()) as { path: string; size?: number; lfs?: { oid?: string } }[];
+      const items = (await response.json()) as {
+        path: string;
+        size?: number;
+        lfs?: { oid?: string };
+      }[];
       return items
-        .filter((item) => /\.(rar|zip|7z)$/i.test(item.path) && /^[0-9a-f]{64}$/i.test(item.lfs?.oid ?? ""))
-        .map((item) => ({ path: item.path, size: item.size ?? 0, sha256: (item.lfs?.oid as string).toLowerCase() }));
+        .filter(
+          (item) =>
+            /\.(rar|zip|7z)$/i.test(item.path) &&
+            /^[0-9a-f]{64}$/i.test(item.lfs?.oid ?? "")
+        )
+        .map((item) => ({
+          path: item.path,
+          size: item.size ?? 0,
+          sha256: (item.lfs?.oid as string).toLowerCase(),
+        }));
     })().catch(() => {
       listings.delete(key);
       return [];
@@ -139,10 +195,17 @@ const listRepo = (repo: string, dir: string) => {
 
 const download = async (repo: string, file: RepoFile, target: string) => {
   const url = `https://huggingface.co/${OWNER}/${repo}/resolve/main/${file.path.split("/").map(encodeURIComponent).join("/")}`;
-  const response = await net.fetch(url, { redirect: "follow", signal: AbortSignal.timeout(60 * 60_000) });
-  if (!response.ok || !response.body) throw new Error(`HTTP ${response.status}`);
+  const response = await net.fetch(url, {
+    redirect: "follow",
+    signal: AbortSignal.timeout(60 * 60_000),
+  });
+  if (!response.ok || !response.body)
+    throw new Error(`HTTP ${response.status}`);
   const partial = `${target}.part`;
-  await pipeline(Readable.fromWeb(response.body as never), fs.createWriteStream(partial));
+  await pipeline(
+    Readable.fromWeb(response.body as never),
+    fs.createWriteStream(partial)
+  );
   if ((await sha256File(partial)) !== file.sha256) {
     await fs.promises.rm(partial, { force: true });
     throw new Error("SHA-256 mismatch");
@@ -160,31 +223,57 @@ export type OnlineRomTranslationOutcome =
   | { status: "failed"; reason: string };
 
 /** One game: look up its translation online, download (hash-checked) and apply it. */
-export const findOnlineRomTranslation = async (game: PatchableGame): Promise<OnlineRomTranslationOutcome> => {
-  if (isTranslatedName(game.romPath) || fs.existsSync(translatedCopyPath(game.romPath))) return { status: "already" };
-  const source = REPOS.find((candidate) => candidate.test.test(game.platform ?? ""));
+export const findOnlineRomTranslation = async (
+  game: PatchableGame
+): Promise<OnlineRomTranslationOutcome> => {
+  if (
+    isTranslatedName(game.romPath) ||
+    fs.existsSync(translatedCopyPath(game.romPath))
+  )
+    return { status: "already" };
+  const source = REPOS.find((candidate) =>
+    candidate.test.test(game.platform ?? "")
+  );
   if (!source) return { status: "unsupported" };
   const files = await listRepo(source.repo, source.dir);
-  const file = files.find((candidate) => matchGameByName(path.basename(candidate.path), [game]));
+  const file = files.find((candidate) =>
+    matchGameByName(path.basename(candidate.path), [game])
+  );
   if (!file || file.size > MAX_BYTES) return { status: "not_found" };
-  const target = path.join(app.getPath("userData"), "translations", source.repo, path.basename(file.path));
+  const target = path.join(
+    app.getPath("userData"),
+    "translations",
+    source.repo,
+    path.basename(file.path)
+  );
   try {
     await fs.promises.mkdir(path.dirname(target), { recursive: true });
-    if (!fs.existsSync(target) || (await sha256File(target)) !== file.sha256) await download(source.repo, file, target);
+    if (!fs.existsSync(target) || (await sha256File(target)) !== file.sha256)
+      await download(source.repo, file, target);
     const result = await applyTranslationArchive(game, target);
-    if (result.ok) return { status: "installed", outputPath: result.outputPath };
-    logger.info("[rom-translation] online patch not applied", { game: game.title, reason: result.reason });
+    if (result.ok)
+      return { status: "installed", outputPath: result.outputPath };
+    logger.info("[rom-translation] online patch not applied", {
+      game: game.title,
+      reason: result.reason,
+    });
     return { status: "failed", reason: result.reason };
   } catch (error) {
-    logger.warn("[rom-translation] online download failed", { game: game.title, error: String(error) });
+    logger.warn("[rom-translation] online download failed", {
+      game: game.title,
+      error: String(error),
+    });
     return { status: "failed", reason: String(error) };
   }
 };
 
-export const fetchOnlineRomTranslations = async (games: PatchableGame[]): Promise<number> => {
+export const fetchOnlineRomTranslations = async (
+  games: PatchableGame[]
+): Promise<number> => {
   let created = 0;
   for (const game of games) {
-    if ((await findOnlineRomTranslation(game)).status === "installed") created += 1;
+    if ((await findOnlineRomTranslation(game)).status === "installed")
+      created += 1;
   }
   return created;
 };

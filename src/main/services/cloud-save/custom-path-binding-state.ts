@@ -16,8 +16,10 @@ export interface CloudSaveCustomPathLocalPathMigration {
   storeUserId?: string;
 }
 
-interface LegacyStoredCloudSaveCustomPath
-  extends Omit<StoredCloudSaveCustomPath, "syncState"> {
+interface LegacyStoredCloudSaveCustomPath extends Omit<
+  StoredCloudSaveCustomPath,
+  "syncState"
+> {
   tracking?: "tracked" | "ignored";
   syncState?: StoredCloudSaveCustomPath["syncState"];
 }

@@ -45,10 +45,19 @@ const start = () => {
   if (child || process.platform !== "win32") return;
   // -EncodedCommand (UTF-16LE base64): a multi-line script with a C# here-string survives intact;
   // passed through -Command its line breaks are lost and PowerShell rejects it.
-  const encoded = Buffer.from(POLL_SCRIPT(process.pid), "utf16le").toString("base64");
+  const encoded = Buffer.from(POLL_SCRIPT(process.pid), "utf16le").toString(
+    "base64"
+  );
   child = spawn(
     "powershell.exe",
-    ["-NoProfile", "-NonInteractive", "-ExecutionPolicy", "Bypass", "-EncodedCommand", encoded],
+    [
+      "-NoProfile",
+      "-NonInteractive",
+      "-ExecutionPolicy",
+      "Bypass",
+      "-EncodedCommand",
+      encoded,
+    ],
     { windowsHide: true, stdio: ["ignore", "pipe", "pipe"] }
   );
   child.stdout?.setEncoding("utf8");

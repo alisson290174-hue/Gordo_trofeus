@@ -51,7 +51,12 @@
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    background: radial-gradient(circle at 30% 25%, #ffffff 0%, #cfe6ea 45%, #8fc4cc 100%);
+    background: radial-gradient(
+      circle at 30% 25%,
+      #ffffff 0%,
+      #cfe6ea 45%,
+      #8fc4cc 100%
+    );
     color: #123a42;
     font-size: 10px;
     font-weight: 500;

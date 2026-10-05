@@ -201,9 +201,11 @@ export function MemoryCardScanModal({
 
               {!isDone && currentLabel && (
                 <div className="setup-modal__scan-file">
-                  <Icon name="file-directory"
+                  <Icon
+                    name="file-directory"
                     size={14}
-                    className="setup-modal__scan-file-icon" />
+                    className="setup-modal__scan-file-icon"
+                  />
                   <span className="setup-modal__scan-file-name">
                     {currentLabel}
                   </span>

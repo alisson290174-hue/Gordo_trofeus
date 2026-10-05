@@ -12,12 +12,7 @@ import type { Game, GameLauncherStatus, GameShop, ShopAssets } from "@types";
 import "./game-launcher.scss";
 
 type PreflightStatus =
-  | "idle"
-  | "checking"
-  | "downloading"
-  | "installing"
-  | "complete"
-  | "error";
+  "idle" | "checking" | "downloading" | "installing" | "complete" | "error";
 
 type AchievementsExportStatus = GameLauncherStatus | "idle";
 

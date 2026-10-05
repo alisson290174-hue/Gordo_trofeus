@@ -31,7 +31,9 @@ export function SettingsEpic() {
   const [isBusy, setIsBusy] = useState(false);
 
   const refresh = useCallback(async () => {
-    const next = await window.electron.getEpicStatus().catch(() => DISCONNECTED);
+    const next = await window.electron
+      .getEpicStatus()
+      .catch(() => DISCONNECTED);
     setStatus(next);
     setIsLoading(false);
   }, []);

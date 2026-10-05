@@ -27,7 +27,10 @@ const wrapInLoop = (
               timer = setTimeout(() => resolve(true), maxRunMs);
             }),
           ]).finally(() => clearTimeout(timer));
-          if (timedOut) logger.warn(`[main-loop] ${name} took over ${maxRunMs} ms; moving on`);
+          if (timedOut)
+            logger.warn(
+              `[main-loop] ${name} took over ${maxRunMs} ms; moving on`
+            );
         } else {
           await fn();
         }

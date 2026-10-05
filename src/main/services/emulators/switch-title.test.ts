@@ -13,7 +13,10 @@ import {
 
 /** Minimal PFS0 (NSP) whose file table holds a ticket named after the rights ID. */
 function buildNsp(fileNames: string[]) {
-  const strings = Buffer.from(fileNames.map((n) => `${n}\0`).join(""), "latin1");
+  const strings = Buffer.from(
+    fileNames.map((n) => `${n}\0`).join(""),
+    "latin1"
+  );
   const header = Buffer.alloc(16);
   header.write("PFS0", 0, "latin1");
   header.writeUInt32LE(fileNames.length, 4);
@@ -35,9 +38,18 @@ describe("switch-title", () => {
   after(() => fs.rmSync(dir, { recursive: true, force: true }));
 
   it("reads Title IDs from dump names", () => {
-    assert.equal(titleIdFromName("Pokemon Violet [01008F6008C5E000][v0].nsp"), "01008F6008C5E000");
-    assert.equal(titleIdFromName("Mario Kart 8 Deluxe (0100152000022000)(v0).nsp"), "0100152000022000");
-    assert.equal(titleIdFromName("Kirby Star Allies [01007e3006dda000][v0].nsp"), "01007E3006DDA000");
+    assert.equal(
+      titleIdFromName("Pokemon Violet [01008F6008C5E000][v0].nsp"),
+      "01008F6008C5E000"
+    );
+    assert.equal(
+      titleIdFromName("Mario Kart 8 Deluxe (0100152000022000)(v0).nsp"),
+      "0100152000022000"
+    );
+    assert.equal(
+      titleIdFromName("Kirby Star Allies [01007e3006dda000][v0].nsp"),
+      "01007E3006DDA000"
+    );
     assert.equal(titleIdFromName("Super Mario Galaxy.nsp"), null);
   });
 
@@ -45,8 +57,16 @@ describe("switch-title", () => {
     assert.equal(contentKindOfTitleId("01008F6008C5E000"), "base");
     assert.equal(contentKindOfTitleId("01008F6008C5E800"), "update");
     assert.equal(contentKindOfTitleId("01008F6008C5F001"), "dlc");
-    assert.equal(contentKindFromName("Super Mario 3D World Bowsers Fury [Update v1.1.0].nsp"), "update");
-    assert.equal(contentKindFromName("Luigis Mansion 3 Multiplayer Pack 2 DLC.nsp"), "dlc");
+    assert.equal(
+      contentKindFromName(
+        "Super Mario 3D World Bowsers Fury [Update v1.1.0].nsp"
+      ),
+      "update"
+    );
+    assert.equal(
+      contentKindFromName("Luigis Mansion 3 Multiplayer Pack 2 DLC.nsp"),
+      "dlc"
+    );
     assert.equal(contentKindFromName("Pokemon Legends Arceus[v0].xci"), "base");
   });
 
@@ -54,7 +74,11 @@ describe("switch-title", () => {
     const nsp = path.join(dir, "Super Smash Bros. Ultimate.nsp");
     fs.writeFileSync(
       nsp,
-      buildNsp(["0a1b2c.nca", "01006a800016e0000000000000000009.tik", "01006a800016e0000000000000000009.cert"])
+      buildNsp([
+        "0a1b2c.nca",
+        "01006a800016e0000000000000000009.tik",
+        "01006a800016e0000000000000000009.cert",
+      ])
     );
     assert.equal(await extractSwitchTitleId(nsp), "01006A800016E000");
 

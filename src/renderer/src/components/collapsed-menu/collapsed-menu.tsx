@@ -31,10 +31,12 @@ export function CollapsedMenu({
         onClick={() => setIsOpen(!isOpen)}
         className="collapsed-menu__button"
       >
-        <Icon name="chevron-down"
+        <Icon
+          name="chevron-down"
           className={`collapsed-menu__chevron ${
             isOpen ? "collapsed-menu__chevron--open" : ""
-          }`} />
+          }`}
+        />
         <span>{title}</span>
       </button>
 

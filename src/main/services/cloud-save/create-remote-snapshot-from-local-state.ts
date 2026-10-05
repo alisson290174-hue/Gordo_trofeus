@@ -28,8 +28,7 @@ import {
 
 type ProgressCallback = (progress: CloudSaveUploadProgress) => void;
 
-export interface CreateRemoteSnapshotOptions
-  extends PrepareLocalSnapshotOptions {
+export interface CreateRemoteSnapshotOptions extends PrepareLocalSnapshotOptions {
   expectedSnapshotId?: string | null;
   unresolvedRemoteEntryIds?: string[];
   updateAnchor?: boolean;

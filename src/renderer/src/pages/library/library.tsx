@@ -75,11 +75,7 @@ const getColumnsCount = (width: number, mode: ViewMode): number => {
 };
 
 type LibraryStatus =
-  | "all"
-  | "installed"
-  | "platinum"
-  | "in_progress"
-  | "not_installed";
+  "all" | "installed" | "platinum" | "in_progress" | "not_installed";
 
 const STATUS_FILTERS: {
   value: LibraryStatus;
@@ -180,9 +176,12 @@ export default function Library() {
     useState(false);
 
   const [category, setCategory] = useState<LibraryCategory>(() => {
-    const saved = localStorage.getItem("library-category") as LibraryCategory | null;
+    const saved = localStorage.getItem(
+      "library-category"
+    ) as LibraryCategory | null;
     // Old choices ("PC", "Biblioteca Steam") no longer exist on this page → "Todos".
-    return saved && (LIBRARY_PAGE_CATEGORIES.includes(saved) || isConsoleCategory(saved))
+    return saved &&
+      (LIBRARY_PAGE_CATEGORIES.includes(saved) || isConsoleCategory(saved))
       ? saved
       : "all";
   });
@@ -507,7 +506,9 @@ export default function Library() {
 
   const filteredLibrary = useMemo(() => {
     const filter = STATUS_FILTERS.find((item) => item.value === status);
-    return filter ? baseFilteredLibrary.filter(filter.test) : baseFilteredLibrary;
+    return filter
+      ? baseFilteredLibrary.filter(filter.test)
+      : baseFilteredLibrary;
   }, [baseFilteredLibrary, status]);
 
   const uniquePlatforms = useMemo(() => {
@@ -683,12 +684,12 @@ export default function Library() {
               />
               {(effectiveCategory === "all" ||
                 effectiveCategory === "classics") && (
-                  <PlatformFilter
-                    selectedPlatforms={selectedPlatforms}
-                    platforms={uniquePlatforms}
-                    onPlatformsChange={handlePlatformsChange}
-                  />
-                )}
+                <PlatformFilter
+                  selectedPlatforms={selectedPlatforms}
+                  platforms={uniquePlatforms}
+                  onPlatformsChange={handlePlatformsChange}
+                />
+              )}
             </div>
           </div>
         </div>

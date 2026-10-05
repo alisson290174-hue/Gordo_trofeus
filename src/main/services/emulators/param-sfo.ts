@@ -20,7 +20,9 @@ const readStringValue = (
   const valueEnd = valueStart + dataUsedSize;
   if (valueEnd > data.length) return null;
 
-  const decoded = data.subarray(valueStart, valueEnd).toString(asText ? "utf8" : "ascii");
+  const decoded = data
+    .subarray(valueStart, valueEnd)
+    .toString(asText ? "utf8" : "ascii");
   const nullOffset = decoded.indexOf("\0");
   const rawValue = nullOffset === -1 ? decoded : decoded.slice(0, nullOffset);
   const normalizedValue = rawValue.trim();

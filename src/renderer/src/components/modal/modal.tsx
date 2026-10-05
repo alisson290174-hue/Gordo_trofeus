@@ -2,7 +2,6 @@ import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { Icon } from "@renderer/components/icon/icon";
 import { createPortal } from "react-dom";
 
-
 import "./modal.scss";
 
 import { Backdrop } from "../backdrop/backdrop";

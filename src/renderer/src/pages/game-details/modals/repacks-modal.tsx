@@ -271,7 +271,11 @@ export function RepacksModal({
                 className="repacks-modal__filter-toggle"
               >
                 {t("filter_by_source")}
-                {isFilterDrawerOpen ? <Icon name="chevron-up"  /> : <Icon name="chevron-down"  />}
+                {isFilterDrawerOpen ? (
+                  <Icon name="chevron-up" />
+                ) : (
+                  <Icon name="chevron-down" />
+                )}
               </Button>
             )}
           </div>
@@ -326,7 +330,7 @@ export function RepacksModal({
                       navigate("/settings?tab=download_sources");
                     }}
                   >
-                    <Icon name="plus-circle"  />
+                    <Icon name="plus-circle" />
                     {t("add_download_source", { ns: "settings" })}
                   </Button>
                 </div>

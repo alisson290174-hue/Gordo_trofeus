@@ -215,7 +215,7 @@ export function SettingsDownloadSources() {
           }
           onClick={syncDownloadSources}
         >
-          <Icon name="sync"  />
+          <Icon name="sync" />
           {t("sync_download_sources")}
         </Button>
 
@@ -230,7 +230,7 @@ export function SettingsDownloadSources() {
               (hasLoadedDownloadSources && !downloadSources.length)
             }
           >
-            <Icon name="trash"  />
+            <Icon name="trash" />
             {t("button_delete_all_sources")}
           </Button>
 
@@ -240,7 +240,7 @@ export function SettingsDownloadSources() {
             onClick={() => setShowAddDownloadSourceModal(true)}
             disabled={isSyncingDownloadSources || isRemovingDownloadSource}
           >
-            <Icon name="plus-circle"  />
+            <Icon name="plus-circle" />
             {t("add_download_source")}
           </Button>
         </div>
@@ -263,7 +263,10 @@ export function SettingsDownloadSources() {
                 <div style={{ display: "flex" }}>
                   <Badge>
                     {isPendingOrMatching && (
-                      <Icon name="sync" className="settings-download-sources__spinner" />
+                      <Icon
+                        name="sync"
+                        className="settings-download-sources__spinner"
+                      />
                     )}
                     {statusTitle[downloadSource.status]}
                   </Badge>
@@ -303,7 +306,7 @@ export function SettingsDownloadSources() {
                     onClick={() => handleRemoveSource(downloadSource)}
                     disabled={isRemovingDownloadSource}
                   >
-                    <Icon name="no-entry"  />
+                    <Icon name="no-entry" />
                     {t("remove_download_source")}
                   </Button>
                 }

@@ -63,7 +63,7 @@ export function RecentGamesBox() {
                 <span className="recent-games__game-title">{game.title}</span>
 
                 <div className="recent-games__game-description">
-                  <Icon name="hourglass"  />
+                  <Icon name="hourglass" />
                   <small>{formatPlayTime(game)}</small>
                 </div>
               </div>

@@ -56,11 +56,11 @@ export function ComparedAchievementList({
                 className="achievements__item-status achievements__item-status--unlocked"
                 title={formatDateTime(achievement.ownerStat.unlockTime!)}
               >
-                <Icon name="check-circle"  />
+                <Icon name="check-circle" />
               </div>
             ) : (
               <div className="achievements__item-status">
-                <Icon name="lock"  />
+                <Icon name="lock" />
               </div>
             )
           ) : null}
@@ -70,11 +70,11 @@ export function ComparedAchievementList({
               className="achievements__item-status achievements__item-status--unlocked"
               title={formatDateTime(achievement.targetStat.unlockTime!)}
             >
-              <Icon name="check-circle"  />
+              <Icon name="check-circle" />
             </div>
           ) : (
             <div className="achievements__item-status">
-              <Icon name="lock"  />
+              <Icon name="lock" />
             </div>
           )}
         </li>

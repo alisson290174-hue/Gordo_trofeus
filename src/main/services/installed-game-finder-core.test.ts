@@ -11,7 +11,11 @@ import {
   type UninstallEntry,
 } from "./installed-game-finder-core";
 
-const entry = (name: string, location: string | null, icon: string | null = null): UninstallEntry => ({
+const entry = (
+  name: string,
+  location: string | null,
+  icon: string | null = null
+): UninstallEntry => ({
   key: `HKCU:\\Uninstall\\${name}`,
   name,
   location,
@@ -25,7 +29,10 @@ describe("titleMatchScore", () => {
   });
 
   it("does not count filler words", () => {
-    assert.equal(titleMatchScore("The Witcher 3: Wild Hunt", "Witcher 3 Wild Hunt GOTY"), 1);
+    assert.equal(
+      titleMatchScore("The Witcher 3: Wild Hunt", "Witcher 3 Wild Hunt GOTY"),
+      1
+    );
   });
 
   it("scores unrelated programs low", () => {
@@ -35,12 +42,21 @@ describe("titleMatchScore", () => {
 
 describe("findEntryForGame", () => {
   it("picks the matching installed program", () => {
-    const entries = [entry("Google Chrome", "C:\\Chrome"), entry("Chained Echoes", "C:\\GOG Games\\Chained Echoes")];
-    assert.equal(findEntryForGame("Chained Echoes", entries)?.name, "Chained Echoes");
+    const entries = [
+      entry("Google Chrome", "C:\\Chrome"),
+      entry("Chained Echoes", "C:\\GOG Games\\Chained Echoes"),
+    ];
+    assert.equal(
+      findEntryForGame("Chained Echoes", entries)?.name,
+      "Chained Echoes"
+    );
   });
 
   it("returns null instead of guessing when nothing matches well", () => {
-    const entries = [entry("Chained Together", "C:\\x"), entry("Echo VR", "C:\\y")];
+    const entries = [
+      entry("Chained Together", "C:\\x"),
+      entry("Echo VR", "C:\\y"),
+    ];
     assert.equal(findEntryForGame("Chained Echoes", entries), null);
   });
 });
@@ -53,7 +69,10 @@ describe("pickGameExecutable", () => {
     fs.writeFileSync(path.join(dir, "unins000.exe"), "x");
     fs.writeFileSync(path.join(dir, "UnityCrashHandler64.exe"), "x");
     fs.mkdirSync(path.join(dir, "redist"));
-    fs.writeFileSync(path.join(dir, "redist", "vc_redist.x64.exe"), "x".repeat(5000));
+    fs.writeFileSync(
+      path.join(dir, "redist", "vc_redist.x64.exe"),
+      "x".repeat(5000)
+    );
     fs.writeFileSync(path.join(dir, "Chained Echoes.exe"), "x".repeat(100));
     fs.writeFileSync(path.join(dir, "tool.exe"), "x".repeat(9000));
   });
@@ -62,16 +81,25 @@ describe("pickGameExecutable", () => {
 
   it("uses the executable the installer registered as icon", () => {
     const icon = `"${path.join(dir, "Chained Echoes.exe")}",0`;
-    assert.equal(pickGameExecutable("Chained Echoes", entry("Chained Echoes", dir, icon)), path.join(dir, "Chained Echoes.exe"));
+    assert.equal(
+      pickGameExecutable("Chained Echoes", entry("Chained Echoes", dir, icon)),
+      path.join(dir, "Chained Echoes.exe")
+    );
   });
 
   it("ignores an icon that points to the uninstaller", () => {
     const icon = path.join(dir, "unins000.exe");
-    assert.equal(pickGameExecutable("Chained Echoes", entry("Chained Echoes", dir, icon)), path.join(dir, "Chained Echoes.exe"));
+    assert.equal(
+      pickGameExecutable("Chained Echoes", entry("Chained Echoes", dir, icon)),
+      path.join(dir, "Chained Echoes.exe")
+    );
   });
 
   it("prefers the exe named like the game over bigger helper tools", () => {
-    assert.equal(pickGameExecutable("Chained Echoes", entry("Chained Echoes", dir)), path.join(dir, "Chained Echoes.exe"));
+    assert.equal(
+      pickGameExecutable("Chained Echoes", entry("Chained Echoes", dir)),
+      path.join(dir, "Chained Echoes.exe")
+    );
   });
 
   it("recognises an executable named by the title's initials, not dev tools", () => {
@@ -81,13 +109,22 @@ describe("pickGameExecutable", () => {
     fs.writeFileSync(path.join(bin, "vconsole2.exe"), "x".repeat(9000));
     fs.writeFileSync(path.join(bin, "cs2.exe"), "x");
     try {
-      assert.equal(pickGameExecutable("Counter-Strike 2", entry("Counter-Strike 2", cs)), path.join(bin, "cs2.exe"));
+      assert.equal(
+        pickGameExecutable("Counter-Strike 2", entry("Counter-Strike 2", cs)),
+        path.join(bin, "cs2.exe")
+      );
     } finally {
       fs.rmSync(cs, { recursive: true, force: true });
     }
   });
 
   it("returns null when the folder doesn't exist", () => {
-    assert.equal(pickGameExecutable("Chained Echoes", entry("Chained Echoes", path.join(dir, "missing"))), null);
+    assert.equal(
+      pickGameExecutable(
+        "Chained Echoes",
+        entry("Chained Echoes", path.join(dir, "missing"))
+      ),
+      null
+    );
   });
 });

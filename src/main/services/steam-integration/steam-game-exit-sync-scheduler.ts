@@ -122,7 +122,10 @@ export const createSteamGameExitSyncScheduler = (
 
     // No Steam web session (Opus signs in with Steam OpenID only) is the normal state.
     if (error instanceof Error && error.name === "SteamSessionRequiredError") {
-      dependencies.log("Steam game exit sync skipped (no Steam session)", gameKey);
+      dependencies.log(
+        "Steam game exit sync skipped (no Steam session)",
+        gameKey
+      );
       return;
     }
 

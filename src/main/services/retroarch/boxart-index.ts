@@ -29,7 +29,10 @@ const listings = new Map<string, Promise<string[]>>();
 const imageFolderUrl = (system: string, kind: LibretroImageKind) =>
   `${THUMBNAILS}/${encodeURIComponent(system)}/${kind}/`;
 
-const fetchListing = async (system: string, kind: LibretroImageKind): Promise<string[]> => {
+const fetchListing = async (
+  system: string,
+  kind: LibretroImageKind
+): Promise<string[]> => {
   const { data } = await axios.get<string>(imageFolderUrl(system, kind), {
     responseType: "text",
     timeout: 30_000,
@@ -70,7 +73,9 @@ export const findLibretroImage = async (
   // A translated copy ("Super Mario 64 PT-BR") uses the original game's art.
   const original = title.replace(/\s*\bPT-?BR\b\s*/gi, " ").trim();
   const name = pickBoxart(original, await getListing(system, kind));
-  return name ? `${imageFolderUrl(system, kind)}${encodeURIComponent(name)}.png` : null;
+  return name
+    ? `${imageFolderUrl(system, kind)}${encodeURIComponent(name)}.png`
+    : null;
 };
 
 export const findLibretroBoxart = (system: string, title: string) =>
@@ -80,8 +85,11 @@ export const findLibretroBoxart = (system: string, title: string) =>
 export const findLibretroTitleScreen = (system: string, title: string) =>
   findLibretroImage(system, "Named_Titles", title);
 
-export const retroArchSystemFolder = (platform: RetroArchPlatform) => SYSTEM_FOLDERS[platform];
+export const retroArchSystemFolder = (platform: RetroArchPlatform) =>
+  SYSTEM_FOLDERS[platform];
 
 /** URL of the best-matching box art for a cartridge title, or null when libretro has none. */
-export const findRetroArchBoxart = (platform: RetroArchPlatform, title: string) =>
-  findLibretroBoxart(SYSTEM_FOLDERS[platform], title);
+export const findRetroArchBoxart = (
+  platform: RetroArchPlatform,
+  title: string
+) => findLibretroBoxart(SYSTEM_FOLDERS[platform], title);

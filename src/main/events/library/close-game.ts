@@ -124,7 +124,8 @@ const closeGame = async (
       ? processes.filter(
           (runningProcess) =>
             runningProcess.pid !== process.pid &&
-            (runningProcess.exe?.toLowerCase().startsWith(gameDirectory) ?? false)
+            (runningProcess.exe?.toLowerCase().startsWith(gameDirectory) ??
+              false)
         )
       : [];
 
@@ -160,8 +161,8 @@ GamepadComboWatcher.setHandler(() => {
       if (separator <= 0) continue;
       const shop = running.id.slice(0, separator) as GameShop;
       const objectId = running.id.slice(separator + 1);
-      await closeGame({} as Electron.IpcMainInvokeEvent, shop, objectId).catch((error) =>
-        logger.error("[gamepad] could not close the game", error)
+      await closeGame({} as Electron.IpcMainInvokeEvent, shop, objectId).catch(
+        (error) => logger.error("[gamepad] could not close the game", error)
       );
     }
     WindowManager.bringLauncherToFront();

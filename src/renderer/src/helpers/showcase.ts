@@ -20,7 +20,10 @@ for (const path in artModules) {
   const [, objectId, kind] = match;
   const entry = ART.get(objectId) ?? {};
   // Absolute URL so resolveImageSource() doesn't mistake "/src/assets/…" (dev) for a disk path.
-  entry[kind as ShowcaseArtKind] = new URL(artModules[path], window.location.href).href;
+  entry[kind as ShowcaseArtKind] = new URL(
+    artModules[path],
+    window.location.href
+  ).href;
   ART.set(objectId, entry);
 }
 

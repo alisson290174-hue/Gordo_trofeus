@@ -1,7 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { Icon } from "@renderer/components/icon/icon";
 
-
 import { Button } from "@renderer/components";
 
 interface Props {

@@ -375,7 +375,15 @@ export const getClassicsLaunchErrorSystem = (
   error: unknown
 ): EmulatorSystem | undefined => {
   const direct = (error as { system?: string })?.system;
-  const systems: EmulatorSystem[] = ["ps1", "ps2", "ps3", "psp", "dolphin", "switch", "3ds"];
+  const systems: EmulatorSystem[] = [
+    "ps1",
+    "ps2",
+    "ps3",
+    "psp",
+    "dolphin",
+    "switch",
+    "3ds",
+  ];
   if (systems.includes(direct as EmulatorSystem))
     return direct as EmulatorSystem;
 
@@ -564,9 +572,7 @@ export const resolveImageSource = (
 };
 
 export type ProfileSortOption =
-  | "playtime"
-  | "achievementCount"
-  | "playedRecently";
+  "playtime" | "achievementCount" | "playedRecently";
 
 export type ProfilePlatformFilter = LibraryCategory;
 

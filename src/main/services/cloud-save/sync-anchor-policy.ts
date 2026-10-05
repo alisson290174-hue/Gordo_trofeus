@@ -9,7 +9,7 @@ export const hasCloudSaveV4AnchorSchema = (
 ): value is { schemaVersion: 4 } =>
   Boolean(
     value &&
-      typeof value === "object" &&
-      "schemaVersion" in value &&
-      value.schemaVersion === 4
+    typeof value === "object" &&
+    "schemaVersion" in value &&
+    value.schemaVersion === 4
   );

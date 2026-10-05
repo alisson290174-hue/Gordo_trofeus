@@ -84,7 +84,10 @@ export const emulatorInstallDirectory = async (
   binary: EmulatorBinary
 ): Promise<string> => {
   const system = BINARY_TO_SYSTEM[binary];
-  return path.join(await getEmulatorsBaseDir(), KNOWN_BINARIES[system].displayName);
+  return path.join(
+    await getEmulatorsBaseDir(),
+    KNOWN_BINARIES[system].displayName
+  );
 };
 
 const installMacosDmg = async (
@@ -247,7 +250,9 @@ export const downloadAndInstallEmulator = async (
     logger.error("Failed to install emulator", error);
     await removeFileQuietly(dest);
     const reason =
-      error instanceof UntrustedDownloadError ? "integrity_failed" : "install_failed";
+      error instanceof UntrustedDownloadError
+        ? "integrity_failed"
+        : "install_failed";
     sendProgress({ binary, optionId, phase: "error", reason });
     return { ok: false, reason };
   }

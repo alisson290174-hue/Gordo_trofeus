@@ -1,14 +1,10 @@
 import type { RomFolder } from "./emulator.types";
 
-export type RetroArchPlatform = "nes" | "snes" | "n64" | "gb" | "gbc" | "gba" | "nds";
+export type RetroArchPlatform =
+  "nes" | "snes" | "n64" | "gb" | "gbc" | "gba" | "nds";
 
 export type RetroArchCoreName =
-  | "fceumm"
-  | "snes9x"
-  | "mupen64plus_next"
-  | "gambatte"
-  | "mgba"
-  | "melondsds";
+  "fceumm" | "snes9x" | "mupen64plus_next" | "gambatte" | "mgba" | "melondsds";
 
 export interface RetroArchCore {
   name: RetroArchCoreName;
@@ -37,10 +33,7 @@ export interface RetroArchExecutablePreview {
 }
 
 export type RetroArchCoreInstallPhase =
-  | "downloading"
-  | "extracting"
-  | "done"
-  | "error";
+  "downloading" | "extracting" | "done" | "error";
 
 export interface RetroArchCoreInstallProgress {
   core: RetroArchCoreName;
@@ -59,9 +52,7 @@ export interface RetroArchCoreInstallResult {
 }
 
 export type RetroArchInstallKind =
-  | "windows-archive"
-  | "linux-appimage"
-  | "link";
+  "windows-archive" | "linux-appimage" | "link";
 
 export type RetroArchInstallLinkKind = "flatpak" | "aur" | "release_page";
 

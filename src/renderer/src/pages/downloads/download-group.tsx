@@ -1,4 +1,8 @@
-import { getCoverArt, getHeaderArt, getHeroArt } from "@renderer/helpers/ps5-game";
+import {
+  getCoverArt,
+  getHeaderArt,
+  getHeroArt,
+} from "@renderer/helpers/ps5-game";
 import type { GameShop, LibraryGame, SeedingStatus } from "@types";
 import { Icon } from "@renderer/components/icon/icon";
 
@@ -814,7 +818,7 @@ export function DownloadGroup({
         {
           label: t("extract"),
           disabled: game.download.extracting,
-          icon: <Icon name="file-directory"  />,
+          icon: <Icon name="file-directory" />,
           onClick: () => {
             extractGameDownload(game.shop, game.objectId);
           },
@@ -822,7 +826,7 @@ export function DownloadGroup({
         {
           label: t("stop_seeding"),
           disabled: deleting,
-          icon: <Icon name="unlink"  />,
+          icon: <Icon name="unlink" />,
           show:
             isGameSeeding(game) &&
             game.download?.downloader === Downloader.Torrent,
@@ -833,7 +837,7 @@ export function DownloadGroup({
         {
           label: t("resume_seeding"),
           disabled: deleting,
-          icon: <Icon name="link"  />,
+          icon: <Icon name="link" />,
           show:
             !isGameSeeding(game) &&
             game.download?.downloader === Downloader.Torrent,
@@ -844,7 +848,7 @@ export function DownloadGroup({
         {
           label: t("delete"),
           disabled: deleting,
-          icon: <Icon name="trash"  />,
+          icon: <Icon name="trash" />,
           onClick: () => {
             openDeleteGameModal(game.shop, game.objectId);
           },
@@ -860,14 +864,14 @@ export function DownloadGroup({
           onClick: () => {
             pauseDownload(game.shop, game.objectId);
           },
-          icon: <Icon name="columns"  />,
+          icon: <Icon name="columns" />,
         },
         {
           label: t("cancel"),
           onClick: () => {
             handleCancelClick(game.shop, game.objectId);
           },
-          icon: <Icon name="x-circle"  />,
+          icon: <Icon name="x-circle" />,
         },
       ];
     }
@@ -894,7 +898,7 @@ export function DownloadGroup({
         onClick: () => {
           resumeDownload(game.shop, game.objectId);
         },
-        icon: <Icon name="play"  />,
+        icon: <Icon name="play" />,
       },
       {
         label: t("move_up"),
@@ -902,7 +906,7 @@ export function DownloadGroup({
         onClick: () => {
           handleMoveInQueue(game.shop, game.objectId, "up");
         },
-        icon: <Icon name="arrow-up"  />,
+        icon: <Icon name="arrow-up" />,
       },
       {
         label: t("move_down"),
@@ -910,14 +914,14 @@ export function DownloadGroup({
         onClick: () => {
           handleMoveInQueue(game.shop, game.objectId, "down");
         },
-        icon: <Icon name="arrow-down"  />,
+        icon: <Icon name="arrow-down" />,
       },
       {
         label: t("cancel"),
         onClick: () => {
           handleCancelClick(game.shop, game.objectId);
         },
-        icon: <Icon name="x-circle"  />,
+        icon: <Icon name="x-circle" />,
       },
     ];
 

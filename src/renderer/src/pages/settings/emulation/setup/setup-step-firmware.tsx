@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 
-
 import { Button } from "@renderer/components";
 import type { EmulatorConfig } from "@types";
 

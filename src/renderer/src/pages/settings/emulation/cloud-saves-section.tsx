@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 
-
 import { Button, ConfirmationModal } from "@renderer/components";
 import { DropdownMenu } from "@renderer/components/dropdown-menu/dropdown-menu";
 import {
@@ -161,11 +160,13 @@ export function CloudSavesSection({ config, refreshKey }: Readonly<Props>) {
           </div>
           <div className="emulator-detail__section-actions">
             <Button theme="outline" onClick={load} disabled={refreshing}>
-              <Icon name="sync"
+              <Icon
+                name="sync"
                 size={13}
                 className={
                   refreshing ? "emulator-detail__redetect-icon--spinning" : ""
-                } />
+                }
+              />
               <span>{t("cloud_refresh")}</span>
             </Button>
           </div>
@@ -248,9 +249,11 @@ export function CloudSavesSection({ config, refreshKey }: Readonly<Props>) {
                         className="emulator-detail__cloud-menu"
                         aria-label={name}
                       >
-                        <Icon name="kebab-horizontal"
+                        <Icon
+                          name="kebab-horizontal"
                           size={16}
-                          className="emulator-detail__cloud-menu-icon" />
+                          className="emulator-detail__cloud-menu-icon"
+                        />
                       </button>
                     </DropdownMenu>
                   </div>

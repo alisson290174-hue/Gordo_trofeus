@@ -103,8 +103,11 @@ export function sanitizeRichHtml(html: string): string {
 
   const isSafeUrl = (value: string) => {
     try {
-      return ["http:", "https:"].includes(new URL(value, "https://invalid.local").protocol) &&
-        !/^\s*(javascript|data|vbscript|file):/i.test(value);
+      return (
+        ["http:", "https:"].includes(
+          new URL(value, "https://invalid.local").protocol
+        ) && !/^\s*(javascript|data|vbscript|file):/i.test(value)
+      );
     } catch {
       return false;
     }
@@ -113,12 +116,30 @@ export function sanitizeRichHtml(html: string): string {
   for (const el of doc.body.querySelectorAll("*")) {
     for (const attr of Array.from(el.attributes)) {
       const name = attr.name.toLowerCase();
-      if (name.startsWith("on") || name === "style" || name === "srcdoc" || name === "formaction") {
+      if (
+        name.startsWith("on") ||
+        name === "style" ||
+        name === "srcdoc" ||
+        name === "formaction"
+      ) {
         el.removeAttribute(attr.name);
         continue;
       }
-      if (["src", "href", "poster", "srcset", "data", "action", "xlink:href"].includes(name)) {
-        const values = name === "srcset" ? attr.value.split(",").map((part) => part.trim().split(/\s+/)[0]) : [attr.value];
+      if (
+        [
+          "src",
+          "href",
+          "poster",
+          "srcset",
+          "data",
+          "action",
+          "xlink:href",
+        ].includes(name)
+      ) {
+        const values =
+          name === "srcset"
+            ? attr.value.split(",").map((part) => part.trim().split(/\s+/)[0])
+            : [attr.value];
         if (!values.every(isSafeUrl)) el.removeAttribute(attr.name);
       }
     }

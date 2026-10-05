@@ -59,7 +59,8 @@ export class SevenZip {
     // node-7z puts only the first "ERROR:" line (the archive path) in `message`; the reason
     // ("Wrong password?") is in the raw stderr it keeps alongside.
     const stderr = (error as { stderr?: unknown } | null)?.stderr;
-    const normalizedMessage = `${errorMessage}\n${typeof stderr === "string" ? stderr : ""}`.toLowerCase();
+    const normalizedMessage =
+      `${errorMessage}\n${typeof stderr === "string" ? stderr : ""}`.toLowerCase();
 
     return (
       normalizedMessage.includes("wrong password") ||

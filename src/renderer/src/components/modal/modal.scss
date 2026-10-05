@@ -3,11 +3,15 @@
 
 // Conceito 1 — PS5: painel de vidro escuro, cantos grandes, título leve.
 .modal {
-  animation: scale-fade-in 0.22s cubic-bezier(0.33, 1, 0.68, 1) 0s 1 normal
-    none running;
+  animation: scale-fade-in 0.22s cubic-bezier(0.33, 1, 0.68, 1) 0s 1 normal none
+    running;
   position: relative;
   background:
-    radial-gradient(120% 80% at 0% 0%, rgba(0, 112, 243, 0.14), transparent 55%),
+    radial-gradient(
+      120% 80% at 0% 0%,
+      rgba(0, 112, 243, 0.14),
+      transparent 55%
+    ),
     linear-gradient(180deg, rgba(20, 28, 48, 0.97), rgba(9, 13, 26, 0.98));
   border-radius: 24px;
   min-width: 420px;

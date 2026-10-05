@@ -6,11 +6,12 @@ import { AuthPage } from "@shared";
 import { FocusItem, HorizontalFocusGroup } from "../../components";
 import { IS_DESKTOP } from "../../constants";
 import { useGamepad, useUserDetails } from "../../hooks";
-import { NavigationAudioService, NavigationService, type FocusOverrides } from "../../services";
 import {
-  useNavigationStore,
-  useVirtualKeyboardStore,
-} from "../../stores";
+  NavigationAudioService,
+  NavigationService,
+  type FocusOverrides,
+} from "../../services";
+import { useNavigationStore, useVirtualKeyboardStore } from "../../stores";
 import { GamepadButtonType } from "../../types";
 import {
   BIG_PICTURE_APP_LAYER_ID,
@@ -53,22 +54,51 @@ export function TopNav() {
   const normalized = normalizeBigPicturePathname(pathname);
   const { userDetails } = useUserDetails();
   const { onButtonPressed, isActiveGamepadEvent } = useGamepad();
-  const keyboardOpen = useVirtualKeyboardStore((state) => state.target !== null);
+  const keyboardOpen = useVirtualKeyboardStore(
+    (state) => state.target !== null
+  );
   const clock = useClock();
 
   const sections = useMemo<Section[]>(
     () => [
-      { key: "home", label: "Home", path: BASE_PATH || "/", matches: (p) => p === "/" },
-      { key: "library", label: "Library", path: `${BASE_PATH}/library`, matches: (p) => p.startsWith("/library") || p.startsWith("/game/") },
+      {
+        key: "home",
+        label: "Home",
+        path: BASE_PATH || "/",
+        matches: (p) => p === "/",
+      },
+      {
+        key: "library",
+        label: "Library",
+        path: `${BASE_PATH}/library`,
+        matches: (p) => p.startsWith("/library") || p.startsWith("/game/"),
+      },
       {
         key: "trophies",
         label: "Trophies",
-        path: userDetails?.id ? `${BASE_PATH}/profile/${userDetails.id}` : `${BASE_PATH}/profile`,
+        path: userDetails?.id
+          ? `${BASE_PATH}/profile/${userDetails.id}`
+          : `${BASE_PATH}/profile`,
         matches: (p) => p.startsWith("/profile"),
       },
-      { key: "downloads", label: "Downloads", path: `${BASE_PATH}/downloads`, matches: (p) => p.startsWith("/downloads") },
-      { key: "catalogue", label: "Catalogue", path: `${BASE_PATH}/catalogue`, matches: (p) => p.startsWith("/catalogue") },
-      { key: "settings", label: "Settings", path: `${BASE_PATH}/settings`, matches: (p) => p.startsWith("/settings") },
+      {
+        key: "downloads",
+        label: "Downloads",
+        path: `${BASE_PATH}/downloads`,
+        matches: (p) => p.startsWith("/downloads"),
+      },
+      {
+        key: "catalogue",
+        label: "Catalogue",
+        path: `${BASE_PATH}/catalogue`,
+        matches: (p) => p.startsWith("/catalogue"),
+      },
+      {
+        key: "settings",
+        label: "Settings",
+        path: `${BASE_PATH}/settings`,
+        matches: (p) => p.startsWith("/settings"),
+      },
     ],
     [userDetails?.id]
   );
@@ -106,19 +136,32 @@ export function TopNav() {
       const focused = nodes.find((node) => node.id === currentFocusId);
       return !focused || focused.layerId === BIG_PICTURE_APP_LAYER_ID;
     };
-    const removePrevious = onButtonPressed(GamepadButtonType.LEFT_BUMPER, (event) => {
-      if (!isActiveGamepadEvent(event) || !canSwitch()) return;
-      goTo((activeIndex - 1 + sections.length) % sections.length);
-    });
-    const removeNext = onButtonPressed(GamepadButtonType.RIGHT_BUMPER, (event) => {
-      if (!isActiveGamepadEvent(event) || !canSwitch()) return;
-      goTo((activeIndex + 1) % sections.length);
-    });
+    const removePrevious = onButtonPressed(
+      GamepadButtonType.LEFT_BUMPER,
+      (event) => {
+        if (!isActiveGamepadEvent(event) || !canSwitch()) return;
+        goTo((activeIndex - 1 + sections.length) % sections.length);
+      }
+    );
+    const removeNext = onButtonPressed(
+      GamepadButtonType.RIGHT_BUMPER,
+      (event) => {
+        if (!isActiveGamepadEvent(event) || !canSwitch()) return;
+        goTo((activeIndex + 1) % sections.length);
+      }
+    );
     return () => {
       removePrevious();
       removeNext();
     };
-  }, [activeIndex, goTo, isActiveGamepadEvent, keyboardOpen, onButtonPressed, sections.length]);
+  }, [
+    activeIndex,
+    goTo,
+    isActiveGamepadEvent,
+    keyboardOpen,
+    onButtonPressed,
+    sections.length,
+  ]);
 
   const handleExit = useCallback(() => {
     if (IS_DESKTOP) {
@@ -130,7 +173,8 @@ export function TopNav() {
 
   const handleProfile = useCallback(() => {
     if (!userDetails?.id) {
-      if (IS_DESKTOP) void globalThis.window.electron.openAuthWindow(AuthPage.SignIn);
+      if (IS_DESKTOP)
+        void globalThis.window.electron.openAuthWindow(AuthPage.SignIn);
       return;
     }
     navigate(`${BASE_PATH}/profile/${userDetails.id}`);
@@ -156,7 +200,9 @@ export function TopNav() {
         className="top-nav__sections"
         aria-label="Sections"
       >
-        <span className="top-nav__bumper" aria-hidden="true">LB</span>
+        <span className="top-nav__bumper" aria-hidden="true">
+          LB
+        </span>
         {sections.map((section, index) => {
           const id = getTopNavSectionId(section.key);
           const previous = sections[index - 1];
@@ -184,7 +230,9 @@ export function TopNav() {
             </FocusItem>
           );
         })}
-        <span className="top-nav__bumper" aria-hidden="true">RB</span>
+        <span className="top-nav__bumper" aria-hidden="true">
+          RB
+        </span>
 
         <div className="top-nav__status">
           <span className="top-nav__clock">{clock}</span>

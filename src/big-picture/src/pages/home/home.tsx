@@ -34,7 +34,8 @@ const CONSOLES_REGION_ID = "home-consoles";
 const PLAY_BUTTON_ID = "home-play";
 
 const gameKey = (game: LibraryGame) => `${game.shop}:${game.objectId}`;
-const tileId = (game: LibraryGame) => `${TILE_PREFIX}${game.shop}-${game.objectId}`;
+const tileId = (game: LibraryGame) =>
+  `${TILE_PREFIX}${game.shop}-${game.objectId}`;
 
 const hasTranslation = (game: LibraryGame) =>
   /\bPT-?BR\b/i.test(game.title) ||
@@ -46,8 +47,12 @@ const sortRecent = (games: LibraryGame[]) =>
     const playedA = a.lastTimePlayed ? new Date(a.lastTimePlayed).getTime() : 0;
     const playedB = b.lastTimePlayed ? new Date(b.lastTimePlayed).getTime() : 0;
     if (playedA !== playedB) return playedB - playedA;
-    const addedA = a.addedToLibraryAt ? new Date(a.addedToLibraryAt).getTime() : 0;
-    const addedB = b.addedToLibraryAt ? new Date(b.addedToLibraryAt).getTime() : 0;
+    const addedA = a.addedToLibraryAt
+      ? new Date(a.addedToLibraryAt).getTime()
+      : 0;
+    const addedB = b.addedToLibraryAt
+      ? new Date(b.addedToLibraryAt).getTime()
+      : 0;
     return addedB - addedA;
   });
 
@@ -58,7 +63,10 @@ export default function Home() {
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const currentFocusId = useNavigationStore((state) => state.currentFocusId);
 
-  const visible = useMemo(() => library.filter((game) => !game.isDeleted), [library]);
+  const visible = useMemo(
+    () => library.filter((game) => !game.isDeleted),
+    [library]
+  );
 
   // Console chips: only consoles that actually have games, in a stable order.
   const consoles = useMemo(() => {
@@ -78,14 +86,18 @@ export default function Home() {
     const filtered =
       consoleFilter === "all"
         ? visible
-        : visible.filter((game) => getPlatformBadge(game).tone === consoleFilter);
+        : visible.filter(
+            (game) => getPlatformBadge(game).tone === consoleFilter
+          );
     return sortRecent(filtered).slice(0, STRIP_SIZE);
   }, [consoleFilter, visible]);
 
   // The focused tile drives the whole screen; moving down to the buttons keeps the last one.
   useEffect(() => {
     if (!currentFocusId?.startsWith(TILE_PREFIX)) return;
-    const game = strip.find((candidate) => tileId(candidate) === currentFocusId);
+    const game = strip.find(
+      (candidate) => tileId(candidate) === currentFocusId
+    );
     if (game) setSelectedKey(gameKey(game));
   }, [currentFocusId, strip]);
 
@@ -110,7 +122,9 @@ export default function Home() {
     didInitialFocusRef.current = true;
     const { currentFocusId: focusNow } = useNavigationStore.getState();
     if (!focusNow || !focusNow.startsWith("home-")) {
-      globalThis.requestAnimationFrame(() => NavigationService.getInstance().setFocus(firstTileId));
+      globalThis.requestAnimationFrame(() =>
+        NavigationService.getInstance().setFocus(firstTileId)
+      );
     }
   }, [firstTileId]);
 
@@ -118,7 +132,10 @@ export default function Home() {
 
   if (!library.length) {
     return (
-      <VerticalFocusGroup regionId={HOME_PAGE_REGION_ID} className="opus-home opus-home--empty">
+      <VerticalFocusGroup
+        regionId={HOME_PAGE_REGION_ID}
+        className="opus-home opus-home--empty"
+      >
         <h1>{tr("Your library is empty", "Sua biblioteca está vazia")}</h1>
         <p>
           {tr(
@@ -126,8 +143,16 @@ export default function Home() {
             "Vincule a pasta dos seus jogos em Configurações › Emulação, ou adicione jogos de PC no app."
           )}
         </p>
-        <FocusItem id="home-empty-settings" actions={{ primary: () => navigate(`${BASE_PATH}/settings`) }} asChild>
-          <button type="button" className="opus-home__button opus-home__button--primary" onClick={() => navigate(`${BASE_PATH}/settings`)}>
+        <FocusItem
+          id="home-empty-settings"
+          actions={{ primary: () => navigate(`${BASE_PATH}/settings`) }}
+          asChild
+        >
+          <button
+            type="button"
+            className="opus-home__button opus-home__button--primary"
+            onClick={() => navigate(`${BASE_PATH}/settings`)}
+          >
             Settings
           </button>
         </FocusItem>
@@ -140,16 +165,24 @@ export default function Home() {
   const playTime = selected ? getDisplayedPlayTimeInMilliseconds(selected) : 0;
   const achievements = selected?.achievementCount ?? 0;
   const unlocked = selected?.unlockedAchievementCount ?? 0;
-  const lastPlayed = selected ? formatLastPlayed(selected.lastTimePlayed) : null;
+  const lastPlayed = selected
+    ? formatLastPlayed(selected.lastTimePlayed)
+    : null;
 
   return (
     <VerticalFocusGroup regionId={HOME_PAGE_REGION_ID} className="opus-home">
       <div className="opus-home__backdrop" aria-hidden="true">
-        {hero && <img key={hero} src={hero} alt="" className="opus-home__hero" />}
+        {hero && (
+          <img key={hero} src={hero} alt="" className="opus-home__hero" />
+        )}
         <div className="opus-home__shade" />
       </div>
 
-      <HorizontalFocusGroup regionId={TILES_REGION_ID} className="opus-home__tiles" aria-label="Recent games">
+      <HorizontalFocusGroup
+        regionId={TILES_REGION_ID}
+        className="opus-home__tiles"
+        aria-label="Recent games"
+      >
         {strip.map((game) => {
           const art = getTileArt(game);
           const isSelected = selected && gameKey(game) === gameKey(selected);
@@ -165,7 +198,9 @@ export default function Home() {
             >
               <button
                 type="button"
-                className={cn("opus-home__tile", { "opus-home__tile--selected": isSelected })}
+                className={cn("opus-home__tile", {
+                  "opus-home__tile--selected": isSelected,
+                })}
                 aria-label={game.title}
                 onClick={() => void launch(game)}
                 style={
@@ -174,15 +209,19 @@ export default function Home() {
                         backgroundImage: art.fallback
                           ? `url("${art.url}"), url("${art.fallback}")`
                           : `url("${art.url}")`,
-                        backgroundSize: art.fallback ? `${art.size ?? "cover"}, cover` : art.size ?? "cover",
+                        backgroundSize: art.fallback
+                          ? `${art.size ?? "cover"}, cover`
+                          : (art.size ?? "cover"),
                         backgroundPosition: art.fallback
                           ? `${art.position ?? "center"}, center`
-                          : art.position ?? "center",
+                          : (art.position ?? "center"),
                       }
                     : undefined
                 }
               >
-                {!art && <span className="opus-home__tile-name">{game.title}</span>}
+                {!art && (
+                  <span className="opus-home__tile-name">{game.title}</span>
+                )}
               </button>
             </FocusItem>
           );
@@ -194,7 +233,9 @@ export default function Home() {
           <div className="opus-home__eyebrow">
             <PlatformBadge game={selected} className="opus-home__badge" />
             {hasTranslation(selected) && (
-              <span className="opus-home__note">{tr("PT-BR translation installed", "Tradução PT-BR instalada")}</span>
+              <span className="opus-home__note">
+                {tr("PT-BR translation installed", "Tradução PT-BR instalada")}
+              </span>
             )}
           </div>
 
@@ -206,41 +247,74 @@ export default function Home() {
 
           <div className="opus-home__meta">
             {lastPlayed && <span>{lastPlayed}</span>}
-            {formatPlayTime(playTime) && <span>{formatPlayTime(playTime)}</span>}
-            {!lastPlayed && !formatPlayTime(playTime) && <span>{tr("Not played yet", "Ainda não jogado")}</span>}
+            {formatPlayTime(playTime) && (
+              <span>{formatPlayTime(playTime)}</span>
+            )}
+            {!lastPlayed && !formatPlayTime(playTime) && (
+              <span>{tr("Not played yet", "Ainda não jogado")}</span>
+            )}
             {achievements > 0 && (
-              <span>{tr(`Trophies ${unlocked} of ${achievements}`, `Troféus ${unlocked} de ${achievements}`)}</span>
+              <span>
+                {tr(
+                  `Trophies ${unlocked} of ${achievements}`,
+                  `Troféus ${unlocked} de ${achievements}`
+                )}
+              </span>
             )}
           </div>
 
           {achievements > 0 && (
             <div className="opus-home__progress" aria-hidden="true">
-              <div style={{ width: `${Math.round((unlocked / achievements) * 100)}%` }} />
+              <div
+                style={{
+                  width: `${Math.round((unlocked / achievements) * 100)}%`,
+                }}
+              />
             </div>
           )}
 
-          <HorizontalFocusGroup regionId={ACTIONS_REGION_ID} className="opus-home__actions">
-            <FocusItem id={PLAY_BUTTON_ID} actions={{ primary: () => void launch(selected) }} asChild>
-              <button type="button" className="opus-home__button opus-home__button--primary" onClick={() => void launch(selected)}>
+          <HorizontalFocusGroup
+            regionId={ACTIONS_REGION_ID}
+            className="opus-home__actions"
+          >
+            <FocusItem
+              id={PLAY_BUTTON_ID}
+              actions={{ primary: () => void launch(selected) }}
+              asChild
+            >
+              <button
+                type="button"
+                className="opus-home__button opus-home__button--primary"
+                onClick={() => void launch(selected)}
+              >
                 <PlayIcon size={26} weight="fill" />
                 Play
               </button>
             </FocusItem>
             <FocusItem
               id="home-trophies"
-              actions={{ primary: () => navigate(getBigPictureGameAchievementsPath(selected)) }}
+              actions={{
+                primary: () =>
+                  navigate(getBigPictureGameAchievementsPath(selected)),
+              }}
               asChild
             >
               <button
                 type="button"
                 className="opus-home__button"
-                onClick={() => navigate(getBigPictureGameAchievementsPath(selected))}
+                onClick={() =>
+                  navigate(getBigPictureGameAchievementsPath(selected))
+                }
               >
                 <TrophyIcon size={26} />
                 Trophies
               </button>
             </FocusItem>
-            <FocusItem id="home-more" actions={{ primary: () => openGamePage(selected) }} asChild>
+            <FocusItem
+              id="home-more"
+              actions={{ primary: () => openGamePage(selected) }}
+              asChild
+            >
               <button
                 type="button"
                 className="opus-home__button opus-home__button--round"
@@ -255,8 +329,15 @@ export default function Home() {
       )}
 
       {consoles.length > 1 && (
-        <HorizontalFocusGroup regionId={CONSOLES_REGION_ID} className="opus-home__consoles" aria-label="Filter by console">
-          {[{ tone: "all", label: tr("All", "Todos"), count: visible.length }, ...consoles].map((entry) => (
+        <HorizontalFocusGroup
+          regionId={CONSOLES_REGION_ID}
+          className="opus-home__consoles"
+          aria-label="Filter by console"
+        >
+          {[
+            { tone: "all", label: tr("All", "Todos"), count: visible.length },
+            ...consoles,
+          ].map((entry) => (
             <FocusItem
               key={entry.tone}
               id={`home-console-${entry.tone}`}
@@ -265,7 +346,9 @@ export default function Home() {
             >
               <button
                 type="button"
-                className={cn("opus-home__chip", { "opus-home__chip--active": consoleFilter === entry.tone })}
+                className={cn("opus-home__chip", {
+                  "opus-home__chip--active": consoleFilter === entry.tone,
+                })}
                 onClick={() => setConsoleFilter(entry.tone)}
               >
                 {entry.label}

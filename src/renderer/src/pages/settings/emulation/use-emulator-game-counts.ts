@@ -5,8 +5,13 @@ import type { EmulatorSystem } from "@types";
  * Games actually in the library per system (multi-disc sets and duplicate dumps count once).
  * The config's totalFiles counts ROM files, which is right for storage but overstates games.
  */
-export function useEmulatorGameCounts(systems: readonly EmulatorSystem[], nonce: unknown) {
-  const [counts, setCounts] = useState<Partial<Record<EmulatorSystem, number>>>({});
+export function useEmulatorGameCounts(
+  systems: readonly EmulatorSystem[],
+  nonce: unknown
+) {
+  const [counts, setCounts] = useState<Partial<Record<EmulatorSystem, number>>>(
+    {}
+  );
   const key = systems.join(",");
 
   useEffect(() => {
@@ -21,7 +26,8 @@ export function useEmulatorGameCounts(systems: readonly EmulatorSystem[], nonce:
     ).then((entries) => {
       if (cancelled) return;
       const next: Partial<Record<EmulatorSystem, number>> = {};
-      for (const [system, count] of entries) if (count !== undefined) next[system] = count;
+      for (const [system, count] of entries)
+        if (count !== undefined) next[system] = count;
       setCounts(next);
     });
     return () => {

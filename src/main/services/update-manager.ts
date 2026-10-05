@@ -70,11 +70,16 @@ export class UpdateManager {
       autoUpdater
         .checkForUpdates()
         .then((result) => {
-          logger.log(`Check for updates: latest ${result?.updateInfo?.version ?? "unknown"}`);
+          logger.log(
+            `Check for updates: latest ${result?.updateInfo?.version ?? "unknown"}`
+          );
         })
         .catch((error) => {
           // Used to fail silently (unhandled) — keep it visible in the log.
-          logger.error("Check for updates failed", error instanceof Error ? error.message : error);
+          logger.error(
+            "Check for updates failed",
+            error instanceof Error ? error.message : error
+          );
         });
     } else if (sendEventsForDebug) {
       this.mockValuesForDebug();

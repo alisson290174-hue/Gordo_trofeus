@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 
-
 import { Button } from "../button/button";
 import { getErrorMessage, getErrorStack } from "./format-error";
 import { formatOrigin, getErrorOrigin } from "./parse-stack";
@@ -90,7 +89,7 @@ export function ErrorFallback({
 
         <div className="error-fallback__actions">
           <Button theme="primary" onClick={handleRestart}>
-            <Icon name="sync"  />
+            <Icon name="sync" />
             {t("error_boundary_restart")}
           </Button>
 

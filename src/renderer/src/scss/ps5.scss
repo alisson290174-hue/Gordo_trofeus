@@ -34,7 +34,11 @@ $font: "Outfit", system-ui, sans-serif;
 
 $page-background: linear-gradient(160deg, $bg-2 0%, $bg 45%, $bg-3 100%);
 
-@mixin glass($blur: 16px, $bg: $glass-strong, $border: rgba(255, 255, 255, 0.14)) {
+@mixin glass(
+  $blur: 16px,
+  $bg: $glass-strong,
+  $border: rgba(255, 255, 255, 0.14)
+) {
   background: $bg;
   border: 1px solid $border;
   backdrop-filter: blur($blur);

@@ -44,11 +44,10 @@ interface BuildCloudSaveV2FileDetailsInput {
   ) => CloudSaveUnresolvedCustomPath;
 }
 
-interface LoadCloudSaveV2FileDetailsInput
-  extends Omit<
-    BuildCloudSaveV2FileDetailsInput,
-    "remoteVariants" | "remoteFiles"
-  > {
+interface LoadCloudSaveV2FileDetailsInput extends Omit<
+  BuildCloudSaveV2FileDetailsInput,
+  "remoteVariants" | "remoteFiles"
+> {
   objectId: string;
   shop: GameShop;
 }

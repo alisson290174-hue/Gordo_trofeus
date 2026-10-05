@@ -84,8 +84,8 @@ export const loadState = async () => {
 
   await import("./events");
   // Emulators Opus manages follow their latest official release (checked daily).
-  void import("./services/emulators/emulator-updater").then(({ scheduleEmulatorUpdates }) =>
-    scheduleEmulatorUpdates()
+  void import("./services/emulators/emulator-updater").then(
+    ({ scheduleEmulatorUpdates }) => scheduleEmulatorUpdates()
   );
 
   if (userPreferences?.realDebridApiToken) {
@@ -124,7 +124,9 @@ export const loadState = async () => {
 
   await HydraApi.setupApi().then(async () => {
     // The user's setup on our server: restored on a fresh install, kept current afterwards.
-    void import("./services/settings-sync").then(({ SettingsSync }) => SettingsSync.start());
+    void import("./services/settings-sync").then(({ SettingsSync }) =>
+      SettingsSync.start()
+    );
     uploadGamesBatch();
     void migrateDownloadSources();
 
@@ -135,8 +137,9 @@ export const loadState = async () => {
     // Steam games whose store page has no standard cover get one found automatically.
     setTimeout(
       () =>
-        void import("./services/repair-missing-covers").then(({ repairMissingSteamCovers }) =>
-          repairMissingSteamCovers().catch(() => {})
+        void import("./services/repair-missing-covers").then(
+          ({ repairMissingSteamCovers }) =>
+            repairMissingSteamCovers().catch(() => {})
         ),
       120_000
     );
@@ -156,13 +159,27 @@ export const loadState = async () => {
     );
     // Downloaded games installed while Opus was closed: learn their executable from Windows.
     void findInstalledDownloadedGames()
-      .then((found) => found && logger.info(`[installed-game-finder] ${found} game(s) found installed`))
-      .catch((error) => logger.warn("[installed-game-finder] boot check skipped", error?.message ?? error));
+      .then(
+        (found) =>
+          found &&
+          logger.info(
+            `[installed-game-finder] ${found} game(s) found installed`
+          )
+      )
+      .catch((error) =>
+        logger.warn(
+          "[installed-game-finder] boot check skipped",
+          error?.message ?? error
+        )
+      );
     // Trophies from games played on Steam while the app is open.
     setInterval(
       () =>
         void refreshSteamOwnedAchievements().catch((error) =>
-          logger.warn("[steam-achievements] refresh skipped", error?.message ?? error)
+          logger.warn(
+            "[steam-achievements] refresh skipped",
+            error?.message ?? error
+          )
         ),
       30 * 60 * 1000
     );
@@ -244,7 +261,10 @@ export const loadState = async () => {
   try {
     if (downloadToResume && !isTorrent) {
       // Initialize torrent seeding, then resume the HTTP download with JS.
-      await DownloadManager.initializeTorrentService(undefined, downloadsToSeed);
+      await DownloadManager.initializeTorrentService(
+        undefined,
+        downloadsToSeed
+      );
       await DownloadManager.startDownload(downloadToResume).catch((err) => {
         // If resume fails, just log it - user can manually retry
         logger.error("Failed to auto-resume download:", err);
@@ -256,7 +276,10 @@ export const loadState = async () => {
       );
     }
   } catch (error) {
-    logger.error("[Startup] Torrent service failed to start; continuing without it", error);
+    logger.error(
+      "[Startup] Torrent service failed to start; continuing without it",
+      error
+    );
   }
 
   WindowManager.sendDownloadsUpdated();

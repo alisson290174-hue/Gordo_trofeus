@@ -109,7 +109,9 @@ export const backfillPs2Metadata = async (): Promise<void> => {
         downloadSources: current?.downloadSources ?? [],
         updatedAt: Date.now(),
       })
-      .catch((err) => logger.warn("[ps2-metadata] put assets failed", key, err));
+      .catch((err) =>
+        logger.warn("[ps2-metadata] put assets failed", key, err)
+      );
 
     updated += 1;
   }

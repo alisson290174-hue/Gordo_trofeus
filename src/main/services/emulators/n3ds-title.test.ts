@@ -4,9 +4,16 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 
-import { extract3dsProductCode, findInstalled3dsTitle, read3dsHeader } from "./n3ds-title";
+import {
+  extract3dsProductCode,
+  findInstalled3dsTitle,
+  read3dsHeader,
+} from "./n3ds-title";
 
-const ncch = (productCode: string, { decrypted = false, programId = 0n } = {}) => {
+const ncch = (
+  productCode: string,
+  { decrypted = false, programId = 0n } = {}
+) => {
   const header = Buffer.alloc(0x200);
   header.write("NCCH", 0x100, "latin1");
   header.writeBigUInt64LE(programId, 0x118);
@@ -37,7 +44,10 @@ describe("3DS headers", () => {
     ncsd.write("NCSD", 0x100, "latin1");
     ncsd.writeUInt32LE(0x4000 / 0x200, 0x120); // partition 0 starts at 0x4000
     const file = path.join(dir, "Pokemon X.3ds");
-    fs.writeFileSync(file, Buffer.concat([ncsd, ncch("CTR-P-EKJA", { decrypted: true })]));
+    fs.writeFileSync(
+      file,
+      Buffer.concat([ncsd, ncch("CTR-P-EKJA", { decrypted: true })])
+    );
     assert.equal(await extract3dsProductCode(file), "CTR-P-EKJA");
     assert.equal((await read3dsHeader(file))?.encrypted, false);
   });
@@ -50,7 +60,12 @@ describe("3DS headers", () => {
 
   it("reads a decrypted CIA with its title id", async () => {
     const file = path.join(dir, "Game.cia");
-    fs.writeFileSync(file, cia(ncch("CTR-P-ECRA", { decrypted: true, programId: 0x000400000011c400n })));
+    fs.writeFileSync(
+      file,
+      cia(
+        ncch("CTR-P-ECRA", { decrypted: true, programId: 0x000400000011c400n })
+      )
+    );
     assert.deepEqual(await read3dsHeader(file), {
       productCode: "CTR-P-ECRA",
       titleId: "000400000011c400",
@@ -81,7 +96,17 @@ describe("3DS headers", () => {
     const exe = path.join(dir, "azahar", "azahar.exe");
     const sd = "0".repeat(32);
     const content = path.join(
-      dir, "azahar", "user", "sdmc", "Nintendo 3DS", sd, sd, "title", "00040000", "0011c400", "content"
+      dir,
+      "azahar",
+      "user",
+      "sdmc",
+      "Nintendo 3DS",
+      sd,
+      sd,
+      "title",
+      "00040000",
+      "0011c400",
+      "content"
     );
     fs.mkdirSync(content, { recursive: true });
     fs.writeFileSync(path.join(content, "00000000.app"), "");

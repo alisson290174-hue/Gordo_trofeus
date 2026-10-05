@@ -55,7 +55,6 @@ const extOf = (name: string): string => {
   return dot > 0 ? name.slice(dot).toLowerCase() : "";
 };
 
-
 const PS1_PRIMARY_EXTS = new Set([
   ".cue",
   ".ccd",
@@ -306,7 +305,11 @@ const collectEntry = (
         // The folder holding sce_sys is the game; its update ("CUSA…-UPDATE") and DLC
         // ("addcont") folders are applied by shadPS4 itself, not games of their own.
         const gameDir = dir;
-        if (/-(update|patch)$/i.test(path.basename(gameDir)) || /[\\/]addcont[\\/]/i.test(gameDir)) return;
+        if (
+          /-(update|patch)$/i.test(path.basename(gameDir)) ||
+          /[\\/]addcont[\\/]/i.test(gameDir)
+        )
+          return;
         candidates.push({
           fullPath: path.join(gameDir, "eboot.bin"),
           name: path.basename(gameDir),

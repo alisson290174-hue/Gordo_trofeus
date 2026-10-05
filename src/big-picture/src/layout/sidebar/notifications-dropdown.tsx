@@ -59,8 +59,7 @@ import {
   NOTIFICATIONS_FETCH_TAKE,
 } from "@shared";
 
-const appIconUrl = new URL("../../assets/app-icon.svg", import.meta.url)
-  .href;
+const appIconUrl = new URL("../../assets/app-icon.svg", import.meta.url).href;
 const DROPDOWN_OFFSET = 16;
 const DROPDOWN_REGION_ID = "sidebar-notifications-dropdown-region";
 

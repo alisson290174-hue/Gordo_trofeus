@@ -44,11 +44,17 @@ export function SettingsSteamOwned() {
       title={t("steam")}
       logo={<SteamIcon size={18} />}
       status={status}
-      statusTone={userDetails && result?.visible !== false ? "success" : "warning"}
+      statusTone={
+        userDetails && result?.visible !== false ? "success" : "warning"
+      }
       loading={Boolean(userDetails) && isSyncing && !result}
       actions={
         userDetails ? (
-          <Button theme="outline" onClick={() => void sync()} disabled={isSyncing}>
+          <Button
+            theme="outline"
+            onClick={() => void sync()}
+            disabled={isSyncing}
+          >
             {isSyncing ? t("steam_owned_syncing") : t("steam_owned_sync")}
           </Button>
         ) : null
@@ -58,7 +64,10 @@ export function SettingsSteamOwned() {
         {result?.visible === false
           ? t("steam_owned_private_hint")
           : result
-            ? t("steam_owned_count", { count: result.total, installed: result.installed })
+            ? t("steam_owned_count", {
+                count: result.total,
+                installed: result.installed,
+              })
             : t("steam_owned_description")}
       </p>
     </SettingsIntegrationCard>

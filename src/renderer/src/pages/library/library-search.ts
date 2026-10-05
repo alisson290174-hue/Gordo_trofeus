@@ -29,5 +29,7 @@ export const filterGamesBySearch = <T extends { title?: string | null }>(
   if (contained.length > 0) return contained;
 
   const compactQuery = query.replace(/\s+/g, "");
-  return games.filter((game) => isSubsequence(normalize(game.title ?? ""), compactQuery));
+  return games.filter((game) =>
+    isSubsequence(normalize(game.title ?? ""), compactQuery)
+  );
 };

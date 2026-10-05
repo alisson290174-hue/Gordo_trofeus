@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 
-
 import { Button } from "@renderer/components";
 import type {
   RetroArchConfig,
@@ -82,9 +81,11 @@ export function SetupStepCores({ config, onConfigChange }: Readonly<Props>) {
     const current = progress[core];
     const busy =
       current?.phase === "downloading" || current?.phase === "extracting";
-    if (busy) return <Icon name="sync" size={18} className="setup-modal__spin" />;
+    if (busy)
+      return <Icon name="sync" size={18} className="setup-modal__spin" />;
     if (current?.phase === "error") return <Icon name="alert" size={18} />;
-    if (config.cores[core]?.installed) return <Icon name="check-circle-fill" size={20} />;
+    if (config.cores[core]?.installed)
+      return <Icon name="check-circle-fill" size={20} />;
     return <Icon name="download" size={18} />;
   };
 

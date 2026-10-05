@@ -24,8 +24,7 @@ export interface CloudSaveV2FileTreeRoot extends CloudSaveV2FileTreeBranchBase {
   removableCustomRawPath: string | null;
 }
 
-export interface CloudSaveV2FileTreeDirectory
-  extends CloudSaveV2FileTreeBranchBase {
+export interface CloudSaveV2FileTreeDirectory extends CloudSaveV2FileTreeBranchBase {
   type: "directory";
 }
 

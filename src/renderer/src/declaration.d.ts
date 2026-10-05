@@ -2,7 +2,9 @@ import type {
   EpicGame,
   EpicInstallPlan,
   EpicInstallState,
-  EpicStatus, AuthPage } from "@shared";
+  EpicStatus,
+  AuthPage,
+} from "@shared";
 import type {
   AppUpdaterEvent,
   GameShop,
@@ -355,7 +357,11 @@ declare global {
       shop: GameShop,
       objectId: string
     ) => Promise<
-      | { status: "applied"; matchedTitle: string; applied: ("cover" | "hero" | "logo" | "icon")[] }
+      | {
+          status: "applied";
+          matchedTitle: string;
+          applied: ("cover" | "hero" | "logo" | "icon")[];
+        }
       | { status: "complete"; matchedTitle: string }
       | { status: "not-found" }
       | { status: "unsupported" }
@@ -1191,7 +1197,10 @@ declare global {
     restartAndInstallUpdate: () => Promise<void>;
 
     /* Auth */
-    getAuth: () => Promise<{ isLoggedIn: boolean; tokenExpirationTimestamp: number } | null>;
+    getAuth: () => Promise<{
+      isLoggedIn: boolean;
+      tokenExpirationTimestamp: number;
+    } | null>;
     signOut: () => Promise<void>;
     openAuthWindow: (page: AuthPage) => Promise<void>;
     minimizeAuthWindow: () => Promise<void>;
@@ -1242,7 +1251,11 @@ declare global {
       pendingSouvenirsOnly?: boolean
     ) => Promise<void>;
     /* Steam account games (via our server) */
-    syncSteamOwnedLibrary: () => Promise<{ visible: boolean; total: number; installed: number }>;
+    syncSteamOwnedLibrary: () => Promise<{
+      visible: boolean;
+      total: number;
+      installed: number;
+    }>;
     installThroughSteam: (appId: string) => Promise<void>;
     /* Epic Games (Legendary) */
     getEpicStatus: () => Promise<EpicStatus>;
@@ -1252,10 +1265,16 @@ declare global {
     syncEpicLibrary: () => Promise<number>;
     getEpicInstalls: () => Promise<EpicInstallState[]>;
     getEpicInstallPlan: (appName: string) => Promise<EpicInstallPlan>;
-    installEpicGame: (appName: string, title: string, folder?: string) => Promise<void>;
+    installEpicGame: (
+      appName: string,
+      title: string,
+      folder?: string
+    ) => Promise<void>;
     cancelEpicInstall: (appName: string) => Promise<void>;
     uninstallEpicGame: (appName: string) => Promise<void>;
-    onEpicInstallProgress: (cb: (state: EpicInstallState) => void) => () => Electron.IpcRenderer;
+    onEpicInstallProgress: (
+      cb: (state: EpicInstallState) => void
+    ) => () => Electron.IpcRenderer;
     openRetroAchievementsConnectionWindow: () => Promise<void>;
     minimizeRetroAchievementsConnectionWindow: () => Promise<void>;
     closeRetroAchievementsConnectionWindow: () => Promise<void>;

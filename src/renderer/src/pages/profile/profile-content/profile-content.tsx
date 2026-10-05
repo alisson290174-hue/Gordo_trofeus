@@ -273,13 +273,11 @@ export function ProfileContent() {
     }
   }, [userProfile, dispatch]);
 
-
   useEffect(() => {
     if (userProfile) {
       getUserStats();
     }
   }, [getUserStats, userProfile]);
-
 
   // Clear reviews state and reset tab when switching users
   useEffect(() => {
@@ -449,7 +447,6 @@ export function ProfileContent() {
     }
   };
 
-
   const usersAreFriends = useMemo(() => {
     return userProfile?.relation?.status === "ACCEPTED";
   }, [userProfile]);
@@ -492,7 +489,10 @@ export function ProfileContent() {
         label: t("user_reviews"),
         value: String(reviewsTotalCount),
       },
-      { label: t("karma", { ns: "dashboard" }), value: String(userProfile.karma) },
+      {
+        label: t("karma", { ns: "dashboard" }),
+        value: String(userProfile.karma),
+      },
     ].filter(Boolean) as { label: string; value: string }[];
 
     return (

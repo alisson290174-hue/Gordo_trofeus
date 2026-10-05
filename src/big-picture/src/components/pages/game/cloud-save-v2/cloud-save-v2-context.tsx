@@ -581,9 +581,7 @@ export function BigPictureCloudSaveProvider({
     : undefined;
   const hasError = hasRefreshError || hasSyncError;
   let errorMessageKey:
-    | "cloud_save_v2_sync_error"
-    | "cloud_save_v2_load_error"
-    | null = null;
+    "cloud_save_v2_sync_error" | "cloud_save_v2_load_error" | null = null;
   if (hasSyncError) {
     errorMessageKey = "cloud_save_v2_sync_error";
   } else if (hasRefreshError) {

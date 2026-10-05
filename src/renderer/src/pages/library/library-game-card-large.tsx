@@ -64,9 +64,11 @@ function InstalledBadge({ emulatorIcon }: Readonly<InstalledBadgeProps>) {
           className="library-game-card-large__installed-emulator-icon"
         />
       ) : (
-        <Icon name="check-circle-fill"
+        <Icon
+          name="check-circle-fill"
           size={12}
-          className="library-game-card-large__installed-icon" />
+          className="library-game-card-large__installed-icon"
+        />
       )}
       <span className="library-game-card-large__installed-text">
         {t("installed")}
@@ -387,9 +389,11 @@ export const LibraryGameCardLarge = memo(function LibraryGameCardLarge({
             {!hideBadges && (
               <div className="library-game-card-large__playtime">
                 {game.hasManuallyUpdatedPlaytime ? (
-                  <Icon name="alert-fill"
+                  <Icon
+                    name="alert-fill"
                     size={11}
-                    className="library-game-card-large__manual-playtime" />
+                    className="library-game-card-large__manual-playtime"
+                  />
                 ) : (
                   <Icon name="hourglass" size={11} />
                 )}

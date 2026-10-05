@@ -16,13 +16,17 @@ const listCues = (dir: string, recursive: boolean): string[] => {
   const out: string[] = [];
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
     const full = path.join(dir, entry.name);
-    if (entry.isDirectory() && recursive) out.push(...listCues(full, recursive));
+    if (entry.isDirectory() && recursive)
+      out.push(...listCues(full, recursive));
     else if (entry.isFile() && /\.cue$/i.test(entry.name)) out.push(full);
   }
   return out;
 };
 
-export const repairCuesInFolder = (folder: string, recursive: boolean): number => {
+export const repairCuesInFolder = (
+  folder: string,
+  recursive: boolean
+): number => {
   let repaired = 0;
   let cues: string[] = [];
   try {
@@ -44,7 +48,10 @@ export const repairCuesInFolder = (folder: string, recursive: boolean): number =
       repaired += 1;
       logger.info("[cue-repair] fixed", { cuePath });
     } catch (error) {
-      logger.warn("[cue-repair] could not fix", { cuePath, error: String(error) });
+      logger.warn("[cue-repair] could not fix", {
+        cuePath,
+        error: String(error),
+      });
     }
   }
   return repaired;
