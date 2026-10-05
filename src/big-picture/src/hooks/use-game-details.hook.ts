@@ -98,11 +98,17 @@ export function useGameDetails(objectId: string, shop: GameShop) {
                 .getGameShopDetails(objectId, shop, language)
                 .catch(() => null);
 
+        // Each source fails on its own: one failing call (server down, unknown game) used to throw
+        // the whole Promise.all away and leave the game page empty forever.
         const [statsResult, assets, shopDetailsResult] = await Promise.all([
           shop === "custom"
             ? Promise.resolve(null)
-            : globalThis.window.electron.getGameStats(objectId, shop),
-          globalThis.window.electron.getGameAssets(objectId, shop),
+            : globalThis.window.electron
+                .getGameStats(objectId, shop)
+                .catch(() => null),
+          globalThis.window.electron
+            .getGameAssets(objectId, shop)
+            .catch(() => null),
           shopDetailsPromise,
         ]);
 

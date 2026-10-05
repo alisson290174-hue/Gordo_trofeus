@@ -10,12 +10,13 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
-    version: "1.0.54",
+    version: "1.0.55",
     date: "05/10/2026",
     items: [
       "Big Picture muito mais rápido: a página de um jogo abre em cerca de 0,3 s (antes até 4 s com a tela vazia). Cada capa da Biblioteca pedia as configurações do Opus sozinha — eram ~560 pedidos de uma vez.",
       "Jogos de PS1, PS2, 3DS e Switch abrem mais rápido: a detecção do controle não segura mais o início do jogo.",
       "A Biblioteca não baixa mais todas as capas só para colorir a barra de troféus.",
+      "Big Picture: a página de um jogo não fica mais vazia quando o servidor não responde parte das informações.",
     ],
   },
   {
