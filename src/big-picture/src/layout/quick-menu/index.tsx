@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import {
@@ -20,6 +20,7 @@ import { NavigationAudioService } from "../../services";
 import { useNavigationStore, useVirtualKeyboardStore } from "../../stores";
 import { BIG_PICTURE_APP_LAYER_ID } from "../navigation";
 import { openFriendsPanel } from "../friends-panel";
+import { tr } from "../../helpers/opus-text";
 import "./styles.scss";
 
 const QUICK_MENU_REGION_ID = "quick-menu";
@@ -95,8 +96,37 @@ export function QuickMenu() {
 
   useNavigationScreenActions(screenActions);
 
+  // A downloaded Opus update can be installed from here (no need for the mouse or the normal mode).
+  const [updateVersion, setUpdateVersion] = useState<string | null>(null);
+  useEffect(() => {
+    if (!IS_DESKTOP) return;
+    const electron = globalThis.window.electron;
+    const refresh = () =>
+      void electron
+        .getDownloadedUpdate()
+        .then(setUpdateVersion)
+        .catch(() => {});
+    refresh();
+    return electron.onAutoUpdaterEvent((event) => {
+      if (event.type === "update-downloaded") refresh();
+    });
+  }, []);
+
   const actions = useMemo<QuickAction[]>(() => {
     const list: QuickAction[] = [];
+    if (updateVersion) {
+      list.push({
+        label: tr(
+          `Install update ${updateVersion}`,
+          `Instalar atualização ${updateVersion}`
+        ),
+        meta: tr("restarts Opus", "reinicia o Opus"),
+        run: () => {
+          if (IS_DESKTOP)
+            void globalThis.window.electron.restartAndInstallUpdate();
+        },
+      });
+    }
     if (current) {
       list.push({
         label: "Close game",
@@ -129,7 +159,7 @@ export function QuickMenu() {
       }
     );
     return list;
-  }, [current, navigate]);
+  }, [current, navigate, updateVersion]);
 
   if (!IS_BROWSER) return null;
   const target = document.getElementById("big-picture") ?? document.body;

@@ -90,6 +90,11 @@ interface AllDebridBatchState {
   batchSpeed: number;
 }
 
+// The torrent engine is off (not used / shutting down): polling it every 2 s is expected to fail,
+// and logging each answer filled error.txt with thousands of lines.
+const isTorrentShutdown = (error: unknown) =>
+  (error as { code?: string } | null)?.code === "torrent_shutdown";
+
 export class DownloadManager {
   private static downloadingGameId: string | null = null;
   private static jsDownloader: JsHttpDownloader | null = null;
@@ -530,7 +535,8 @@ export class DownloadManager {
     try {
       response = await TorrentService.call<LibtorrentPayload | null>("status");
     } catch (error) {
-      logger.error("[DownloadManager] Torrent status poll failed", error);
+      if (!isTorrentShutdown(error))
+        logger.error("[DownloadManager] Torrent status poll failed", error);
       return null;
     }
 
@@ -1088,7 +1094,11 @@ export class DownloadManager {
         "seed_status"
       ).then((res) => res.data);
     } catch (error) {
-      logger.error("[DownloadManager] Torrent seed status poll failed", error);
+      if (!isTorrentShutdown(error))
+        logger.error(
+          "[DownloadManager] Torrent seed status poll failed",
+          error
+        );
       WindowManager.sendToAppWindows("on-seeding-status", []);
       return;
     }

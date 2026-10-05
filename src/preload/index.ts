@@ -1601,6 +1601,8 @@ contextBridge.exposeInMainWorld("electron", {
     ipcRenderer.invoke("resetCommonRedistPreflight"),
   checkForUpdates: () => ipcRenderer.invoke("checkForUpdates"),
   restartAndInstallUpdate: () => ipcRenderer.invoke("restartAndInstallUpdate"),
+  getDownloadedUpdate: (): Promise<string | null> =>
+    ipcRenderer.invoke("getDownloadedUpdate"),
 
   /* Profile */
   getMe: () => ipcRenderer.invoke("getMe"),

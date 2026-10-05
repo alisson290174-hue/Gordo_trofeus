@@ -33,12 +33,17 @@ export function AutoUpdateSubHeader() {
       }
     );
 
-    window.electron.checkForUpdates().then((isAutoInstallAvailable) => {
-      setIsAutoInstallAvailable(isAutoInstallAvailable);
-    });
+    const check = () =>
+      window.electron.checkForUpdates().then((isAutoInstallAvailable) => {
+        setIsAutoInstallAvailable(isAutoInstallAvailable);
+      });
+    void check();
+    // Opus often stays open for days: look for a new version every 3 hours, not only at start.
+    const interval = window.setInterval(() => void check(), 3 * 60 * 60_000);
 
     return () => {
       unsubscribe();
+      window.clearInterval(interval);
     };
   }, []);
 

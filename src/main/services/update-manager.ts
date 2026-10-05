@@ -12,6 +12,12 @@ const sendEventsForDebug = false;
 export class UpdateManager {
   private static hasNotified = false;
   private static newVersion = "";
+  /** Version already downloaded and waiting to be installed (Big Picture asks for it). */
+  private static downloadedVersion: string | null = null;
+
+  public static getDownloadedVersion() {
+    return this.downloadedVersion;
+  }
 
   private static mockValuesForDebug() {
     this.sendEvent({ type: "update-available", info: { version: "3.3.1" } });
@@ -19,7 +25,8 @@ export class UpdateManager {
   }
 
   private static sendEvent(event: AppUpdaterEvent) {
-    WindowManager.mainWindow?.webContents.send("autoUpdaterEvent", event);
+    // Every app window (main and Big Picture) shows the update.
+    WindowManager.sendToAppWindows("autoUpdaterEvent", event);
   }
 
   private static async isAutoInstallEnabled() {
@@ -50,6 +57,7 @@ export class UpdateManager {
         this.newVersion = info.version;
       })
       .on("update-downloaded", () => {
+        this.downloadedVersion = this.newVersion || this.downloadedVersion;
         this.sendEvent({ type: "update-downloaded" });
 
         if (!this.hasNotified) {

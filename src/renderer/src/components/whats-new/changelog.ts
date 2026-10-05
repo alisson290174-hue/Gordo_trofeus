@@ -10,6 +10,16 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.53",
+    date: "05/10/2026",
+    items: [
+      "Atualizações bem menores: o Opus baixa só o que mudou (cerca de 9 MB em vez de 216 MB).",
+      "O Opus procura atualizações a cada 3 horas (antes só ao abrir) e o aviso de atualização pronta ficou visível no topo.",
+      'Big Picture: quando há atualização baixada, o menu rápido mostra "Instalar atualização".',
+      "Registro de erros mais limpo (o aviso do torrent desligado não é mais gravado a cada 2 segundos).",
+    ],
+  },
+  {
     version: "1.0.52",
     date: "05/10/2026",
     items: [

@@ -1,32 +1,33 @@
 @use "../../scss/globals.scss";
 
+// A pill under the top bar (the old 12px grey line was easy to miss in the PS5 layout).
 .auto-update-sub-header {
-  border-bottom: solid 1px globals.$body-color;
-  padding: calc(globals.$spacing-unit / 2) calc(globals.$spacing-unit * 3);
+  display: flex;
+  justify-content: center;
+  padding: 6px 16px 10px;
 
-  &__new-version-link {
-    display: flex;
+  &__new-version-link,
+  &__new-version-button {
+    display: inline-flex;
     align-items: center;
-    gap: globals.$spacing-unit;
-    color: #8e919b;
-    font-size: 12px;
+    gap: 8px;
+    padding: 7px 16px;
+    border-radius: 999px;
+    border: 1px solid rgba(0, 112, 243, 0.45);
+    background: rgba(0, 112, 243, 0.16);
+    color: #e9eef7;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease;
+
+    &:hover {
+      background: rgba(0, 112, 243, 0.3);
+    }
   }
 
   &__new-version-icon {
-    color: globals.$success-color;
-  }
-
-  &__new-version-button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: globals.$spacing-unit;
-    color: globals.$body-color;
-    font-size: 12px;
-
-    &:hover {
-      text-decoration: underline;
-      cursor: pointer;
-    }
+    color: #4ade80;
   }
 }

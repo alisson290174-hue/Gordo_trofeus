@@ -1195,6 +1195,7 @@ declare global {
     ) => () => Electron.IpcRenderer;
     checkForUpdates: () => Promise<boolean>;
     restartAndInstallUpdate: () => Promise<void>;
+    getDownloadedUpdate: () => Promise<string | null>;
 
     /* Auth */
     getAuth: () => Promise<{
