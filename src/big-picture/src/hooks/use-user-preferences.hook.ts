@@ -8,44 +8,59 @@ type ElectronPreferencesBridge = {
   ) => () => void;
 };
 
+/**
+ * One shared copy of the preferences for the whole window. Every library card used to fetch them
+ * (and subscribe) on its own: ~565 IPC round trips each time the library opened, which froze Big
+ * Picture for seconds and delayed the next screen. Now: one fetch, one IPC listener.
+ */
 let lastKnownPreferences: UserPreferences | null = null;
+let hasLoaded = false;
+let loading: Promise<void> | null = null;
+let ipcUnsubscribe: (() => void) | null = null;
+const listeners = new Set<(preferences: UserPreferences | null) => void>();
+
+const publish = (preferences: UserPreferences | null) => {
+  lastKnownPreferences = preferences;
+  hasLoaded = true;
+  for (const listener of listeners) listener(preferences);
+};
+
+const ensureLoaded = () => {
+  const electron = globalThis.window?.electron as
+    ElectronPreferencesBridge | undefined;
+
+  if (
+    !ipcUnsubscribe &&
+    typeof electron?.onUserPreferencesUpdated === "function"
+  ) {
+    ipcUnsubscribe = electron.onUserPreferencesUpdated(publish);
+  }
+
+  if (hasLoaded || loading) return;
+  if (typeof electron?.getUserPreferences !== "function") {
+    publish(null);
+    return;
+  }
+
+  loading = electron
+    .getUserPreferences()
+    .then(publish, () => publish(null))
+    .finally(() => {
+      loading = null;
+    });
+};
 
 export function useUserPreferences() {
   const [userPreferences, setUserPreferences] =
     useState<UserPreferences | null>(() => lastKnownPreferences);
 
   useEffect(() => {
-    let isMounted = true;
-    const electron = globalThis.window.electron as ElectronPreferencesBridge;
-
-    const apply = (nextPreferences: UserPreferences | null) => {
-      lastKnownPreferences = nextPreferences;
-      if (isMounted) setUserPreferences(nextPreferences);
-    };
-
-    const loadUserPreferences = async () => {
-      if (typeof electron.getUserPreferences !== "function") {
-        apply(null);
-        return;
-      }
-
-      try {
-        apply(await electron.getUserPreferences());
-      } catch {
-        apply(null);
-      }
-    };
-
-    void loadUserPreferences();
-
-    const unsubscribe =
-      typeof electron.onUserPreferencesUpdated === "function"
-        ? electron.onUserPreferencesUpdated(apply)
-        : () => {};
-
+    listeners.add(setUserPreferences);
+    ensureLoaded();
+    // A value that arrived between the first render and this effect.
+    if (hasLoaded) setUserPreferences(lastKnownPreferences);
     return () => {
-      isMounted = false;
-      unsubscribe();
+      listeners.delete(setUserPreferences);
     };
   }, []);
 

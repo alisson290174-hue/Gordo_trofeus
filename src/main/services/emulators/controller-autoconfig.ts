@@ -39,10 +39,10 @@ import {
 
 let padCache: { at: number; pad: XInputPad | null } | null = null;
 
-/** First Xbox-class (XInput) controller plugged in, read from Windows' device list. */
-export const detectXInputPad = async (): Promise<XInputPad | null> => {
-  if (process.platform !== "win32") return null;
-  if (padCache && Date.now() - padCache.at < 60_000) return padCache.pad;
+const PAD_FRESH_MS = 60_000;
+let padRefresh: Promise<XInputPad | null> | null = null;
+
+const readXInputPadFromWindows = async (): Promise<XInputPad | null> => {
   const script =
     "Get-PnpDevice -PresentOnly -Class XnaComposite,XboxComposite -ErrorAction SilentlyContinue | " +
     "ForEach-Object { (Get-PnpDeviceProperty -InstanceId $_.InstanceId -KeyName DEVPKEY_Device_HardwareIds).Data }";
@@ -61,6 +61,32 @@ export const detectXInputPad = async (): Promise<XInputPad | null> => {
       .find((candidate): candidate is XInputPad => candidate !== null) ?? null;
   padCache = { at: Date.now(), pad };
   return pad;
+};
+
+const refreshXInputPad = () => {
+  padRefresh ??= readXInputPadFromWindows().finally(() => {
+    padRefresh = null;
+  });
+  return padRefresh;
+};
+
+/**
+ * First Xbox-class (XInput) controller plugged in, read from Windows' device list. Asking Windows
+ * starts PowerShell (0.5–1.5 s), which used to delay every launch: a known answer is returned at
+ * once and refreshed in the background when it is over a minute old.
+ */
+export const detectXInputPad = async (): Promise<XInputPad | null> => {
+  if (process.platform !== "win32") return null;
+  if (padCache) {
+    if (Date.now() - padCache.at > PAD_FRESH_MS) void refreshXInputPad();
+    return padCache.pad;
+  }
+  return refreshXInputPad();
+};
+
+/** Called shortly after startup so the first launch never waits for PowerShell. */
+export const prewarmXInputPad = () => {
+  if (process.platform === "win32" && !padCache) void refreshXInputPad();
 };
 
 // ---- DuckStation / PCSX2 (SDL pad index 0) ------------------------------------------------------

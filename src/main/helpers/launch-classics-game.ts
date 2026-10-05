@@ -239,6 +239,15 @@ export const launchClassicsGame = async (
   options: LaunchClassicsGameOptions
 ): Promise<void> => {
   const { shop, objectId, discPath, system } = options;
+  // Time of each step before the emulator starts (one log line per launch, for diagnosing delays).
+  const startedAt = performance.now();
+  const steps: string[] = [];
+  let lastMark = startedAt;
+  const step = (name: string) => {
+    const now = performance.now();
+    steps.push(`${name} ${Math.round(now - lastMark)}ms`);
+    lastMark = now;
+  };
 
   const config = await emulators.getEmulatorConfig(system);
   if (!config.executablePath || !existsSync(config.executablePath)) {
@@ -249,7 +258,9 @@ export const launchClassicsGame = async (
   // DuckStation/PCSX2 silently crash on launch when no BIOS is present, and the
   // emulator is spawned detached with stdio "ignore" so its own error never
   // reaches us. Detect the missing BIOS up front and block the launch instead.
+  step("config");
   await assertBiosInstalled(system, config);
+  step("bios");
 
   if (config.binary === "duckstation") {
     try {
@@ -306,8 +317,11 @@ export const launchClassicsGame = async (
     return discPath;
   };
 
+  step("prefs");
   const bootTarget = await resolveBootTarget();
+  step("boot-target");
   await configureControllerForEmulator(system, configuredExecutablePath);
+  step("controller");
 
   if (game) {
     await gamesSublevel.put(gameKey, {
@@ -317,9 +331,11 @@ export const launchClassicsGame = async (
     });
   }
 
+  step("save-game");
   const souvenirSession = game
     ? await prepareEmulatorSouvenirs(system, executableTarget)
     : null;
+  step("souvenirs");
   const baseArgs = [
     ...(souvenirSession?.launchArguments ?? []),
     ...buildEmulatorArgs(config.binary, bootTarget),
@@ -341,6 +357,10 @@ export const launchClassicsGame = async (
       resolvedLaunchCommand,
       workingDirectory,
       () => new EmulatorNotConfiguredError(system)
+    );
+    step("spawn");
+    logger.info(
+      `[launch] ${system} pronto em ${Math.round(performance.now() - startedAt)}ms: ${steps.join(", ")}`
     );
 
     if (game) {

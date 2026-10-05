@@ -20,6 +20,7 @@ import {
 } from "./emulators-repository";
 import { getEmulatorVersion } from "./get-emulator-version";
 import { KNOWN_BINARIES } from "./known-binaries";
+import { prewarmXInputPad } from "./controller-autoconfig";
 
 const DAY = 24 * 60 * 60 * 1000;
 let running = false;
@@ -119,6 +120,8 @@ export const scheduleEmulatorUpdates = () => {
     () => void disableCloseConfirmationsForAll(getEmulatorConfig),
     20_000
   );
+  // The first game launch shouldn't wait for PowerShell to find the controller.
+  setTimeout(() => prewarmXInputPad(), 8_000);
   setTimeout(() => void checkEmulatorUpdates(), 90_000);
   setInterval(() => void checkEmulatorUpdates(), DAY);
 };

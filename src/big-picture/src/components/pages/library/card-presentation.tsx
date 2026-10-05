@@ -17,11 +17,7 @@ import {
   getGameAchievementProgress,
   resolveImageSource,
 } from "../../../helpers";
-import {
-  useDominantColor,
-  useFormat,
-  useUserPreferences,
-} from "../../../hooks";
+import { useFormat, useUserPreferences } from "../../../hooks";
 
 export function useFocusAnimatedCover(
   coverUrl: string | null | undefined,
@@ -159,7 +155,9 @@ export function useLibraryGameCardPresentation(
   const isChosenCoverActive = Boolean(
     activeImageSource && isChosenCoverSource(game, activeImageSource)
   );
-  const dominantColor = useDominantColor(activeImageSource);
+  // The trophy bar used the cover's dominant colour: every card downloaded and decoded its cover
+  // just for that (all ~565 at once, defeating the lazy covers). The Opus blue is used instead.
+  const dominantColor = "var(--opus-accent)";
   const achievementProgress = getGameAchievementProgress(game);
   const userPreferences = useUserPreferences();
   const hideClassicsBadges =
