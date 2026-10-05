@@ -391,7 +391,15 @@ export const watchProcesses = async () => {
   const running = getGamesRunning();
   WindowManager.sendToAppWindows("on-games-running", running);
   GamepadComboWatcher.sync(running.length > 0);
+  // A game just started from Big Picture: move the mouse pointer out of the middle of the screen.
+  if (running.length > 0 && !wasGameRunning) WindowManager.parkCursorForGame();
+  // ...and when the last game closes (any way), Big Picture comes back in front, ready for the pad.
+  if (running.length === 0 && wasGameRunning)
+    WindowManager.bringBigPictureBack();
+  wasGameRunning = running.length > 0;
 };
+
+let wasGameRunning = false;
 
 async function onOpenGame(game: Game, matchedPath: string) {
   cancelSteamGameExitSync(game);

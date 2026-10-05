@@ -11,6 +11,7 @@ import {
   matchModPack,
   matchModPackByTitle,
   pickSwitchModFolders,
+  withoutBrokenMods,
   titleIdOfPack,
 } from "./switch-mods-rules";
 
@@ -105,7 +106,7 @@ export const installSwitchMods = async (
       .readdirSync(root, { withFileTypes: true })
       .filter((e) => e.isDirectory())
       .map((e) => e.name);
-    const chosen = pickSwitchModFolders(folders);
+    const chosen = withoutBrokenMods(titleId, pickSwitchModFolders(folders));
     if (chosen.length === 0) return { status: "not_found" };
 
     const target = path.join(

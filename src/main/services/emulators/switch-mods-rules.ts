@@ -10,6 +10,20 @@ const SKIP =
 
 const LOD = /level\s*of\s*detail|\blod\b/i;
 
+/**
+ * Mods that broke a game on the owner's PC: Pokémon Scarlet/Violet hang on the loading screen
+ * with the 60 FPS patch (tested 05/10/2026 on 4.0.0, the game boots without it).
+ */
+const BROKEN_BY_TITLE: Record<string, RegExp> = {
+  "0100A3D008C5C000": /60\s*-?\s*fps/i,
+  "01008F6008C5E000": /60\s*-?\s*fps/i,
+};
+
+export const withoutBrokenMods = (titleId: string, folders: string[]) => {
+  const broken = BROKEN_BY_TITLE[titleId.toUpperCase()];
+  return broken ? folders.filter((name) => !broken.test(name)) : folders;
+};
+
 export const pickSwitchModFolders = (folders: string[]): string[] => {
   const usable = folders.filter((name) => KEEP.test(name) && !SKIP.test(name));
   const fps = usable.filter(

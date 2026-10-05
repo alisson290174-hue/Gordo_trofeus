@@ -7,6 +7,7 @@ import {
   matchModPackByTitle,
   pickSwitchModFolders,
   titleIdOfPack,
+  withoutBrokenMods,
 } from "./switch-mods-rules";
 
 test("keeps one 60 FPS variant plus detail/resolution fixes, drops look-changing mods", () => {
@@ -77,4 +78,16 @@ test("finds a pack by game title when the file has no title id", () => {
   );
   assert.equal(matchModPackByTitle(files, "Pokémon Legends: Arceus"), files[1]);
   assert.equal(titleIdOfPack(files[1]), "01001F5010DFA000");
+});
+
+test("drops the 60 FPS patch for Pokémon Violet and Scarlet, keeps other games", () => {
+  const folders = ["60 FPS [v4.0.0]", "Level of Detail"];
+  assert.deepEqual(withoutBrokenMods("01008F6008C5E000", folders), [
+    "Level of Detail",
+  ]);
+  assert.deepEqual(withoutBrokenMods("0100a3d008c5c000", folders), [
+    "Level of Detail",
+  ]);
+  const shield = ["60 FPS [v1.3.2]"];
+  assert.deepEqual(withoutBrokenMods("01008DB008C2C000", shield), shield);
 });

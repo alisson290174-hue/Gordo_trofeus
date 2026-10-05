@@ -10,6 +10,16 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.48",
+    date: "05/10/2026",
+    items: [
+      "Pokémon Violet voltou a abrir: o patch de 60 FPS travava o jogo na tela de carregamento e foi removido (o Opus não o instala mais no Violet/Scarlet).",
+      "Big Picture: a faixa de capas do Início acompanha o jogo selecionado até o fim da lista.",
+      "Big Picture: ao fechar um jogo (Select + Start, menu rápido ou saindo pelo próprio jogo) o Big Picture volta para a frente em tela cheia, pronto para o controle — sem precisar do mouse.",
+      "Ao abrir um jogo pelo Big Picture, a seta do mouse sai do meio da tela.",
+    ],
+  },
+  {
     version: "1.0.47",
     date: "05/10/2026",
     items: [

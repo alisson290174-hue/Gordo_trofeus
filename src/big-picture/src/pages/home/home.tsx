@@ -104,6 +104,27 @@ export default function Home() {
   const selected =
     strip.find((game) => gameKey(game) === selectedKey) ?? strip[0] ?? null;
 
+  // Keep the focused tile on screen (PS5 style: it sits near the left, the previous one peeking).
+  useEffect(() => {
+    if (!currentFocusId?.startsWith(TILE_PREFIX)) return;
+    const frame = globalThis.requestAnimationFrame(() => {
+      const container =
+        globalThis.document.querySelector<HTMLElement>(".opus-home__tiles");
+      const tile = container?.querySelector<HTMLElement>(
+        '[data-focused="true"]'
+      );
+      if (!container || !tile) return;
+      const previous = tile.previousElementSibling as HTMLElement | null;
+      const peek = previous ? previous.offsetWidth * 0.6 : 0;
+      container.scrollTo({
+        // The tiles row is positioned, so offsetLeft is measured inside it.
+        left: Math.max(0, tile.offsetLeft - peek),
+        behavior: "smooth",
+      });
+    });
+    return () => globalThis.cancelAnimationFrame(frame);
+  }, [currentFocusId]);
+
   const openGamePage = useCallback(
     (game: LibraryGame) => navigate(getBigPictureGameDetailsPath(game)),
     [navigate]

@@ -1,3 +1,4 @@
+import { spawn } from "node:child_process";
 import { is } from "@electron-toolkit/utils";
 import { openExternalSafe } from "@main/helpers/open-external-safe";
 import { isStaging } from "@main/constants";
@@ -925,13 +926,69 @@ export class WindowManager {
       this.createMainWindow();
       return;
     }
+    const isBigPicture = target === this.bigPicture;
     if (target.isMinimized()) target.restore();
     target.show();
     target.setAlwaysOnTop(true);
     target.focus();
+    if (isBigPicture) target.setFullScreen(true);
     setTimeout(() => {
-      if (!target.isDestroyed()) target.setAlwaysOnTop(false);
+      if (target.isDestroyed()) return;
+      // Windows refuses focus to a background app (the taskbar just flashes): a minimize +
+      // restore round trip is the activation it accepts, so the controller works right away.
+      if (!target.isFocused()) {
+        target.minimize();
+        target.restore();
+        target.focus();
+        if (isBigPicture) target.setFullScreen(true);
+      }
+      target.setAlwaysOnTop(false);
+      if (!target.isFocused()) WindowManager.forceForeground(target);
     }, 600);
+  }
+
+  /**
+   * Last resort when Windows still keeps another app in front: a synthetic Alt tap lifts the
+   * foreground lock, then SetForegroundWindow on our window (what the Alt+Tab switcher does).
+   */
+  private static forceForeground(target: Electron.BrowserWindow) {
+    if (process.platform !== "win32" || target.isDestroyed()) return;
+    const handle = target.getNativeWindowHandle();
+    const hwnd =
+      handle.length >= 8
+        ? handle.readBigUInt64LE(0).toString()
+        : String(handle.readUInt32LE(0));
+    const script = `Add-Type 'using System;using System.Runtime.InteropServices;public class OpusFg{[DllImport("user32.dll")]public static extern bool SetForegroundWindow(IntPtr h);[DllImport("user32.dll")]public static extern void keybd_event(byte k,byte s,uint f,UIntPtr e);}'; [OpusFg]::keybd_event(0x12,0,0,[UIntPtr]::Zero); [OpusFg]::SetForegroundWindow([IntPtr]${hwnd}) | Out-Null; [OpusFg]::keybd_event(0x12,0,2,[UIntPtr]::Zero)`;
+    const child = spawn(
+      "powershell.exe",
+      ["-NoProfile", "-NonInteractive", "-Command", script],
+      { windowsHide: true, stdio: "ignore" }
+    );
+    child.on("error", () => {});
+  }
+
+  /** After a game closes: Big Picture (only when it is open) returns to the front. */
+  public static bringBigPictureBack() {
+    if (this.bigPicture && !this.bigPicture.isDestroyed()) {
+      this.bringLauncherToFront();
+    }
+  }
+
+  /** Big Picture is open: playing with a controller, so the mouse pointer leaves the screen. */
+  public static parkCursorForGame() {
+    const bigPicture = this.bigPicture;
+    if (process.platform !== "win32" || !bigPicture || bigPicture.isDestroyed())
+      return;
+    const { x, y, width, height } = screen.getDisplayMatching(
+      bigPicture.getBounds()
+    ).bounds;
+    const command = `Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point(${x + width - 1}, ${y + Math.round(height / 2)})`;
+    const child = spawn(
+      "powershell.exe",
+      ["-NoProfile", "-NonInteractive", "-Command", command],
+      { windowsHide: true, stdio: "ignore" }
+    );
+    child.on("error", () => {});
   }
 
   public static openMainWindow() {
