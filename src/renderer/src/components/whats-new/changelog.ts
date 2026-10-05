@@ -10,6 +10,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.56",
+    date: "05/10/2026",
+    items: [
+      "Switch com imagem bem melhor: resolução 2x de verdade (antes ficava em 1,25x por engano) e precisão de GPU Equilibrada, que corrige os erros visuais (ex.: Pokémon).",
+      "Select + Start: o Big Picture volta para a frente de verdade ao fechar o jogo.",
+      "Início do Big Picture: as capas não aparecem mais cortadas na borda, e a seleção não pula mais para outra capa quando a faixa rola debaixo da seta do mouse.",
+    ],
+  },
+  {
     version: "1.0.55",
     date: "05/10/2026",
     items: [

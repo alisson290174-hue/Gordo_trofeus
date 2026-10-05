@@ -951,8 +951,16 @@ export class WindowManager {
         if (isBigPicture) target.setFullScreen(true);
       }
       target.setAlwaysOnTop(false);
-      if (!target.isFocused()) WindowManager.forceForeground(target);
+      // isFocused() can say "yes" while Windows kept another app in front, so the Alt +
+      // SetForegroundWindow step always runs, and once more when the closing emulator has gone.
+      WindowManager.forceForeground(target);
+      logger.info(
+        `[window] ${isBigPicture ? "Big Picture" : "main window"} brought back (focused=${target.isFocused()})`
+      );
     }, 600);
+    setTimeout(() => {
+      if (!target.isDestroyed()) WindowManager.forceForeground(target);
+    }, 2_500);
   }
 
   /**

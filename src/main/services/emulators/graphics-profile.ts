@@ -132,14 +132,30 @@ export const applyGraphicsProfile = async (
           fs.writeFileSync(perGame, next, "utf8");
         }
       }
-      // 2x (resolution_setup 4) on a strong GPU, only over Eden's own 1x default (2).
+      // Eden's resolution list is NOT yuzu's: 0=0.25x 1=0.5x 2=0.75x 3=1x 4=1.25x 5=1.5x 6=2x 7=3x.
+      // Opus used to write "4" believing it was 2x (it is 1.25x, the blurry picture the owner saw):
+      // a strong GPU gets real 2x over the defaults and over that old wrong value.
       const resolution = /^resolution_setup=(\d+)/m.exec(content)?.[1];
-      if (scale === 2 && (!resolution || resolution === "2")) {
-        content = setQtIniValue(content, "Renderer", "resolution_setup", "4");
+      if (
+        scale === 2 &&
+        (!resolution || ["2", "3", "4"].includes(resolution))
+      ) {
+        content = setQtIniValue(content, "Renderer", "resolution_setup", "6");
         content = setQtIniValue(
           content,
           "Renderer",
           "resolution_setup\\default",
+          "false"
+        );
+      }
+      // GPU accuracy 0 is "Fast" (FAST on Eden's status bar): broken shadows/effects in games like
+      // Pokémon Scarlet/Violet. "Balanced" (1) costs little on a strong GPU.
+      if (scale === 2 && /^gpu_accuracy=0$/m.test(content)) {
+        content = setQtIniValue(content, "Renderer", "gpu_accuracy", "1");
+        content = setQtIniValue(
+          content,
+          "Renderer",
+          "gpu_accuracy\\default",
           "false"
         );
       }

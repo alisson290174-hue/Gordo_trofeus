@@ -78,10 +78,16 @@
     align-items: flex-end;
     gap: 24px;
     min-height: var(--tile-focused);
-    padding: 12px 12px 12px 4px;
+    padding: 12px 70vw 12px 4px;
     margin-left: -4px;
+    margin-right: calc(var(--opus-gutter) * -1);
     overflow-x: auto;
+    scrollbar-width: none;
     flex: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 
   &__tile {

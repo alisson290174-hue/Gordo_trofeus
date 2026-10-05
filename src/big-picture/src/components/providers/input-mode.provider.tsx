@@ -76,6 +76,17 @@ function InputModeMouseDetector() {
 
   useEffect(() => {
     const handlePointerActivity = (event: MouseEvent | WheelEvent) => {
+      // Chromium fires a synthetic mousemove (no movement) whenever content scrolls under a
+      // resting pointer — e.g. the Início strip following the controller. That is not the user
+      // reaching for the mouse: it used to switch to mouse mode and hand the selection to whatever
+      // cover slid under the pointer, so the controller's order "jumped".
+      if (
+        event.type === "mousemove" &&
+        event.movementX === 0 &&
+        event.movementY === 0
+      ) {
+        return;
+      }
       if (
         !shouldEnterMouseMode(
           useInputModeStore.getState().mode,

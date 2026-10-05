@@ -134,11 +134,11 @@ export default function Home() {
         '[data-focused="true"]'
       );
       if (!container || !tile) return;
+      // The previous cover stays fully visible (no half-cut sliver at the left edge); the row has
+      // room at its end, so even the last covers can align this way.
       const previous = tile.previousElementSibling as HTMLElement | null;
-      const peek = previous ? previous.offsetWidth * 0.6 : 0;
       container.scrollTo({
-        // The tiles row is positioned, so offsetLeft is measured inside it.
-        left: Math.max(0, tile.offsetLeft - peek),
+        left: previous ? Math.max(0, previous.offsetLeft - 4) : 0,
         behavior: "smooth",
       });
     });
