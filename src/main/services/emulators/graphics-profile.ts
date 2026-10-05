@@ -42,6 +42,9 @@ export const detectGpuTier = async (): Promise<GpuTier> => {
   return tierCache;
 };
 
+/** Switch games released with official Brazilian Portuguese: Super Mario Galaxy, Galaxy 2, Jamboree. */
+const OFFICIAL_PTBR_SWITCH = ["010099C022B96000", "0100FD8022DAA000", "0100965017338000", "010015100B514000", "01006B601380E000"];
+
 /** Internal resolution multiplier per console and tier (low keeps native). */
 const SCALE: Record<GpuTier, Partial<Record<EmulatorSystem, number>>> = {
   high: { ps1: 5, ps2: 3, dolphin: 3, "3ds": 4, switch: 2, ps3: 2 },
@@ -69,11 +72,22 @@ export const applyGraphicsProfile = async (
     if (system === "switch") {
       const file = path.join(qtEmulatorDataDir(executablePath, "eden"), "config", "qt-config.ini");
       let content = fs.existsSync(file) ? fs.readFileSync(file, "utf8") : "";
-      // Official PT-BR releases (Mario Galaxy, Jamboree, Kirby…) only show it with the console set
-      // to Brazilian Portuguese (17); default English (1) or European Portuguese (9) hide it.
+      // Fan translations replace the ENGLISH text, and games without Portuguese fall back to Latin
+      // American Spanish when the console is set to PT-BR. So the console stays in English (1)
+      // and only the games with official PT-BR get a per-game Brazilian Portuguese (17).
       const language = /^language_index=(\d+)/m.exec(content)?.[1];
-      if (app.getLocale().toLowerCase().startsWith("pt") && (!language || language === "1" || language === "9")) {
-        content = setQtIniValue(content, "System", "language_index", "17");
+      if (app.getLocale().toLowerCase().startsWith("pt")) {
+        if (language === "17") content = setQtIniValue(content, "System", "language_index", "1");
+        const customDir = path.join(path.dirname(file), "custom");
+        fs.mkdirSync(customDir, { recursive: true });
+        for (const titleId of OFFICIAL_PTBR_SWITCH) {
+          const perGame = path.join(customDir, `${titleId}.ini`);
+          const current = fs.existsSync(perGame) ? fs.readFileSync(perGame, "utf8") : "";
+          if (/^language_index=17$/m.test(current)) continue;
+          let next = setQtIniValue(current, "System", "language_index\\use_global", "false");
+          next = setQtIniValue(next, "System", "language_index", "17");
+          fs.writeFileSync(perGame, next, "utf8");
+        }
       }
       // 2x (resolution_setup 4) on a strong GPU, only over Eden's own 1x default (2).
       const resolution = /^resolution_setup=(\d+)/m.exec(content)?.[1];

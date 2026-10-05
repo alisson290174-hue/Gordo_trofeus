@@ -10,6 +10,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.44",
+    date: "05/10/2026",
+    items: [
+      "Switch: traduções de fã voltam a aparecer em português (o console fica em inglês; antes alguns jogos caíam no espanhol).",
+      "Switch: Mario Bros. Wonder, Kirby Return to Dream Land Deluxe, Mario Galaxy 1 e 2 e Mario Party Jamboree abrem no português oficial.",
+      "A busca de traduções não confunde mais os patches de 60 FPS com uma tradução já instalada.",
+    ],
+  },
+  {
     version: "1.0.43",
     date: "04/10/2026",
     items: [

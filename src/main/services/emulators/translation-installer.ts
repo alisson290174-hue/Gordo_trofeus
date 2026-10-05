@@ -146,7 +146,8 @@ export const hasInstalledMod = (system: EmulatorSystem, executablePath: string, 
       ? modTarget(system, executablePath, titleId)
       : path.join(qtEmulatorDataDir(executablePath, "eden"), "load", titleId);
   try {
-    return fs.readdirSync(target).length > 0;
+    // "Opus - …" folders are the 60 FPS / cheat enhancements, not a translation.
+    return fs.readdirSync(target).some((entry) => !entry.startsWith("Opus - "));
   } catch {
     return false;
   }
