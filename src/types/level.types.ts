@@ -204,6 +204,10 @@ export interface UserPreferences {
   enableNewDownloadOptionsBadges?: boolean;
   createStartMenuShortcut?: boolean;
   bigPictureSoundsEnabled?: boolean;
+  /** Opus logo + chime when Big Picture opens (default on). */
+  bigPictureIntroEnabled?: boolean;
+  /** Rest screen with game art after 5 idle minutes (default on). */
+  bigPictureScreensaverEnabled?: boolean;
   bigPictureVirtualKeyboardEnabled?: boolean;
   bigPictureDiagnosticsEnabled?: boolean;
   bigPictureDiagnosticsPosition?: BigPictureDiagnosticsPosition;

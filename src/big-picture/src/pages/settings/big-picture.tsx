@@ -18,6 +18,7 @@ import {
   SETTINGS_HEADER_RETURN_TARGET,
 } from "./settings-navigation";
 import { SettingsSection } from "./settings-section";
+import { tr } from "../../helpers/opus-text";
 
 interface BigPictureSettingsSectionProps {
   className?: string;
@@ -27,6 +28,8 @@ interface BigPictureForm {
   launchInBigPicture: boolean;
   bigPictureLaunchToLibraryPage: boolean;
   bigPictureSoundsEnabled: boolean;
+  bigPictureIntroEnabled: boolean;
+  bigPictureScreensaverEnabled: boolean;
   bigPictureVirtualKeyboardEnabled: boolean;
   bigPictureDiagnosticsEnabled: boolean;
   bigPictureDiagnosticsPosition: BigPictureDiagnosticsPosition;
@@ -44,6 +47,8 @@ const DEFAULT_FORM: BigPictureForm = {
   launchInBigPicture: false,
   bigPictureLaunchToLibraryPage: false,
   bigPictureSoundsEnabled: true,
+  bigPictureIntroEnabled: true,
+  bigPictureScreensaverEnabled: true,
   bigPictureVirtualKeyboardEnabled: true,
   bigPictureDiagnosticsEnabled: false,
   bigPictureDiagnosticsPosition: "bottom-center",
@@ -58,6 +63,9 @@ const buildForm = (preferences: UserPreferences | null): BigPictureForm =>
           preferences.launchToLibraryPage ??
           false,
         bigPictureSoundsEnabled: preferences.bigPictureSoundsEnabled ?? true,
+        bigPictureIntroEnabled: preferences.bigPictureIntroEnabled ?? true,
+        bigPictureScreensaverEnabled:
+          preferences.bigPictureScreensaverEnabled ?? true,
         bigPictureVirtualKeyboardEnabled:
           preferences.bigPictureVirtualKeyboardEnabled ?? true,
         bigPictureDiagnosticsEnabled:
@@ -156,12 +164,37 @@ export function BigPictureSettingsSection({
         checked: form.bigPictureLaunchToLibraryPage,
         onChange: handleLaunchToLibraryPageChange,
       },
+      {
+        id: "enable-intro",
+        focusId: BIG_PICTURE_ITEM_FOCUS_IDS.enableIntro,
+        label: tr(
+          "Opening animation (Opus logo and sound)",
+          "Animação de abertura (logo e som do Opus)"
+        ),
+        checked: form.bigPictureIntroEnabled,
+        onChange: (checked) =>
+          updateUserPreferences({ bigPictureIntroEnabled: checked }),
+      },
+      {
+        id: "enable-screensaver",
+        focusId: BIG_PICTURE_ITEM_FOCUS_IDS.enableScreensaver,
+        label: tr(
+          "Rest screen after 5 idle minutes",
+          "Descanso de tela depois de 5 minutos parado"
+        ),
+        checked: form.bigPictureScreensaverEnabled,
+        onChange: (checked) =>
+          updateUserPreferences({ bigPictureScreensaverEnabled: checked }),
+      },
     ];
   }, [
     form.launchInBigPicture,
     form.bigPictureLaunchToLibraryPage,
+    form.bigPictureIntroEnabled,
+    form.bigPictureScreensaverEnabled,
     handleLaunchInBigPictureChange,
     handleLaunchToLibraryPageChange,
+    updateUserPreferences,
   ]);
 
   const inputItems = useMemo<BigPictureItem[]>(() => {
@@ -260,7 +293,7 @@ export function BigPictureSettingsSection({
   >(() => {
     const previousFallback: FocusOverrideTarget = {
       type: "item",
-      itemId: BIG_PICTURE_ITEM_FOCUS_IDS.launchToLibraryPage,
+      itemId: BIG_PICTURE_ITEM_FOCUS_IDS.enableScreensaver,
     };
 
     return Object.fromEntries(

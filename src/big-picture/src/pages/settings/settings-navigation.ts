@@ -158,6 +158,8 @@ export const CONTENT_ITEM_FOCUS_IDS = {
 export const BIG_PICTURE_ITEM_FOCUS_IDS = {
   launchInBigPicture: "big-picture-launch-in-big-picture",
   launchToLibraryPage: "big-picture-launch-to-library-page",
+  enableIntro: "big-picture-enable-intro",
+  enableScreensaver: "big-picture-enable-screensaver",
   enableSounds: "big-picture-enable-sounds",
   enableVirtualKeyboard: "big-picture-enable-virtual-keyboard",
   enableDiagnostics: "big-picture-enable-diagnostics",

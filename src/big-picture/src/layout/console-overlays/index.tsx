@@ -176,7 +176,7 @@ function useIdle(enabled: boolean, onIdle: () => void, onActive: () => void) {
 }
 
 /** PS5-style rest screen: the art of your games drifting slowly, the clock, any button wakes. */
-function Screensaver() {
+function Screensaver({ enabled }: Readonly<{ enabled: boolean }>) {
   const [active, setActive] = useState(false);
   const [slide, setSlide] = useState(0);
   const [now, setNow] = useState(() => new Date());
@@ -199,7 +199,7 @@ function Screensaver() {
   const hide = useCallback(() => setActive(false), []);
   // Never while a game is running (the controller is busy in the game) or with nothing to show.
   const markActive = useIdle(
-    !running && slides.length > 0,
+    enabled && !running && slides.length > 0,
     () => {
       if (document.visibilityState === "visible") setActive(true);
     },
@@ -326,11 +326,18 @@ function Screensaver() {
 export function ConsoleOverlays() {
   const userPreferences = useUserPreferences();
   const withSound = userPreferences?.bigPictureSoundsEnabled ?? true;
+  // Settings › Big Picture can turn either one off (both on by default). The intro waits for the
+  // preferences so a disabled intro never flashes.
+  const introEnabled =
+    userPreferences !== null &&
+    (userPreferences?.bigPictureIntroEnabled ?? true);
+  const screensaverEnabled =
+    userPreferences?.bigPictureScreensaverEnabled ?? true;
 
   return (
     <>
-      <BootIntro withSound={withSound} />
-      <Screensaver />
+      {introEnabled && <BootIntro withSound={withSound} />}
+      <Screensaver enabled={screensaverEnabled} />
     </>
   );
 }

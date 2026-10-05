@@ -10,6 +10,14 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.51",
+    date: "05/10/2026",
+    items: [
+      "Big Picture › Configurações › Big Picture: agora dá para desligar a animação de abertura e o descanso de tela.",
+      "Esta é a primeira atualização que baixa só o que mudou (bem menor que o instalador inteiro).",
+    ],
+  },
+  {
     version: "1.0.50",
     date: "05/10/2026",
     items: [
