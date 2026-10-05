@@ -16,6 +16,9 @@ fs.mkdirSync(updatesDir, { recursive: true });
 
 const SAFE_FILE = /^[A-Za-z0-9][A-Za-z0-9._-]{0,120}$/;
 
+const layout0 = (ranges: { start: number; end: number }[]) =>
+  ranges.reduce((sum, range) => sum + range.end - range.start + 1, 0);
+
 export function registerUpdateRoutes(app: FastifyInstance) {
   app.get<{ Params: { file: string } }>("/updates/:file", async (request, reply) => {
     if (!requireAuth(request, reply)) return;
@@ -40,6 +43,10 @@ export function registerUpdateRoutes(app: FastifyInstance) {
       if (!ranges) {
         return reply.code(416).header("Content-Range", `bytes */${size}`).send();
       }
+      request.log.info(
+        { file, ranges: ranges.length, bytes: layout0(ranges) },
+        "update: differential multi-range request"
+      );
       const boundary = randomBytes(12).toString("hex");
       const layout = buildMultipartLayout(ranges, size, boundary);
       reply
