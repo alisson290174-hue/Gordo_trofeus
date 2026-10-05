@@ -1,4 +1,5 @@
 import type { ChildProcess } from "node:child_process";
+import { execFile } from "node:child_process";
 
 import { gamesSublevel, levelKeys } from "@main/level";
 import { EMULATOR_SYSTEMS, isLocalOnlyShop } from "@shared";
@@ -160,11 +161,48 @@ export const startEmulatorSession = async ({
   }
 };
 
+/** How long an emulator gets to save and quit on its own before it is ended by force. */
+const GRACEFUL_CLOSE_MS = 8_000;
+
+const forceKillWindows = (pid: number) =>
+  execFile(
+    "taskkill",
+    ["/PID", String(pid), "/T", "/F"],
+    { windowsHide: true },
+    () => {}
+  );
+
 export const closeEmulatorSession = (gameKey: string): boolean => {
   const session = emulatorSessions.get(gameKey);
   if (!session) return false;
 
   const { pid } = session.child;
+
+  // Windows: ask first, like the window's X button (WM_CLOSE), so the emulator writes its
+  // in-game saves (RetroArch SRAM, memory cards) and its own settings before quitting.
+  if (pid && process.platform === "win32") {
+    const exited = () =>
+      session.child.exitCode !== null || session.child.signalCode !== null;
+    const timer = setTimeout(() => {
+      if (exited()) return;
+      logger.warn("[emulator] did not close in time, ending it", { gameKey });
+      forceKillWindows(pid);
+    }, GRACEFUL_CLOSE_MS);
+    session.child.once("exit", () => clearTimeout(timer));
+    execFile(
+      "taskkill",
+      ["/PID", String(pid), "/T"],
+      { windowsHide: true },
+      (error) => {
+        // No window to close (console process): nothing to ask, end it now.
+        if (error && !exited()) {
+          clearTimeout(timer);
+          forceKillWindows(pid);
+        }
+      }
+    );
+    return true;
+  }
 
   try {
     if (pid && process.platform !== "win32") {

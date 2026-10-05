@@ -10,6 +10,14 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.45",
+    date: "05/10/2026",
+    items: [
+      "Fechar um jogo (botão Fechar ou Select + Start) agora pede para o emulador sair como no X da janela: ele salva antes de fechar. Só se não responder em 8 segundos é encerrado à força.",
+      'Os avisos "tem certeza que quer sair?" dos emuladores foram desligados para o fechamento não travar.',
+    ],
+  },
+  {
     version: "1.0.44",
     date: "05/10/2026",
     items: [

@@ -1,3 +1,4 @@
+import { disableCloseConfirmationsForAll } from "./close-confirmations";
 import { existsSync } from "node:fs";
 import path from "node:path";
 
@@ -114,6 +115,10 @@ export const checkEmulatorUpdates = async (): Promise<string[]> => {
 
 /** A first check a little after startup, then once a day. */
 export const scheduleEmulatorUpdates = () => {
+  setTimeout(
+    () => void disableCloseConfirmationsForAll(getEmulatorConfig),
+    20_000
+  );
   setTimeout(() => void checkEmulatorUpdates(), 90_000);
   setInterval(() => void checkEmulatorUpdates(), DAY);
 };

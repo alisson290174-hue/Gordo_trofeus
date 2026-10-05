@@ -28,6 +28,7 @@ import { KNOWN_BINARIES } from "./known-binaries";
 import { installPs3FirmwareIfMissing } from "./ps3-firmware-installer";
 import { configureControllerForEmulator } from "./controller-autoconfig";
 import { applyGraphicsProfile, applySmoothShaders } from "./graphics-profile";
+import { disableCloseConfirmations } from "./close-confirmations";
 import fs from "node:fs";
 import { setIniValue } from "./duckstation-souvenir-config-value";
 import {
@@ -149,6 +150,7 @@ const configureInstalledEmulator = async (
   await configureControllerForEmulator(system, executablePath);
   await applyGraphicsProfile(system, executablePath);
   applySmoothShaders(system, executablePath);
+  disableCloseConfirmations(system, executablePath);
   if (system === "ps1") enableEmulatorAchievements("ps1", executablePath);
 };
 
