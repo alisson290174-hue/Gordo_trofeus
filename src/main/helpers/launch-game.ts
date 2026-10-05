@@ -1,5 +1,9 @@
 import { shell } from "electron";
 import { launchEpicGame } from "@main/services/epic/epic-installer";
+import {
+  findXboxAppUserModelId,
+  launchXboxGame,
+} from "@main/services/xbox-games";
 import { launchThroughSteam } from "@main/services/steam-owned/steam-owned-library";
 import { isInsideSteamLibrary } from "@main/services/steam-owned/steam-install-process-match";
 import { spawn } from "node:child_process";
@@ -873,6 +877,14 @@ export const launchGame = async (options: LaunchGameOptions) => {
   // watcher still tracks playtime through the game's executablePath.
   if (options.shop === "epic") {
     await launchEpicGame(options.objectId);
+    return null;
+  }
+
+  // Xbox app (Game Pass / Store) games start through Windows, like the Start menu does; the
+  // process watcher still tracks playtime through the executable inside XboxGames.
+  const xboxAppUserModelId = findXboxAppUserModelId(options.executablePath);
+  if (xboxAppUserModelId) {
+    launchXboxGame(xboxAppUserModelId);
     return null;
   }
 

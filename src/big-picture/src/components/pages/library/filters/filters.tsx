@@ -1,5 +1,7 @@
 import "./filters.scss";
 
+import { tr } from "../../../../helpers/opus-text";
+
 import type { GameCollection, LibraryGame } from "@types";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -278,7 +280,15 @@ export function LibraryFilters({
   return (
     <div className="library-filters">
       <div className="library-filters__header">
-        <h2 className="library-filters__title">Your Library</h2>
+        <span className="library-filters__eyebrow">
+          {tr("Your collection", "Sua coleção")}
+        </span>
+        <h2 className="library-filters__title">
+          {tr("Library", "Biblioteca")}
+          <span className="library-filters__count">
+            {tr(`${counts.all} games`, `${counts.all} jogos`)}
+          </span>
+        </h2>
       </div>
 
       <HorizontalFocusGroup

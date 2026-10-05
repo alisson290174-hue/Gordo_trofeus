@@ -10,6 +10,7 @@ import { useDate } from "../../../../hooks";
 import { FocusItem, Tooltip, Typography } from "../../../common";
 import type { FocusOverrides } from "../../../../services";
 import { getAchievementRowId } from "../navigation";
+import { tr } from "../../../../helpers/opus-text";
 
 export interface AchievementRowProps {
   achievement: UserAchievement;
@@ -61,9 +62,10 @@ export function AchievementRow({
             {achievement.displayName}
           </Typography>
 
-          {achievement.hidden ? (
+          {achievement.hidden &&
+          !(achievement.unlocked && achievement.description) ? (
             <Typography className="game-achievements-row__hidden-note">
-              Hidden achievement
+              {tr("Hidden achievement", "Conquista oculta")}
             </Typography>
           ) : achievement.description ? (
             <Typography className="game-achievements-row__description">

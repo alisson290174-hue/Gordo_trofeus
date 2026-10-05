@@ -24,6 +24,7 @@ import {
   WindowManager,
 } from "@main/services";
 import { runAutomaticCloudSaveSync } from "@main/services/cloud-save";
+import { getXboxGamesDirectories } from "@main/services/xbox-games";
 import type { Game, GameShop } from "@types";
 
 const SCAN_DIRECTORIES = [
@@ -192,6 +193,8 @@ const getDefaultScanDirectories = async () => {
       path.join(libraryFolder, "steamapps", "common")
     ),
     ...(downloadsPath ? [downloadsPath] : []),
+    // Games installed by the Xbox app (Game Pass / Microsoft Store).
+    ...getXboxGamesDirectories(),
   ];
 };
 

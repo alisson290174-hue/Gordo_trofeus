@@ -1,12 +1,18 @@
 import { Fragment, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import {
+  Outlet,
+  useLocation,
+  useNavigate,
+  useNavigationType,
+} from "react-router-dom";
 import {
   BIG_PICTURE_APP_LAYER_ID,
   BIG_PICTURE_CONTENT_REGION_ID,
   BIG_PICTURE_SHELL_REGION_ID,
   getBigPictureContentEntryRegionIdFromPathname,
   ButtonHints,
+  ConsoleOverlays,
   Header,
   normalizeBigPicturePathname,
   QuickMenu,
@@ -31,16 +37,19 @@ import {
   initializeBigPictureRunningGamesStore,
   useInputModeStore,
 } from "./stores";
-import { NavigationAudioService } from "./services";
+import { NavigationAudioService, NavigationService } from "./services";
 import { BigPictureI18nBridge, ensureBigPictureI18nResources } from "./i18n";
 
 import "./styles/globals.scss";
+
+const lastFocusByPathname = new Map<string, string>();
 
 export default function App() {
   ensureBigPictureI18nResources();
 
   const { t } = useTranslation();
   const { pathname } = useLocation();
+  const navigationType = useNavigationType();
   const navigate = useNavigate();
   const { showErrorToast } = useBigPictureToast();
   const { nodes, regions, setFocusRegion } = useNavigation();
@@ -130,6 +139,17 @@ export default function App() {
     setPendingRouteFocusPathname(pathname);
   }, [pathname]);
 
+  // Remember the focused item of each screen, so B (back) lands where you were, like a console.
+  useEffect(() => {
+    const navigation = NavigationService.getInstance();
+    return navigation.subscribe(() => {
+      const focusId = navigation.getCurrentFocusId();
+      if (focusId && !focusId.startsWith("top-nav")) {
+        lastFocusByPathname.set(pathname, focusId);
+      }
+    });
+  }, [pathname]);
+
   useEffect(() => {
     if (pendingRouteFocusPathname !== pathname) return;
 
@@ -140,6 +160,16 @@ export default function App() {
     const hasRegion = regions.some((region) => region.id === entryRegionId);
     if (!hasRegion) return;
 
+    const rememberedId =
+      navigationType === "POP" ? lastFocusByPathname.get(pathname) : undefined;
+    if (
+      rememberedId &&
+      NavigationService.getInstance().setFocus(rememberedId) === rememberedId
+    ) {
+      setPendingRouteFocusPathname(null);
+      return;
+    }
+
     const focusedId = setFocusRegion(entryRegionId, "right", {
       preferRememberedFocus: false,
     });
@@ -147,7 +177,14 @@ export default function App() {
     if (focusedId) {
       setPendingRouteFocusPathname(null);
     }
-  }, [nodes, pathname, pendingRouteFocusPathname, regions, setFocusRegion]);
+  }, [
+    navigationType,
+    nodes,
+    pathname,
+    pendingRouteFocusPathname,
+    regions,
+    setFocusRegion,
+  ]);
 
   useEffect(() => {
     NavigationAudioService.getInstance().setEnabled(
@@ -202,6 +239,7 @@ export default function App() {
           </NavigationLayer>
 
           <QuickMenu />
+          <ConsoleOverlays />
           <InputModeProvider />
           <NavigationDiagnostics />
           <BigPictureToastHost />

@@ -1,0 +1,320 @@
+// Troféus (Big Picture): the normal-mode trophy header plus a grid of games sized for the TV.
+.bp-trophies {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  height: 100%;
+  padding: 36px var(--opus-gutter) 48px;
+  box-sizing: border-box;
+  overflow-x: hidden;
+  overflow-y: auto;
+  background: var(--background);
+  color: var(--opus-text);
+
+  button {
+    outline: none;
+  }
+
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 32px;
+  }
+
+  &__level {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+  }
+
+  &__ring {
+    position: relative;
+    width: 132px;
+    height: 132px;
+    flex: none;
+
+    img,
+    svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    svg {
+      transform: rotate(-90deg);
+
+      circle {
+        transition: stroke-dashoffset 0.8s ease;
+      }
+    }
+  }
+
+  &__ring-label {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+
+  &__ring-level {
+    font-size: 42px;
+    font-weight: 300;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__ring-caption {
+    font-size: 12px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--opus-muted);
+  }
+
+  &__title-block {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  &__title {
+    margin: 0;
+    font-size: clamp(44px, 3.6vw, 64px);
+    font-weight: 400;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  &__subtitle {
+    font-size: 20px;
+    color: var(--opus-muted);
+  }
+
+  &__totals {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  &__total,
+  &__tier {
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    padding: 16px 26px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  &__total {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  &__tier img {
+    width: 48px;
+    height: 48px;
+  }
+
+  &__tier--platinum {
+    background: rgba(207, 230, 234, 0.08);
+    border-color: rgba(207, 230, 234, 0.25);
+  }
+
+  &__tier-text {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  &__total-label,
+  &__tier-label {
+    font-size: 13px;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--opus-muted);
+  }
+
+  &__total-value,
+  &__tier-value {
+    font-size: 36px;
+    font-weight: 300;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__empty {
+    font-size: 24px;
+    color: var(--opus-muted);
+  }
+
+  &__filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 6px 4px;
+  }
+
+  &__chip {
+    height: 52px;
+    padding: 0 22px;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.06);
+    color: var(--opus-muted);
+    font-family: inherit;
+    font-size: 20px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+
+    span {
+      opacity: 0.6;
+      font-variant-numeric: tabular-nums;
+    }
+
+    &--active {
+      background: var(--opus-text);
+      color: #070b16;
+    }
+
+    &[data-focused="true"] {
+      box-shadow: var(--opus-ring);
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 520px), 1fr));
+    gap: 20px;
+    padding: 4px;
+  }
+
+  &__game {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    min-width: 0;
+    padding: 16px 24px 16px 16px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.05);
+    color: inherit;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition:
+      box-shadow 160ms ease,
+      background 160ms ease;
+
+    &--platinum {
+      border-color: rgba(207, 230, 234, 0.22);
+    }
+
+    &[data-focused="true"] {
+      background: rgba(255, 255, 255, 0.1);
+      box-shadow: var(--opus-ring);
+    }
+  }
+
+  &__cover {
+    position: relative;
+    width: 96px;
+    height: 128px;
+    flex: none;
+    border-radius: 12px;
+    background-color: #1a2233;
+    background-size: cover;
+    background-position: center;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  &__cover-plat {
+    position: absolute;
+    right: -10px;
+    bottom: -10px;
+    width: 40px;
+    height: 40px;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.6));
+  }
+
+  &__game-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  &__game-name {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+  }
+
+  &__badge.platform-badge {
+    flex: none;
+    height: 24px;
+    padding: 0 9px;
+    border-radius: 6px;
+    font-size: 13px;
+  }
+
+  &__game-title {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 22px;
+    font-weight: 500;
+  }
+
+  &__bar {
+    display: block;
+    height: 6px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    overflow: hidden;
+
+    span {
+      display: block;
+      height: 100%;
+      border-radius: inherit;
+    }
+  }
+
+  &__game-tiers {
+    display: flex;
+    gap: 18px;
+    font-size: 17px;
+    font-variant-numeric: tabular-nums;
+    color: var(--opus-muted);
+
+    span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    img {
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  &__game-pct {
+    flex: none;
+    font-size: 34px;
+    font-weight: 300;
+    font-variant-numeric: tabular-nums;
+  }
+}

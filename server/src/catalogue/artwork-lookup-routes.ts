@@ -3,6 +3,7 @@ import { db } from "../db.js";
 import { requireAuth } from "../auth/require-auth.js";
 import { ingestSteamGamesByTitle } from "./steam-lookup.js";
 import { createLimiter } from "../rate-limit.js";
+import { isEditionOf } from "./title-match.js";
 
 const artworkBudget = createLimiter(60, 10 * 60_000);
 
@@ -62,7 +63,8 @@ const findByTitleStatement = db.prepare(
   `SELECT appid, title FROM steam_games WHERE title LIKE ? ORDER BY COALESCE(review_count, 0) DESC LIMIT 40`
 );
 
-/** Best Steam app for a title: exact normalized match, most reviewed first. No fuzzy guessing. */
+/** Best Steam app for a title: exact normalized match (or the same title plus an edition name),
+ * most reviewed first. No fuzzy guessing. */
 function matchAppIdByTitle(title: string): string | null {
   const wanted = normalizeTitle(title);
   if (wanted.length < 2) return null;
@@ -70,7 +72,10 @@ function matchAppIdByTitle(title: string): string | null {
   const keyword = wanted.split(" ").reduce((a, b) => (b.length > a.length ? b : a), "");
   const rows = findByTitleStatement.all(`%${keyword}%`) as { appid: number; title: string }[];
   const exact = rows.find((row) => normalizeTitle(row.title) === wanted);
-  return exact ? String(exact.appid) : null;
+  if (exact) return String(exact.appid);
+  // Same game sold under an edition name (rows come most-reviewed first).
+  const edition = rows.find((row) => isEditionOf(normalizeTitle(row.title), wanted));
+  return edition ? String(edition.appid) : null;
 }
 
 async function headOk(url: string) {

@@ -10,6 +10,19 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.46",
+    date: "05/10/2026",
+    items: [
+      "Big Picture com cara de console: abertura com o logo do Opus e, depois de 5 minutos parado, um descanso de tela com a arte dos seus jogos e o relógio (qualquer botão volta).",
+      "Big Picture: Biblioteca nova, igual à do modo normal (capas inteiras, etiqueta do console, consoles em pílulas com LT/RT).",
+      "Big Picture: aba Troféus nova, com nível, platina/ouro/prata/bronze e seus jogos em cartões grandes (A abre os troféus do jogo).",
+      "Big Picture: voltar com B leva o foco de volta ao jogo onde você estava; trocar de console com LT/RT mantém o foco nos jogos.",
+      "Big Picture: Catálogo e Downloads saíram da barra de cima (continuam no modo normal).",
+      'Jogos do app Xbox (Game Pass / Microsoft Store) entram sozinhos na biblioteca, com a etiqueta verde "XBOX", e abrem pelo Opus contando o tempo de jogo.',
+      "Troféus ocultos que você já ganhou mostram a descrição.",
+    ],
+  },
+  {
     version: "1.0.45",
     date: "05/10/2026",
     items: [

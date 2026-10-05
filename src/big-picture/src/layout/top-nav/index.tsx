@@ -71,27 +71,18 @@ export function TopNav() {
         key: "library",
         label: "Library",
         path: `${BASE_PATH}/library`,
-        matches: (p) => p.startsWith("/library") || p.startsWith("/game/"),
+        matches: (p) =>
+          p.startsWith("/library") ||
+          (p.startsWith("/game/") && !p.endsWith("/achievements")),
       },
       {
         key: "trophies",
         label: "Trophies",
-        path: userDetails?.id
-          ? `${BASE_PATH}/profile/${userDetails.id}`
-          : `${BASE_PATH}/profile`,
-        matches: (p) => p.startsWith("/profile"),
-      },
-      {
-        key: "downloads",
-        label: "Downloads",
-        path: `${BASE_PATH}/downloads`,
-        matches: (p) => p.startsWith("/downloads"),
-      },
-      {
-        key: "catalogue",
-        label: "Catalogue",
-        path: `${BASE_PATH}/catalogue`,
-        matches: (p) => p.startsWith("/catalogue"),
+        path: `${BASE_PATH}/trophies`,
+        matches: (p) =>
+          p.startsWith("/trophies") ||
+          p.startsWith("/profile") ||
+          /^\/game\/[^/]+\/[^/]+\/achievements/.test(p),
       },
       {
         key: "settings",
@@ -100,7 +91,7 @@ export function TopNav() {
         matches: (p) => p.startsWith("/settings"),
       },
     ],
-    [userDetails?.id]
+    []
   );
 
   const activeIndex = Math.max(

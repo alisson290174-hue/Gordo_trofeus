@@ -196,6 +196,32 @@ export default function LibraryPage() {
     hasMountedContentRef.current &&
     previousContentTransitionKeyRef.current !== contentTransitionKey;
 
+  // LT / RT swap the cards under the focused one: once the new console's cards are in, put the
+  // focus back on the first card instead of leaving it on the (unhighlighted) search box.
+  const firstContentItemIdRef = useRef(firstContentItemId);
+  firstContentItemIdRef.current = firstContentItemId;
+  const previousFilterTabRef = useRef(activeFilterTab);
+  useEffect(() => {
+    if (previousFilterTabRef.current === activeFilterTab) return;
+    previousFilterTabRef.current = activeFilterTab;
+    const navigation = NavigationService.getInstance();
+    const isOnCards = (id: string | null) =>
+      Boolean(id?.startsWith("library-focus-"));
+    if (!isOnCards(navigation.getCurrentFocusId())) return;
+    const timer = globalThis.setTimeout(() => {
+      const currentFocusId = navigation.getCurrentFocusId();
+      if (
+        currentFocusId &&
+        isOnCards(currentFocusId) &&
+        navigation.getNode(currentFocusId)
+      )
+        return;
+      const firstId = firstContentItemIdRef.current;
+      if (firstId) navigation.requestFocusWhenAvailable(firstId);
+    }, 450);
+    return () => globalThis.clearTimeout(timer);
+  }, [activeFilterTab]);
+
   const refreshLibraryData = useCallback(async () => {
     await Promise.all([updateLibrary(), loadCollections()]);
     globalThis.window.dispatchEvent(new Event("library-update"));

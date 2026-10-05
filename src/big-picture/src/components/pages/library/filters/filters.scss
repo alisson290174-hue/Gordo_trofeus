@@ -1,53 +1,76 @@
+// Biblioteca (PS5 style, same language as the normal-mode library): big title on the left, tools on
+// the right, consoles as pills switched with LT/RT.
 .library-filters {
-  display: flex;
-  flex-direction: column;
-  gap: calc(var(--spacing-unit) * 4);
-  padding: 0 calc(var(--spacing-unit) * 16);
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: end;
+  column-gap: 48px;
+  row-gap: 20px;
+  padding: 0 var(--opus-gutter);
+  color: var(--opus-text);
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  &__eyebrow {
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--opus-muted);
+    opacity: 0.8;
+  }
+
+  &__title {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    font-size: clamp(44px, 3.6vw, 64px);
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+
+  &__count {
+    padding: 6px 16px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.08);
+    color: var(--opus-muted);
+    font-size: 22px;
+    font-weight: 400;
+    letter-spacing: 0;
+    font-variant-numeric: tabular-nums;
+  }
 
   &__toolbar {
     display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: calc(var(--spacing-unit) * 4);
+    align-items: center;
+    justify-content: flex-end;
+    gap: 16px;
+    min-width: 0;
   }
 
   &__search-and-filters {
     display: flex;
     align-items: center;
-    gap: calc(var(--spacing-unit) * 3);
+    justify-content: flex-end;
+    gap: 12px;
     flex: 1;
     min-width: 0;
   }
 
-  /* Mirrors `.hero__action__divider` / `Divider` vertical in LibraryHero */
   &__toolbar-divider {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex: 0 0 1px;
-    width: 1px;
-    height: 28px;
-    pointer-events: none;
-
-    .divider-container--vertical {
-      width: 1px;
-      height: 28px;
-      flex-basis: 1px;
-    }
-
-    .divider--vertical {
-      width: 1px;
-      height: 28px;
-      min-height: 28px;
-      background-color: var(--text-secondary);
-      opacity: 0.7;
-    }
+    display: none;
   }
 
   &__search {
     flex: 1;
     min-width: 0;
-    max-width: 450px;
+    max-width: 420px;
   }
 
   &__select {
@@ -55,11 +78,7 @@
     width: fit-content;
     max-width: 100%;
 
-    .dropdown-select__trigger-anchor {
-      width: max-content;
-      max-width: 100%;
-    }
-
+    .dropdown-select__trigger-anchor,
     .dropdown-select__trigger {
       width: max-content;
       max-width: 100%;
@@ -69,49 +88,68 @@
   &__view-actions {
     display: flex;
     align-items: center;
-    gap: calc(var(--spacing-unit) * 2);
+    gap: 8px;
     flex-shrink: 0;
   }
 
   &__tabs {
+    grid-column: 1 / -1;
     display: flex;
     align-items: center;
-    gap: calc(var(--spacing-unit) * 3);
-    flex-shrink: 0;
-    padding: calc(var(--spacing-unit) * 6) 0 calc(var(--spacing-unit) * 4) 0;
+    gap: 16px;
+    padding: 8px 0 20px;
 
     .library-filters-tabs {
       flex: 1;
       min-width: 0;
     }
 
-    .library-filters-tabs .tabs__divider {
-      background-color: color-mix(
-        in srgb,
-        var(--primary) 14%,
-        var(--background)
-      );
+    .tabs__content {
+      padding: 0;
+    }
+
+    .tabs__list {
+      padding: 6px 4px;
+    }
+
+    .tabs__tablist {
+      gap: 12px;
+    }
+
+    .tabs__indicator,
+    .tabs__divider {
+      display: none;
+    }
+
+    .tabs__tab {
+      height: 48px;
+      padding: 0 22px;
+      justify-content: center;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--opus-muted);
+      font-family: inherit;
+      font-size: 19px;
+      font-weight: 500;
+      transition:
+        background 160ms ease,
+        color 160ms ease;
+
+      &--active {
+        background: var(--opus-text);
+        border-color: var(--opus-text);
+        color: #070b16;
+      }
     }
   }
 
   @media (max-width: 1440px) {
-    &__toolbar {
-      flex-wrap: wrap;
-    }
+    grid-template-columns: minmax(0, 1fr);
 
+    &__toolbar,
     &__search-and-filters {
-      width: 100%;
-      flex-wrap: wrap;
-    }
-
-    &__search {
-      width: 100%;
-      max-width: none;
-    }
-
-    &__view-actions {
-      width: 100%;
-      justify-content: flex-end;
+      justify-content: flex-start;
     }
   }
 }

@@ -19,6 +19,7 @@ export type PlatformTone =
   | "gba"
   | "gamecube"
   | "wii"
+  | "xbox"
   | "pc";
 
 export interface PlatformBadge {
@@ -116,6 +117,10 @@ export const getPlatformBadge = (game: {
   shop?: string | null;
   platform?: string | null;
 }): PlatformBadge => {
+  // PC games installed by the Xbox app (Game Pass / Microsoft Store).
+  if (game.platform === "xbox") {
+    return { label: "XBOX", tone: "xbox", name: "Xbox (PC)" };
+  }
   if (game.shop === "launchbox" && game.platform) {
     const rule = RULES.find((candidate) =>
       candidate.test.test(game.platform as string)

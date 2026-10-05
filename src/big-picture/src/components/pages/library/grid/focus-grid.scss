@@ -1,6 +1,7 @@
 .library-focus-grid {
   width: 100%;
-  padding: 0 calc(var(--spacing-unit) * 16);
+  padding: 0 var(--opus-gutter) 48px;
+  box-sizing: border-box;
 }
 
 .library-focus-grid__grid {
@@ -13,7 +14,7 @@
     --library-focus-grid-column-gap,
     calc(var(--spacing-unit) * 8)
   );
-  row-gap: calc(var(--spacing-unit) * 16);
+  row-gap: 36px;
   justify-content: start;
 }
 
@@ -93,4 +94,76 @@
   .library-focus-grid {
     padding: 0 calc(var(--spacing-unit) * 6);
   }
+}
+
+// Opus look (same as the normal-mode library): the whole cover, the console tag on it, and the
+// focus drawn as the white + blue ring used everywhere else in Big Picture.
+.library-focus-grid .vertical-game-card {
+  gap: 12px;
+  border: none;
+  border-radius: 0;
+  overflow: visible;
+
+  .vertical-game-card__cover {
+    aspect-ratio: 3 / 4;
+    border-radius: 16px;
+    background-color: #1a2233;
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+    transition:
+      transform 180ms ease,
+      box-shadow 180ms ease;
+
+    &::before {
+      display: none;
+    }
+  }
+
+  .vertical-game-card__body,
+  &:hover .vertical-game-card__body {
+    padding: 0 4px;
+  }
+
+  .vertical-game-card__title {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  .vertical-game-card__subtitle,
+  .vertical-game-card__progress-label span {
+    font-size: 15px;
+  }
+
+  &:hover,
+  &:focus-within,
+  &.vertical-game-card--force-hovered {
+    background-color: transparent;
+  }
+}
+
+[data-bp-input-mode="gamepad"] [data-focused="true"] > .vertical-game-card,
+.library-focus-grid [data-focus-visible="true"] > .vertical-game-card,
+.library-focus-grid .vertical-game-card--force-hovered {
+  outline: none;
+  background-color: transparent;
+
+  .vertical-game-card__cover {
+    transform: scale(1.04);
+    box-shadow:
+      var(--opus-ring),
+      0 24px 60px rgba(0, 0, 0, 0.6);
+  }
+
+  .vertical-game-card__body {
+    padding: 0 4px;
+  }
+}
+
+.library-focus-grid .library-opus-badge.platform-badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 7px;
+  font-size: 14px;
 }

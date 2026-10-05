@@ -1,4 +1,5 @@
 import type { LibraryGame } from "@types";
+import { PlatformBadge } from "@renderer/components/platform-badge/platform-badge";
 import { DotsThreeVerticalIcon } from "@phosphor-icons/react";
 import type { MouseEvent as ReactMouseEvent, RefObject } from "react";
 import {
@@ -16,7 +17,6 @@ import {
 } from "./navigation";
 import {
   ClassicsCoverBadges,
-  ClassicsVerticalCoverMedia,
   useFocusAnimatedCover,
   useLibraryGameCardPresentation,
 } from "./card-presentation";
@@ -85,10 +85,7 @@ export function VerticalLibraryGameCard({
   const menuButtonRef = useRef<HTMLButtonElement | null>(null);
   const {
     activeImageSource,
-    isChosenCoverActive,
     achievementProgress,
-    classicsEmulatorIcon,
-    classicsPlatformLabel,
     dominantColor,
     handleCoverImageError,
     playtimeLabel,
@@ -97,21 +94,10 @@ export function VerticalLibraryGameCard({
   const isFocused = useNavigationIsFocused(focusId);
   const displayCover = useFocusAnimatedCover(activeImageSource, isFocused);
   const gameDetailsPath = getBigPictureGameDetailsPath(game);
-  const coverMedia =
-    game.shop === "launchbox" && displayCover && !isChosenCoverActive ? (
-      <ClassicsVerticalCoverMedia
-        imageUrl={displayCover}
-        gameTitle={game.title}
-        onImageError={handleCoverImageError}
-      />
-    ) : null;
-  const coverOverlay =
-    classicsPlatformLabel != null ? (
-      <ClassicsCoverBadges
-        platformLabel={classicsPlatformLabel}
-        emulatorIcon={classicsEmulatorIcon}
-      />
-    ) : null;
+  // Same look as the normal-mode library: the whole cover, with the console tag on top.
+  const coverOverlay = (
+    <PlatformBadge game={game} className="library-opus-badge" />
+  );
 
   const openContextMenuFromRect = (
     rect: DOMRect,
@@ -155,7 +141,6 @@ export function VerticalLibraryGameCard({
             : "library-focus-grid__card"
         }
         coverImageUrl={displayCover}
-        coverMedia={coverMedia}
         coverOverlay={coverOverlay}
         gameTitle={game.title}
         subtitle={playtimeLabel}

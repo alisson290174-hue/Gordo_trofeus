@@ -143,6 +143,16 @@ export const loadState = async () => {
         ),
       120_000
     );
+    // Games installed by the Xbox app (Game Pass / Store) join the library on their own.
+    setTimeout(
+      () =>
+        void import("./services/xbox-games").then(({ importXboxGames }) =>
+          importXboxGames().catch((error) =>
+            logger.error("[Xbox] Import failed", error)
+          )
+        ),
+      40_000
+    );
     // Fill PS2 box art for games imported before covers existed (no rescan needed).
     // Then real titles, fanart and logos from the server's PS2 index (after covers so it can
     // replace the box art that stands in as background).
