@@ -10,6 +10,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.58",
+    date: "05/10/2026",
+    items: [
+      "Switch com dois emuladores: Eden e Citron. Cada jogo abre no que roda melhor (Pokémon Violet/Scarlet vão para o Citron, com FPS mais estável); o resto continua no Eden.",
+      'Dá para escolher o emulador de cada jogo em Gerenciar → "Emulador de Switch" (no modo normal e no Big Picture). Saves, traduções, mods e atualizações são os mesmos nos dois.',
+      "O Citron também fecha sem perguntar quando você sai do jogo pelo Select + Start.",
+    ],
+  },
+  {
     version: "1.0.57",
     date: "05/10/2026",
     items: [

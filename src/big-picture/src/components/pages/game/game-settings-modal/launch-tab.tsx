@@ -42,6 +42,8 @@ const GAME_LAUNCH_SETTINGS_ADD_DISC_FILE_ID =
   "game-launch-settings-add-disc-file";
 const GAME_LAUNCH_SETTINGS_DONT_ASK_DISC_ID =
   "game-launch-settings-dont-ask-disc";
+const GAME_LAUNCH_SETTINGS_SWITCH_EMULATOR_ID =
+  "game-launch-settings-switch-emulator";
 const GAME_LAUNCH_SETTINGS_EXEC_PATH_SELECT_ID =
   "game-launch-settings-exec-path-select";
 const GAME_LAUNCH_SETTINGS_EXEC_PATH_CLEAR_ID =
@@ -74,6 +76,7 @@ export interface GameLaunchSettingsProps {
   onDeleteSteamShortcut: () => Promise<void>;
   onSelectDisc: (path: string) => Promise<void>;
   onToggleDontAskDiscSelection: (checked: boolean) => Promise<void>;
+  onChangeSwitchEmulator: (value: "eden" | "citron" | null) => Promise<void>;
   onProcessDiscPath: (path: string) => Promise<void>;
   onRemoveSelectedDisc: () => Promise<void>;
   onRemoveAllDiscs: () => Promise<void>;
@@ -198,6 +201,40 @@ function LaunchboxDiscsSection({
             }}
           />
         ) : null}
+      </div>
+    </SettingsSection>
+  );
+}
+
+function SwitchEmulatorSection({
+  value,
+  onChange,
+}: Readonly<{
+  value: LibraryGame["switchEmulator"];
+  onChange: (value: "eden" | "citron" | null) => Promise<void>;
+}>) {
+  const { t } = useTranslation("game_details");
+
+  return (
+    <SettingsSection
+      className="game-launch-settings-tab__section"
+      title={t("switch_emulator_title")}
+      description={t("switch_emulator_description")}
+    >
+      <div className="game-launch-settings-tab__section-content">
+        <DropdownSelect
+          focusId={GAME_LAUNCH_SETTINGS_SWITCH_EMULATOR_ID}
+          ariaLabel={t("switch_emulator_title")}
+          value={value ?? "auto"}
+          options={[
+            { value: "auto", label: t("switch_emulator_auto") },
+            { value: "eden", label: "Eden" },
+            { value: "citron", label: "Citron" },
+          ]}
+          onValueChange={(next) => {
+            void onChange(next === "auto" ? null : (next as "eden" | "citron"));
+          }}
+        />
       </div>
     </SettingsSection>
   );
@@ -497,6 +534,7 @@ export function GameLaunchSettingsTab({
   onDeleteSteamShortcut,
   onSelectDisc,
   onToggleDontAskDiscSelection,
+  onChangeSwitchEmulator,
   onProcessDiscPath,
   onRemoveSelectedDisc,
   onRemoveAllDiscs,
@@ -561,6 +599,13 @@ export function GameLaunchSettingsTab({
             executablePath={game.executablePath}
             onOpenExecPicker={handleOpenExecPicker}
             onClearExecutablePath={onClearExecutablePath}
+          />
+        )}
+
+        {game.shop === "launchbox" && /switch/i.test(game.platform ?? "") && (
+          <SwitchEmulatorSection
+            value={game.switchEmulator}
+            onChange={onChangeSwitchEmulator}
           />
         )}
 

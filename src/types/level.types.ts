@@ -1,7 +1,7 @@
 import type { Downloader } from "@shared";
 import type { GameShop } from "./game.types";
 import type { DownloadStatus } from "./download.types";
-import type { ClassicsDisc } from "./emulator.types";
+import type { ClassicsDisc, SwitchEmulatorChoice } from "./emulator.types";
 
 export type SubscriptionStatus = "active" | "pending" | "cancelled";
 
@@ -106,6 +106,8 @@ export interface Game {
   discs?: ClassicsDisc[];
   selectedDiscPath?: string | null;
   dontAskDiscSelection?: boolean;
+  /** Switch only: emulator chosen for this game (null/absent = Opus picks). */
+  switchEmulator?: SwitchEmulatorChoice | null;
   romSizeBytes?: number | null;
 }
 

@@ -1028,7 +1028,10 @@
     "create_steam_shortcut_modal_cancel_button": "Cancel",
     "delete_shortcut_success": "Steam shortcut deleted successfully",
     "delete_shortcut_error": "Failed to delete Steam shortcut",
-    "delete_steam_shortcut": "Delete Steam shortcut"
+    "delete_steam_shortcut": "Delete Steam shortcut",
+    "switch_emulator_title": "Switch emulator",
+    "switch_emulator_description": "Eden and Citron share keys, updates, mods and saves. Automatic uses the one that ran best on this game.",
+    "switch_emulator_auto": "Automatic"
   },
   "activation": {
     "title": "Activate Opus",
