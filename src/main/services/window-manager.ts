@@ -960,8 +960,19 @@ export class WindowManager {
     setTimeout(() => {
       if (target.isDestroyed()) return;
       WindowManager.forceForeground(target);
-      if (isBigPicture) WindowManager.ensureBigPictureCoversScreen();
+      // After the Alt + SetForegroundWindow above has made it the foreground window.
+      if (isBigPicture)
+        setTimeout(() => WindowManager.ensureBigPictureCoversScreen(true), 400);
     }, 2_500);
+    // A slow-closing emulator can hand the foreground to whatever window was behind it (a browser)
+    // after the attempts above: one more, only when Opus isn't the focused app.
+    setTimeout(() => {
+      if (target.isDestroyed() || BrowserWindow.getFocusedWindow() === target)
+        return;
+      WindowManager.forceForeground(target);
+      if (isBigPicture)
+        setTimeout(() => WindowManager.ensureBigPictureCoversScreen(true), 400);
+    }, 5_000);
   }
 
   /**
@@ -989,9 +1000,20 @@ export class WindowManager {
    * window smaller with the taskbar on top, so the window's real bounds are checked; when they
    * don't match, fullscreen is switched off and on again.
    */
-  public static ensureBigPictureCoversScreen() {
+  public static ensureBigPictureCoversScreen(force = false) {
     const bigPicture = this.bigPicture;
     if (!bigPicture || bigPicture.isDestroyed()) return;
+    // Back from a game: the window can already cover the screen while the taskbar stays drawn on
+    // top of it (Windows only hides the taskbar for a fullscreen window that *became* fullscreen
+    // while in front). Leaving and re-entering fullscreen once it is in front fixes that.
+    if (force) {
+      logger.info("[window] Big Picture fullscreen refreshed after the game");
+      bigPicture.setFullScreen(false);
+      setTimeout(() => {
+        if (!bigPicture.isDestroyed()) bigPicture.setFullScreen(true);
+      }, 150);
+      return;
+    }
     const display = screen.getDisplayMatching(bigPicture.getBounds()).bounds;
     const bounds = bigPicture.getBounds();
     const covers =

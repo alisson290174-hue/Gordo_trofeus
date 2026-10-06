@@ -53,6 +53,18 @@
     height: 100%;
     object-fit: cover;
     animation: opus-home-fade 420ms ease;
+
+    // Hidden until its size is known, so a soft one never flashes sharp first.
+    &--pending {
+      opacity: 0;
+      animation: none;
+    }
+
+    // Small or non-wide art: ambient blur instead of a pixelated, cropped photo.
+    &--soft {
+      filter: blur(36px) saturate(1.25) brightness(0.7);
+      transform: scale(1.15);
+    }
   }
 
   &__shade {

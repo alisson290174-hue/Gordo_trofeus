@@ -56,6 +56,30 @@ const sortRecent = (games: LibraryGame[]) =>
     return addedB - addedA;
   });
 
+/**
+ * Full-screen art. Some games only have a small or square picture (a box scan, a 600px key art):
+ * stretched to 1920x1080 it came out pixelated and cropped. Those become a soft, blurred ambient
+ * backdrop instead, the way the PS5 shows games without a proper hero.
+ */
+function HeroBackdrop({ src }: Readonly<{ src: string }>) {
+  const [soft, setSoft] = useState<boolean | null>(null);
+  return (
+    <img
+      src={src}
+      alt=""
+      className={cn("opus-home__hero", {
+        "opus-home__hero--soft": soft === true,
+        "opus-home__hero--pending": soft === null,
+      })}
+      onLoad={(event) => {
+        const { naturalWidth: width, naturalHeight: height } =
+          event.currentTarget;
+        setSoft(width < 1280 || width / Math.max(1, height) < 1.5);
+      }}
+    />
+  );
+}
+
 export default function Home() {
   const navigate = useNavigate();
   const { library, loaded } = useLibrary();
@@ -213,9 +237,7 @@ export default function Home() {
   return (
     <VerticalFocusGroup regionId={HOME_PAGE_REGION_ID} className="opus-home">
       <div className="opus-home__backdrop" aria-hidden="true">
-        {hero && (
-          <img key={hero} src={hero} alt="" className="opus-home__hero" />
-        )}
+        {hero && <HeroBackdrop key={hero} src={hero} />}
         <div className="opus-home__shade" />
       </div>
 

@@ -10,6 +10,14 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.61",
+    date: "06/10/2026",
+    items: [
+      "Big Picture: ao sair de um jogo, a tela cheia é refeita depois que o Opus volta para a frente, então a barra de tarefas não fica mais por cima. Se outra janela (ex.: o navegador) pegar a frente quando o emulador fecha, o Opus retoma.",
+      "Início do Big Picture: jogos que só têm arte pequena ou quadrada ganham um fundo desfocado com as cores do jogo, em vez da imagem esticada e pixelada.",
+    ],
+  },
+  {
     version: "1.0.60",
     date: "06/10/2026",
     items: [
