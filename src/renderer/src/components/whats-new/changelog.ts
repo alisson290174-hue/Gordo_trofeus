@@ -10,6 +10,14 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.64",
+    date: "06/10/2026",
+    items: [
+      "Fundos em alta resolução (1920 px a 4K) para os jogos de emulador: o Opus usa as artes do banco do LaunchBox no lugar das capas pequenas. 46 jogos da sua biblioteca ganharam fundo novo; artes que você escolheu nunca são trocadas.",
+      "Novos jogos importados já recebem o fundo em alta resolução.",
+    ],
+  },
+  {
     version: "1.0.63",
     date: "06/10/2026",
     items: [

@@ -8,6 +8,7 @@ extraResources:
   - seeds
   - from: node_modules/create-desktop-shortcuts/src/windows.vbs
   - from: resources/achievement.wav
+  - from: resources/classic-fanart-index.json
 files:
   - "!.cache/**"
   - "!.claude/**"

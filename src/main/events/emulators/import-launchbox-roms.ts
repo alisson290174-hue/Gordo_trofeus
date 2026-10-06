@@ -1,3 +1,4 @@
+import { pickClassicHero } from "@main/services/emulators/classic-fanart";
 import axios from "axios";
 import { createHash, randomUUID } from "node:crypto";
 import { existsSync, promises as fs } from "node:fs";
@@ -235,7 +236,13 @@ export const persistEntryLocally = async (
   // Art also lives on the game record: profile syncs reset the shop-assets cache to null for
   // classics, and get-library falls back to these fields (PS2 has its own backfill for that).
   const coverUrl = assetsSource?.libraryImageUrl ?? null;
-  const heroUrl = assetsSource?.libraryHeroImageUrl ?? coverUrl;
+  // A small box scan as hero is swapped for LaunchBox fanart when the game is known there.
+  const heroUrl = pickClassicHero({
+    platform,
+    title: entry.data?.title ?? assets.title,
+    libraryHeroImageUrl: assetsSource?.libraryHeroImageUrl ?? coverUrl,
+    coverImageUrl: coverUrl,
+  });
   const tile =
     tileUrl ?? (platformToSystem(platform) === "switch" ? coverUrl : null);
 
@@ -1044,6 +1051,12 @@ const persistUnmatchedGame = async (
   const shop = "launchbox" as const;
   const gameKey = levelKeys.game(shop, objectId);
   const platform = platformOverride ?? SYSTEM_DEFAULT_PLATFORM[system];
+  heroUrl = pickClassicHero({
+    platform,
+    title,
+    libraryHeroImageUrl: heroUrl ?? coverUrl,
+    coverImageUrl: coverUrl,
+  });
 
   await gamesShopAssetsSublevel
     .put(gameKey, {

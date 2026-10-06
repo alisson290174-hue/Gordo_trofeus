@@ -21,6 +21,7 @@ import {
 import { getEmulatorVersion } from "./get-emulator-version";
 import { KNOWN_BINARIES } from "./known-binaries";
 import { prewarmXInputPad } from "./controller-autoconfig";
+import { backfillClassicFanart } from "./classic-fanart";
 
 const DAY = 24 * 60 * 60 * 1000;
 let running = false;
@@ -122,6 +123,8 @@ export const scheduleEmulatorUpdates = () => {
   );
   // The first game launch shouldn't wait for PowerShell to find the controller.
   setTimeout(() => prewarmXInputPad(), 8_000);
+  // Sharp full-screen art for emulated games that only had a small box scan.
+  setTimeout(() => void backfillClassicFanart(), 25_000);
   setTimeout(() => void checkEmulatorUpdates(), 90_000);
   setInterval(() => void checkEmulatorUpdates(), DAY);
 };
