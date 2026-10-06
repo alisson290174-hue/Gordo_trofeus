@@ -10,6 +10,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.62",
+    date: "06/10/2026",
+    items: [
+      "Big Picture em modo console: a barra de tarefas do Windows fica escondida enquanto ele está aberto (inclusive quando um emulador está abrindo) e volta quando você sai.",
+      "Ao abrir um jogo pelo Big Picture, a seta do mouse fica fora da tela nos primeiros segundos (os emuladores a puxavam para o meio) e os emuladores escondem o cursor parado (PCSX2, DuckStation, Azahar).",
+      "Troféus do jogo no Big Picture: aperte Y para comparar com um amigo — placar dos dois e cada troféu lado a lado.",
+    ],
+  },
+  {
     version: "1.0.61",
     date: "06/10/2026",
     items: [

@@ -491,6 +491,7 @@ export class WindowManager {
       this.bigPicture?.show();
       this.bigPicture?.setFullScreen(true);
       this.bigPicture?.focus();
+      WindowManager.setTaskbarVisible(false);
     });
 
     // Another window (or a closing game) can leave Big Picture windowed with the taskbar on top;
@@ -501,6 +502,7 @@ export class WindowManager {
 
     this.bigPicture.on("closed", () => {
       this.bigPicture = null;
+      WindowManager.setTaskbarVisible(true);
       const main = this.mainWindow;
       if (main && !main.isDestroyed()) {
         this.restoreMainWindowAfterBigPictureCloses();
@@ -1036,7 +1038,11 @@ export class WindowManager {
     }
   }
 
-  /** Big Picture is open: playing with a controller, so the mouse pointer leaves the screen. */
+  /**
+   * Big Picture is open: playing with a controller, so the mouse pointer leaves the screen. The
+   * emulators centre the pointer when their window opens, after the game was detected, so it is
+   * held at the edge for the first 20 seconds instead of being moved once.
+   */
   public static parkCursorForGame() {
     const bigPicture = this.bigPicture;
     if (process.platform !== "win32" || !bigPicture || bigPicture.isDestroyed())
@@ -1044,10 +1050,27 @@ export class WindowManager {
     const { x, y, width, height } = screen.getDisplayMatching(
       bigPicture.getBounds()
     ).bounds;
-    const command = `Add-Type -AssemblyName System.Windows.Forms; [System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point(${x + width - 1}, ${y + Math.round(height / 2)})`;
+    const command = `Add-Type -AssemblyName System.Windows.Forms; $p = New-Object System.Drawing.Point(${x + width - 1}, ${y + Math.round(height / 2)}); $end = (Get-Date).AddSeconds(20); while ((Get-Date) -lt $end) { [System.Windows.Forms.Cursor]::Position = $p; Start-Sleep -Milliseconds 500 }`;
     const child = spawn(
       "powershell.exe",
       ["-NoProfile", "-NonInteractive", "-Command", command],
+      { windowsHide: true, stdio: "ignore" }
+    );
+    child.on("error", () => {});
+  }
+
+  /**
+   * Console mode: the Windows taskbar is hidden while Big Picture is open (it popped up over the
+   * screen while an emulator was opening its window) and shown again when Big Picture closes or
+   * Opus quits. Shown again on startup too, in case Opus was killed with it hidden.
+   */
+  public static setTaskbarVisible(visible: boolean) {
+    if (process.platform !== "win32") return;
+    const script = `Add-Type 'using System;using System.Runtime.InteropServices;public class OpusTb{[DllImport("user32.dll")]public static extern IntPtr FindWindowEx(IntPtr p,IntPtr a,string c,string w);[DllImport("user32.dll")]public static extern bool ShowWindow(IntPtr h,int n);}'; foreach ($c in 'Shell_TrayWnd','Shell_SecondaryTrayWnd') { $h = [IntPtr]::Zero; while (($h = [OpusTb]::FindWindowEx([IntPtr]::Zero, $h, $c, $null)) -ne [IntPtr]::Zero) { [OpusTb]::ShowWindow($h, ${visible ? 5 : 0}) | Out-Null } }`;
+    const child = spawn(
+      "powershell.exe",
+      ["-NoProfile", "-NonInteractive", "-Command", script],
+      // Not "detached": a detached PowerShell never ran the script (taskbar stayed on screen).
       { windowsHide: true, stdio: "ignore" }
     );
     child.on("error", () => {});

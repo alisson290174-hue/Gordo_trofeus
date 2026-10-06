@@ -40,6 +40,14 @@ const hintsFor = (pathname: string): Hint[] => {
       { key: "start", label: "Quick menu" },
     ];
   }
+  if (path.startsWith("/game/") && path.endsWith("/achievements")) {
+    return [
+      { key: "a", label: "Select" },
+      { key: "y", label: "Compare with friend" },
+      { key: "b", label: "Back" },
+      { key: "start", label: "Quick menu" },
+    ];
+  }
   if (path.startsWith("/game/")) {
     return [
       { key: "a", label: "Select" },

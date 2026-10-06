@@ -20,10 +20,27 @@ const REGION_ID = "friends-panel";
 const PAGE_SIZE = 50;
 const BASE_PATH = IS_DESKTOP ? "/big-picture" : "";
 
+interface OpenRequest {
+  returnFocusId: string | null;
+  /** Picking mode: A hands the friend back instead of opening their profile. */
+  onPick?: (friend: UserFriend) => void;
+}
+
 /** Opens the Big Picture friends panel (used by the quick menu). */
 export const openFriendsPanel = (returnFocusId: string | null = null) =>
   globalThis.dispatchEvent(
-    new CustomEvent(OPEN_EVENT, { detail: returnFocusId })
+    new CustomEvent<OpenRequest>(OPEN_EVENT, { detail: { returnFocusId } })
+  );
+
+/** Same panel to choose a friend, e.g. to compare trophies with. */
+export const pickFriend = (
+  onPick: (friend: UserFriend) => void,
+  returnFocusId: string | null = null
+) =>
+  globalThis.dispatchEvent(
+    new CustomEvent<OpenRequest>(OPEN_EVENT, {
+      detail: { returnFocusId, onPick },
+    })
   );
 
 const formatSession = (seconds: number) => {
@@ -50,6 +67,7 @@ export function FriendsPanel() {
   const [open, setOpen] = useState(false);
   const [friends, setFriends] = useState<UserFriend[] | null>(null);
   const returnFocusIdRef = useRef<string | null>(null);
+  const [onPick, setOnPick] = useState<OpenRequest["onPick"]>(undefined);
   const navigate = useNavigate();
 
   const load = useCallback(async () => {
@@ -68,9 +86,11 @@ export function FriendsPanel() {
 
   useEffect(() => {
     const onOpen = (event: Event) => {
+      const detail = (event as CustomEvent<OpenRequest | null>).detail;
       returnFocusIdRef.current =
-        (event as CustomEvent<string | null>).detail ??
+        detail?.returnFocusId ??
         NavigationService.getInstance().getCurrentFocusId();
+      setOnPick(() => detail?.onPick);
       NavigationAudioService.getInstance().play("select");
       setOpen(true);
       void load();
@@ -161,7 +181,9 @@ export function FriendsPanel() {
             >
               <header className="friends-panel__header">
                 <span className="friends-panel__eyebrow">
-                  {tr("Friends", "Amigos")}
+                  {onPick
+                    ? tr("Compare trophies with", "Comparar troféus com")
+                    : tr("Friends", "Amigos")}
                 </span>
                 <span className="friends-panel__count">
                   {friends === null
@@ -193,6 +215,11 @@ export function FriendsPanel() {
                 ) : (
                   sorted.map((friend) => {
                     const openProfile = () => {
+                      if (onPick) {
+                        close();
+                        onPick(friend);
+                        return;
+                      }
                       setOpen(false);
                       navigate(`${BASE_PATH}/profile/${friend.id}`);
                     };
@@ -248,7 +275,7 @@ export function FriendsPanel() {
               <div className="friends-panel__hints">
                 <span>
                   <i className="opus-key opus-key--a">A</i>
-                  {tr("Profile", "Perfil")}
+                  {onPick ? tr("Compare", "Comparar") : tr("Profile", "Perfil")}
                 </span>
                 <span>
                   <i className="opus-key opus-key--b">B</i>

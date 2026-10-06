@@ -111,6 +111,8 @@ const initializeApp = async () => {
   electronApp.setAppUserModelId("com.baloilauncher.app");
   // Blank taskbar icon after some updates: the Start Menu shortcut lost its icon path.
   repairStartMenuShortcutIcon();
+  // Big Picture hides the taskbar; if Opus was killed while it was open, bring it back.
+  WindowManager.setTaskbarVisible(true);
 
   logger.info("Crash dumps directory", app.getPath("crashDumps"));
 

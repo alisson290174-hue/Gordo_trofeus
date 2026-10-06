@@ -1,9 +1,16 @@
-import type { GameShop, UserAchievement } from "@types";
+import type {
+  ComparedAchievements,
+  GameShop,
+  UserAchievement,
+  UserFriend,
+} from "@types";
 import { useCallback, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { TrophyIcon } from "@phosphor-icons/react";
+import { CheckCircleIcon, LockIcon, TrophyIcon } from "@phosphor-icons/react";
 import { FocusItem, VerticalFocusGroup } from "../../components";
 import { tr } from "../../helpers/opus-text";
+import { pickFriend } from "../../layout/friends-panel";
+import { NavigationService } from "../../services";
 import {
   AchievementRow,
   AvailablePointsBar,
@@ -32,6 +39,34 @@ export default function GameAchievements() {
   );
   const { userDetails } = useUserDetails();
   const [souvenir, setSouvenir] = useState<UserAchievement | null>(null);
+  const [comparison, setComparison] = useState<{
+    friend: UserFriend;
+    data: ComparedAchievements | null;
+    failed: boolean;
+  } | null>(null);
+
+  const compareWith = useCallback(
+    (friend: UserFriend) => {
+      setComparison({ friend, data: null, failed: false });
+      globalThis.window.electron
+        .getComparedUnlockedAchievements(objectId!, shop!, friend.id)
+        .then((data) =>
+          setComparison((current) =>
+            current?.friend.id === friend.id
+              ? { friend, data, failed: false }
+              : current
+          )
+        )
+        .catch(() =>
+          setComparison((current) =>
+            current?.friend.id === friend.id
+              ? { friend, data: null, failed: true }
+              : current
+          )
+        );
+    },
+    [objectId, shop]
+  );
 
   const unlockedCount = useMemo(
     () => achievements.filter((a) => a.unlocked).length,
@@ -71,12 +106,24 @@ export default function GameAchievements() {
             setSouvenir(null);
             return;
           }
+          if (comparison) {
+            setComparison(null);
+            return;
+          }
 
           navigate(-1);
         },
+        // Y: compare this game's trophies with a friend (picked in the friends panel).
+        y: () => {
+          if (achievements.length === 0) return;
+          pickFriend(
+            compareWith,
+            NavigationService.getInstance().getCurrentFocusId()
+          );
+        },
       },
     }),
-    [navigate, souvenir]
+    [achievements.length, compareWith, comparison, navigate, souvenir]
   );
 
   useNavigationScreenActions(screenActions);
@@ -98,7 +145,14 @@ export default function GameAchievements() {
       <div className="game-achievements-page">
         <GameAchievementsHero shopDetails={shopDetails} game={game} />
 
-        {achievements.length === 0 ? (
+        {comparison ? (
+          <ComparisonView
+            friend={comparison.friend}
+            data={comparison.data}
+            failed={comparison.failed}
+            onExit={() => setComparison(null)}
+          />
+        ) : achievements.length === 0 ? (
           <div className="game-achievements-page__content">
             <FocusItem
               id={GAME_ACHIEVEMENTS_SUMMARY_FOCUS_ID}
@@ -188,5 +242,119 @@ export default function GameAchievements() {
         ) : null}
       </div>
     </VerticalFocusGroup>
+  );
+}
+
+const COMPARE_ROW_PREFIX = "compare-row-";
+
+/** This game's trophies side by side: what you have and what the friend has. */
+function ComparisonView({
+  friend,
+  data,
+  failed,
+  onExit,
+}: Readonly<{
+  friend: UserFriend;
+  data: ComparedAchievements | null;
+  failed: boolean;
+  onExit: () => void;
+}>) {
+  const mark = (unlocked: boolean | undefined) =>
+    unlocked ? (
+      <CheckCircleIcon size={26} weight="fill" className="compare__mark--on" />
+    ) : (
+      <LockIcon size={22} className="compare__mark--off" />
+    );
+
+  if (!data) {
+    return (
+      <div className="game-achievements-page__content">
+        <FocusItem
+          id={`${COMPARE_ROW_PREFIX}status`}
+          stealFocusOnAppear
+          actions={{ primary: onExit }}
+          asChild
+        >
+          <div className="game-achievements-page__empty">
+            <TrophyIcon size={56} weight="duotone" />
+            <h2>
+              {failed
+                ? tr(
+                    `Could not load ${friend.displayName}'s trophies`,
+                    `Não foi possível carregar os troféus de ${friend.displayName}`
+                  )
+                : tr(
+                    `Comparing with ${friend.displayName}…`,
+                    `Comparando com ${friend.displayName}…`
+                  )}
+            </h2>
+          </div>
+        </FocusItem>
+      </div>
+    );
+  }
+
+  const { owner, target } = data;
+  return (
+    <div className="game-achievements-page__content compare">
+      <header className="compare__header">
+        <div className="compare__side">
+          <span className="compare__label">{tr("You", "Você")}</span>
+          <strong>
+            {owner.unlockedAchievementCount}/{owner.totalAchievementCount}
+          </strong>
+        </div>
+        <span className="compare__vs">vs</span>
+        <div className="compare__side compare__side--friend">
+          {target.profileImageUrl ? (
+            <img src={target.profileImageUrl} alt="" />
+          ) : null}
+          <span className="compare__label">{target.displayName}</span>
+          <strong>
+            {target.unlockedAchievementCount}/{target.totalAchievementCount}
+          </strong>
+        </div>
+      </header>
+
+      <div className="compare__columns" aria-hidden="true">
+        <span />
+        <span />
+        <span>{tr("You", "Você")}</span>
+        <span>{target.displayName}</span>
+      </div>
+
+      <VerticalFocusGroup regionId="game-achievements-compare" asChild>
+        <ul className="compare__list">
+          {data.achievements.map((achievement, index) => (
+            <FocusItem
+              key={`${achievement.displayName}-${index}`}
+              id={`${COMPARE_ROW_PREFIX}${index}`}
+              stealFocusOnAppear={index === 0}
+              asChild
+            >
+              <li className="compare__row">
+                <img src={achievement.icon} alt="" loading="lazy" />
+                <div className="compare__text">
+                  <span className="compare__name">
+                    {achievement.displayName}
+                  </span>
+                  <span className="compare__description">
+                    {achievement.hidden && !achievement.description
+                      ? tr("Hidden trophy", "Troféu oculto")
+                      : achievement.description}
+                  </span>
+                </div>
+                <span className="compare__cell">
+                  {mark(achievement.ownerStat?.unlocked)}
+                </span>
+                <span className="compare__cell">
+                  {mark(achievement.targetStat.unlocked)}
+                </span>
+              </li>
+            </FocusItem>
+          ))}
+        </ul>
+      </VerticalFocusGroup>
+    </div>
   );
 }

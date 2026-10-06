@@ -400,3 +400,138 @@
     box-shadow: var(--opus-ring);
   }
 }
+
+// Trophies compared with a friend (Y on this page).
+.compare {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+
+  &__header {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+    padding: 20px 28px;
+    border-radius: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--opus-text);
+
+    strong {
+      font-size: 32px;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  &__side {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+  }
+
+  &__label {
+    font-size: 18px;
+    opacity: 0.8;
+  }
+
+  &__vs {
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    opacity: 0.5;
+  }
+
+  &__list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  // Same grid as the rows, so "You" and the friend's name sit over their check marks.
+  &__columns,
+  &__row {
+    display: grid;
+    grid-template-columns: 56px minmax(0, 1fr) 96px 96px;
+    gap: 16px;
+  }
+
+  &__columns {
+    padding: 0 22px;
+    margin-bottom: -8px;
+    font-size: 14px;
+    color: var(--opus-text);
+    opacity: 0.7;
+
+    span {
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  &__row {
+    align-items: center;
+    padding: 12px 20px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 2px solid transparent;
+    color: var(--opus-text);
+    outline: none;
+
+    &[data-focused="true"] {
+      border-color: var(--opus-accent);
+      background: rgba(255, 255, 255, 0.09);
+    }
+
+    img {
+      width: 56px;
+      height: 56px;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  &__name {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  &__description {
+    font-size: 14px;
+    opacity: 0.65;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__cell {
+    display: flex;
+    justify-content: center;
+  }
+
+  &__mark--on {
+    color: #3ddc84;
+  }
+
+  &__mark--off {
+    opacity: 0.35;
+  }
+}

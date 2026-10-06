@@ -734,7 +734,8 @@
     "Controls": "Controles",
     "Recent games": "Jogos recentes",
     "Filter by console": "Filtrar por console",
-    "Game menu": "Menu do jogo"
+    "Game menu": "Menu do jogo",
+    "Compare with friend": "Comparar com amigo"
   },
   "format": {
     "playtime_hours_one": "{{count}} hora",

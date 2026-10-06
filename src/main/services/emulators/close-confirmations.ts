@@ -57,15 +57,26 @@ export const disableCloseConfirmations = (
           "config",
           "qt-config.ini"
         );
+        // Also hides an idle mouse pointer over the game (played with a controller).
         return editFile(file, (c) =>
-          setQtIniValue(c, "UI", "confirmClose", "false")
+          setQtIniValue(
+            setQtIniValue(c, "UI", "confirmClose", "false"),
+            "UI",
+            "hideInactiveMouse",
+            "true"
+          )
         );
       }
       case "ps2": {
         const file = findExistingConfig(pcsx2ConfigCandidates(executablePath));
         return file
           ? editFile(file, (c) =>
-              setIniValue(c, "UI", "ConfirmShutdown", "false")
+              setIniValue(
+                setIniValue(c, "UI", "ConfirmShutdown", "false"),
+                "UI",
+                "HideMouseCursor",
+                "true"
+              )
             )
           : false;
       }
@@ -73,7 +84,12 @@ export const disableCloseConfirmations = (
         const file = findExistingConfig(duckstationConfigCandidates());
         return file
           ? editFile(file, (c) =>
-              setIniValue(c, "Main", "ConfirmPowerOff", "false")
+              setIniValue(
+                setIniValue(c, "Main", "ConfirmPowerOff", "false"),
+                "Main",
+                "HideCursorInFullscreen",
+                "true"
+              )
             )
           : false;
       }
