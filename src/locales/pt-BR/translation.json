@@ -990,10 +990,7 @@
     "view_fullscreen": "Ver em tela cheia",
     "previous_media": "Anterior",
     "next_media": "Próximo",
-    "not_enough_space_on_disk": "Espaço insuficiente neste disco. Necessário {{required}}, disponível {{available}}.",
-    "switch_emulator_title": "Emulador de Switch",
-    "switch_emulator_description": "O Eden e o Citron usam as mesmas chaves, atualizações, mods e saves. Automático usa o que rodou melhor neste jogo.",
-    "switch_emulator_auto": "Automático"
+    "not_enough_space_on_disk": "Espaço insuficiente neste disco. Necessário {{required}}, disponível {{available}}."
   },
   "activation": {
     "title": "Ativação",

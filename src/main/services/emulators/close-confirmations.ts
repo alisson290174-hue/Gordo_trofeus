@@ -7,7 +7,6 @@ import { setIniValue } from "./duckstation-souvenir-config-value";
 import { setQtIniValue } from "./controller-autoconfig-rules";
 import { qtEmulatorDataDir } from "./controller-autoconfig";
 import { dolphinUserDirectoryCandidates } from "./emulator-log-paths";
-import { findCitronExecutable } from "./switch-emulator-choice";
 import {
   duckstationConfigCandidates,
   findExistingConfig,
@@ -37,37 +36,20 @@ export const disableCloseConfirmations = (
   try {
     switch (system) {
       case "switch": {
-        // Eden ConfirmStop: 0 ask always, 1 ask per game, 2 never. Citron (same yuzu settings)
-        // runs some games, so it gets the same treatment.
-        const citron = findCitronExecutable(executablePath);
-        const files = [
-          path.join(
-            qtEmulatorDataDir(executablePath, "eden"),
-            "config",
-            "qt-config.ini"
-          ),
-          ...(citron
-            ? [
-                path.join(
-                  qtEmulatorDataDir(citron, "citron"),
-                  "config",
-                  "qt-config.ini"
-                ),
-              ]
-            : []),
-        ];
-        return files
-          .map((file) =>
-            editFile(file, (c) =>
-              setQtIniValue(
-                setQtIniValue(c, "UI", "confirmStop", "2"),
-                "UI",
-                "confirmClose",
-                "false"
-              )
-            )
+        const file = path.join(
+          qtEmulatorDataDir(executablePath, "eden"),
+          "config",
+          "qt-config.ini"
+        );
+        // Eden ConfirmStop: 0 ask always, 1 ask per game, 2 never.
+        return editFile(file, (c) =>
+          setQtIniValue(
+            setQtIniValue(c, "UI", "confirmStop", "2"),
+            "UI",
+            "confirmClose",
+            "false"
           )
-          .some(Boolean);
+        );
       }
       case "3ds": {
         const file = path.join(

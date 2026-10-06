@@ -23,48 +23,6 @@ import {
   platformToSystem,
 } from "@renderer/helpers";
 
-const SWITCH_EMULATOR_OPTIONS = [
-  { value: null, label: "switch_emulator_auto" },
-  { value: "eden", label: "Eden" },
-  { value: "citron", label: "Citron" },
-] as const;
-
-function SwitchEmulatorSection({ game }: Readonly<{ game: LibraryGame }>) {
-  const { t } = useTranslation("game_details");
-  const { updateGame } = useContext(gameDetailsContext);
-  const current = game.switchEmulator ?? null;
-
-  const choose = async (value: "eden" | "citron" | null) => {
-    await window.electron.updateClassicsDisc(game.shop, game.objectId, {
-      switchEmulator: value,
-    });
-    await updateGame();
-  };
-
-  return (
-    <div className="game-options-modal__section">
-      <div className="game-options-modal__header">
-        <h2>{t("switch_emulator_title")}</h2>
-        <h4 className="game-options-modal__header-description">
-          {t("switch_emulator_description")}
-        </h4>
-      </div>
-      <div className="game-options-modal__row">
-        {SWITCH_EMULATOR_OPTIONS.map((option) => (
-          <Button
-            key={option.label}
-            type="button"
-            theme={current === option.value ? "primary" : "outline"}
-            onClick={() => void choose(option.value)}
-          >
-            {option.value ? option.label : t(option.label)}
-          </Button>
-        ))}
-      </div>
-    </div>
-  );
-}
-
 interface ClassicsDiscSectionProps {
   game: LibraryGame;
 }
@@ -553,10 +511,6 @@ export function GeneralSettingsSection({
       {/* Classics disc selector (replaces executable for launchbox games) */}
       {showExecutableSection && game.shop === "launchbox" && (
         <ClassicsDiscSection game={game} />
-      )}
-
-      {game.shop === "launchbox" && /switch/i.test(game.platform ?? "") && (
-        <SwitchEmulatorSection game={game} />
       )}
 
       {/* Executable */}

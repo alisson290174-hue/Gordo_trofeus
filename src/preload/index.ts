@@ -1139,7 +1139,6 @@ contextBridge.exposeInMainWorld("electron", {
       platform?: string | null;
       addDisc?: { path: string; label: string; fileName: string };
       removeDiscPath?: string;
-      switchEmulator?: "eden" | "citron" | null;
     }
   ) => ipcRenderer.invoke("updateClassicsDisc", shop, objectId, patch),
   getEmulatorRomExtensions: (system: EmulatorSystem) =>

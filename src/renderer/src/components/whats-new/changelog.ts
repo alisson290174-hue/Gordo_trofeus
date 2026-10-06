@@ -10,6 +10,13 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.59",
+    date: "06/10/2026",
+    items: [
+      "Switch volta a usar só o Eden em todos os jogos (o Citron não abria bem os Pokémon). A opção de escolher o emulador saiu.",
+    ],
+  },
+  {
     version: "1.0.58",
     date: "05/10/2026",
     items: [

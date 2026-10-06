@@ -641,13 +641,6 @@ export function useGameSettingsModalState({
     [updateClassicsDisc]
   );
 
-  const handleChangeSwitchEmulator = useCallback(
-    async (value: "eden" | "citron" | null) => {
-      await updateClassicsDisc({ switchEmulator: value });
-    },
-    [updateClassicsDisc]
-  );
-
   const handleToggleDontAskDiscSelection = useCallback(
     async (checked: boolean) => {
       await updateClassicsDisc({
@@ -751,7 +744,6 @@ export function useGameSettingsModalState({
       onDeleteSteamShortcut: handleDeleteSteamShortcut,
       onSelectDisc: handleSelectDisc,
       onToggleDontAskDiscSelection: handleToggleDontAskDiscSelection,
-      onChangeSwitchEmulator: handleChangeSwitchEmulator,
       onProcessDiscPath: handleProcessDiscPath,
       onRemoveSelectedDisc: handleRemoveSelectedDisc,
       onRemoveAllDiscs: handleRemoveAllDiscs,

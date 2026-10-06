@@ -19,7 +19,6 @@ import { spawnDetachedEmulator } from "./spawn-detached-emulator";
 import { prepareEmulatorSouvenirs } from "@main/services/emulators/prepare-emulator-souvenirs";
 import { cleanupEmulatorSouvenirSession } from "@main/services/emulators/emulator-souvenir-config";
 import { configureControllerForEmulator } from "@main/services/emulators/controller-autoconfig";
-import { resolveSwitchExecutable } from "@main/services/emulators/switch-emulator-choice";
 
 export class EmulatorNotConfiguredError extends Error {
   code = "EMULATOR_NOT_CONFIGURED" as const;
@@ -250,31 +249,11 @@ export const launchClassicsGame = async (
     lastMark = now;
   };
 
-  const emulatorConfig = await emulators.getEmulatorConfig(system);
-  if (
-    !emulatorConfig.executablePath ||
-    !existsSync(emulatorConfig.executablePath)
-  ) {
+  const config = await emulators.getEmulatorConfig(system);
+  if (!config.executablePath || !existsSync(config.executablePath)) {
     throw new EmulatorNotConfiguredError(system);
   }
-
-  const gameKey = levelKeys.game(shop, objectId);
-  const game = await gamesSublevel.get(gameKey);
-  const selectedDisc = game?.discs?.find((d) => d.path === discPath) ?? null;
-
-  // Switch: Eden or Citron per game (same command line and data folders).
-  const config =
-    system === "switch"
-      ? {
-          ...emulatorConfig,
-          executablePath: resolveSwitchExecutable(
-            emulatorConfig.executablePath,
-            game?.switchEmulator,
-            selectedDisc?.sku
-          ),
-        }
-      : emulatorConfig;
-  const configuredExecutablePath = config.executablePath as string;
+  const configuredExecutablePath = config.executablePath;
 
   // DuckStation/PCSX2 silently crash on launch when no BIOS is present, and the
   // emulator is spawned detached with stdio "ignore" so its own error never
@@ -294,6 +273,9 @@ export const launchClassicsGame = async (
     }
   }
 
+  const gameKey = levelKeys.game(shop, objectId);
+  const game = await gamesSublevel.get(gameKey);
+
   const userPreferences = await db
     .get<string, UserPreferences | null>(levelKeys.userPreferences, {
       valueEncoding: "json",
@@ -302,7 +284,9 @@ export const launchClassicsGame = async (
 
   const wrapperCommands = resolveEmulatorWrappers(userPreferences, game);
 
-  const executablePath = path.normalize(configuredExecutablePath);
+  const selectedDisc = game?.discs?.find((d) => d.path === discPath) ?? null;
+
+  const executablePath = path.normalize(config.executablePath);
   const executableTarget =
     emulators.resolveEmulatorExecutableTarget(executablePath);
 
@@ -383,7 +367,7 @@ export const launchClassicsGame = async (
       await emulators.startEmulatorSession({
         game,
         system,
-        executablePath: configuredExecutablePath,
+        executablePath: config.executablePath,
         sku: selectedDisc?.sku ?? null,
         child: processRef,
         souvenirSession,

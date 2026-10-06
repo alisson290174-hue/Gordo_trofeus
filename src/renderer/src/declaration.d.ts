@@ -495,7 +495,6 @@ declare global {
         platform?: string | null;
         addDisc?: { path: string; label: string; fileName: string };
         removeDiscPath?: string;
-        switchEmulator?: "eden" | "citron" | null;
       }
     ) => Promise<LibraryGame>;
     getEmulatorRomExtensions: (system: EmulatorSystem) => Promise<string[]>;

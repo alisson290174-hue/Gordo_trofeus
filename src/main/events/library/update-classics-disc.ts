@@ -2,7 +2,7 @@ import { registerEvent } from "../register-event";
 import { gamesSublevel, levelKeys } from "@main/level";
 import { emulators } from "@main/services";
 import { platformToSystem } from "@main/helpers";
-import type { ClassicsDisc, GameShop, SwitchEmulatorChoice } from "@types";
+import type { ClassicsDisc, GameShop } from "@types";
 
 interface ClassicsDiscPatch {
   selectedDiscPath?: string | null;
@@ -10,7 +10,6 @@ interface ClassicsDiscPatch {
   platform?: string | null;
   addDisc?: ClassicsDisc;
   removeDiscPath?: string;
-  switchEmulator?: SwitchEmulatorChoice | null;
 }
 
 const applyAddDisc = async (
@@ -58,9 +57,6 @@ const updateClassicsDisc = async (
   }
   if (patch.dontAskDiscSelection !== undefined) {
     next.dontAskDiscSelection = patch.dontAskDiscSelection;
-  }
-  if (patch.switchEmulator !== undefined) {
-    next.switchEmulator = patch.switchEmulator;
   }
   if (patch.platform !== undefined) {
     next.platform = patch.platform;

@@ -1,9 +1,6 @@
 export type EmulatorSystem =
   "ps1" | "ps2" | "ps3" | "ps4" | "psp" | "dolphin" | "switch" | "3ds";
 
-/** Switch emulator per game: Eden (default) or Citron, both yuzu forks. */
-export type SwitchEmulatorChoice = "eden" | "citron";
-
 export type EmulatorBinary =
   | "duckstation"
   | "pcsx2"
