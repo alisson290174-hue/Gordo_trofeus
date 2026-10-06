@@ -495,11 +495,9 @@ export class WindowManager {
 
     // Another window (or a closing game) can leave Big Picture windowed with the taskbar on top;
     // whenever it gets the focus back it goes fullscreen again.
-    this.bigPicture.on("focus", () => {
-      const bigPicture = this.bigPicture;
-      if (bigPicture && !bigPicture.isDestroyed() && !bigPicture.isFullScreen())
-        bigPicture.setFullScreen(true);
-    });
+    this.bigPicture.on("focus", () =>
+      WindowManager.ensureBigPictureCoversScreen()
+    );
 
     this.bigPicture.on("closed", () => {
       this.bigPicture = null;
@@ -944,11 +942,12 @@ export class WindowManager {
       if (target.isDestroyed()) return;
       // Windows refuses focus to a background app (the taskbar just flashes): a minimize +
       // restore round trip is the activation it accepts, so the controller works right away.
-      if (!target.isFocused()) {
+      // Minimize + restore wins the focus, but a restored Big Picture can come back windowed
+      // (with the taskbar over it), so it is only used for the normal window.
+      if (!isBigPicture && !target.isFocused()) {
         target.minimize();
         target.restore();
         target.focus();
-        if (isBigPicture) target.setFullScreen(true);
       }
       target.setAlwaysOnTop(false);
       // isFocused() can say "yes" while Windows kept another app in front, so the Alt +
@@ -959,7 +958,9 @@ export class WindowManager {
       );
     }, 600);
     setTimeout(() => {
-      if (!target.isDestroyed()) WindowManager.forceForeground(target);
+      if (target.isDestroyed()) return;
+      WindowManager.forceForeground(target);
+      if (isBigPicture) WindowManager.ensureBigPictureCoversScreen();
     }, 2_500);
   }
 
@@ -981,6 +982,29 @@ export class WindowManager {
       { windowsHide: true, stdio: "ignore" }
     );
     child.on("error", () => {});
+  }
+
+  /**
+   * Big Picture really covering its display. isFullScreen() can stay true while Windows shows the
+   * window smaller with the taskbar on top, so the window's real bounds are checked; when they
+   * don't match, fullscreen is switched off and on again.
+   */
+  public static ensureBigPictureCoversScreen() {
+    const bigPicture = this.bigPicture;
+    if (!bigPicture || bigPicture.isDestroyed()) return;
+    const display = screen.getDisplayMatching(bigPicture.getBounds()).bounds;
+    const bounds = bigPicture.getBounds();
+    const covers =
+      bounds.x <= display.x &&
+      bounds.y <= display.y &&
+      bounds.width >= display.width &&
+      bounds.height >= display.height;
+    if (covers && bigPicture.isFullScreen()) return;
+    logger.info(
+      "[window] Big Picture was not covering the screen: fullscreen again"
+    );
+    if (bigPicture.isFullScreen()) bigPicture.setFullScreen(false);
+    bigPicture.setFullScreen(true);
   }
 
   /** After a game closes: Big Picture (only when it is open) returns to the front. */

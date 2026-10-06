@@ -10,6 +10,14 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.57",
+    date: "05/10/2026",
+    items: [
+      "Início do Big Picture: o direcional esquerdo/direito segue a ordem das capas, uma por vez, e para nas pontas (antes às vezes pulava para o final).",
+      "Big Picture: ao sair de um jogo, a tela cheia é restaurada se a barra de tarefas tiver aparecido por cima.",
+    ],
+  },
+  {
     version: "1.0.56",
     date: "05/10/2026",
     items: [

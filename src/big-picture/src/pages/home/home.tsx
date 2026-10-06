@@ -224,13 +224,26 @@ export default function Home() {
         className="opus-home__tiles"
         aria-label="Recent games"
       >
-        {strip.map((game) => {
+        {strip.map((game, index) => {
           const art = getTileArt(game);
           const isSelected = selected && gameKey(game) === gameKey(selected);
+          const previous = strip[index - 1];
+          const next = strip[index + 1];
           return (
             <FocusItem
               key={gameKey(game)}
               id={tileId(game)}
+              // Left/right follow the strip's order. Picking the neighbour by on-screen position
+              // went wrong while the row scrolled and the focused cover grew (it could jump to the
+              // end of the list).
+              navigationOverrides={{
+                left: previous
+                  ? { type: "item", itemId: tileId(previous) }
+                  : { type: "block" },
+                right: next
+                  ? { type: "item", itemId: tileId(next) }
+                  : { type: "block" },
+              }}
               actions={{
                 primary: () => void launch(game),
                 press: { x: () => openGamePage(game) },
