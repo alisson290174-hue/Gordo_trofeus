@@ -8,6 +8,9 @@ const getGameSaveFolder = async (
   shop: GameShop,
   objectId: string
 ): Promise<string | null> => {
+  // Emulated games keep their saves in the emulator, which Ludusavi doesn't know: asking it only
+  // spawned a process that failed with "No info for these games" each time the options opened.
+  if (shop === "launchbox") return null;
   try {
     const backupPreview = await Ludusavi.getBackupPreview(shop, objectId, null);
 

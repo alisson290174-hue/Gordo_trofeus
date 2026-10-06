@@ -10,6 +10,14 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.60",
+    date: "06/10/2026",
+    items: [
+      "Biblioteca do Big Picture abre bem mais rápido: as primeiras capas aparecem em ~0,13 s (antes até 1,3 s) e o resto entra em seguida, sem travar o controle.",
+      "Gerenciar de jogos de emulador abre mais rápido e não gera mais erro no registro (o Opus procurava o save no Ludusavi, que só conhece jogos de PC).",
+    ],
+  },
+  {
     version: "1.0.59",
     date: "06/10/2026",
     items: [
