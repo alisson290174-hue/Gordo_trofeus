@@ -364,27 +364,28 @@ export function GameContextMenu({
       },
     },
 
-    // Emulated games: the big PT-BR translation sites block automatic downloads, so open a
-    // ready-made search there; the file found goes in through "Instalar tradução".
-    ...(game.shop === "launchbox"
-      ? [
-          {
-            id: "search-translation",
-            label: t("search_translation"),
-            icon: <Icon name="search" size={16} />,
-            disabled: isDeleting,
-            onClick: () => {
-              const title = game.title
-                .replace(/\s*(PT-?BR|\(.*?\)|\[.*?\])\s*/gi, " ")
-                .trim();
-              const query = `"${title}" ${game.platform ?? ""} tradução PT-BR (site:joao13traducoes.com OR site:ggames.com.br OR site:romhacking.net)`;
-              void window.electron.openExternal(
-                `https://www.google.com/search?q=${encodeURIComponent(query)}`
-              );
-            },
-          },
-        ]
-      : []),
+    // The big PT-BR translation sites block automatic downloads, so open a ready-made search
+    // there: emulated games on the console groups' sites (the file found goes in through
+    // "Instalar tradução"), PC games on Central de Traduções.
+    {
+      id: "search-translation",
+      label: t("search_translation"),
+      icon: <Icon name="search" size={16} />,
+      disabled: isDeleting,
+      onClick: () => {
+        const title = game.title
+          .replace(/\s*(PT-?BR|\(.*?\)|\[.*?\])\s*/gi, " ")
+          .trim();
+        const sites =
+          game.shop === "launchbox"
+            ? "site:joao13traducoes.com OR site:ggames.com.br OR site:centraldetraducoes.net.br OR site:romhacking.net"
+            : "site:centraldetraducoes.net.br OR site:ggames.com.br";
+        const query = `"${title}" ${game.shop === "launchbox" ? (game.platform ?? "") : "PC"} tradução PT-BR (${sites})`;
+        void window.electron.openExternal(
+          `https://www.google.com/search?q=${encodeURIComponent(query)}`
+        );
+      },
+    },
 
     // Switch: 60 FPS / sharper image patches for the installed version of the game.
     ...(game.shop === "launchbox" && /switch/i.test(game.platform ?? "")

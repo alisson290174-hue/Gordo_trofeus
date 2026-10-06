@@ -135,12 +135,28 @@ export const getTileArt = (game: GameArt): TileArt | null => {
 };
 
 /** Wide key art behind the Início / Detalhes hero. */
+/**
+ * Nintendo's eShop "share" picture comes as …_image500w.jpg (blurry full screen); the same file
+ * is published at 1600px wide. The 500px one stays as the fallback (see heroFallback).
+ */
+const NINTENDO_SHARE_500 =
+  /(nintendo\.com\/eu\/media\/images\/.*_image)500w(\.\w+)$/i;
+const largerNintendoShare = (url: string | null) =>
+  url ? url.replace(NINTENDO_SHARE_500, "$11600w$2") : url;
+
+/** The smaller original of an upgraded hero URL (when the larger copy doesn't exist). */
+export const heroFallback = (url: string) =>
+  url.replace(
+    /(nintendo\.com\/eu\/media\/images\/.*_image)1600w(\.\w+)$/i,
+    "$1500w$2"
+  );
+
 export const getHeroArt = (game: GameArt) =>
   sizedEpicArt(
     firstImage(
       game.customHeroImageUrl,
       getShowcaseArt(game, "hero"),
-      game.libraryHeroImageUrl,
+      largerNintendoShare(game.libraryHeroImageUrl ?? null),
       steamAsset(game, "library_hero.jpg"),
       game.libraryImageUrl
     ),

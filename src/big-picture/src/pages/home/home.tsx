@@ -3,7 +3,12 @@ import type { LibraryGame } from "@types";
 import { getDisplayedPlayTimeInMilliseconds } from "@shared";
 import { PlatformBadge } from "@renderer/components/platform-badge/platform-badge";
 import { getPlatformBadge } from "@renderer/helpers/platform-badge";
-import { getHeroArt, getLogoArt, getTileArt } from "@renderer/helpers/ps5-game";
+import {
+  getHeroArt,
+  getLogoArt,
+  getTileArt,
+  heroFallback,
+} from "@renderer/helpers/ps5-game";
 import cn from "classnames";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -63,9 +68,10 @@ const sortRecent = (games: LibraryGame[]) =>
  */
 function HeroBackdrop({ src }: Readonly<{ src: string }>) {
   const [soft, setSoft] = useState<boolean | null>(null);
+  const [current, setCurrent] = useState(src);
   return (
     <img
-      src={src}
+      src={current}
       alt=""
       className={cn("opus-home__hero", {
         "opus-home__hero--soft": soft === true,
@@ -75,6 +81,12 @@ function HeroBackdrop({ src }: Readonly<{ src: string }>) {
         const { naturalWidth: width, naturalHeight: height } =
           event.currentTarget;
         setSoft(width < 1280 || width / Math.max(1, height) < 1.5);
+      }}
+      // An upgraded (larger) picture that doesn't exist: back to the original.
+      onError={() => {
+        const fallback = heroFallback(current);
+        if (fallback !== current) setCurrent(fallback);
+        else setSoft(true);
       }}
     />
   );

@@ -25,6 +25,12 @@
     transform: scale(1.04);
     animation: home-hero-fade 0.6s ease;
 
+    // Hidden until the picture's size is known, so a small one never flashes pixelated first.
+    &--pending {
+      opacity: 0;
+      animation: none;
+    }
+
     &--from-cover {
       filter: blur(36px) brightness(0.7) saturate(1.2);
       transform: scale(1.2);

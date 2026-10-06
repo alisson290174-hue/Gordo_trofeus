@@ -10,6 +10,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.63",
+    date: "06/10/2026",
+    items: [
+      "Fundos dos jogos de Switch em alta resolução: a arte do site da Nintendo agora vem em 1600 px (antes 500 px, que ficava pixelada em tela cheia).",
+      "Início do modo normal: jogos que só têm arte pequena ganham o fundo desfocado com as cores do jogo (como no Big Picture), em vez da imagem esticada.",
+      '"Pesquisar tradução na internet" agora também aparece nos jogos de PC e procura no Central de Traduções.',
+    ],
+  },
+  {
     version: "1.0.62",
     date: "06/10/2026",
     items: [

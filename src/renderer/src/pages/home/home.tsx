@@ -16,6 +16,7 @@ import {
   getHeaderArt,
   getTileArt,
   getHeroArt,
+  heroFallback,
   getLogoArt,
   getTrophyProgress,
   type GameSummary,
@@ -102,6 +103,52 @@ function DiscoverCard({
       </div>
     </button>
   );
+}
+
+/**
+ * Whether a full-screen art is too small or not wide enough to show sharp (null while it loads).
+ * Same rule as Big Picture: under 1280px wide or narrower than 3:2.
+ */
+function useHeroImage(url: string | null): {
+  url: string | null;
+  small: boolean | null;
+} {
+  const [result, setResult] = useState<{
+    requested: string;
+    url: string;
+    small: boolean;
+  } | null>(null);
+  useEffect(() => {
+    if (!url) return undefined;
+    let cancelled = false;
+    const load = (candidate: string) => {
+      const image = new Image();
+      image.onload = () => {
+        if (cancelled) return;
+        const { naturalWidth: width, naturalHeight: height } = image;
+        setResult({
+          requested: url,
+          url: candidate,
+          small: width < 1280 || width / Math.max(1, height) < 1.5,
+        });
+      };
+      // An upgraded (larger) picture that doesn't exist: back to the original.
+      image.onerror = () => {
+        if (cancelled) return;
+        const fallback = heroFallback(candidate);
+        if (fallback !== candidate) load(fallback);
+        else setResult({ requested: url, url: candidate, small: true });
+      };
+      image.src = candidate;
+    };
+    load(url);
+    return () => {
+      cancelled = true;
+    };
+  }, [url]);
+  return result?.requested === url
+    ? { url: result.url, small: result.small }
+    : { url, small: null };
 }
 
 export default function Home() {
@@ -231,7 +278,8 @@ export default function Home() {
   const focusProgress = focus?.libraryGame
     ? getTrophyProgress(focus.libraryGame)
     : null;
-  const focusHero = focus ? getHeroArt(focus.asset) : null;
+  const requestedHero = focus ? getHeroArt(focus.asset) : null;
+  const { url: focusHero, small: heroIsSmall } = useHeroImage(requestedHero);
   const isFocusReady = focus?.libraryGame
     ? isGameReadyToPlay(focus.libraryGame)
     : false;
@@ -248,12 +296,15 @@ export default function Home() {
         <div
           key={focus?.key ?? "empty"}
           className={cn("home-hero__art", {
-            // No landscape art (classics before the PS2 index fills in): a box scan blown up to
-            // full screen pixelates, so it becomes a soft blurred backdrop instead.
+            // No proper landscape art (a box scan, or a small 500px picture): blown up to full
+            // screen it pixelates, so it becomes a soft blurred backdrop instead.
             "home-hero__art--from-cover":
-              Boolean(focusHero) &&
-              focus &&
-              focusHero === getCoverArt(focus.asset),
+              heroIsSmall === true ||
+              (Boolean(focusHero) &&
+                focus &&
+                requestedHero === getCoverArt(focus.asset)),
+            "home-hero__art--pending":
+              Boolean(focusHero) && heroIsSmall === null,
           })}
           style={
             focusHero ? { backgroundImage: `url("${focusHero}")` } : undefined
