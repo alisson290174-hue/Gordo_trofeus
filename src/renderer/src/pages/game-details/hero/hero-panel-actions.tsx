@@ -287,6 +287,24 @@ export function HeroPanelActions() {
 
   const deleting = game ? isGameDeleting(game?.id) : false;
 
+  // PC games: a PT-BR translation/dub kept in Traduções\PC opens straight from here.
+  const [pcTranslation, setPcTranslation] = useState<{
+    folder: string;
+    files: string[];
+  } | null>(null);
+  useEffect(() => {
+    setPcTranslation(null);
+    if (!game || game.shop === "launchbox") return;
+    let cancelled = false;
+    window.electron
+      .getPcTranslation(game.shop, game.objectId)
+      .then((found) => !cancelled && setPcTranslation(found))
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [game?.shop, game?.objectId]);
+
   const addGameToLibraryButton = (
     <Button
       theme="outline"
@@ -524,6 +542,23 @@ export function HeroPanelActions() {
             className={`hero-panel-actions__action hero-panel-actions__round ${game.isPinned ? "hero-panel-actions__round--pinned" : ""}`}
           >
             <Icon name="pin" size={20} />
+          </Button>
+        )}
+
+        {pcTranslation && (
+          <Button
+            onClick={() =>
+              window.electron.showItemInFolder(
+                `${pcTranslation.folder}\\${pcTranslation.files[0]}`
+              )
+            }
+            theme="outline"
+            disabled={deleting}
+            className="hero-panel-actions__action hero-panel-actions__ghost"
+            title={pcTranslation.files.join("\n")}
+          >
+            <Icon name="languages" size={18} />
+            {t("pc_translation_saved")}
           </Button>
         )}
 

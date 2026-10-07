@@ -990,7 +990,8 @@
     "view_fullscreen": "Ver em tela cheia",
     "previous_media": "Anterior",
     "next_media": "Próximo",
-    "not_enough_space_on_disk": "Espaço insuficiente neste disco. Necessário {{required}}, disponível {{available}}."
+    "not_enough_space_on_disk": "Espaço insuficiente neste disco. Necessário {{required}}, disponível {{available}}.",
+    "pc_translation_saved": "Tradução PT-BR guardada"
   },
   "activation": {
     "title": "Ativação",

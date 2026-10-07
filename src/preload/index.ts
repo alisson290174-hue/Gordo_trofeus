@@ -1093,6 +1093,8 @@ contextBridge.exposeInMainWorld("electron", {
     ipcRenderer.invoke("openGameExecutablePath", shop, objectId),
   getGameSaveFolder: (shop: GameShop, objectId: string) =>
     ipcRenderer.invoke("getGameSaveFolder", shop, objectId),
+  getPcTranslation: (shop: GameShop, objectId: string) =>
+    ipcRenderer.invoke("getPcTranslation", shop, objectId),
   openGameSaveFolder: (
     shop: GameShop,
     objectId: string,

@@ -10,6 +10,13 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.66",
+    date: "06/10/2026",
+    items: [
+      'Jogos de PC com tradução ou dublagem PT-BR guardada (pasta Traduções\\PC, ao lado dos emuladores) mostram o botão "Tradução PT-BR guardada" na página do jogo, que abre a pasta com os arquivos.',
+    ],
+  },
+  {
     version: "1.0.65",
     date: "06/10/2026",
     items: [

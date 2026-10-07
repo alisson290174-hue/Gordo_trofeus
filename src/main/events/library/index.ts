@@ -22,6 +22,7 @@ import "./get-game-by-object-id";
 import "./get-game-installer-action-type";
 import "./get-game-launch-proton-version";
 import "./get-game-save-folder";
+import "./get-pc-translation";
 import "./get-games-running";
 import "./get-library";
 import "./open-game-executable-path";

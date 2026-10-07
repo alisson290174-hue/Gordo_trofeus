@@ -469,6 +469,10 @@ declare global {
       shop: GameShop,
       objectId: string
     ) => Promise<string | null>;
+    getPcTranslation: (
+      shop: GameShop,
+      objectId: string
+    ) => Promise<{ folder: string; files: string[] } | null>;
     openGameSaveFolder: (
       shop: GameShop,
       objectId: string,
