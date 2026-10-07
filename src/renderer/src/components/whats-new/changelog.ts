@@ -10,6 +10,14 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.65",
+    date: "06/10/2026",
+    items: [
+      "Fundos revisados na biblioteca inteira (jogos de PC e de emulador, instalados ou não): o Opus mede cada imagem e troca as pequenas, quadradas ou quebradas pela melhor arte do LaunchBox. Todos os jogos de PC agora têm fundo nítido.",
+      "Artes 4:3 grandes (ex.: 1600x1200) aparecem nítidas em vez de desfocadas.",
+    ],
+  },
+  {
     version: "1.0.64",
     date: "06/10/2026",
     items: [

@@ -80,7 +80,7 @@ function HeroBackdrop({ src }: Readonly<{ src: string }>) {
       onLoad={(event) => {
         const { naturalWidth: width, naturalHeight: height } =
           event.currentTarget;
-        setSoft(width < 1280 || width / Math.max(1, height) < 1.5);
+        setSoft(width < 1280 || width / Math.max(1, height) < 1.3);
       }}
       // An upgraded (larger) picture that doesn't exist: back to the original.
       onError={() => {

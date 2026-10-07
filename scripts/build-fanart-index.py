@@ -1,4 +1,4 @@
-"""LaunchBox Games DB -> compact fanart index: {platform: {normalised title: image file}}.
+"""LaunchBox Games DB -> compact fanart index: {platform: {normalised title: [image files]}}.
 
 Only console platforms Opus emulates, only "Fanart - Background" art (the wide, full-screen
 pictures). Alternate names are indexed too, so "Pokemon - Black Version" and "Pokémon Black"
@@ -27,11 +27,14 @@ PLATFORMS = {
     "Microsoft Xbox": "xbox",
     "Microsoft Xbox 360": "xbox360",
     "Sega Genesis": "genesis",
+    "Windows": "pc",
 }
 
 
 def norm(title):
-    t = unicodedata.normalize("NFKD", title).encode("ascii", "ignore").decode().lower()
+    # Before NFKD, which would turn "™" into the letters "TM".
+    t = re.sub("[™®©]", "", title)
+    t = unicodedata.normalize("NFKD", t).encode("ascii", "ignore").decode().lower()
     t = re.sub(r"\(.*?\)|\[.*?\]", " ", t)
     t = t.replace("&", " and ")
     t = re.sub(r"[^a-z0-9]+", " ", t)
@@ -40,7 +43,7 @@ def norm(title):
 
 
 games = {}      # DatabaseID -> (platformKey, [names])
-fanart = {}     # DatabaseID -> (score, file)
+fanart = {}     # DatabaseID -> [(score, file)]
 
 for event, el in ET.iterparse(sys.argv[1], events=("end",)):
     tag = el.tag
@@ -60,8 +63,7 @@ for event, el in ET.iterparse(sys.argv[1], events=("end",)):
             region = el.findtext("Region") or ""
             # Prefer region-less / North America art, then any.
             score = 2 if region in ("", "North America", "World") else 1
-            if gid not in fanart or score > fanart[gid][0]:
-                fanart[gid] = (score, el.findtext("FileName"))
+            fanart.setdefault(gid, []).append((score, el.findtext("FileName")))
         el.clear()
 
 index = {}
@@ -69,10 +71,13 @@ for gid, (platform, names) in games.items():
     if gid not in fanart:
         continue
     bucket = index.setdefault(platform, {})
+    # Every background the game has (best region first, at most 6): Opus measures them and
+    # keeps the first wide, sharp one.
+    files = [f for _, f in sorted(fanart[gid], key=lambda x: -x[0])][:6]
     for name in names:
         key = norm(name)
         if key and key not in bucket:
-            bucket[key] = fanart[gid][1]
+            bucket[key] = files
 
 json.dump(index, open(sys.argv[2], "w", encoding="utf8"), separators=(",", ":"))
 print({p: len(v) for p, v in index.items()})

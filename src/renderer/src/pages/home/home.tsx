@@ -107,7 +107,7 @@ function DiscoverCard({
 
 /**
  * Whether a full-screen art is too small or not wide enough to show sharp (null while it loads).
- * Same rule as Big Picture: under 1280px wide or narrower than 3:2.
+ * Same rule as Big Picture: under 1280px wide or narrower than 4:3 (a 1600x1200 picture is cropped a little but sharp).
  */
 function useHeroImage(url: string | null): {
   url: string | null;
@@ -129,7 +129,7 @@ function useHeroImage(url: string | null): {
         setResult({
           requested: url,
           url: candidate,
-          small: width < 1280 || width / Math.max(1, height) < 1.5,
+          small: width < 1280 || width / Math.max(1, height) < 1.3,
         });
       };
       // An upgraded (larger) picture that doesn't exist: back to the original.
