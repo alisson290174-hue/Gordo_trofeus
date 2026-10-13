@@ -10,6 +10,13 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.67",
+    date: "13/10/2026",
+    items: [
+      'O PlayStation 4 ganhou o seu card em Configurações → Emulação: dá para escolher o shadPS4 (inclusive versões modificadas, como a do God of War III) e a pasta dos jogos em "Gerenciar". Os jogos de PS4 voltam a aparecer na biblioteca.',
+    ],
+  },
+  {
     version: "1.0.66",
     date: "06/10/2026",
     items: [
