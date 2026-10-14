@@ -1,4 +1,7 @@
-import { pickClassicHero } from "@main/services/emulators/classic-fanart";
+import {
+  findClassicBox,
+  pickClassicHero,
+} from "@main/services/emulators/classic-fanart";
 import axios from "axios";
 import { createHash, randomUUID } from "node:crypto";
 import { existsSync, promises as fs } from "node:fs";
@@ -970,10 +973,11 @@ const resolveUnmatchedArt = async (
   tileUrl: string | null;
 }> => {
   if (system === "ps4") {
+    // The game ships only a square icon: the case comes from LaunchBox (icon when not indexed).
     const local = ps4LocalArt(primaryPath);
     return {
       title,
-      coverUrl: local.icon,
+      coverUrl: findClassicBox("ps4", title)[0] ?? local.icon,
       heroUrl: local.pic,
       tileUrl: local.icon,
     };

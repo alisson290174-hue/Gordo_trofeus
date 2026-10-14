@@ -17,28 +17,42 @@ import {
 type Size = { width: number; height: number };
 
 let index: FanartIndex | null = null;
+let boxIndex: FanartIndex | null = null;
 
-const indexPath = () =>
+const resourcePath = (file: string) =>
   app.isPackaged
-    ? path.join(process.resourcesPath, "classic-fanart-index.json")
-    : path.join(
-        __dirname,
-        "..",
-        "..",
-        "resources",
-        "classic-fanart-index.json"
-      );
+    ? path.join(process.resourcesPath, file)
+    : path.join(__dirname, "..", "..", "resources", file);
 
-const loadIndex = (): FanartIndex => {
-  if (index) return index;
+const readIndex = (file: string): FanartIndex => {
   try {
-    index = JSON.parse(fs.readFileSync(indexPath(), "utf8")) as FanartIndex;
+    return JSON.parse(
+      fs.readFileSync(resourcePath(file), "utf8")
+    ) as FanartIndex;
   } catch (error) {
-    logger.warn("[fanart] index not available", error);
-    index = {};
+    logger.warn(`[fanart] ${file} not available`, error);
+    return {};
   }
-  return index;
 };
+
+const loadIndex = (): FanartIndex =>
+  (index ??= readIndex("classic-fanart-index.json"));
+
+/** Box art (LaunchBox "Box - Front", scripts/build-box-index.py) for systems without real covers. */
+const loadBoxIndex = (): FanartIndex =>
+  (boxIndex ??= readIndex("classic-box-index.json"));
+
+/** The game's case (front) from LaunchBox, best region first; empty when not indexed. */
+export const findClassicBox = (
+  platform: string | null | undefined,
+  title: string
+): string[] => findFanart(loadBoxIndex(), platform, title);
+
+/** The first LaunchBox background for a title on a platform (no measuring). */
+export const findClassicFanart = (
+  platform: string | null | undefined,
+  title: string
+): string[] => findFanart(loadIndex(), platform, title);
 
 // ---- Measured sizes (kept between runs, so each picture is measured once) ----------------------
 

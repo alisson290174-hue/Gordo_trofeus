@@ -73,7 +73,8 @@ export const filterLibraryGamesByCategory = <T extends LibraryCategoryGame>(
     const tone = category.slice(CONSOLE_CATEGORY_PREFIX.length);
     return games.filter(
       (game) =>
-        game.shop === "launchbox" && getPlatformBadge(game).tone === tone
+        (game.shop === "launchbox" || game.platform === "port") &&
+        getPlatformBadge(game).tone === tone
     );
   }
 
@@ -91,7 +92,7 @@ export const filterLibraryGamesByCategory = <T extends LibraryCategoryGame>(
     return games.filter(
       (game) =>
         (game.shop === "steam" && !isSteamLibraryGame(game)) ||
-        game.shop === "custom"
+        (game.shop === "custom" && game.platform !== "port")
     );
   }
 

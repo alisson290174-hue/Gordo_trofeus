@@ -10,6 +10,15 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.68",
+    date: "14/10/2026",
+    items: [
+      'Nova aba "PORT" na biblioteca: jogos de console que rodam nativos no PC (pasta Ports, ao lado dos emuladores) entram sozinhos — o Bloodborne (port) e o Ship of Harkinian já aparecem lá, com capa e fundo do jogo original.',
+      "Jogos de PS4 colocados na pasta entram na biblioteca sozinhos ao abrir o Opus (God of War III e Bloodborne), agora com a capa da caixa no lugar do ícone quadrado.",
+      "Se um emulador mudar de pasta (ou for trocado por uma versão modificada), o Opus o encontra de novo sozinho — o PS4 passa a usar o shadPS4 do God of War III.",
+    ],
+  },
+  {
     version: "1.0.67",
     date: "13/10/2026",
     items: [

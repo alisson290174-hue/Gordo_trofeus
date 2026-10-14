@@ -153,6 +153,41 @@ export const loadState = async () => {
         ),
       40_000
     );
+    // An emulator moved/swapped for a fork is found again; PS4 games extracted by hand into the
+    // linked folder join the library; PC ports (<emulators>\Ports) get their own "PORT" tab.
+    setTimeout(
+      () =>
+        void (async () => {
+          const { repairMissingEmulatorPaths, ps4FoldersWithNewGames } =
+            await import("./services/emulators/repair-emulators");
+          await repairMissingEmulatorPaths().catch((error) =>
+            logger.error("[emulators] path repair failed", error)
+          );
+          const folders = await ps4FoldersWithNewGames().catch(() => []);
+          if (folders.length) {
+            const { runLaunchboxImport } = await import(
+              "./events/emulators/import-launchbox-roms"
+            );
+            logger.info(`[emulators] ps4: new games in ${folders.length} folder(s)`);
+            await runLaunchboxImport(
+              "ps4",
+              folders.map((f) => ({ path: f.path, scanSubfolders: f.scanSubfolders })),
+              "pt",
+              { cancelled: false }
+            ).catch((error) => logger.error("[emulators] ps4 import failed", error));
+          }
+          const { backfillPs4Covers } = await import(
+            "./services/emulators/repair-emulators"
+          );
+          const covers = await backfillPs4Covers().catch(() => 0);
+          if (covers) WindowManager.sendToAppWindows("on-library-batch-complete");
+          const { importPcPorts } = await import("./services/pc-ports");
+          await importPcPorts().catch((error) =>
+            logger.error("[ports] Import failed", error)
+          );
+        })(),
+      30_000
+    );
     // Fill PS2 box art for games imported before covers existed (no rescan needed).
     // Then real titles, fanart and logos from the server's PS2 index (after covers so it can
     // replace the box art that stands in as background).

@@ -50,6 +50,11 @@
     --badge-from: #1f9e1f;
     --badge-to: #107c10;
   }
+  // Native PC ports of console games.
+  &--port {
+    --badge-from: #b4532a;
+    --badge-to: #7a2e12;
+  }
 
   &--switch {
     --badge-from: #ff3b30;

@@ -74,3 +74,25 @@ describe("Steam Library filters", () => {
     assert.equal(isSteamLibraryGame(games[0]), true);
   });
 });
+
+describe("PC ports tab", () => {
+  const games = [
+    { shop: "custom", platform: "port" },
+    { shop: "custom", platform: null },
+    { shop: "launchbox", platform: "PlayStation 4" },
+  ];
+
+  it("lists ports under their own console tab, not under downloads", () => {
+    assert.deepEqual(
+      filterLibraryGamesByCategory(games, "console:port"),
+      [games[0]]
+    );
+    assert.deepEqual(filterLibraryGamesByCategory(games, "torrent"), [
+      games[1],
+    ]);
+    assert.deepEqual(
+      filterLibraryGamesByCategory(games, "console:ps4"),
+      [games[2]]
+    );
+  });
+});

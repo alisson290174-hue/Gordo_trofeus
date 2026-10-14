@@ -92,7 +92,8 @@ export function CategoryFilter({
       { label: string; name: string; count: number }
     >();
     for (const game of library) {
-      if (game.shop !== "launchbox") continue;
+      // Emulated consoles, plus PC ports of console games (their own "PORT" tab).
+      if (game.shop !== "launchbox" && game.platform !== "port") continue;
       const badge = getPlatformBadge(game);
       const entry = counts.get(badge.tone) ?? {
         label: badge.label,

@@ -20,6 +20,7 @@ export type PlatformTone =
   | "gamecube"
   | "wii"
   | "xbox"
+  | "port"
   | "pc";
 
 export interface PlatformBadge {
@@ -120,6 +121,10 @@ export const getPlatformBadge = (game: {
   // PC games installed by the Xbox app (Game Pass / Microsoft Store).
   if (game.platform === "xbox") {
     return { label: "XBOX", tone: "xbox", name: "Xbox (PC)" };
+  }
+  // Native PC ports of console games (Bloodborne's port, Ship of Harkinian…), own tab.
+  if (game.platform === "port") {
+    return { label: "PORT", tone: "port", name: "Port para PC" };
   }
   if (game.shop === "launchbox" && game.platform) {
     const rule = RULES.find((candidate) =>
