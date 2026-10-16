@@ -1,0 +1,113 @@
+// Console colours shared by the normal mode (Biblioteca) and Big Picture: two stops + a glow.
+$tones: (
+  "all": (
+    #2a3f6e,
+    #121a33,
+    #4d9bff,
+  ),
+  "pc": (
+    #2c3a52,
+    #141b29,
+    #8fb6ff,
+  ),
+  "xbox": (
+    #1f9e1f,
+    #0b4a0b,
+    #3ddc3d,
+  ),
+  "port": (
+    #b4532a,
+    #4a1a08,
+    #ff8a4c,
+  ),
+  "ps1": (
+    #8a93a3,
+    #2e3440,
+    #d5dbe5,
+  ),
+  "ps2": (
+    #2f6bff,
+    #0c1f66,
+    #5d8dff,
+  ),
+  "ps3": (
+    #3b414d,
+    #0a0c10,
+    #9aa3b5,
+  ),
+  "ps4": (
+    #1f3a8a,
+    #08122f,
+    #4f7bff,
+  ),
+  "psp": (
+    #4a5060,
+    #16181e,
+    #a5adbd,
+  ),
+  "switch": (
+    #ff3b30,
+    #6e0008,
+    #ff5a50,
+  ),
+  "n3ds": (
+    #e33b3b,
+    #5a070c,
+    #ff6060,
+  ),
+  "snes": (
+    #7a5fd0,
+    #24165a,
+    #a58cff,
+  ),
+  "nes": (
+    #d64545,
+    #4a0c12,
+    #ff6b6b,
+  ),
+  "n64": (
+    #2fb35a,
+    #0b3a1a,
+    #4fe07f,
+  ),
+  "gb": (
+    #8fa33a,
+    #2a330c,
+    #c3dc55,
+  ),
+  "gbc": (
+    #9b4fd6,
+    #2e0f4a,
+    #c27bff,
+  ),
+  "nds": (
+    #8c8f99,
+    #24262b,
+    #c9ccd6,
+  ),
+  "gba": (
+    #5a4fd6,
+    #160f52,
+    #8a80ff,
+  ),
+  "gamecube": (
+    #7a64c4,
+    #1e1547,
+    #a893ff,
+  ),
+  "wii": (
+    #c9d4df,
+    #4b5866,
+    #e8eef5,
+  ),
+);
+
+@mixin classes {
+  @each $tone, $c in $tones {
+    .platform-tone--#{$tone} {
+      --tone-a: #{nth($c, 1)};
+      --tone-b: #{nth($c, 2)};
+      --tone-glow: #{nth($c, 3)};
+    }
+  }
+}

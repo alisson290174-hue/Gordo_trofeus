@@ -26,6 +26,12 @@ interface KnownPort {
   /** Preferred launchers, in order (the port's own "play" script first). */
   launchers: string[];
   art: { platform: string; title: string };
+  /**
+   * The port's real game process, relative to its folder. A .bat launcher never shows up as a
+   * process of its own, so without this Opus can't tell the game is running (no playtime, and
+   * Select+Start has nothing to close).
+   */
+  processes?: string[];
 }
 
 const KNOWN_PORTS: KnownPort[] = [
@@ -34,6 +40,7 @@ const KNOWN_PORTS: KnownPort[] = [
     title: "Bloodborne",
     launchers: ["Jogar_Bloodborne.bat", "launch_gui.bat", "run.bat"],
     art: { platform: "ps4", title: "Bloodborne" },
+    processes: ["out/bbport.exe"],
   },
   {
     match: /harkinian/i,
@@ -102,25 +109,47 @@ const portArt = (title: string, known?: KnownPort) => {
   };
 };
 
-const withArt = (game: Game, art: { cover: string | null; hero: string | null }): Game => ({
+const withArt = (
+  game: Game,
+  art: { cover: string | null; hero: string | null },
+  tracking: string[]
+): Game => ({
   ...game,
   platform: "port",
   customCoverImageUrl: game.customCoverImageUrl ?? art.cover ?? null,
   customHeroImageUrl: game.customHeroImageUrl ?? art.hero ?? null,
+  trackingExecutablePaths: game.trackingExecutablePaths?.length
+    ? game.trackingExecutablePaths
+    : tracking.length
+      ? tracking
+      : (game.trackingExecutablePaths ?? null),
 });
 
 export const importPcPorts = async () => {
   const roots = await findPortRoots();
   if (roots.length === 0) return 0;
 
-  const found: { launcher: string; title: string; known?: KnownPort }[] = [];
+  const found: {
+    launcher: string;
+    title: string;
+    known?: KnownPort;
+    tracking: string[];
+  }[] = [];
   for (const root of roots) {
     for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
       if (!entry.isDirectory() || entry.name.startsWith("_")) continue;
       const known = KNOWN_PORTS.find((port) => port.match.test(entry.name));
       const launcher = findLauncher(path.join(root, entry.name), known);
       if (!launcher) continue;
-      found.push({ launcher, title: portTitle(entry.name, known), known });
+      const tracking = (known?.processes ?? [])
+        .map((file) => path.join(root, entry.name, file))
+        .filter((file) => fs.existsSync(file));
+      found.push({
+        launcher,
+        title: portTitle(entry.name, known),
+        known,
+        tracking,
+      });
     }
   }
   if (found.length === 0) return 0;
@@ -140,11 +169,12 @@ export const importPcPorts = async () => {
         // Already in the library (added by hand or a previous run): only tag it and fill missing art.
         const [key, game] = existing;
         if (game.shop !== "custom") continue;
-        const next = withArt(game, art);
+        const next = withArt(game, art, port.tracking);
         if (
           next.platform === game.platform &&
           next.customCoverImageUrl === game.customCoverImageUrl &&
-          next.customHeroImageUrl === game.customHeroImageUrl
+          next.customHeroImageUrl === game.customHeroImageUrl &&
+          next.trackingExecutablePaths === game.trackingExecutablePaths
         )
           continue;
         await gamesSublevel.put(key, next);
@@ -155,7 +185,7 @@ export const importPcPorts = async () => {
       const created = await addCustomGame(port.title, port.launcher);
       await gamesSublevel.put(
         levelKeys.game("custom", created.objectId),
-        withArt(created, art)
+        withArt(created, art, port.tracking)
       );
       changed++;
       logger.info(`[ports] Added ${port.title} (${port.launcher})`);

@@ -17,6 +17,8 @@ import {
  * Opus closes a game by asking the emulator to quit (like the window's X), so it saves first.
  * An "are you sure?" box would leave that request hanging until it is ended by force, so the
  * close confirmations are turned off: Eden/Azahar (Qt), PCSX2, DuckStation, Dolphin, RPCS3.
+ * Their own "new version available" checks go too: Opus updates the emulators by itself (daily),
+ * and an updater window at game start can only be dismissed with the mouse in Big Picture.
  */
 
 const editFile = (file: string, edit: (content: string) => string) => {
@@ -44,9 +46,14 @@ export const disableCloseConfirmations = (
         // Eden ConfirmStop: 0 ask always, 1 ask per game, 2 never.
         return editFile(file, (c) =>
           setQtIniValue(
-            setQtIniValue(c, "UI", "confirmStop", "2"),
+            setQtIniValue(
+              setQtIniValue(c, "UI", "confirmStop", "2"),
+              "UI",
+              "confirmClose",
+              "false"
+            ),
             "UI",
-            "confirmClose",
+            "check_for_updates",
             "false"
           )
         );
@@ -60,10 +67,15 @@ export const disableCloseConfirmations = (
         // Also hides an idle mouse pointer over the game (played with a controller).
         return editFile(file, (c) =>
           setQtIniValue(
-            setQtIniValue(c, "UI", "confirmClose", "false"),
-            "UI",
-            "hideInactiveMouse",
-            "true"
+            setQtIniValue(
+              setQtIniValue(c, "UI", "confirmClose", "false"),
+              "UI",
+              "hideInactiveMouse",
+              "true"
+            ),
+            "Miscellaneous",
+            "check_for_update_on_start",
+            "false"
           )
         );
       }
@@ -72,10 +84,15 @@ export const disableCloseConfirmations = (
         return file
           ? editFile(file, (c) =>
               setIniValue(
-                setIniValue(c, "UI", "ConfirmShutdown", "false"),
-                "UI",
-                "HideMouseCursor",
-                "true"
+                setIniValue(
+                  setIniValue(c, "UI", "ConfirmShutdown", "false"),
+                  "UI",
+                  "HideMouseCursor",
+                  "true"
+                ),
+                "AutoUpdater",
+                "CheckAtStartup",
+                "false"
               )
             )
           : false;
@@ -85,10 +102,15 @@ export const disableCloseConfirmations = (
         return file
           ? editFile(file, (c) =>
               setIniValue(
-                setIniValue(c, "Main", "ConfirmPowerOff", "false"),
-                "Main",
-                "HideCursorInFullscreen",
-                "true"
+                setIniValue(
+                  setIniValue(c, "Main", "ConfirmPowerOff", "false"),
+                  "Main",
+                  "HideCursorInFullscreen",
+                  "true"
+                ),
+                "AutoUpdater",
+                "CheckAtStartup",
+                "false"
               )
             )
           : false;
@@ -97,7 +119,13 @@ export const disableCloseConfirmations = (
         const userDir = dolphinUserDirectoryCandidates(executablePath)[0];
         if (!userDir) return false;
         return editFile(path.join(userDir, "Config", "Dolphin.ini"), (c) =>
-          setIniValue(c, "Interface", "ConfirmStop", "False")
+          // An empty update track: Dolphin never offers its own updater window.
+          setIniValue(
+            setIniValue(c, "Interface", "ConfirmStop", "False"),
+            "AutoUpdate",
+            "UpdateTrack",
+            ""
+          )
         );
       }
       case "ps3": {
@@ -107,7 +135,12 @@ export const disableCloseConfirmations = (
           "CurrentSettings.ini"
         );
         return editFile(file, (c) =>
-          setIniValue(c, "Meta", "confirmationBoxExitGame", "false")
+          setIniValue(
+            setIniValue(c, "Meta", "confirmationBoxExitGame", "false"),
+            "Meta",
+            "checkUpdateStart",
+            "false"
+          )
         );
       }
       default:

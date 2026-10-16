@@ -22,6 +22,8 @@ import { getEmulatorVersion } from "./get-emulator-version";
 import { KNOWN_BINARIES } from "./known-binaries";
 import { prewarmXInputPad } from "./controller-autoconfig";
 import { backfillClassicFanart } from "./classic-fanart";
+import { applyLocalArtBackup } from "./local-art-backup";
+import { ensureRaEmulatorSessions } from "./retroachievements-emulator-login";
 
 const DAY = 24 * 60 * 60 * 1000;
 let running = false;
@@ -125,6 +127,16 @@ export const scheduleEmulatorUpdates = () => {
   setTimeout(() => prewarmXInputPad(), 8_000);
   // Sharp full-screen art for emulated games that only had a small box scan.
   setTimeout(() => void backfillClassicFanart(), 25_000);
+  // Square Início tiles (and art for mods) from the art backup on the emulators drive.
+  setTimeout(() => void applyLocalArtBackup(), 15_000);
+  // Emulators signed in to RetroAchievements again after a reinstall (or quiet without a login).
+  setTimeout(
+    () =>
+      void ensureRaEmulatorSessions().catch((error) =>
+        logger.warn("[ra-login] startup check failed", error)
+      ),
+    12_000
+  );
   setTimeout(() => void checkEmulatorUpdates(), 90_000);
   setInterval(() => void checkEmulatorUpdates(), DAY);
 };

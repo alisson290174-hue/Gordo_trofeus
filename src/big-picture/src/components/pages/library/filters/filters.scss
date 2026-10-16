@@ -1,3 +1,7 @@
+@use "../../../../../../renderer/src/scss/platform-tones";
+
+@include platform-tones.classes;
+
 // Biblioteca (PS5 style, same language as the normal-mode library): big title on the left, tools on
 // the right, consoles as pills switched with LT/RT.
 .library-filters {
@@ -141,6 +145,30 @@
         border-color: var(--opus-text);
         color: #070b16;
       }
+
+      // Console tabs: the label paints the whole pill in the console's colours.
+      &:has(.bp-platform-tab) {
+        padding: 0;
+
+        .tabs__tab-label {
+          display: flex;
+          height: 100%;
+        }
+
+        overflow: hidden;
+        border-color: rgba(255, 255, 255, 0.1);
+        background: transparent;
+      }
+
+      &--active:has(.bp-platform-tab) {
+        border-color: #fff;
+        box-shadow: 0 0 0 2px #fff;
+
+        .bp-platform-tab {
+          opacity: 1;
+          filter: none;
+        }
+      }
     }
   }
 
@@ -151,5 +179,44 @@
     &__search-and-filters {
       justify-content: flex-start;
     }
+  }
+}
+
+.bp-platform-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 100%;
+  padding: 0 22px;
+  color: #fff;
+  font-weight: 600;
+  background:
+    radial-gradient(
+      120% 160% at 0% 0%,
+      rgba(255, 255, 255, 0.16),
+      transparent 60%
+    ),
+    linear-gradient(135deg, var(--tone-a), var(--tone-b));
+  opacity: 0.62;
+  filter: saturate(0.8);
+  transition:
+    opacity 160ms ease,
+    filter 160ms ease;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+
+  &__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--tone-glow);
+    box-shadow: 0 0 10px var(--tone-glow);
+  }
+
+  &__count {
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.3);
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
   }
 }

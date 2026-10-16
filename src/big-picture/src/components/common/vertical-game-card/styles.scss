@@ -315,3 +315,22 @@
     opacity: 0;
   }
 }
+
+.vertical-game-card__cover--wide {
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -30px;
+    background: var(--cover-bg) center / cover no-repeat;
+    filter: blur(24px) brightness(0.5) saturate(1.2);
+  }
+
+  .vertical-game-card__cover-image {
+    position: relative;
+    object-fit: contain;
+    filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.55));
+  }
+}

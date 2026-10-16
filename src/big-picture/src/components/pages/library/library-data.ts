@@ -6,18 +6,27 @@ import { getPlatformBadge } from "@renderer/helpers/platform-badge";
 export const CONSOLE_TAB_PREFIX = "console:";
 
 export function getLibraryConsoleTabs(library: LibraryGame[]) {
-  const counts = new Map<string, { label: string; count: number }>();
+  const counts = new Map<
+    string,
+    { label: string; name: string; count: number }
+  >();
   for (const game of library) {
     const badge = getPlatformBadge(game);
-    const entry = counts.get(badge.tone) ?? { label: badge.label, count: 0 };
+    const entry = counts.get(badge.tone) ?? {
+      label: badge.label,
+      name: badge.name,
+      count: 0,
+    };
     entry.count += 1;
     counts.set(badge.tone, entry);
   }
   return [...counts.entries()]
     .sort((a, b) => b[1].count - a[1].count)
-    .map(([tone, { label, count }]) => ({
+    .map(([tone, { label, name, count }]) => ({
       value: `${CONSOLE_TAB_PREFIX}${tone}`,
+      tone,
       label,
+      name,
       count,
     }));
 }

@@ -130,7 +130,7 @@ export function LibraryFilters({
     const builtins: Array<{
       id: string;
       value: LibraryFilterTab;
-      label: string;
+      label: React.ReactNode;
     }> = [
       {
         id: getLibraryFiltersTabFocusId("all"),
@@ -138,10 +138,17 @@ export function LibraryFilters({
         label: t("library_tab_all", { count: counts.all }),
       },
       // One tab per console present in the library (PC, PS2, Switch…), biggest first.
+      // Each console in its own colour, full name + count (same identity as the normal mode).
       ...getLibraryConsoleTabs(library).map((consoleTab) => ({
         id: getLibraryFiltersTabFocusId(consoleTab.value.replace(":", "-")),
         value: consoleTab.value,
-        label: `${consoleTab.label} (${consoleTab.count})`,
+        label: (
+          <span className={`bp-platform-tab platform-tone--${consoleTab.tone}`}>
+            <span className="bp-platform-tab__dot" aria-hidden="true" />
+            {consoleTab.tone === "pc" ? "PC" : consoleTab.name}
+            <span className="bp-platform-tab__count">{consoleTab.count}</span>
+          </span>
+        ),
       })),
       {
         id: getLibraryFiltersTabFocusId("favorites"),

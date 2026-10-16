@@ -54,6 +54,15 @@ export function EmulatorsAutoSetupPanel({ onChanged }: Readonly<Props>) {
   const [checkingUpdates, setCheckingUpdates] = useState(false);
   const [downloadingTranslations, setDownloadingTranslations] = useState(false);
   const [raModalOpen, setRaModalOpen] = useState(false);
+  // Emulators already signed in to RetroAchievements through Opus (token kept encrypted).
+  const [raSignedIn, setRaSignedIn] = useState<boolean | null>(null);
+  useEffect(() => {
+    if (raModalOpen) return;
+    window.electron
+      .hasRaEmulatorSession()
+      .then(setRaSignedIn)
+      .catch(() => setRaSignedIn(null));
+  }, [raModalOpen]);
   const [installingMods, setInstallingMods] = useState(false);
 
   const handleSwitchMods = async () => {
@@ -324,9 +333,14 @@ export function EmulatorsAutoSetupPanel({ onChanged }: Readonly<Props>) {
             <Icon name={installingMods ? "sync" : "sliders"} size={16} />
             {t("switch_mods_all")}
           </Button>
-          <Button theme="outline" onClick={() => setRaModalOpen(true)}>
-            <Icon name="trophy" size={16} />
-            {t("ra_emulators_button")}
+          <Button
+            theme={raSignedIn === false ? "primary" : "outline"}
+            onClick={() => setRaModalOpen(true)}
+          >
+            <Icon name={raSignedIn ? "check" : "trophy"} size={16} />
+            {raSignedIn
+              ? t("ra_emulators_signed_in")
+              : t("ra_emulators_button")}
           </Button>
           <Button
             theme="outline"

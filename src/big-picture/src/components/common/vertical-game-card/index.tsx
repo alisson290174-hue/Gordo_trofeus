@@ -2,6 +2,7 @@ import "./styles.scss";
 
 import { SparkleIcon, TrophyIcon } from "@phosphor-icons/react";
 import cn from "classnames";
+import { useEffect, useState } from "react";
 import type {
   CSSProperties,
   KeyboardEvent,
@@ -60,6 +61,9 @@ export function VerticalGameCard({
     "--vertical-game-card-progress-value": normalizedProgress,
   } as CSSProperties;
   const ProgressIcon = isCompleted ? SparkleIcon : TrophyIcon;
+  // Landscape boxes (SNES/N64) shown whole over a blurred copy, not cut to the 2:3 card.
+  const [isWide, setIsWide] = useState(false);
+  useEffect(() => setIsWide(false), [coverImageUrl]);
 
   const handleCardKeyDown = (event: KeyboardEvent<HTMLElement>) => {
     if (onClick == null) return;
@@ -82,7 +86,16 @@ export function VerticalGameCard({
       role={onClick != null ? "button" : undefined}
       tabIndex={onClick != null ? 0 : undefined}
     >
-      <div className="vertical-game-card__cover">
+      <div
+        className={cn("vertical-game-card__cover", {
+          "vertical-game-card__cover--wide": isWide,
+        })}
+        style={
+          isWide && coverImageUrl
+            ? ({ "--cover-bg": `url("${coverImageUrl}")` } as CSSProperties)
+            : undefined
+        }
+      >
         {coverMedia ? (
           coverMedia
         ) : coverImageUrl ? (
@@ -95,6 +108,12 @@ export function VerticalGameCard({
             decoding="async"
             draggable={false}
             onError={onCoverImageError}
+            onLoad={(event) => {
+              const { naturalWidth, naturalHeight } = event.currentTarget;
+              setIsWide(
+                naturalHeight > 0 && naturalWidth / naturalHeight > 1.02
+              );
+            }}
           />
         ) : (
           <div

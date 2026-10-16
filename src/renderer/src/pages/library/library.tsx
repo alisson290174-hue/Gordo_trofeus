@@ -32,16 +32,25 @@ import {
   sortLibraryGames,
 } from "@renderer/helpers";
 import { getTrophyProgress } from "@renderer/helpers/ps5-game";
+import { getPlatformBadge } from "@renderer/helpers/platform-badge";
 import cn from "classnames";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { LibraryPs5Card } from "./library-ps5-card";
 import { LibraryGameCardLarge } from "./library-game-card-large";
 import { ViewOptions, ViewMode } from "./view-options";
 import { FilterOptions, SortOption } from "./filter-options";
-import { CategoryFilter, LibraryCategory } from "./category-filter";
+import type { LibraryCategory } from "./category-filter";
 import { isConsoleCategory, LIBRARY_PAGE_CATEGORIES } from "./library-category";
 import { AchievementsFilter } from "./achievements-filter";
-import { PlatformFilter } from "./platform-filter";
+import {
+  buildPlatformEntries,
+  isPlatformGame,
+  PlatformHero,
+  PlatformSectionHeader,
+  PlatformShelf,
+  platformOfCategory,
+  type PlatformEntry,
+} from "./platform-shelf";
 import { filterGamesBySearch } from "./library-search";
 import { CollectionsFilter } from "./collections-filter";
 import {
@@ -62,6 +71,12 @@ const LARGE_CARD_ESTIMATED_HEIGHT = 300;
 const FALLBACK_ITEM_WIDTH = 180;
 // Title + subtitle under the 2:3 cover (gap 12 + 19 + 3 + 16).
 const CARD_TEXT_HEIGHT = 50;
+// Platform title row between groups in "Todos".
+const SECTION_HEADER_HEIGHT = 64;
+
+type LibraryRow =
+  | { kind: "header"; entry: PlatformEntry }
+  | { kind: "games"; games: LibraryGame[] };
 
 // Conceito 1 grid is `repeat(auto-fill, minmax(180px, 1fr))`; "compact" packs a bit tighter.
 const MIN_CARD_WIDTH: Record<"grid" | "compact", number> = {
@@ -179,14 +194,17 @@ export default function Library() {
     const saved = localStorage.getItem(
       "library-category"
     ) as LibraryCategory | null;
-    // Old choices ("PC", "Biblioteca Steam") no longer exist on this page → "Todos".
+    // "Classicos" became one card per console; "Biblioteca Steam" lives inside PC.
     return saved &&
-      (LIBRARY_PAGE_CATEGORIES.includes(saved) || isConsoleCategory(saved))
+      saved !== "classics" &&
+      (LIBRARY_PAGE_CATEGORIES.includes(saved) ||
+        saved === "pc" ||
+        isConsoleCategory(saved))
       ? saved
       : "all";
   });
-  const [selectedPlatforms, setSelectedPlatforms] =
-    useState<string[]>(readStoredPlatforms);
+  // Kept only to clear the old console dropdown's saved choice (see handleCategoryChange).
+  const [, setSelectedPlatforms] = useState<string[]>(readStoredPlatforms);
   const [status, setStatus] = useState<LibraryStatus>(readStoredStatus);
   const [showAchievementsOnly, setShowAchievementsOnly] = useState<boolean>(
     () => localStorage.getItem(LIBRARY_ACHIEVEMENTS_ONLY_STORAGE_KEY) === "true"
@@ -287,13 +305,12 @@ export default function Library() {
     (next: LibraryCategory) => {
       setCategory(next);
       localStorage.setItem("library-category", next);
-      // The console selector only applies to emulated games.
-      if (next !== "all" && next !== "classics") {
-        handlePlatformsChange([]);
-      }
+      // The old console dropdown is gone: a leftover selection must not hide games.
+      handlePlatformsChange([]);
     },
     [handlePlatformsChange]
   );
+  const navigate = useNavigate();
 
   const searchQuery = useAppSelector((state) => state.library.searchQuery);
   const deferredSearchQuery = useDeferredValue(searchQuery);
@@ -458,23 +475,11 @@ export default function Library() {
       }
     }
 
-    filtered = filterLibraryGamesByCategory(filtered, effectiveCategory);
-
-    const platforms = new Set(selectedPlatforms);
-
-    if (effectiveCategory === "classics") {
-      if (platforms.size > 0) {
-        filtered = filtered.filter(
-          (game) => game.platform && platforms.has(game.platform)
-        );
-      }
-    } else if (effectiveCategory === "all" && platforms.size > 0) {
-      filtered = filtered.filter(
-        (game) =>
-          game.shop !== "launchbox" ||
-          (game.platform && platforms.has(game.platform))
-      );
-    }
+    // PC on this page = every computer game (Steam, Epic, torrents, Xbox); ports have their tab.
+    filtered =
+      effectiveCategory === "pc"
+        ? filtered.filter((game) => !isPlatformGame(game))
+        : filterLibraryGamesByCategory(filtered, effectiveCategory);
 
     // "Com conquistas": trophies actually work for this game — the crack writes them, or at
     // least one was already earned from any source (Steam account, RetroAchievements, crack).
@@ -492,7 +497,6 @@ export default function Library() {
     deferredSearchQuery,
     selectedCollectionId,
     effectiveCategory,
-    selectedPlatforms,
     showAchievementsOnly,
   ]);
 
@@ -511,30 +515,32 @@ export default function Library() {
       : baseFilteredLibrary;
   }, [baseFilteredLibrary, status]);
 
-  const uniquePlatforms = useMemo(() => {
-    const set = new Set<string>();
-    for (const game of library) {
-      if (game.shop === "launchbox" && game.platform) {
-        set.add(game.platform);
-      }
-    }
-    return Array.from(set).sort((a, b) =>
-      a.localeCompare(b, undefined, { sensitivity: "base" })
-    );
-  }, [library]);
-
-  useEffect(() => {
-    if (uniquePlatforms.length === 0 || selectedPlatforms.length === 0) return;
-
-    const availablePlatforms = new Set(uniquePlatforms);
-    const nextPlatforms = selectedPlatforms.filter((platform) =>
-      availablePlatforms.has(platform)
-    );
-
-    if (nextPlatforms.length !== selectedPlatforms.length) {
-      handlePlatformsChange(nextPlatforms);
-    }
-  }, [uniquePlatforms, selectedPlatforms, handlePlatformsChange]);
+  const platformEntries = useMemo(
+    () =>
+      buildPlatformEntries(library, {
+        all: t("platform_all"),
+        pc: t("platform_pc"),
+      }),
+    [library, t]
+  );
+  const activePlatformEntry = useMemo(
+    () =>
+      platformEntries.find(
+        (entry) => entry.category === platformOfCategory(effectiveCategory)
+      ) ?? null,
+    [platformEntries, effectiveCategory]
+  );
+  const pcSources = useMemo(
+    () =>
+      (["steam", "epic", "torrent"] as LibraryCategory[])
+        .map((value) => ({
+          value,
+          label: t(`category_${value}`),
+          count: filterLibraryGamesByCategory(library, value).length,
+        }))
+        .filter((source) => source.count > 0),
+    [library, t]
+  );
 
   const favoritesCount = useMemo(() => {
     return library.filter((game) => game.favorite).length;
@@ -556,13 +562,42 @@ export default function Library() {
     [containerWidth, viewMode]
   );
 
+  // "Todos": one titled section per platform (PC first, then consoles by size); a single
+  // platform is just its grid.
   const rows = useMemo(() => {
-    const result: LibraryGame[][] = [];
-    for (let i = 0; i < filteredLibrary.length; i += columnsCount) {
-      result.push(filteredLibrary.slice(i, i + columnsCount));
+    const result: LibraryRow[] = [];
+    const pushGames = (games: LibraryGame[]) => {
+      for (let i = 0; i < games.length; i += columnsCount) {
+        result.push({ kind: "games", games: games.slice(i, i + columnsCount) });
+      }
+    };
+    if (effectiveCategory !== "all" || selectedCollectionId) {
+      pushGames(filteredLibrary);
+      return result;
+    }
+    const byPlatform = new Map<string, LibraryGame[]>();
+    for (const game of filteredLibrary) {
+      const key = isPlatformGame(game)
+        ? `console:${getPlatformBadge(game).tone}`
+        : "pc";
+      const list = byPlatform.get(key) ?? [];
+      list.push(game);
+      byPlatform.set(key, list);
+    }
+    for (const entry of platformEntries) {
+      const games = byPlatform.get(entry.category);
+      if (!games?.length) continue;
+      result.push({ kind: "header", entry: { ...entry, count: games.length } });
+      pushGames(games);
     }
     return result;
-  }, [filteredLibrary, columnsCount]);
+  }, [
+    filteredLibrary,
+    columnsCount,
+    effectiveCategory,
+    selectedCollectionId,
+    platformEntries,
+  ]);
 
   const estimatedRowHeight = useMemo(() => {
     if (viewMode === "large") return LARGE_CARD_ESTIMATED_HEIGHT + GAP;
@@ -576,7 +611,10 @@ export default function Library() {
   const rowVirtualizer = useVirtualizer({
     count: rows.length,
     getScrollElement: () => gamesScrollRef.current,
-    estimateSize: () => estimatedRowHeight,
+    estimateSize: (index) =>
+      rows[index]?.kind === "header"
+        ? SECTION_HEADER_HEIGHT
+        : estimatedRowHeight,
     overscan: 3,
   });
 
@@ -589,7 +627,6 @@ export default function Library() {
     setHeaderHidden(false);
   }, [
     effectiveCategory,
-    selectedPlatforms,
     status,
     sortBy,
     selectedCollectionId,
@@ -646,6 +683,29 @@ export default function Library() {
               />
             </div>
 
+            <PlatformShelf
+              entries={platformEntries}
+              category={effectiveCategory}
+              onSelect={handleCategoryChange}
+            />
+
+            {activePlatformEntry && activePlatformEntry.tone !== "all" && (
+              <PlatformHero
+                entry={activePlatformEntry}
+                category={effectiveCategory}
+                onSelect={handleCategoryChange}
+                pcSources={
+                  activePlatformEntry.tone === "pc" ? pcSources : undefined
+                }
+                onConfigureEmulator={
+                  isConsoleCategory(effectiveCategory) &&
+                  activePlatformEntry.tone !== "port"
+                    ? () => navigate("/settings?tab=emulation")
+                    : undefined
+                }
+              />
+            )}
+
             <div className="library__chips-row">
               {STATUS_FILTERS.map((filter) => (
                 <button
@@ -665,11 +725,6 @@ export default function Library() {
 
               <div className="library__chips-divider" />
 
-              <CategoryFilter
-                category={effectiveCategory}
-                onCategoryChange={handleCategoryChange}
-                library={library}
-              />
               <CollectionsFilter
                 collections={libraryCollections}
                 selectedCollectionId={selectedCollectionId}
@@ -682,14 +737,6 @@ export default function Library() {
                 showAchievementsOnly={showAchievementsOnly}
                 onShowAchievementsOnlyChange={handleShowAchievementsOnlyChange}
               />
-              {(effectiveCategory === "all" ||
-                effectiveCategory === "classics") && (
-                <PlatformFilter
-                  selectedPlatforms={selectedPlatforms}
-                  platforms={uniquePlatforms}
-                  onPlatformsChange={handlePlatformsChange}
-                />
-              )}
             </div>
           </div>
         </div>
@@ -769,37 +816,60 @@ export default function Library() {
                 position: "relative",
               }}
             >
-              {rowVirtualizer.getVirtualItems().map((virtualRow) => (
-                <div
-                  key={virtualRow.key}
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: 0,
-                    right: GAP,
-                    transform: `translateY(${virtualRow.start}px)`,
-                    display: "grid",
-                    gridTemplateColumns: `repeat(${columnsCount}, 1fr)`,
-                    gap: `${GAP}px`,
-                  }}
-                >
-                  {rows[virtualRow.index].map((game) =>
-                    viewMode === "large" ? (
-                      <LibraryGameCardLarge
-                        key={`${game.shop}-${game.objectId}`}
-                        game={game}
-                        onContextMenu={handleOpenContextMenu}
+              {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                const row = rows[virtualRow.index];
+                if (row.kind === "header") {
+                  return (
+                    <div
+                      key={virtualRow.key}
+                      style={{
+                        position: "absolute",
+                        top: 0,
+                        left: 0,
+                        right: GAP,
+                        height: SECTION_HEADER_HEIGHT,
+                        transform: `translateY(${virtualRow.start}px)`,
+                      }}
+                    >
+                      <PlatformSectionHeader
+                        entry={row.entry}
+                        onOpen={() => handleCategoryChange(row.entry.category)}
                       />
-                    ) : (
-                      <LibraryPs5Card
-                        key={`${game.shop}-${game.objectId}`}
-                        game={game}
-                        onContextMenu={handleOpenContextMenu}
-                      />
-                    )
-                  )}
-                </div>
-              ))}
+                    </div>
+                  );
+                }
+                return (
+                  <div
+                    key={virtualRow.key}
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: 0,
+                      right: GAP,
+                      transform: `translateY(${virtualRow.start}px)`,
+                      display: "grid",
+                      gridTemplateColumns: `repeat(${columnsCount}, 1fr)`,
+                      gap: `${GAP}px`,
+                    }}
+                  >
+                    {row.games.map((game) =>
+                      viewMode === "large" ? (
+                        <LibraryGameCardLarge
+                          key={`${game.shop}-${game.objectId}`}
+                          game={game}
+                          onContextMenu={handleOpenContextMenu}
+                        />
+                      ) : (
+                        <LibraryPs5Card
+                          key={`${game.shop}-${game.objectId}`}
+                          game={game}
+                          onContextMenu={handleOpenContextMenu}
+                        />
+                      )
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
       </div>

@@ -50,6 +50,12 @@ registerEvent("configureEmulatorOnly", (_event, target: AutoSetupTarget) =>
 registerEvent("getEmulatorVersions", () => getEmulatorVersions());
 registerEvent("checkEmulatorUpdates", () => checkEmulatorUpdates());
 
+registerEvent("hasRaEmulatorSession", async () => {
+  const { hasRaEmulatorSession } =
+    await import("@main/services/emulators/retroachievements-emulator-login");
+  return hasRaEmulatorSession();
+});
+
 // "Conectar RetroAchievements nos emuladores": one login, a token written into every emulator.
 registerEvent(
   "loginRetroAchievementsInEmulators",

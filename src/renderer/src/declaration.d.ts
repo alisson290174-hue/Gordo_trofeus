@@ -719,6 +719,7 @@ declare global {
       { target: EmulatorAutoSetupProgress["target"]; version: string | null }[]
     >;
     checkEmulatorUpdates: () => Promise<string[]>;
+    hasRaEmulatorSession: () => Promise<boolean>;
     loginRetroAchievementsInEmulators: (
       username: string,
       password: string
