@@ -88,7 +88,6 @@ export const buildPlatformEntries = (
   });
 
   return [
-    entry("all", "all", labels.all, "", library),
     ...(pcGames.length ? [entry("pc", "pc", labels.pc, "PC", pcGames)] : []),
     ...[...consoles.entries()]
       .sort((a, b) => b[1].games.length - a[1].games.length)

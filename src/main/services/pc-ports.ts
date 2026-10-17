@@ -116,7 +116,9 @@ const withArt = (
 ): Game => ({
   ...game,
   platform: "port",
-  customCoverImageUrl: game.customCoverImageUrl ?? art.cover ?? null,
+  // A PC case from the art backup (boxArtImageUrl) beats the console original's box.
+  customCoverImageUrl:
+    game.customCoverImageUrl ?? (game.boxArtImageUrl ? null : art.cover) ?? null,
   customHeroImageUrl: game.customHeroImageUrl ?? art.hero ?? null,
   trackingExecutablePaths: game.trackingExecutablePaths?.length
     ? game.trackingExecutablePaths

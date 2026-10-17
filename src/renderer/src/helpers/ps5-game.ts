@@ -9,6 +9,7 @@ type GameArt = Partial<
   Pick<
     LibraryGame,
     | "customCoverImageUrl"
+    | "boxArtImageUrl"
     | "coverImageUrl"
     | "libraryImageUrl"
     | "customHeroImageUrl"
@@ -57,6 +58,9 @@ export const getCoverArt = (game: GameArt) =>
   sizedEpicArt(
     firstImage(
       game.customCoverImageUrl,
+      // The real case (local art backup) before eShop icons / showcase art: covers are shown in
+      // their console's case shape now.
+      game.boxArtImageUrl,
       getShowcaseArt(game, "cover"),
       game.coverImageUrl,
       steamAsset(game, "library_600x900.jpg"),

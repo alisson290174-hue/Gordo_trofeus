@@ -1,9 +1,12 @@
 import { DotsThreeIcon, PlayIcon, TrophyIcon } from "@phosphor-icons/react";
+import { CoverFrame } from "@renderer/components/cover-frame/cover-frame";
+import { getCoverRatio } from "@renderer/helpers/platform-cover";
 import type { LibraryGame } from "@types";
 import { getDisplayedPlayTimeInMilliseconds } from "@shared";
 import { PlatformBadge } from "@renderer/components/platform-badge/platform-badge";
 import { getPlatformBadge } from "@renderer/helpers/platform-badge";
 import {
+  getCoverArt,
   getHeroArt,
   getLogoArt,
   getTileArt,
@@ -13,8 +16,10 @@ import cn from "classnames";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
+  BumperBadge,
   FocusItem,
   HorizontalFocusGroup,
+  Tabs,
   VerticalFocusGroup,
 } from "../../components";
 import { useLibraryLaunchGame } from "../../components/pages/library/use-library-launch-game";
@@ -35,7 +40,6 @@ const STRIP_SIZE = 18;
 const TILE_PREFIX = "home-tile-";
 const TILES_REGION_ID = "home-tiles";
 const ACTIONS_REGION_ID = "home-actions";
-const CONSOLES_REGION_ID = "home-consoles";
 const PLAY_BUTTON_ID = "home-play";
 
 const gameKey = (game: LibraryGame) => `${game.shop}:${game.objectId}`;
@@ -95,7 +99,9 @@ function HeroBackdrop({ src }: Readonly<{ src: string }>) {
 export default function Home() {
   const navigate = useNavigate();
   const { library, loaded } = useLibrary();
-  const [consoleFilter, setConsoleFilter] = useState<string>("all");
+  // One platform at a time: every cover on screen shares its console's case shape (no crops).
+  // Starts on the platform of the game played last; LT / RT switch.
+  const [consoleFilter, setConsoleFilter] = useState<string | null>(null);
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
   const currentFocusId = useNavigationStore((state) => state.currentFocusId);
 
@@ -109,7 +115,9 @@ export default function Home() {
     const counts = new Map<string, { label: string; count: number }>();
     for (const game of visible) {
       const badge = getPlatformBadge(game);
-      const entry = counts.get(badge.tone) ?? { label: badge.label, count: 0 };
+      // Full console name on the chip ("PlayStation 2", "Nintendo Switch"); PC stays "PC".
+      const label = badge.tone === "pc" ? "PC" : badge.name;
+      const entry = counts.get(badge.tone) ?? { label, count: 0 };
       entry.count += 1;
       counts.set(badge.tone, entry);
     }
@@ -118,15 +126,39 @@ export default function Home() {
       .map(([tone, { label, count }]) => ({ tone, label, count }));
   }, [visible]);
 
-  const strip = useMemo(() => {
-    const filtered =
-      consoleFilter === "all"
-        ? visible
-        : visible.filter(
-            (game) => getPlatformBadge(game).tone === consoleFilter
-          );
-    return sortRecent(filtered).slice(0, STRIP_SIZE);
-  }, [consoleFilter, visible]);
+  const activeConsole = useMemo(() => {
+    if (consoleFilter && consoles.some((entry) => entry.tone === consoleFilter))
+      return consoleFilter;
+    const lastPlayed = sortRecent(visible)[0];
+    return lastPlayed
+      ? getPlatformBadge(lastPlayed).tone
+      : (consoles[0]?.tone ?? null);
+  }, [consoleFilter, consoles, visible]);
+
+  const strip = useMemo(
+    () =>
+      sortRecent(
+        visible.filter((game) => getPlatformBadge(game).tone === activeConsole)
+      ).slice(0, STRIP_SIZE),
+    [activeConsole, visible]
+  );
+  const coverRatio = strip[0] ? getCoverRatio(strip[0]) : 2 / 3;
+
+  // A new platform: its first game takes the focus (and the backdrop).
+  const changeConsole = useCallback(
+    (tone: string) => {
+      setConsoleFilter(tone);
+      setSelectedKey(null);
+      const first = sortRecent(
+        visible.filter((game) => getPlatformBadge(game).tone === tone)
+      )[0];
+      if (first)
+        NavigationService.getInstance().requestFocusWhenAvailable(
+          tileId(first)
+        );
+    },
+    [visible]
+  );
 
   // The focused tile drives the whole screen; moving down to the buttons keeps the last one.
   useEffect(() => {
@@ -139,26 +171,6 @@ export default function Home() {
 
   const selected =
     strip.find((game) => gameKey(game) === selectedKey) ?? strip[0] ?? null;
-
-  // Console chips: one scrolling row; keep the focused chip fully visible.
-  useEffect(() => {
-    if (!currentFocusId?.startsWith("home-console-")) return;
-    const frame = globalThis.requestAnimationFrame(() => {
-      const row = globalThis.document.querySelector<HTMLElement>(
-        ".opus-home__consoles"
-      );
-      const chip = row?.querySelector<HTMLElement>('[data-focused="true"]');
-      if (!row || !chip) return;
-      const margin = 48;
-      const left = chip.offsetLeft - margin;
-      const right =
-        chip.offsetLeft + chip.offsetWidth + margin - row.clientWidth;
-      if (left < row.scrollLeft) row.scrollTo({ left, behavior: "smooth" });
-      else if (right > row.scrollLeft)
-        row.scrollTo({ left: right, behavior: "smooth" });
-    });
-    return () => globalThis.cancelAnimationFrame(frame);
-  }, [currentFocusId]);
 
   // Keep the focused tile on screen (PS5 style: it sits near the left, the previous one peeking).
   useEffect(() => {
@@ -253,13 +265,46 @@ export default function Home() {
         <div className="opus-home__shade" />
       </div>
 
+      {consoles.length > 1 && activeConsole && (
+        <div className="opus-home__platforms">
+          <BumperBadge label="LT" />
+          <Tabs
+            className="opus-home__platform-tabs"
+            items={consoles.map((entry) => ({
+              id: `home-console-${entry.tone}`,
+              value: entry.tone,
+              label: (
+                <span
+                  className={cn(
+                    "opus-home__platform",
+                    `platform-tone--${entry.tone}`
+                  )}
+                >
+                  <i className="opus-home__chip-dot" aria-hidden="true" />
+                  {entry.label}
+                  <span className="opus-home__platform-count">
+                    {entry.count}
+                  </span>
+                </span>
+              ),
+            }))}
+            value={activeConsole}
+            onValueChange={changeConsole}
+            manageFocusRegion={false}
+            itemsFocusable={false}
+            ariaLabel={tr("Platforms", "Plataformas")}
+          />
+          <BumperBadge label="RT" />
+        </div>
+      )}
+
       <HorizontalFocusGroup
         regionId={TILES_REGION_ID}
         className="opus-home__tiles"
         aria-label="Recent games"
       >
         {strip.map((game, index) => {
-          const art = getTileArt(game);
+          const cover = getCoverArt(game) ?? getTileArt(game)?.url ?? null;
           const isSelected = selected && gameKey(game) === gameKey(selected);
           const previous = strip[index - 1];
           const next = strip[index + 1];
@@ -289,25 +334,12 @@ export default function Home() {
                 className={cn("opus-home__tile", {
                   "opus-home__tile--selected": isSelected,
                 })}
+                style={{ "--ratio": coverRatio } as React.CSSProperties}
                 aria-label={game.title}
                 onClick={() => void launch(game)}
-                style={
-                  art
-                    ? {
-                        backgroundImage: art.fallback
-                          ? `url("${art.url}"), url("${art.fallback}")`
-                          : `url("${art.url}")`,
-                        backgroundSize: art.fallback
-                          ? `${art.size ?? "cover"}, cover`
-                          : (art.size ?? "cover"),
-                        backgroundPosition: art.fallback
-                          ? `${art.position ?? "center"}, center`
-                          : (art.position ?? "center"),
-                      }
-                    : undefined
-                }
               >
-                {!art && (
+                {cover && <CoverFrame url={cover} ratio={coverRatio} />}
+                {!cover && (
                   <span className="opus-home__tile-name">{game.title}</span>
                 )}
               </button>
@@ -416,37 +448,6 @@ export default function Home() {
             </FocusItem>
           </HorizontalFocusGroup>
         </section>
-      )}
-
-      {consoles.length > 1 && (
-        <HorizontalFocusGroup
-          regionId={CONSOLES_REGION_ID}
-          className="opus-home__consoles"
-          aria-label="Filter by console"
-        >
-          {[
-            { tone: "all", label: tr("All", "Todos"), count: visible.length },
-            ...consoles,
-          ].map((entry) => (
-            <FocusItem
-              key={entry.tone}
-              id={`home-console-${entry.tone}`}
-              actions={{ primary: () => setConsoleFilter(entry.tone) }}
-              asChild
-            >
-              <button
-                type="button"
-                className={cn("opus-home__chip", {
-                  "opus-home__chip--active": consoleFilter === entry.tone,
-                })}
-                onClick={() => setConsoleFilter(entry.tone)}
-              >
-                {entry.label}
-                <span>{entry.count}</span>
-              </button>
-            </FocusItem>
-          ))}
-        </HorizontalFocusGroup>
       )}
     </VerticalFocusGroup>
   );

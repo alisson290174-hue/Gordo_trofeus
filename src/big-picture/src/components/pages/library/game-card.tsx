@@ -1,4 +1,5 @@
 import type { LibraryGame } from "@types";
+import { getCoverRatio } from "@renderer/helpers/platform-cover";
 import { PlatformBadge } from "@renderer/components/platform-badge/platform-badge";
 import { DotsThreeVerticalIcon } from "@phosphor-icons/react";
 import type { MouseEvent as ReactMouseEvent, RefObject } from "react";
@@ -135,6 +136,7 @@ export function VerticalLibraryGameCard({
       navigationOverrides={navigationOverrides}
     >
       <VerticalGameCard
+        coverRatio={getCoverRatio(game)}
         className={
           game.shop === "launchbox"
             ? "library-focus-grid__card library-focus-grid__card--classics"

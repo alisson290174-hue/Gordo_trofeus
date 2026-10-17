@@ -132,11 +132,6 @@ export function LibraryFilters({
       value: LibraryFilterTab;
       label: React.ReactNode;
     }> = [
-      {
-        id: getLibraryFiltersTabFocusId("all"),
-        value: "all",
-        label: t("library_tab_all", { count: counts.all }),
-      },
       // One tab per console present in the library (PC, PS2, Switch…), biggest first.
       // Each console in its own colour, full name + count (same identity as the normal mode).
       ...getLibraryConsoleTabs(library).map((consoleTab) => ({

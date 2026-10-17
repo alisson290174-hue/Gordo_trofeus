@@ -27,6 +27,8 @@ interface ArtFolder {
 interface ArtIndex {
   byFile: Map<string, ArtFolder>;
   byTitle: Map<string, ArtFolder>;
+  /** PC folders by title: a port's case is the PC one (2:3), not the console original's. */
+  byPcTitle: Map<string, ArtFolder>;
 }
 
 /** Systems whose Início tile already comes from dedicated square art (eShop icon, PS4 icon0). */
@@ -46,6 +48,7 @@ const findArtesDir = async (): Promise<string | null> => {
 const readIndex = (root: string): ArtIndex => {
   const byFile = new Map<string, ArtFolder>();
   const byTitle = new Map<string, ArtFolder>();
+  const byPcTitle = new Map<string, ArtFolder>();
   for (const consoleDir of fs.readdirSync(root, { withFileTypes: true })) {
     if (!consoleDir.isDirectory() || consoleDir.name.startsWith("_")) continue;
     const consolePath = path.join(root, consoleDir.name);
@@ -68,13 +71,14 @@ const readIndex = (root: string): ArtIndex => {
         for (const title of [info.titulo, info.launchbox_nome]) {
           const key = title ? normaliseFanartTitle(title) : "";
           if (key && !byTitle.has(key)) byTitle.set(key, folder);
+          if (key && consoleDir.name === "PC") byPcTitle.set(key, folder);
         }
       } catch {
         // folder without info.json: not part of the backup
       }
     }
   }
-  return { byFile, byTitle };
+  return { byFile, byTitle, byPcTitle };
 };
 
 const gameFiles = (game: Game) =>
@@ -93,7 +97,12 @@ const findFolder = (index: ArtIndex, game: Game): ArtFolder | null => {
     if (folder) return folder;
   }
   const title = normaliseFanartTitle(game.title);
-  return index.byTitle.get(PORT_TITLES[title] ?? title) ?? null;
+  const key = PORT_TITLES[title] ?? title;
+  if (game.platform === "port") {
+    const pc = index.byPcTitle.get(key);
+    if (pc) return pc;
+  }
+  return index.byTitle.get(key) ?? null;
 };
 
 const artFile = (dir: string, name: string) => {
@@ -111,6 +120,9 @@ export const localArtUpdate = (
   folder: ArtFolder
 ): Partial<Game> | null => {
   const update: Partial<Game> = {};
+  // The case photo, for the per-platform shelves (all cases of a console share one shape).
+  const box = artFile(folder.dir, "capa");
+  if (box && game.boxArtImageUrl !== box) update.boxArtImageUrl = box;
   const tile = artFile(folder.dir, "tile");
   if (
     tile &&
@@ -148,15 +160,20 @@ export const applyLocalArtBackup = async () => {
     if (game.isDeleted || (game.shop !== "launchbox" && !isPort)) continue;
     const folder = findFolder(index, game);
     if (!folder) continue;
-    const update = localArtUpdate(game, folder);
-    // Ports keep the art they were given; only their Início tile comes from here.
-    if (update && isPort) {
+    const update = localArtUpdate(game, folder) ?? {};
+    // Ports keep the art they were given; only their tile and case come from here.
+    if (isPort) {
       delete update.coverImageUrl;
       delete update.libraryHeroImageUrl;
       delete update.logoImageUrl;
-      if (!update.tileImageUrl) continue;
+      // Their console original's box (set on import) gives way to the PC case of the backup.
+      if (
+        folder.console === "PC" &&
+        game.customCoverImageUrl?.includes("images.launchbox-app.com")
+      )
+        update.customCoverImageUrl = null;
     }
-    if (!update) continue;
+    if (Object.keys(update).length === 0) continue;
     const latest = await gamesSublevel.get(key);
     if (!latest) continue;
     await gamesSublevel.put(key, { ...latest, ...update });

@@ -31,7 +31,10 @@ export function useLibraryPageData(
   }, [library]);
 
   const filteredLibrary = useMemo(() => {
-    const tabFilteredLibrary = filterLibraryByTab(library, selectedTab);
+    // Searching looks in every platform; otherwise one console's shelf at a time.
+    const tabFilteredLibrary = deferredSearch.trim()
+      ? library
+      : filterLibraryByTab(library, selectedTab);
     const secondaryFilteredLibrary = filterLibraryBySecondaryFilter(
       tabFilteredLibrary,
       secondaryFilter

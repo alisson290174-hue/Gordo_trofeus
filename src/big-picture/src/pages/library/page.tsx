@@ -1,4 +1,5 @@
 import type { LibraryGame } from "@types";
+import { getPlatformBadge } from "@renderer/helpers/platform-badge";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   useCallback,
@@ -28,6 +29,7 @@ import {
 import {
   isBuiltinLibraryTab,
   getGameCollectionIds,
+  sortByLastPlayed,
   type LibraryViewMode,
   LibraryFocusGrid,
   LibraryFilters,
@@ -173,6 +175,16 @@ export default function LibraryPage() {
     isBuiltinLibraryTab(selectedFilterTab) ||
     selectedFilterTab.startsWith("console:") ||
     collections.some((collection) => collection.id === selectedFilterTab);
+  // No "Todos" any more: the library opens on the platform of the game played last.
+  useEffect(() => {
+    if (selectedFilterTab !== "all" || library.length === 0) return;
+    const lastPlayed = [...library].sort(sortByLastPlayed)[0];
+    if (lastPlayed)
+      setSelectedFilterTab(
+        `console:${getPlatformBadge(lastPlayed).tone}` as LibraryFilterTab
+      );
+  }, [library, selectedFilterTab]);
+
   const activeFilterTab =
     isSelectedFilterTabAvailable || !hasFailedToLoadCollections
       ? selectedFilterTab

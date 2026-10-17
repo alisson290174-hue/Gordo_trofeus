@@ -105,7 +105,7 @@
   overflow: visible;
 
   .vertical-game-card__cover {
-    aspect-ratio: 3 / 4;
+    aspect-ratio: var(--cover-ratio, 3 / 4);
     border-radius: 16px;
     background-color: #1a2233;
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);

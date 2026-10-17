@@ -475,6 +475,9 @@ export default function Library() {
       }
     }
 
+    // Searching looks in every platform (results grouped per platform below).
+    if (deferredSearchQuery.trim())
+      return filterGamesBySearch(filtered, deferredSearchQuery);
     // PC on this page = every computer game (Steam, Epic, torrents, Xbox); ports have their tab.
     filtered =
       effectiveCategory === "pc"
@@ -523,6 +526,27 @@ export default function Library() {
       }),
     [library, t]
   );
+  // No "Todos": each platform is its own shelf (one case shape). A saved/old "all" moves to the
+  // platform of the game played last.
+  useEffect(() => {
+    if (platformEntries.length === 0) return;
+    const known = platformEntries.some(
+      (entry) => entry.category === platformOfCategory(category)
+    );
+    if (known && category !== "all") return;
+    const lastPlayed = [...library].sort(
+      (a, b) =>
+        new Date(b.lastTimePlayed ?? 0).getTime() -
+        new Date(a.lastTimePlayed ?? 0).getTime()
+    )[0];
+    const next: LibraryCategory = lastPlayed
+      ? isPlatformGame(lastPlayed)
+        ? (`console:${getPlatformBadge(lastPlayed).tone}` as LibraryCategory)
+        : "pc"
+      : platformEntries[0].category;
+    handleCategoryChange(next);
+  }, [platformEntries, category, library, handleCategoryChange]);
+
   const activePlatformEntry = useMemo(
     () =>
       platformEntries.find(
@@ -571,7 +595,8 @@ export default function Library() {
         result.push({ kind: "games", games: games.slice(i, i + columnsCount) });
       }
     };
-    if (effectiveCategory !== "all" || selectedCollectionId) {
+    const grouped = effectiveCategory === "all" || deferredSearchQuery.trim();
+    if (!grouped || selectedCollectionId) {
       pushGames(filteredLibrary);
       return result;
     }
@@ -597,6 +622,7 @@ export default function Library() {
     effectiveCategory,
     selectedCollectionId,
     platformEntries,
+    deferredSearchQuery,
   ]);
 
   const estimatedRowHeight = useMemo(() => {

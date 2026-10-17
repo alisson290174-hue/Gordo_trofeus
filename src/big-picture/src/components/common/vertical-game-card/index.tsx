@@ -2,7 +2,7 @@ import "./styles.scss";
 
 import { SparkleIcon, TrophyIcon } from "@phosphor-icons/react";
 import cn from "classnames";
-import { useEffect, useState } from "react";
+import { CoverFrame } from "@renderer/components/cover-frame/cover-frame";
 import type {
   CSSProperties,
   KeyboardEvent,
@@ -12,6 +12,8 @@ import type {
 
 export interface VerticalGameCardProps {
   coverImageUrl?: string | null;
+  /** Width ÷ height of the cover frame: the game's console case (see platform-cover.ts). */
+  coverRatio?: number;
   coverMedia?: ReactNode;
   coverOverlay?: ReactNode;
   gameTitle: string;
@@ -35,6 +37,7 @@ function clampProgress(value: number) {
 
 export function VerticalGameCard({
   coverImageUrl,
+  coverRatio,
   coverMedia,
   coverOverlay,
   gameTitle,
@@ -61,10 +64,6 @@ export function VerticalGameCard({
     "--vertical-game-card-progress-value": normalizedProgress,
   } as CSSProperties;
   const ProgressIcon = isCompleted ? SparkleIcon : TrophyIcon;
-  // Landscape boxes (SNES/N64) shown whole over a blurred copy, not cut to the 2:3 card.
-  const [isWide, setIsWide] = useState(false);
-  useEffect(() => setIsWide(false), [coverImageUrl]);
-
   const handleCardKeyDown = (event: KeyboardEvent<HTMLElement>) => {
     if (onClick == null) return;
     if (event.key === "Enter" || event.key === " ") {
@@ -87,12 +86,10 @@ export function VerticalGameCard({
       tabIndex={onClick != null ? 0 : undefined}
     >
       <div
-        className={cn("vertical-game-card__cover", {
-          "vertical-game-card__cover--wide": isWide,
-        })}
+        className="vertical-game-card__cover"
         style={
-          isWide && coverImageUrl
-            ? ({ "--cover-bg": `url("${coverImageUrl}")` } as CSSProperties)
+          coverRatio
+            ? ({ "--cover-ratio": coverRatio } as CSSProperties)
             : undefined
         }
       >
@@ -100,20 +97,11 @@ export function VerticalGameCard({
           coverMedia
         ) : coverImageUrl ? (
           // Lazy: a 500-game grid only decodes the covers near the screen (was ~2 GB of bitmaps).
-          <img
-            className="vertical-game-card__cover-image"
-            src={coverImageUrl}
+          <CoverFrame
+            url={coverImageUrl}
+            ratio={coverRatio ?? 268 / 400}
             alt={gameTitle}
-            loading="lazy"
-            decoding="async"
-            draggable={false}
             onError={onCoverImageError}
-            onLoad={(event) => {
-              const { naturalWidth, naturalHeight } = event.currentTarget;
-              setIsWide(
-                naturalHeight > 0 && naturalWidth / naturalHeight > 1.02
-              );
-            }}
           />
         ) : (
           <div

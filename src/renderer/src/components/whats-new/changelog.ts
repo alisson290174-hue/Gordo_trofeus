@@ -10,6 +10,16 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.70",
+    date: "17/10/2026",
+    items: [
+      "Início e Biblioteca por plataforma: uma plataforma por vez (PC, PlayStation 2, Switch…), trocando com LT/RT ou pelos botões coloridos de cada console. Cada estante usa o formato da caixa daquele console, então as capas aparecem inteiras, todas do mesmo tamanho e sem cortes.",
+      "As capas dos jogos de console agora são a foto da caixa de verdade (do backup de artes do HD dos emuladores) — o Switch mostra a caixa vermelha, não o ícone quadrado da eShop.",
+      "O Início e a Biblioteca abrem na plataforma do último jogo que você jogou. A busca continua procurando em todas as plataformas.",
+      "Capas fora do padrão corrigidas: PES 2013 com a caixa de PC, Live A Live com a caixa de Super Nintendo, e os ports (Zelda Ocarina of Time, Bloodborne) com capa de PC no lugar da caixa do console.",
+    ],
+  },
+  {
     version: "1.0.69",
     date: "16/10/2026",
     items: [

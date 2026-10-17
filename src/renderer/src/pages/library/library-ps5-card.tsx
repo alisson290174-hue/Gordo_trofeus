@@ -1,4 +1,6 @@
 import { memo, useEffect, useState } from "react";
+import { CoverFrame } from "@renderer/components/cover-frame/cover-frame";
+import { getCoverRatio } from "@renderer/helpers/platform-cover";
 import { useTranslation } from "react-i18next";
 import cn from "classnames";
 import type { LibraryGame } from "@types";
@@ -42,14 +44,10 @@ export const LibraryPs5Card = memo(function LibraryPs5Card({
 
   const cover = getCoverArt(game);
   const [src, setSrc] = useState(cover ?? CoverPlaceholder);
-  // Landscape boxes (SNES, N64, some fan art) are shown whole over a blurred copy instead of
-  // being cut down to the middle of a 2:3 card.
-  const [isWide, setIsWide] = useState(false);
-
   useEffect(() => {
     setSrc(cover ?? CoverPlaceholder);
-    setIsWide(false);
   }, [cover]);
+  const coverRatio = getCoverRatio(game);
 
   const progress = getTrophyProgress(game);
   const isReady = isGameReadyToPlay(game);
@@ -85,23 +83,13 @@ export const LibraryPs5Card = memo(function LibraryPs5Card({
             typeof src === "string" && src.includes("ps2-covers"),
           "ps5-card__cover--ps3-box":
             typeof src === "string" && src.includes("aldostools"),
-          "ps5-card__cover--wide": isWide,
         })}
-        style={
-          isWide
-            ? ({ "--cover-bg": `url("${src}")` } as React.CSSProperties)
-            : undefined
-        }
+        style={{ "--cover-ratio": coverRatio } as React.CSSProperties}
       >
-        <img
-          src={src}
-          alt=""
-          loading="lazy"
+        <CoverFrame
+          url={src}
+          ratio={coverRatio}
           onError={() => setSrc(CoverPlaceholder)}
-          onLoad={(event) => {
-            const { naturalWidth, naturalHeight } = event.currentTarget;
-            setIsWide(naturalHeight > 0 && naturalWidth / naturalHeight > 1.02);
-          }}
         />
 
         <PlatformBadge game={game} className="ps5-card__platform" />

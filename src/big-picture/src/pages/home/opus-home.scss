@@ -1,7 +1,13 @@
+@use "../../../../renderer/src/components/cover-frame/cover-frame";
+@use "../../../../renderer/src/scss/platform-tones";
+
+@include platform-tones.classes;
+
 // Início (PS5 style): sizes follow the approved 1920x1080 board, scaled with the viewport.
 .opus-home {
-  --tile: clamp(120px, 9.6vw, 220px);
-  --tile-focused: clamp(170px, 14vw, 320px);
+  // Strip covers keep their console's case shape (--ratio, set per tile): same height, own width.
+  --tile-h: clamp(140px, 12vw, 250px);
+  --tile-h-focused: clamp(180px, 15.5vw, 320px);
 
   position: relative;
   height: 100%;
@@ -89,7 +95,7 @@
     display: flex;
     align-items: flex-end;
     gap: 24px;
-    min-height: var(--tile-focused);
+    min-height: var(--tile-h-focused);
     padding: 12px 70vw 12px 4px;
     margin-left: -4px;
     margin-right: calc(var(--opus-gutter) * -1);
@@ -103,8 +109,9 @@
   }
 
   &__tile {
-    width: var(--tile);
-    height: var(--tile);
+    --ratio: 0.6667;
+    width: calc(var(--tile-h) * var(--ratio));
+    height: var(--tile-h);
     flex: none;
     padding: 0;
     border: none;
@@ -118,6 +125,8 @@
     cursor: pointer;
     display: flex;
     align-items: flex-end;
+    position: relative;
+    overflow: hidden;
     transition:
       width 220ms ease,
       height 220ms ease,
@@ -129,8 +138,8 @@
     }
 
     &[data-focused="true"] {
-      width: var(--tile-focused);
-      height: var(--tile-focused);
+      width: calc(var(--tile-h-focused) * var(--ratio));
+      height: var(--tile-h-focused);
       border-radius: 24px;
       opacity: 1;
       box-shadow:
@@ -255,52 +264,100 @@
   }
 
   // One row that scrolls with the focus (wrapping left one or two chips alone on a 2nd line).
-  &__consoles {
-    margin-top: auto;
-    margin-bottom: 28px;
-    margin-left: -12px;
-    margin-right: calc(var(--opus-gutter) * -1);
+  // Platform selector above the strip: one console at a time, LT / RT to switch.
+  &__platforms {
     display: flex;
-    flex-wrap: nowrap;
+    align-items: center;
     gap: 14px;
-    padding: 14px var(--opus-gutter) 14px 12px;
-    overflow-x: auto;
-    scrollbar-width: none;
+    margin-bottom: -8px;
+    flex: none;
+    min-width: 0;
 
-    &::-webkit-scrollbar {
+    .opus-home__platform-tabs {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .tabs__content {
+      padding: 0;
+    }
+
+    .tabs__list {
+      padding: 6px 4px;
+    }
+
+    .tabs__tablist {
+      gap: 12px;
+    }
+
+    .tabs__indicator,
+    .tabs__divider {
       display: none;
+    }
+
+    .tabs__tab {
+      height: 48px;
+      padding: 0;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: transparent;
+
+      .tabs__tab-label {
+        display: flex;
+        height: 100%;
+      }
+
+      &--active {
+        border-color: #fff;
+        box-shadow: 0 0 0 2px #fff;
+
+        .opus-home__platform {
+          opacity: 1;
+          filter: none;
+        }
+      }
     }
   }
 
-  &__chip {
-    flex: none;
-    height: 52px;
-    padding: 0 22px;
-    border-radius: 999px;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    background: rgba(255, 255, 255, 0.06);
-    color: var(--opus-muted);
-    font-family: inherit;
-    font-size: 20px;
-    font-weight: 500;
+  &__platform {
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    cursor: pointer;
+    height: 100%;
+    padding: 0 20px;
+    color: #fff;
+    font-size: 19px;
+    font-weight: 600;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+    background:
+      radial-gradient(
+        120% 160% at 0% 0%,
+        rgba(255, 255, 255, 0.14),
+        transparent 60%
+      ),
+      linear-gradient(135deg, var(--tone-a, #2a3346), var(--tone-b, #141a26));
+    opacity: 0.55;
+    filter: saturate(0.75);
+    transition:
+      opacity 160ms ease,
+      filter 160ms ease;
+  }
 
-    span {
-      opacity: 0.6;
-      font-variant-numeric: tabular-nums;
-    }
+  &__platform-count {
+    padding: 2px 9px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.3);
+    font-size: 15px;
+    font-variant-numeric: tabular-nums;
+  }
 
-    &--active {
-      background: var(--opus-text);
-      color: #070b16;
-    }
-
-    &[data-focused="true"] {
-      box-shadow: var(--opus-ring);
-    }
+  &__chip-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--tone-glow, #fff);
+    box-shadow: 0 0 10px var(--tone-glow, #fff);
   }
 }
 

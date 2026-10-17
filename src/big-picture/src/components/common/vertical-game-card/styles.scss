@@ -1,3 +1,4 @@
+@use "../../../../../renderer/src/components/cover-frame/cover-frame";
 .vertical-game-card {
   --vertical-game-card-progress-color: var(--alert);
   --vertical-game-card-progress-value: 0;
@@ -19,7 +20,7 @@
   &__cover {
     position: relative;
     width: 100%;
-    aspect-ratio: 268 / 400;
+    aspect-ratio: var(--cover-ratio, 268 / 400);
     border-radius: var(--spacing-unit);
     overflow: hidden;
     background-color: var(--surface);
@@ -313,24 +314,5 @@
   .vertical-game-card--completed .vertical-game-card__progress-track::before {
     animation: none;
     opacity: 0;
-  }
-}
-
-.vertical-game-card__cover--wide {
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: "";
-    position: absolute;
-    inset: -30px;
-    background: var(--cover-bg) center / cover no-repeat;
-    filter: blur(24px) brightness(0.5) saturate(1.2);
-  }
-
-  .vertical-game-card__cover-image {
-    position: relative;
-    object-fit: contain;
-    filter: drop-shadow(0 12px 20px rgba(0, 0, 0, 0.55));
   }
 }

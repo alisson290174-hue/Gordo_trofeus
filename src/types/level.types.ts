@@ -47,6 +47,9 @@ export interface Game {
   logoImageUrl: string | null;
   /** Box art kept on the record itself (classics), so profile syncs that reset assets can't lose it. */
   coverImageUrl?: string | null;
+  /** Photo of the game's case from the local art backup (LaunchBox "Box - Front"): the cover for
+   * per-platform shelves, where every case of a console has the same shape. */
+  boxArtImageUrl?: string | null;
   /** Square-friendly art for the Início strip (Switch icon, title screen) — classics only. */
   tileImageUrl?: string | null;
   customIconUrl?: string | null;

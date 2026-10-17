@@ -1,4 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
+import { CoverFrame } from "@renderer/components/cover-frame/cover-frame";
+import { getCoverRatio } from "@renderer/helpers/platform-cover";
+import { getPlatformBadge } from "@renderer/helpers/platform-badge";
 import { PlatformBadge } from "@renderer/components/platform-badge/platform-badge";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -180,10 +183,44 @@ export default function Home() {
     [library]
   );
 
-  // Hero row = most recently played library games; falls back to "Em alta" for a new user.
+  // One platform at a time (every cover in its console's case shape, none cut). Starts on the
+  // platform of the game played last.
+  const [platform, setPlatform] = useState<string | null>(null);
+  const platforms = useMemo(() => {
+    const counts = new Map<string, { name: string; count: number }>();
+    for (const game of libraryGames) {
+      const badge = getPlatformBadge(game);
+      const entry = counts.get(badge.tone) ?? {
+        name: badge.tone === "pc" ? "PC" : badge.name,
+        count: 0,
+      };
+      entry.count += 1;
+      counts.set(badge.tone, entry);
+    }
+    return [...counts.entries()]
+      .sort((a, b) => b[1].count - a[1].count)
+      .map(([tone, value]) => ({ tone, ...value }));
+  }, [libraryGames]);
+  const activePlatform = useMemo(() => {
+    if (platform && platforms.some((entry) => entry.tone === platform))
+      return platform;
+    const last = orderBy(
+      libraryGames,
+      [
+        (game) =>
+          game.lastTimePlayed ? new Date(game.lastTimePlayed).getTime() : 0,
+      ],
+      ["desc"]
+    )[0];
+    return last ? getPlatformBadge(last).tone : (platforms[0]?.tone ?? null);
+  }, [platform, platforms, libraryGames]);
+
+  // Hero row = most recently played games of the platform; falls back to "Em alta" for a new user.
   const heroGames = useMemo<HeroGame[]>(() => {
     const played = orderBy(
-      libraryGames,
+      libraryGames.filter(
+        (game) => getPlatformBadge(game).tone === activePlatform
+      ),
       [
         (game) =>
           game.lastTimePlayed ? new Date(game.lastTimePlayed).getTime() : 0,
@@ -206,7 +243,8 @@ export default function Home() {
       asset: game,
       libraryGame: null,
     }));
-  }, [libraryGames, catalogue.hot]);
+  }, [libraryGames, catalogue.hot, activePlatform]);
+  const coverRatio = heroGames[0] ? getCoverRatio(heroGames[0].asset) : 2 / 3;
 
   const safeFocusIndex = heroGames.length ? focusIndex % heroGames.length : 0;
   const focus = heroGames[safeFocusIndex] ?? null;
@@ -314,10 +352,47 @@ export default function Home() {
         <div className="home-hero__shade-y" />
 
         <div className="home-hero__content">
-          <div className="home-hero__tiles">
+          {platforms.length > 1 && activePlatform && (
+            <nav
+              className="home-hero__platforms"
+              aria-label="Plataformas"
+              onWheel={(event) => {
+                if (Math.abs(event.deltaY) > Math.abs(event.deltaX))
+                  event.currentTarget.scrollLeft += event.deltaY;
+              }}
+            >
+              {platforms.map((entry) => (
+                <button
+                  key={entry.tone}
+                  type="button"
+                  className={cn(
+                    "home-hero__platform",
+                    `platform-tone--${entry.tone}`,
+                    {
+                      "home-hero__platform--active":
+                        entry.tone === activePlatform,
+                    }
+                  )}
+                  onClick={() => {
+                    setPlatform(entry.tone);
+                    setFocusIndex(0);
+                  }}
+                >
+                  <i aria-hidden="true" />
+                  {entry.name}
+                  <span>{entry.count}</span>
+                </button>
+              ))}
+            </nav>
+          )}
+          <div
+            className="home-hero__tiles"
+            style={{ "--ratio": coverRatio } as React.CSSProperties}
+          >
             {heroGames.map((game, index) => {
               const isFocused = index === safeFocusIndex;
-              const tile = getTileArt(game.asset);
+              const cover =
+                getCoverArt(game.asset) ?? getTileArt(game.asset)?.url ?? null;
 
               return (
                 <div key={game.key} className="home-hero__tile-wrap">
@@ -326,26 +401,13 @@ export default function Home() {
                     className={cn("home-hero__tile", {
                       "home-hero__tile--focused": isFocused,
                     })}
-                    style={
-                      tile
-                        ? {
-                            backgroundImage: tile.fallback
-                              ? `url("${tile.url}"), url("${tile.fallback}")`
-                              : `url("${tile.url}")`,
-                            backgroundSize: tile.fallback
-                              ? `${tile.size ?? "cover"}, cover`
-                              : tile.size,
-                            backgroundPosition: tile.fallback
-                              ? `${tile.position ?? "center"}, center`
-                              : tile.position,
-                          }
-                        : undefined
-                    }
                     onClick={() =>
                       isFocused ? openGame(game.asset) : setFocusIndex(index)
                     }
                     title={game.asset.title}
-                  />
+                  >
+                    {cover && <CoverFrame url={cover} ratio={coverRatio} />}
+                  </button>
                   {isFocused && (
                     <div className="home-hero__tile-label">
                       <PlatformBadge game={game.asset} />
