@@ -145,6 +145,14 @@ export const loadState = async () => {
       logger.warn("[steam-owned] boot sync skipped", error?.message ?? error)
     );
     // Downloaded games installed while Opus was closed: learn their executable from Windows.
+    // ROMs copied into the linked console folders are imported on their own too.
+    void import("./services/emulators/new-roms-watcher").then(
+      ({ scheduleNewRomsWatcher }) => scheduleNewRomsWatcher()
+    );
+    // PC games installed by hand in the watched folders join the library on their own.
+    void import("./services/folder-game-finder").then(
+      ({ scheduleFolderGameFinder }) => scheduleFolderGameFinder()
+    );
     void findInstalledDownloadedGames()
       .then(
         (found) =>

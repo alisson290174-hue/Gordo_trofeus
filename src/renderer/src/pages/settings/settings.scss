@@ -167,4 +167,17 @@
     border: none;
     border-top: 1px solid globals.$border-color;
   }
+
+  &__description {
+    margin: 0;
+    color: globals.$muted-color;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: globals.$spacing-unit;
+  }
 }

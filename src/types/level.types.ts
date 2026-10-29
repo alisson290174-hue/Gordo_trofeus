@@ -166,6 +166,10 @@ export interface DownloadDirectoryPreference {
 
 export interface UserPreferences {
   downloadsPath?: string | null;
+  /** Folders Opus watches for PC games installed outside any store (new folder = new game). */
+  gameFolders?: string[];
+  /** Game folders the user removed or rejected: the folder finder never adds them back. */
+  ignoredGameFolders?: string[];
   defaultWinePrefixPath?: string | null;
   downloadDirectories?: DownloadDirectoryPreference[];
   optionalDownloadsPaths?: string[];

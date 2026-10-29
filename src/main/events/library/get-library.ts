@@ -1,3 +1,4 @@
+import { normaliseFanartTitle } from "@main/services/emulators/classic-fanart-rules";
 import path from "node:path";
 import fs from "node:fs";
 
@@ -155,8 +156,25 @@ const getLibrary = async (): Promise<LibraryGame[]> => {
               customCoverImageUrl: game.customCoverImageUrl,
             };
           })
-      );
+      ).then(hideConsoleCopiesOfPorts);
     });
+};
+
+// A console game that also has a PC port in the library (Bloodborne: PS4 + port) shows once, as the
+// port — the copy the user plays. The console entry stays stored, just not listed.
+const hideConsoleCopiesOfPorts = (games: LibraryGame[]) => {
+  const portTitles = new Set(
+    games
+      .filter((game) => game.platform === "port")
+      .map((game) => normaliseFanartTitle(game.title.replace(/(.*?)/g, "")))
+  );
+  if (portTitles.size === 0) return games;
+  return games.filter(
+    (game) =>
+      game.shop !== "launchbox" ||
+      game.platform === "port" ||
+      !portTitles.has(normaliseFanartTitle(game.title))
+  );
 };
 
 registerEvent("getLibrary", getLibrary);

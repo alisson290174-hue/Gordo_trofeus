@@ -59,3 +59,4 @@ import "./check-steam-shortcut";
 
 import "./transfer-game-files";
 import "./get-available-drives";
+import "./get-game-folders";

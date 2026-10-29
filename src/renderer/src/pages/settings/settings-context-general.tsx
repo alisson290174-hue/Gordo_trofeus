@@ -13,6 +13,7 @@ import type { UserPreferences } from "@types";
 import { settingsContext } from "@renderer/context";
 import { useAppSelector } from "@renderer/hooks";
 import languageResources from "@locales";
+import { SettingsGameFolders } from "./settings-game-folders";
 
 interface LanguageOption {
   option: string;
@@ -133,6 +134,8 @@ export function SettingsContextGeneral() {
           }))}
         />
       </div>
+
+      <SettingsGameFolders />
 
       <div className="settings-context-panel__group">
         <h3>{t("startup_behavior")}</h3>

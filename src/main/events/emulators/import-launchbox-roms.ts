@@ -193,6 +193,9 @@ const SYSTEM_DEFAULT_PLATFORM: Record<EmulatorSystem, string | null> = {
   "3ds": "Nintendo 3DS",
 };
 
+// Set while an automatic (background) import runs: games the user removed are not brought back.
+let keepRemovedGames = false;
+
 export const persistEntryLocally = async (
   entry: LaunchboxShopDetailsEntry,
   language: string,
@@ -250,6 +253,8 @@ export const persistEntryLocally = async (
     tileUrl ?? (platformToSystem(platform) === "switch" ? coverUrl : null);
 
   const existing = await gamesSublevel.get(gameKey);
+  // A game the user removed stays removed when the import runs on its own.
+  if (existing?.isDeleted && keepRemovedGames) return;
   if (existing) {
     existing.isDeleted = false;
     existing.addedToLibraryAt ??= new Date();
@@ -1078,6 +1083,8 @@ const persistUnmatchedGame = async (
     .catch((err) => logger.error("Could not cache unmatched rom assets", err));
 
   const existing = await gamesSublevel.get(gameKey);
+  // A game the user removed stays removed when the import runs on its own.
+  if (existing?.isDeleted && keepRemovedGames) return;
   if (existing) {
     existing.isDeleted = false;
     existing.addedToLibraryAt ??= new Date();
@@ -1600,3 +1607,16 @@ const cancelLaunchboxImport = async (
 
 registerEvent("importLaunchboxRoms", importLaunchboxRoms);
 registerEvent("cancelLaunchboxImport", cancelLaunchboxImport);
+
+/**
+ * Runs an import in the background mode: games the user removed from the library stay removed
+ * (a manual rescan, on the other hand, brings everything in the folders back).
+ */
+export async function withRemovedGamesKept<T>(run: () => Promise<T>) {
+  keepRemovedGames = true;
+  try {
+    return await run();
+  } finally {
+    keepRemovedGames = false;
+  }
+}

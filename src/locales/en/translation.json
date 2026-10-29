@@ -1847,7 +1847,14 @@
     "wayland_souvenirs_warning_title": "Souvenirs on Wayland",
     "wayland_souvenirs_warning_description": "Due to the nature of Wayland, Opus needs to ask which window it should capture every time you open a game. Select the game window so Opus can capture souvenirs when you unlock achievements. Without selecting a window, capturing souvenirs is impossible.",
     "wayland_souvenirs_warning_cancel": "Cancel",
-    "wayland_souvenirs_warning_confirm": "OK"
+    "wayland_souvenirs_warning_confirm": "OK",
+    "game_folders": "Game folders",
+    "game_folders_description": "Opus watches these folders: each new game folder inside them joins your library automatically, with its cover. Removed games never come back.",
+    "game_folders_add": "Add folder",
+    "game_folders_remove": "Remove",
+    "game_folders_scan_now": "Look for new games now",
+    "game_folders_scan_none": "No new games found",
+    "game_folders_scan_found": "Added: {{list}}"
   },
   "notifications": {
     "download_complete": "Download complete",
@@ -1874,7 +1881,9 @@
     "scan_games_complete_linked_description": "Found the executable of {{linked}} games in your library",
     "scan_games_complete_pending_description": "Found {{pending}} executables that need you to choose which game they belong to",
     "scan_games_no_results_title": "Scanning for games finished",
-    "scan_games_no_results_description": "No installed games were found"
+    "scan_games_no_results_description": "No installed games were found",
+    "folder_games_added_title_one": "New game in your library",
+    "folder_games_added_title_other": "{{count}} new games in your library"
   },
   "system_tray": {
     "open": "Open Opus",

@@ -958,6 +958,10 @@ contextBridge.exposeInMainWorld("electron", {
     ipcRenderer.invoke("openGameExecutablePath", shop, objectId),
   getGameSaveFolder: (shop: GameShop, objectId: string) =>
     ipcRenderer.invoke("getGameSaveFolder", shop, objectId),
+  getGameFolders: (): Promise<string[]> => ipcRenderer.invoke("getGameFolders"),
+  findNewFolderGames: (): Promise<
+    { title: string; executablePath: string; iconUrl: string | null }[]
+  > => ipcRenderer.invoke("findNewFolderGames"),
   getPcTranslation: (shop: GameShop, objectId: string) =>
     ipcRenderer.invoke("getPcTranslation", shop, objectId),
   openGameSaveFolder: (

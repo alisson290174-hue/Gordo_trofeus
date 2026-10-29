@@ -939,8 +939,18 @@ const runScan = async (
   includeDefaultDirectories: boolean,
   addGamesToLibrary: boolean
 ): Promise<ScanResult> => {
+  // Opus's server has no per-game executable list (that came from Hydra's). Without it the scan
+  // recognises games by their folder name instead — the way games installed by hand are found.
   if (!(await GameExecutables.ensureLoaded(true))) {
-    throw new Error("game-executable-catalogue-unavailable");
+    const { findNewFolderGames } =
+      await import("@main/services/folder-game-finder");
+    const addedGames = signal.cancelled
+      ? []
+      : await findNewFolderGames(additionalDirectories);
+    WindowManager.sendToAppWindows("on-library-batch-complete");
+    if (!signal.cancelled)
+      await publishScanNotification(addedGames.length, 0, 0);
+    return { linkedGames: [], addedGames, ambiguousMatches: [], total: 0 };
   }
 
   const baseDirectories = includeDefaultDirectories

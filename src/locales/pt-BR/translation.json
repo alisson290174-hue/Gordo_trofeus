@@ -1809,7 +1809,14 @@
     "wayland_souvenirs_warning_title": "Lembranças no Wayland",
     "wayland_souvenirs_warning_description": "Devido à natureza do Wayland, o Opus precisa perguntar qual janela deve ser capturada toda vez que você abrir um jogo. Selecione a janela do jogo para que o Opus possa capturar lembranças quando você desbloquear conquistas. Sem selecionar uma janela, não é possível capturar lembranças.",
     "wayland_souvenirs_warning_cancel": "Cancelar",
-    "wayland_souvenirs_warning_confirm": "OK"
+    "wayland_souvenirs_warning_confirm": "OK",
+    "game_folders": "Pastas de jogos",
+    "game_folders_description": "O Opus vigia estas pastas: cada pasta de jogo nova dentro delas entra sozinha na biblioteca, com a capa. Jogos que você removeu não voltam.",
+    "game_folders_add": "Adicionar pasta",
+    "game_folders_remove": "Remover",
+    "game_folders_scan_now": "Procurar jogos novos agora",
+    "game_folders_scan_none": "Nenhum jogo novo encontrado",
+    "game_folders_scan_found": "Adicionados: {{list}}"
   },
   "notifications": {
     "download_complete": "Download concluído",
@@ -1836,7 +1843,9 @@
     "scan_games_no_results_title": "Escaneamento de jogos finalizado",
     "scan_games_no_results_description": "Nenhum jogo instalado foi encontrado",
     "download_halted": "Download interrompido",
-    "download_halted_no_disk_space": "{{title}} foi interrompido porque você ficou sem espaço de armazenamento"
+    "download_halted_no_disk_space": "{{title}} foi interrompido porque você ficou sem espaço de armazenamento",
+    "folder_games_added_title_one": "Jogo novo na biblioteca",
+    "folder_games_added_title_other": "{{count}} jogos novos na biblioteca"
   },
   "system_tray": {
     "open": "Abrir Opus",

@@ -390,6 +390,10 @@ declare global {
       shop: GameShop,
       objectId: string
     ) => Promise<string | null>;
+    getGameFolders: () => Promise<string[]>;
+    findNewFolderGames: () => Promise<
+      { title: string; executablePath: string; iconUrl: string | null }[]
+    >;
     getPcTranslation: (
       shop: GameShop,
       objectId: string
