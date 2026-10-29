@@ -1,3 +1,4 @@
+import { getCoverArt } from "@renderer/helpers/ps5-game";
 import "./card-presentation.scss";
 
 import type { ArtworkAssetType, EmulatorSystem, GameShop } from "@types";
@@ -52,6 +53,7 @@ export interface LibraryGameCardPresentationSource {
   platform?: string | null;
   customIconUrl?: string | null;
   customCoverImageUrl?: string | null;
+  boxArtImageUrl?: string | null;
   customHeroImageUrl?: string | null;
   customLogoImageUrl?: string | null;
   selectedArtworkTypes?: ArtworkAssetType[];
@@ -76,10 +78,17 @@ const PLATFORM_LABELS: Partial<Record<EmulatorSystem, string>> = {
 };
 
 function getResolvedImageSources(
-  sources: Array<string | null | undefined>
+  sources: Array<string | null | undefined>,
+  /** Width asked for pictures on disk (art-backup scans are up to 4000 px wide). */
+  localWidth = 600
 ): string[] {
   return sources
     .map((source) => resolveImageSource(source))
+    .map((source) =>
+      source.startsWith("local:") && !source.includes("?")
+        ? `${source}?w=${localWidth}`
+        : source
+    )
     .filter((source, index, array) => {
       return source !== "" && array.indexOf(source) === index;
     });
@@ -108,10 +117,13 @@ function getPresentationImageSources(
             game.iconUrl,
           ];
 
-    return getResolvedImageSources(horizontalSources);
+    return getResolvedImageSources(horizontalSources, 1200);
   }
 
+  // Same cover as the Início strip and the normal-mode library (console case from the art
+  // backup first), so a game never shows a different picture here.
   return getResolvedImageSources([
+    getCoverArt(game),
     game.customCoverImageUrl,
     game.coverImageUrl,
     game.libraryImageUrl,

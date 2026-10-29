@@ -212,14 +212,20 @@ export default function LibraryPage() {
   const firstContentItemIdRef = useRef(firstContentItemId);
   firstContentItemIdRef.current = firstContentItemId;
   const previousFilterTabRef = useRef(activeFilterTab);
+  // Set when a run of LT/RT presses starts on the cards: pressing again before the cards are
+  // back (focus parked on the search box meanwhile) must still end on the first card.
+  const returnToCardsRef = useRef(false);
   useEffect(() => {
     if (previousFilterTabRef.current === activeFilterTab) return;
     previousFilterTabRef.current = activeFilterTab;
     const navigation = NavigationService.getInstance();
     const isOnCards = (id: string | null) =>
       Boolean(id?.startsWith("library-focus-"));
-    if (!isOnCards(navigation.getCurrentFocusId())) return;
+    if (isOnCards(navigation.getCurrentFocusId()))
+      returnToCardsRef.current = true;
+    if (!returnToCardsRef.current) return;
     const timer = globalThis.setTimeout(() => {
+      returnToCardsRef.current = false;
       const currentFocusId = navigation.getCurrentFocusId();
       if (
         currentFocusId &&

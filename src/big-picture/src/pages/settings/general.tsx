@@ -1,7 +1,7 @@
 import "./general.scss";
 
 import { BehaviorSection } from "./behavior-section";
-import { DownloadDirectoriesSection } from "./download-directories-section";
+import { GameFoldersSection } from "./game-folders-section";
 import { LanguageSection } from "./language-section";
 
 interface SettingsSectionProps {
@@ -19,7 +19,7 @@ export function GeneralSettingsSection({
           : "general-settings-section"
       }
     >
-      <DownloadDirectoriesSection />
+      <GameFoldersSection />
       <LanguageSection />
       <BehaviorSection />
     </div>

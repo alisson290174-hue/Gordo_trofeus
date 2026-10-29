@@ -4,3 +4,20 @@
   gap: calc(var(--spacing-unit) * 8);
   width: 100%;
 }
+
+.game-folders-section__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.game-folders-section__path {
+  font-size: 15px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

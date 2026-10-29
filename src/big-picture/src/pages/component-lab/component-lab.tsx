@@ -25,7 +25,6 @@ import {
   SourceAnchor,
   Tooltip,
   Typography,
-  UserDiskItem,
   UserProfile,
   VerticalGameCard,
 } from "../../components";
@@ -62,8 +61,6 @@ const POSTER_IMAGE =
   "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=900&q=80";
 const HOVER_POSTER_IMAGE =
   "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=900&q=80";
-const SAMPLE_FREE_BYTES = Math.round(145.3 * 1024 ** 3);
-const SAMPLE_TOTAL_BYTES = 480 * 1024 ** 3;
 
 interface ShowcaseSectionProps {
   title: string;
@@ -700,27 +697,6 @@ export default function ComponentLab() {
             <Tooltip content="Inactive tooltip" active={false}>
               <Button variant="secondary">Inactive</Button>
             </Tooltip>
-          </div>
-        </ShowcaseSection>
-
-        <ShowcaseSection
-          title="Storage"
-          description="Card de disco do usuario com uso e espaco livre."
-        >
-          <div className="catalogue-page__cards">
-            <UserDiskItem
-              title="eight's blazing fast SSD"
-              path="C:\\Others\\Games"
-              freeBytes={SAMPLE_FREE_BYTES}
-              totalBytes={SAMPLE_TOTAL_BYTES}
-            />
-            <UserDiskItem
-              title="Opus archive drive"
-              path="D:\\Baloi\\Library"
-              freeBytes={Math.round(82.6 * 1024 ** 3)}
-              totalBytes={2 * 1024 ** 4}
-              isSelected
-            />
           </div>
         </ShowcaseSection>
 

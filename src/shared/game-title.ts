@@ -22,7 +22,11 @@ export function cleanRomTitle(raw: string | null | undefined): string {
 
   // Everything was tags (e.g. "[SLUS-21879]") — keep the original rather than an empty string.
   if (!title) title = original;
-  return title;
+
+  // No-Intro / LaunchBox put the article last: "Legend of Zelda, The - Ocarina of Time".
+  return title
+    .replace(/^(.+?), (The|A|An) - (.+)$/, "$2 $1: $3")
+    .replace(/^(.+?), (The|A|An)$/, "$2 $1");
 }
 
 /** Display title for any library game: ROM names cleaned, trademark marks dropped. */

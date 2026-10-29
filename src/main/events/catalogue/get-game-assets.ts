@@ -33,6 +33,12 @@ export const getGameAssets = async (
   const gameKey = levelKeys.game(shop, objectId);
   const cachedAssets = await gamesShopAssetsSublevel.get(gameKey);
 
+  // Emulated games get their art when imported (LaunchBox, local backup); the server has no
+  // assets route for them, so asking it only produced a 404 on every game page.
+  if (shop === "launchbox") {
+    return cachedAssets ? applyArtworkSelection(gameKey, cachedAssets) : null;
+  }
+
   if (
     !options?.forceFresh &&
     cachedAssets &&
