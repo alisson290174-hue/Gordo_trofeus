@@ -10,6 +10,18 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.71",
+    date: "29/10/2026",
+    items: [
+      "Opus mais leve: saíram os downloads por torrent/debrid, as fontes de download e o Catálogo (o app ficou bem menor). Jogo sem executável agora mostra \"Escolher executável\"; jogo da sua conta Steam não instalado mostra \"Instalar pela Steam\".",
+      "Jogos novos entram sozinhos: cada pasta de jogo nova em \"Pastas de jogos\" (Configurações › Geral, também no Big Picture) vira um jogo na biblioteca com capa, fundo e troféus; ROMs copiadas para as pastas dos consoles também. Jogo que você removeu não volta.",
+      "Capas e fundos: capas locais carregam rápido (miniaturas), jogos da Epic com arte quase quadrada ganharam a caixa vertical, fundos de Switch sem faixas como \"Demo Available\", títulos como \"The Legend of Zelda: …\". O Bloodborne aparece uma vez só (como port).",
+      "Big Picture no controle: trocar de console (LT/RT) vai para a 1ª capa, a busca não perde o foco nem digita espaço sozinha, o perfil não abre mais no botão Sair (que agora pede confirmação). No modo normal, RB/LB andam uma seção por vez.",
+      "Troféus e horas corrigidos: o tempo jogado da sua conta Steam não zera mais, e números antigos errados (RDR2 \"34 de 34\") deram lugar aos certos. Troféus de PS3 voltaram a abrir.",
+      "Mais estável: o Opus não abre mais \"quebrado\" quando a cópia anterior ainda está fechando, e usa o próprio link opuslauncher:// (não conflita mais com o Hydra oficial).",
+    ],
+  },
+  {
     version: "1.0.70",
     date: "17/10/2026",
     items: [
