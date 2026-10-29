@@ -2,7 +2,7 @@ import { useEpicInstalls } from "@renderer/hooks/use-epic-installs";
 import { Button, ConfirmationModal } from "@renderer/components";
 import { Icon } from "@renderer/components/icon/icon";
 import {
-  useDownload,
+  useGameRemoval,
   useLibrary,
   useToast,
   useUserDetails,
@@ -22,12 +22,11 @@ export function HeroPanelActions() {
   const [toggleLibraryGameDisabled, setToggleLibraryGameDisabled] =
     useState(false);
 
-  const { isGameDeleting } = useDownload();
+  const { isGameDeleting } = useGameRemoval();
   const { userDetails } = useUserDetails();
 
   const {
     game,
-    repacks,
     isGameRunning,
     shop,
     objectId,
@@ -35,17 +34,11 @@ export function HeroPanelActions() {
     shopDetails,
     setShowGameOptionsModal,
     setGameOptionsInitialCategory,
-    setShowRepacksModal,
     updateGame,
     selectGameExecutable,
     isTransferring,
     transferProgress,
   } = useContext(gameDetailsContext);
-
-  const { lastPacket } = useDownload();
-
-  const isGameDownloading =
-    game?.download?.status === "active" && lastPacket?.gameId === game?.id;
 
   const { updateLibrary } = useLibrary();
 
@@ -317,18 +310,6 @@ export function HeroPanelActions() {
     </Button>
   );
 
-  const showDownloadOptionsButton = (
-    <Button
-      onClick={() => setShowRepacksModal(true)}
-      theme="outline"
-      disabled={deleting}
-      className="hero-panel-actions__action hero-panel-actions__ghost"
-    >
-      <Icon name="download" size={18} />
-      {t("open_download_options")}
-    </Button>
-  );
-
   const gameActionButton = () => {
     if (isTransferring) {
       const percent = Math.round(transferProgress * 100);
@@ -460,66 +441,19 @@ export function HeroPanelActions() {
       );
     }
 
-    // Downloaded but not set up yet (an installer or archive, no executable): run the installer
-    // or open the folder — same action as on the Downloads page, instead of "Download" again.
-    if (game?.download?.status === "complete" && !isGameDownloading) {
-      return (
-        <Button
-          onClick={() => {
-            void window.electron
-              .openGameInstaller(game.shop, game.objectId)
-              .then((opened) => {
-                if (!opened) showErrorToast(t("executable_not_found_title"));
-              });
-          }}
-          theme="outline"
-          disabled={deleting}
-          className="hero-panel-actions__action hero-panel-actions__primary"
-        >
-          <Icon name="download" size={18} />
-          {t("install")}
-        </Button>
-      );
-    }
-
-    if (isGameDownloading) {
-      const percent = Math.round((lastPacket?.progress ?? 0) * 100);
-      return (
-        <Button
-          onClick={() => navigate("/downloads")}
-          theme="outline"
-          className="hero-panel-actions__action hero-panel-actions__primary hero-panel-actions__primary--muted"
-        >
-          <span
-            className="hero-panel-actions__fill"
-            style={{ width: `${percent}%` }}
-          />
-          <Icon name="download" size={18} />
-          <span>{t("dashboard:transferring", { percent })}</span>
-        </Button>
-      );
-    }
-
+    // In the library but no executable picked yet: choose it (and play).
     return (
       <Button
-        onClick={() => setShowRepacksModal(true)}
+        onClick={openGame}
         theme="outline"
-        className={`hero-panel-actions__action hero-panel-actions__primary ${repacks.length === 0 ? "hero-panel-actions__action--disabled" : ""}`}
+        disabled={deleting}
+        className="hero-panel-actions__action hero-panel-actions__primary"
       >
-        <Icon name="download" size={18} />
-        {t("download")}
+        <Icon name="file-directory" size={18} />
+        {t("choose_executable")}
       </Button>
     );
   };
-
-  if (repacks.length && !game) {
-    return (
-      <div className="hero-panel-actions__container">
-        {addGameToLibraryButton}
-        {showDownloadOptionsButton}
-      </div>
-    );
-  }
 
   if (game) {
     return (

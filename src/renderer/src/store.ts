@@ -1,6 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
 import {
-  downloadSlice,
   windowSlice,
   librarySlice,
   userPreferencesSlice,
@@ -8,9 +7,9 @@ import {
   userDetailsSlice,
   gameRunningSlice,
   subscriptionSlice,
-  catalogueSearchSlice,
   collectionsSlice,
   classicsScanSlice,
+  gameDeletionSlice,
   retroarchScanSlice,
 } from "@renderer/features";
 
@@ -19,14 +18,13 @@ export const store = configureStore({
     window: windowSlice.reducer,
     library: librarySlice.reducer,
     userPreferences: userPreferencesSlice.reducer,
-    download: downloadSlice.reducer,
     toast: toastSlice.reducer,
     userDetails: userDetailsSlice.reducer,
     gameRunning: gameRunningSlice.reducer,
     subscription: subscriptionSlice.reducer,
-    catalogueSearch: catalogueSearchSlice.reducer,
     collections: collectionsSlice.reducer,
     classicsScan: classicsScanSlice.reducer,
+    gameDeletion: gameDeletionSlice.reducer,
     retroarchScan: retroarchScanSlice.reducer,
   },
 });

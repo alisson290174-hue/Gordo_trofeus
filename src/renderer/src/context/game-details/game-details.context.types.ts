@@ -1,5 +1,4 @@
 import type {
-  GameRepack,
   GameShop,
   GameStats,
   LibraryGame,
@@ -20,25 +19,21 @@ export type GameOptionsCategoryId =
 export interface GameDetailsContext {
   game: LibraryGame | null;
   shopDetails: ShopDetailsWithAssets | null;
-  repacks: GameRepack[];
   shop: GameShop;
   gameTitle: string;
   isGameRunning: boolean;
   isLoading: boolean;
   objectId: string | undefined;
-  showRepacksModal: boolean;
   showGameOptionsModal: boolean;
   gameOptionsInitialCategory: GameOptionsCategoryId;
   stats: GameStats | null;
   achievements: UserAchievement[] | null;
   hasNSFWContentBlocked: boolean;
-  lastDownloadedOption: GameRepack | null;
   isTransferring: boolean;
   transferProgress: number;
   selectGameExecutable: () => Promise<string | null>;
   updateGame: () => Promise<void>;
   refreshGameDetails: () => Promise<void>;
-  setShowRepacksModal: React.Dispatch<React.SetStateAction<boolean>>;
   setShowGameOptionsModal: React.Dispatch<React.SetStateAction<boolean>>;
   setGameOptionsInitialCategory: React.Dispatch<
     React.SetStateAction<GameOptionsCategoryId>

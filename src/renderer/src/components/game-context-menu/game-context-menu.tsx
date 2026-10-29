@@ -16,7 +16,7 @@ import { useGameCollections, useToast, useUserDetails } from "@renderer/hooks";
 import { useCollectionContextMenu } from "@renderer/context";
 import { getGameCollectionIds } from "@renderer/helpers";
 import { RemoveGameFromLibraryModal } from "@renderer/pages/game-details/modals/remove-from-library-modal";
-import { DeleteGameModal } from "@renderer/pages/downloads/delete-game-modal";
+import { DeleteGameModal } from "@renderer/components/delete-game-modal/delete-game-modal";
 import type { GameCollection } from "@types";
 import type { GameContextMenuGame } from "./game-context-menu.types";
 
@@ -69,9 +69,7 @@ export function GameContextMenu({
   const {
     canPlay,
     isDeleting,
-    isGameDownloading,
     isGameRunning,
-    hasRepacks,
     creatingShortcut,
     creatingSteamShortcut,
     handlePlayGame,
@@ -80,8 +78,6 @@ export function GameContextMenu({
     handleCreateShortcut,
     handleCreateSteamShortcut,
     handleOpenFolder,
-    handleOpenDownloadOptions,
-    handleOpenDownloadLocation,
     handleTogglePin,
     handleRemoveFromLibrary,
     handleRemoveFiles,
@@ -244,13 +240,17 @@ export function GameContextMenu({
   const items: ContextMenuItemData[] = [
     {
       id: "play",
-      label: isGameRunning ? t("close") : canPlay ? t("play") : t("download"),
+      label: isGameRunning
+        ? t("close")
+        : canPlay
+          ? t("play")
+          : t("choose_executable"),
       icon: isGameRunning ? (
         <Icon name="x" size={16} />
       ) : canPlay ? (
         <Icon name="play" size={16} />
       ) : (
-        <Icon name="download" size={16} />
+        <Icon name="file-directory" size={16} />
       ),
       onClick: () => {
         if (isGameRunning) {
@@ -258,7 +258,7 @@ export function GameContextMenu({
         } else if (canPlay) {
           void handlePlayGame();
         } else {
-          handleOpenDownloadOptions();
+          handleOpenGameOptions();
         }
       },
       disabled: isDeleting,
@@ -498,29 +498,6 @@ export function GameContextMenu({
               },
             ]
           : []),
-        ...(game.executablePath
-          ? [
-              {
-                id: "download-options",
-                label: t("open_download_options"),
-                icon: <Icon name="download" size={16} />,
-                onClick: handleOpenDownloadOptions,
-                disabled: isDeleting || isGameDownloading || !hasRepacks,
-              },
-            ]
-          : []),
-        ...(game.download?.downloadPath
-          ? [
-              {
-                id: "download-location",
-                label: t("open_download_location"),
-                icon: <Icon name="file-directory" size={16} />,
-                onClick: handleOpenDownloadLocation,
-                disabled: isDeleting,
-              },
-            ]
-          : []),
-
         {
           id: "remove-library",
           label: t("remove_from_library"),
@@ -537,7 +514,7 @@ export function GameContextMenu({
                 label: t("remove_files"),
                 icon: <Icon name="trash" size={16} />,
                 onClick: () => setShowConfirmRemoveFiles(true),
-                disabled: isDeleting || isGameDownloading,
+                disabled: isDeleting,
                 danger: true,
                 closeOnClick: false,
               },

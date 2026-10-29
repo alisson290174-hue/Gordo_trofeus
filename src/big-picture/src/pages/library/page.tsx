@@ -53,7 +53,7 @@ import {
   useLibraryPendingAction,
   EmptyState,
 } from "../../components";
-import { ConfirmationModal, DownloadGameModal } from "../../components/modals";
+import { ConfirmationModal } from "../../components/modals";
 import {
   LIBRARY_FILTERS_SEARCH_INPUT_ID,
   LIBRARY_PAGE_REGION_ID,
@@ -123,7 +123,6 @@ function getInitialLibraryStoredValue<TValue extends string>(
 
 export default function LibraryPage() {
   const hasMountedContentRef = useRef(false);
-  const downloadModalRestoreFocusIdRef = useRef<string | null>(null);
   const settingsModalRestoreFocusIdRef = useRef<string | null>(null);
   const navigate = useNavigate();
   const { setFocus } = useNavigation();
@@ -262,42 +261,9 @@ export default function LibraryPage() {
     }));
   }, []);
 
-  const [downloadModalGame, setDownloadModalGame] =
-    useState<LibraryGame | null>(null);
   const [settingsModalGame, setSettingsModalGame] =
     useState<LibraryGame | null>(null);
   const [isGameSettingsModalOpen, setIsGameSettingsModalOpen] = useState(false);
-
-  const openDownloadModal = useCallback(
-    (game: LibraryGame, restoreFocusId: string | null) => {
-      downloadModalRestoreFocusIdRef.current = restoreFocusId;
-
-      globalThis.window.requestAnimationFrame(() => {
-        setDownloadModalGame(game);
-      });
-    },
-    []
-  );
-
-  const openDownloadModalFromContextMenu = useCallback(
-    (game: LibraryGame) => {
-      openDownloadModal(game, contextMenuState.restoreFocusId);
-    },
-    [contextMenuState.restoreFocusId, openDownloadModal]
-  );
-
-  const handleCloseDownloadModal = useCallback(() => {
-    const restoreFocusId = downloadModalRestoreFocusIdRef.current;
-
-    downloadModalRestoreFocusIdRef.current = null;
-    setDownloadModalGame(null);
-
-    if (!restoreFocusId) return;
-
-    globalThis.window.requestAnimationFrame(() => {
-      setFocus(restoreFocusId);
-    });
-  }, [setFocus]);
 
   const handleOpenGameSettingsFromContextMenu = useCallback(
     (game: LibraryGame) => {
@@ -322,13 +288,9 @@ export default function LibraryPage() {
     });
   }, [setFocus]);
 
+  // No executable yet: open the game settings to pick one.
   const handleLaunchOrDownload = useLibraryLaunchGame(
-    useCallback(
-      (game: LibraryGame) => {
-        openDownloadModalFromContextMenu(game);
-      },
-      [openDownloadModalFromContextMenu]
-    )
+    handleOpenGameSettingsFromContextMenu
   );
 
   const handleViewAchievements = useCallback(
@@ -579,15 +541,6 @@ export default function LibraryPage() {
           loading={isSubmittingAction}
           onClose={closePendingAction}
           onConfirm={confirmPendingAction}
-        />
-      ) : null}
-
-      {downloadModalGame ? (
-        <DownloadGameModal
-          key={downloadModalGame.id}
-          visible
-          onClose={handleCloseDownloadModal}
-          game={downloadModalGame}
         />
       ) : null}
 

@@ -2,7 +2,7 @@ import path from "node:path";
 import fs from "node:fs";
 
 import { getDownloadsPath } from "../helpers/get-downloads-path";
-import { DownloadOrchestrator, logger, retroarch } from "@main/services";
+import { logger, retroarch } from "@main/services";
 import { registerEvent } from "../register-event";
 import { isWithin } from "../emulators/rom-path-utils";
 import { GameShop } from "@types";
@@ -56,7 +56,6 @@ const deleteGameFolder = async (
   }
 
   await downloadsSublevel.del(gameKey);
-  await DownloadOrchestrator.syncAfterDownloadRemoved({ shop, objectId });
 
   const game = await gamesSublevel.get(gameKey);
   if (game) {

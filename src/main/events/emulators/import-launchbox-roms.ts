@@ -37,7 +37,7 @@ import {
   logger,
   mergeImportedProfileGames,
 } from "@main/services";
-import { clearFinishedDownload, platformToSystem } from "@main/helpers";
+import { platformToSystem } from "@main/helpers";
 import {
   fetchShopDetailsForSkus,
   normalizeSku,
@@ -251,7 +251,6 @@ export const persistEntryLocally = async (
 
   const existing = await gamesSublevel.get(gameKey);
   if (existing) {
-    await clearFinishedDownload(shop, objectId);
     existing.isDeleted = false;
     existing.addedToLibraryAt ??= new Date();
     if (platform && !existing.platform) {
@@ -1080,7 +1079,6 @@ const persistUnmatchedGame = async (
 
   const existing = await gamesSublevel.get(gameKey);
   if (existing) {
-    await clearFinishedDownload(shop, objectId);
     existing.isDeleted = false;
     existing.addedToLibraryAt ??= new Date();
     if (isFileNameTitle(existing.title, sourceFileName)) existing.title = title;

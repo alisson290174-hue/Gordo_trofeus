@@ -11,8 +11,6 @@ import "./settings.scss";
 
 import { Gamepad2, Wrench } from "lucide-react";
 import { SettingsContextGeneral } from "./settings-context-general";
-import { SettingsContextDownloads } from "./settings-context-downloads";
-import { SettingsContextDownloadSources } from "./settings-context-download-sources";
 import { SettingsContextNotifications } from "./settings-context-notifications";
 import { SettingsContextContentGameplay } from "./settings-context-content-gameplay";
 import { SettingsContextIntegrations } from "./settings-context-integrations";
@@ -31,16 +29,6 @@ export default function Settings() {
         id: "general" as const,
         label: t("general"),
         icon: <Icon name="settings" size={16} />,
-      },
-      {
-        id: "downloads" as const,
-        label: t("downloads"),
-        icon: <Icon name="download" size={16} />,
-      },
-      {
-        id: "download_sources" as const,
-        label: t("download_sources"),
-        icon: <Icon name="link" size={16} />,
       },
       {
         id: "notifications" as const,
@@ -98,14 +86,6 @@ export default function Settings() {
           const renderCategory = () => {
             if (selectedCategoryId === "general") {
               return <SettingsContextGeneral />;
-            }
-
-            if (selectedCategoryId === "downloads") {
-              return <SettingsContextDownloads />;
-            }
-
-            if (selectedCategoryId === "download_sources") {
-              return <SettingsContextDownloadSources />;
             }
 
             if (selectedCategoryId === "notifications") {

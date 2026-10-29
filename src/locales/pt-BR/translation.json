@@ -991,7 +991,8 @@
     "previous_media": "Anterior",
     "next_media": "Próximo",
     "not_enough_space_on_disk": "Espaço insuficiente neste disco. Necessário {{required}}, disponível {{available}}.",
-    "pc_translation_saved": "Tradução PT-BR guardada"
+    "pc_translation_saved": "Tradução PT-BR guardada",
+    "choose_executable": "Escolher executável"
   },
   "activation": {
     "title": "Ativação",
@@ -1117,7 +1118,7 @@
     "firmware_section_description": "O RPCS3 precisa do firmware oficial da Sony. O Opus verifica o RPCS3 em busca dele.",
     "firmware_official_link": "Página oficial",
     "current_username": "Nome de usuário:",
-    "downloads_path": "Diretório dos downloads",
+    "downloads_path": "Pasta padrão dos jogos",
     "change": "Explorar...",
     "notifications": "Notificações",
     "enable_download_notifications": "Quando um download for concluído",

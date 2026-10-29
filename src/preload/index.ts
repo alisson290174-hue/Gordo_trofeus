@@ -5,13 +5,10 @@ import type { EpicInstallState } from "@types";
 
 import type {
   GameShop,
-  DownloadProgress,
   UserPreferences,
   AppUpdaterEvent,
-  StartGameDownloadPayload,
   GameRunning,
   UpdateProfileRequest,
-  SeedingStatus,
   UserAchievement,
   FriendRequestSync,
   FriendPresenceSync,
@@ -22,8 +19,6 @@ import type {
   AchievementNotificationInfo,
   AchievementNotificationRequest,
   ProtonVersion,
-  TorrentFilesResponse,
-  DownloadLayoutState,
   EmulatorSystem,
   EmulatorBinary,
   EmulatorInstallProgress,
@@ -71,7 +66,6 @@ import type {
   SteamSyncFinishedPayload,
   SteamSyncRunStatus,
   SteamConnectErrorCode,
-  ExtractionFailure,
 } from "@types";
 import type { AuthPage } from "@shared";
 import type { AxiosProgressEvent } from "axios";
@@ -299,111 +293,9 @@ contextBridge.exposeInMainWorld("electron", {
       onProgress
     ),
   /* Torrenting */
-  startGameDownload: (payload: StartGameDownloadPayload) =>
-    ipcRenderer.invoke("startGameDownload", payload),
-  saveGlobalTrackers: (
-    manual: string[],
-    url: string | null,
-    appendManual: boolean,
-    appendUrl: boolean
-  ) =>
-    ipcRenderer.invoke(
-      "saveGlobalTrackers",
-      manual,
-      url,
-      appendManual,
-      appendUrl
-    ) as Promise<void>,
-  addGameToQueue: (payload: StartGameDownloadPayload) =>
-    ipcRenderer.invoke("addGameToQueue", payload),
-  cancelGameDownload: (shop: GameShop, objectId: string) =>
-    ipcRenderer.invoke("cancelGameDownload", shop, objectId),
-  pauseGameDownload: (shop: GameShop, objectId: string) =>
-    ipcRenderer.invoke("pauseGameDownload", shop, objectId),
-  resumeGameDownload: (
-    shop: GameShop,
-    objectId: string,
-    strategy?: "interruptActive" | "queueIfActive"
-  ) => ipcRenderer.invoke("resumeGameDownload", shop, objectId, strategy),
-  pauseGameSeed: (shop: GameShop, objectId: string) =>
-    ipcRenderer.invoke("pauseGameSeed", shop, objectId),
-  resumeGameSeed: (shop: GameShop, objectId: string) =>
-    ipcRenderer.invoke("resumeGameSeed", shop, objectId),
-  updateDownloadQueuePosition: (
-    shop: GameShop,
-    objectId: string,
-    direction: "up" | "down"
-  ) =>
-    ipcRenderer.invoke(
-      "updateDownloadQueuePosition",
-      shop,
-      objectId,
-      direction
-    ),
-  setDownloadQueuePosition: (
-    shop: GameShop,
-    objectId: string,
-    targetIndex: number
-  ) =>
-    ipcRenderer.invoke("setDownloadQueuePosition", shop, objectId, targetIndex),
-  setPausedDownloadPosition: (
-    shop: GameShop,
-    objectId: string,
-    targetIndex: number
-  ) =>
-    ipcRenderer.invoke(
-      "setPausedDownloadPosition",
-      shop,
-      objectId,
-      targetIndex
-    ),
-  moveDownloadPlacement: (
-    shop: GameShop,
-    objectId: string,
-    targetArea: "hero" | "queue" | "paused",
-    targetIndex?: number
-  ) =>
-    ipcRenderer.invoke(
-      "moveDownloadPlacement",
-      shop,
-      objectId,
-      targetArea,
-      targetIndex
-    ),
-  getDownloadLayoutState: () =>
-    ipcRenderer.invoke(
-      "getDownloadLayoutState"
-    ) as Promise<DownloadLayoutState>,
-  onDownloadProgress: (cb: (value: DownloadProgress | null) => void) => {
-    const listener = (
-      _event: Electron.IpcRendererEvent,
-      value: DownloadProgress | null
-    ) => cb(value);
-    ipcRenderer.on("on-download-progress", listener);
-    return () => ipcRenderer.removeListener("on-download-progress", listener);
-  },
-  onHardDelete: (cb: () => void) => {
-    const listener = (_event: Electron.IpcRendererEvent) => cb();
-    ipcRenderer.on("on-hard-delete", listener);
-    return () => ipcRenderer.removeListener("on-hard-delete", listener);
-  },
-  onSeedingStatus: (cb: (value: SeedingStatus[]) => void) => {
-    const listener = (
-      _event: Electron.IpcRendererEvent,
-      value: SeedingStatus[]
-    ) => cb(value);
-    ipcRenderer.on("on-seeding-status", listener);
-    return () => ipcRenderer.removeListener("on-seeding-status", listener);
-  },
-  getTorrentFiles: (magnet: string) =>
-    ipcRenderer.invoke("getTorrentFiles", magnet) as Promise<
-      { ok: true; data: TorrentFilesResponse } | { ok: false; error: string }
-    >,
-
   /* Catalogue */
   getGameShopDetails: (objectId: string, shop: GameShop, language: string) =>
     ipcRenderer.invoke("getGameShopDetails", objectId, shop, language),
-  getRandomGame: () => ipcRenderer.invoke("getRandomGame"),
   getGameStats: (objectId: string, shop: GameShop) =>
     ipcRenderer.invoke("getGameStats", objectId, shop),
   getGameAssets: (
@@ -865,27 +757,7 @@ contextBridge.exposeInMainWorld("electron", {
   },
   autoLaunch: (autoLaunchProps: { enabled: boolean; minimized: boolean }) =>
     ipcRenderer.invoke("autoLaunch", autoLaunchProps),
-  authenticateRealDebrid: (apiToken: string) =>
-    ipcRenderer.invoke("authenticateRealDebrid", apiToken),
-  authenticatePremiumize: (apiToken: string) =>
-    ipcRenderer.invoke("authenticatePremiumize", apiToken),
-  authenticateAllDebrid: (apiToken: string) =>
-    ipcRenderer.invoke("authenticateAllDebrid", apiToken),
-  authenticateTorBox: (apiToken: string) =>
-    ipcRenderer.invoke("authenticateTorBox", apiToken),
-
   /* Download sources */
-  addDownloadSource: (url: string) =>
-    ipcRenderer.invoke("addDownloadSource", url),
-  removeDownloadSource: (url: string, removeAll?: boolean) =>
-    ipcRenderer.invoke("removeDownloadSource", url, removeAll),
-  getDownloadSources: () => ipcRenderer.invoke("getDownloadSources"),
-  syncDownloadSources: () => ipcRenderer.invoke("syncDownloadSources"),
-  getDownloadSourcesCheckBaseline: () =>
-    ipcRenderer.invoke("getDownloadSourcesCheckBaseline"),
-  getDownloadSourcesSinceValue: () =>
-    ipcRenderer.invoke("getDownloadSourcesSinceValue"),
-
   /* Library */
   toggleAutomaticCloudSync: (
     shop: GameShop,
@@ -1036,8 +908,6 @@ contextBridge.exposeInMainWorld("electron", {
     collectionIds: string[]
   ) =>
     ipcRenderer.invoke("assignGameToCollection", shop, objectId, collectionIds),
-  clearNewDownloadOptions: (shop: GameShop, objectId: string) =>
-    ipcRenderer.invoke("clearNewDownloadOptions", shop, objectId),
   toggleGamePin: (shop: GameShop, objectId: string, pinned: boolean) =>
     ipcRenderer.invoke("toggleGamePin", shop, objectId, pinned),
   updateLaunchOptions: (
@@ -1082,12 +952,6 @@ contextBridge.exposeInMainWorld("electron", {
     matched: number;
     sizeBytes: number;
   } | null> => ipcRenderer.invoke("getActiveClassicsImport"),
-  openGameInstaller: (shop: GameShop, objectId: string) =>
-    ipcRenderer.invoke("openGameInstaller", shop, objectId),
-  getGameInstallerActionType: (shop: GameShop, objectId: string) =>
-    ipcRenderer.invoke("getGameInstallerActionType", shop, objectId),
-  openGameInstallerPath: (shop: GameShop, objectId: string) =>
-    ipcRenderer.invoke("openGameInstallerPath", shop, objectId),
   openGameWinetricks: (shop: GameShop, objectId: string) =>
     ipcRenderer.invoke("openGameWinetricks", shop, objectId),
   openGameExecutablePath: (shop: GameShop, objectId: string) =>
@@ -1162,8 +1026,6 @@ contextBridge.exposeInMainWorld("electron", {
     ipcRenderer.invoke("changeGamePlayTime", shop, objectId, playtime),
   resetGamePlayTime: (shop: GameShop, objectId: string) =>
     ipcRenderer.invoke("resetGamePlayTime", shop, objectId),
-  extractGameDownload: (shop: GameShop, objectId: string) =>
-    ipcRenderer.invoke("extractGameDownload", shop, objectId),
   scanInstalledGames: (
     additionalDirectories?: string[],
     includeDefaultDirectories?: boolean,
@@ -1209,60 +1071,12 @@ contextBridge.exposeInMainWorld("electron", {
     return () =>
       ipcRenderer.removeListener("on-library-batch-complete", listener);
   },
-  onDownloadsUpdated: (cb: () => void) => {
-    const listener = (_event: Electron.IpcRendererEvent) => cb();
-    ipcRenderer.on("on-downloads-updated", listener);
-    return () => ipcRenderer.removeListener("on-downloads-updated", listener);
-  },
   onClassicsImportStatus: (cb: (importing: boolean) => void) => {
     const listener = (_event: Electron.IpcRendererEvent, importing: boolean) =>
       cb(importing);
     ipcRenderer.on("on-classics-import-status", listener);
     return () =>
       ipcRenderer.removeListener("on-classics-import-status", listener);
-  },
-  onExtractionComplete: (cb: (shop: GameShop, objectId: string) => void) => {
-    const listener = (
-      _event: Electron.IpcRendererEvent,
-      shop: GameShop,
-      objectId: string
-    ) => cb(shop, objectId);
-    ipcRenderer.on("on-extraction-complete", listener);
-    return () => ipcRenderer.removeListener("on-extraction-complete", listener);
-  },
-  onExtractionProgress: (
-    cb: (shop: GameShop, objectId: string, progress: number) => void
-  ) => {
-    const listener = (
-      _event: Electron.IpcRendererEvent,
-      shop: GameShop,
-      objectId: string,
-      progress: number
-    ) => cb(shop, objectId, progress);
-    ipcRenderer.on("on-extraction-progress", listener);
-    return () => ipcRenderer.removeListener("on-extraction-progress", listener);
-  },
-  onExtractionFailed: (
-    cb: (
-      shop: GameShop,
-      objectId: string,
-      failure: ExtractionFailure | null
-    ) => void
-  ) => {
-    const listener = (
-      _event: Electron.IpcRendererEvent,
-      shop: GameShop,
-      objectId: string,
-      failure: ExtractionFailure | null
-    ) => cb(shop, objectId, failure);
-    ipcRenderer.on("on-extraction-failed", listener);
-    return () => ipcRenderer.removeListener("on-extraction-failed", listener);
-  },
-  onDownloadHalted: (cb: (gameTitle: string) => void) => {
-    const listener = (_event: Electron.IpcRendererEvent, gameTitle: string) =>
-      cb(gameTitle);
-    ipcRenderer.on("on-download-halted", listener);
-    return () => ipcRenderer.removeListener("on-download-halted", listener);
   },
   onGameExecutableNotFound: (
     cb: (shop: GameShop, objectId: string) => void
@@ -1276,18 +1090,6 @@ contextBridge.exposeInMainWorld("electron", {
     return () =>
       ipcRenderer.removeListener("on-game-executable-not-found", listener);
   },
-  onArchiveDeletionPrompt: (cb: (archivePaths: string[]) => void) => {
-    const listener = (
-      _event: Electron.IpcRendererEvent,
-      archivePaths: string[]
-    ) => cb(archivePaths);
-    ipcRenderer.on("on-archive-deletion-prompt", listener);
-    return () =>
-      ipcRenderer.removeListener("on-archive-deletion-prompt", listener);
-  },
-  deleteArchive: (filePath: string) =>
-    ipcRenderer.invoke("deleteArchive", filePath),
-
   /* Hardware */
   getDiskFreeSpace: (path: string) =>
     ipcRenderer.invoke("getDiskFreeSpace", path),
@@ -1796,8 +1598,6 @@ contextBridge.exposeInMainWorld("electron", {
   },
 
   /* Notifications */
-  publishNewRepacksNotification: (newRepacksCount: number) =>
-    ipcRenderer.invoke("publishNewRepacksNotification", newRepacksCount),
   getLocalNotifications: () => ipcRenderer.invoke("getLocalNotifications"),
   getLocalNotificationsCount: () =>
     ipcRenderer.invoke("getLocalNotificationsCount"),
@@ -1880,18 +1680,6 @@ contextBridge.exposeInMainWorld("electron", {
     ipcRenderer.invoke("updateAchievementCustomNotificationWindow"),
   showAchievementTestNotification: () =>
     ipcRenderer.invoke("showAchievementTestNotification"),
-
-  onNewDownloadOptions: (
-    cb: (gamesWithNewOptions: { gameId: string; count: number }[]) => void
-  ) => {
-    const listener = (
-      _event: Electron.IpcRendererEvent,
-      gamesWithNewOptions: { gameId: string; count: number }[]
-    ) => cb(gamesWithNewOptions);
-    ipcRenderer.on("on-new-download-options", listener);
-    return () =>
-      ipcRenderer.removeListener("on-new-download-options", listener);
-  },
 
   /* Main Window Controls */
   minimizeMainWindow: () => ipcRenderer.invoke("minimizeMainWindow"),

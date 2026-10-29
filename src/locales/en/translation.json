@@ -1029,7 +1029,8 @@
     "delete_shortcut_success": "Steam shortcut deleted successfully",
     "delete_shortcut_error": "Failed to delete Steam shortcut",
     "delete_steam_shortcut": "Delete Steam shortcut",
-    "pc_translation_saved": "PT-BR translation saved"
+    "pc_translation_saved": "PT-BR translation saved",
+    "choose_executable": "Choose executable"
   },
   "activation": {
     "title": "Activate Opus",
@@ -1159,7 +1160,7 @@
     "firmware_section_description": "RPCS3 needs Sony's official firmware. Opus checks RPCS3 for it.",
     "firmware_official_link": "Official page",
     "current_username": "Username:",
-    "downloads_path": "Downloads path",
+    "downloads_path": "Default games folder",
     "change": "Update",
     "notifications": "Notifications",
     "enable_download_notifications": "When a download is complete",

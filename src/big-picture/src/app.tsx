@@ -84,40 +84,6 @@ export default function App() {
   useEffect(() => {
     if (!IS_DESKTOP) return;
 
-    const unsubscribeExtractionFailed =
-      globalThis.window.electron.onExtractionFailed(
-        (_shop, _objectId, failure) => {
-          if (failure?.reason === "unsupported-format") {
-            showErrorToast(
-              t("extraction_unsupported_format_title", { ns: "downloads" }),
-              {
-                message: t("extraction_unsupported_format_description", {
-                  ns: "downloads",
-                  format: failure.format,
-                }),
-              }
-            );
-            return;
-          }
-
-          if (failure?.reason === "file-not-found") {
-            showErrorToast(
-              t("extraction_file_not_found_title", { ns: "downloads" }),
-              {
-                message: t("extraction_file_not_found_description", {
-                  ns: "downloads",
-                }),
-              }
-            );
-            return;
-          }
-
-          showErrorToast(t("extraction_failed_title", { ns: "downloads" }), {
-            message: t("extraction_failed_description", { ns: "downloads" }),
-          });
-        }
-      );
-
     const unsubscribeExecutableNotFound =
       globalThis.window.electron.onGameExecutableNotFound(() => {
         showErrorToast(
@@ -131,7 +97,6 @@ export default function App() {
       });
 
     return () => {
-      unsubscribeExtractionFailed();
       unsubscribeExecutableNotFound();
     };
   }, [showErrorToast, t]);

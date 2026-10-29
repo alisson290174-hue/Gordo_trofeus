@@ -1,14 +1,7 @@
 import { useContext, useEffect, useMemo, useState } from "react";
 import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
-import { formatDownloadProgress } from "@renderer/helpers";
-import {
-  useAppSelector,
-  useDate,
-  useDownload,
-  useFormat,
-} from "@renderer/hooks";
-import { Link } from "@renderer/components";
+import { useDate, useFormat } from "@renderer/hooks";
 import { gameDetailsContext } from "@renderer/context";
 import { MAX_MINUTES_TO_SHOW_IN_PLAYTIME } from "@renderer/constants";
 import { getDisplayedPlayTimeInMilliseconds } from "@shared";
@@ -22,12 +15,7 @@ export function HeroPanelPlaytime() {
   const { game, isGameRunning } = useContext(gameDetailsContext);
   const { t } = useTranslation("game_details");
   const { numberFormatter } = useFormat();
-  const { progress, lastPacket } = useDownload();
   const { formatDistance } = useDate();
-  const extraction = useAppSelector((state) => state.download.extraction);
-
-  const isExtracting = extraction?.visibleId === game?.id;
-
   useEffect(() => {
     if (game?.lastTimePlayed) {
       setLastTimePlayed(
@@ -68,45 +56,10 @@ export function HeroPanelPlaytime() {
     steamPlayTimeInMilliseconds: game.steamPlayTimeInMilliseconds,
   });
 
-  const hasDownload =
-    ["active", "paused"].includes(game.download?.status as string) &&
-    game.download?.progress !== 1;
-
-  const isGameDownloading =
-    game.download?.status === "active" && lastPacket?.gameId === game.id;
-
-  const extractionInProgressInfo = (
-    <div className="hero-panel-playtime__download-details">
-      <Link to="/downloads" className="hero-panel-playtime__downloads-link">
-        {t("extracting")}
-      </Link>
-
-      <small>{formatDownloadProgress(extraction?.progress ?? 0)}</small>
-    </div>
-  );
-
-  const downloadInProgressInfo = (
-    <div className="hero-panel-playtime__download-details">
-      <Link to="/downloads" className="hero-panel-playtime__downloads-link">
-        {game.download?.status === "active"
-          ? t("download_in_progress")
-          : t("download_paused")}
-      </Link>
-
-      <small>
-        {isGameDownloading
-          ? progress
-          : formatDownloadProgress(game.download?.progress)}
-      </small>
-    </div>
-  );
-
   if (!game.lastTimePlayed && displayedPlayTimeInMilliseconds <= 0) {
     return (
       <>
         <p>{t("not_played_yet", { title: game?.title })}</p>
-        {isExtracting && extractionInProgressInfo}
-        {!isExtracting && hasDownload && downloadInProgressInfo}
       </>
     );
   }
@@ -115,8 +68,6 @@ export function HeroPanelPlaytime() {
     return (
       <>
         <p>{t("playing_now")}</p>
-        {isExtracting && extractionInProgressInfo}
-        {!isExtracting && hasDownload && downloadInProgressInfo}
       </>
     );
   }
@@ -149,15 +100,11 @@ export function HeroPanelPlaytime() {
         })}
       </p>
 
-      {isExtracting && extractionInProgressInfo}
-      {!isExtracting && hasDownload && downloadInProgressInfo}
-      {!isExtracting && !hasDownload && (
-        <p>
-          {t("last_time_played", {
-            period: lastTimePlayed,
-          })}
-        </p>
-      )}
+      <p>
+        {t("last_time_played", {
+          period: lastTimePlayed,
+        })}
+      </p>
 
       {game.hasManuallyUpdatedPlaytime && (
         <Tooltip

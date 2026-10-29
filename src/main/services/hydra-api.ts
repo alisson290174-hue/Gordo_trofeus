@@ -157,9 +157,6 @@ export class HydraApi {
 
       SSEClient.close();
       SSEClient.connect();
-
-      const { syncDownloadSourcesFromApi } = await import("./user");
-      syncDownloadSourcesFromApi();
     }
   }
 

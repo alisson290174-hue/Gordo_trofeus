@@ -1,6 +1,5 @@
 import { registerEvent } from "../register-event";
 import {
-  DownloadManager,
   HydraApi,
   SSEClient,
   WindowManager,
@@ -42,9 +41,6 @@ const signOut = async (_event: Electron.IpcMainInvokeEvent) => {
         retroarch.resetRetroArchScanData(),
       ]);
     });
-
-  /* Cancels any ongoing downloads */
-  DownloadManager.cancelDownload();
 
   await HydraApi.handleSignOut();
 

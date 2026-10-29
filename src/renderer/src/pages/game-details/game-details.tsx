@@ -1,12 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
-import type { GameRepack, GameShop, Steam250Game } from "@types";
+import type { GameShop } from "@types";
 
-import { Button, ConfirmationModal } from "@renderer/components";
-import { buildGameDetailsPath } from "@renderer/helpers";
-
-import { Icon } from "@renderer/components/icon/icon";
+import { ConfirmationModal } from "@renderer/components";
 
 import { useTranslation } from "react-i18next";
 import { SkeletonTheme } from "react-loading-skeleton";
@@ -19,25 +16,17 @@ import {
   GameDetailsContextConsumer,
   GameDetailsContextProvider,
 } from "@renderer/context";
-import { useDownload } from "@renderer/hooks";
-import { GameOptionsModal, RepacksModal } from "./modals";
-import { Downloader, getDownloadersForUri } from "@shared";
+import { GameOptionsModal } from "./modals";
 import { CloudSyncFilesModal } from "./cloud-sync-files-modal/cloud-sync-files-modal";
 import { CloudSaveV2Provider } from "./cloud-save-v2";
 import "./game-details.scss";
 import "./hero.scss";
 
 export default function GameDetails() {
-  const [randomGame, setRandomGame] = useState<Steam250Game | null>(null);
-  const [randomizerLocked, setRandomizerLocked] = useState(false);
-
   const { objectId, shop } = useParams();
   const [searchParams] = useSearchParams();
 
-  const fromRandomizer = searchParams.get("fromRandomizer");
   const gameTitle = searchParams.get("title");
-
-  const { startDownload, addGameToQueue } = useDownload();
 
   const { t } = useTranslation("game_details");
 
@@ -48,39 +37,6 @@ export default function GameDetails() {
 
     void window.electron.syncSteamGameOnGamePage(objectId).catch(() => {});
   }, [objectId, shop]);
-
-  useEffect(() => {
-    setRandomGame(null);
-    window.electron.getRandomGame().then((randomGame) => {
-      setRandomGame(randomGame);
-    });
-  }, [objectId]);
-
-  const handleRandomizerClick = () => {
-    if (randomGame) {
-      navigate(
-        buildGameDetailsPath(
-          { ...randomGame, shop: "steam" },
-          { fromRandomizer: "1" }
-        )
-      );
-
-      setRandomizerLocked(true);
-
-      const zero = performance.now();
-
-      requestAnimationFrame(function animateLock(time) {
-        if (time - zero <= 1000) {
-          requestAnimationFrame(animateLock);
-        } else {
-          setRandomizerLocked(false);
-        }
-      });
-    }
-  };
-
-  const selectRepackUri = (repack: GameRepack, downloader: Downloader) =>
-    repack.uris.find((uri) => getDownloadersForUri(uri).includes(downloader))!;
 
   return (
     <GameDetailsContextProvider
@@ -94,55 +50,13 @@ export default function GameDetails() {
           game,
           gameTitle,
           shop,
-          showRepacksModal,
           showGameOptionsModal,
           gameOptionsInitialCategory,
           hasNSFWContentBlocked,
           setHasNSFWContentBlocked,
-          updateGame,
-          setShowRepacksModal,
           setShowGameOptionsModal,
-          setGameOptionsInitialCategory, // ADD THIS
+          setGameOptionsInitialCategory,
         }) => {
-          const handleStartDownload = async (
-            repack: GameRepack,
-            downloader: Downloader,
-            downloadPath: string,
-            automaticallyExtract: boolean,
-            addToQueueOnly = false,
-            fileIndices?: number[],
-            selectedFilesSize?: number | null,
-            automaticallyDeleteArchiveFiles = false,
-            signal?: AbortSignal
-          ) => {
-            const payload = {
-              objectId: objectId!,
-              title: gameTitle,
-              downloader,
-              shop,
-              downloadPath,
-              uri: selectRepackUri(repack, downloader),
-              automaticallyExtract,
-              automaticallyDeleteArchiveFiles,
-              fileSize: repack.fileSize,
-              fileIndices,
-              selectedFilesSize,
-            };
-
-            const response = addToQueueOnly
-              ? await addGameToQueue(payload, signal)
-              : await startDownload(payload, signal);
-
-            if (response.ok) {
-              await updateGame();
-              setShowRepacksModal(false);
-              setShowGameOptionsModal(false);
-              setGameOptionsInitialCategory("general");
-            }
-
-            return response;
-          };
-
           const handleNSFWContentRefuse = () => {
             setHasNSFWContentBlocked(false);
             navigate(-1);
@@ -168,12 +82,6 @@ export default function GameDetails() {
                 <SkeletonTheme baseColor="#121a2c" highlightColor="#1e2940">
                   {isLoading ? <GameDetailsSkeleton /> : <GameDetailsContent />}
 
-                  <RepacksModal
-                    visible={showRepacksModal}
-                    startDownload={handleStartDownload}
-                    onClose={() => setShowRepacksModal(false)}
-                  />
-
                   <ConfirmationModal
                     visible={hasNSFWContentBlocked}
                     onClose={handleNSFWContentRefuse}
@@ -198,18 +106,6 @@ export default function GameDetails() {
                       initialCategory={gameOptionsInitialCategory}
                       onNavigateHome={() => navigate("/")}
                     />
-                  )}
-
-                  {fromRandomizer && (
-                    <Button
-                      className="game-details__randomizer-button"
-                      onClick={handleRandomizerClick}
-                      theme="outline"
-                      disabled={!randomGame || randomizerLocked}
-                    >
-                      <Icon name="sync" size={16} />
-                      {t("next_suggestion")}
-                    </Button>
                   )}
                 </SkeletonTheme>
               </CloudSyncContextProvider>

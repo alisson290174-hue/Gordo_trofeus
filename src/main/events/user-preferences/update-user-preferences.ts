@@ -6,7 +6,7 @@ import i18next from "i18next";
 import { defaultDownloadsPath } from "@main/constants";
 import { db, gamesSublevel, levelKeys } from "@main/level";
 import { patchUserProfile } from "../profile/update-profile";
-import { DownloadManager, Wine } from "@main/services";
+import { Wine } from "@main/services";
 import { WindowManager } from "@main/services/window-manager";
 import { getDownloadDirectoryPreferences } from "@shared";
 import {
@@ -106,22 +106,6 @@ const updateAchievementSouvenirPreference = async (
   ]);
 };
 
-const applyDownloadManagerPreferences = async (
-  preferences: Partial<UserPreferences>
-) => {
-  if (Object.hasOwn(preferences, "maxDownloadSpeedBytesPerSecond")) {
-    await DownloadManager.applyDownloadSpeedLimit(
-      preferences.maxDownloadSpeedBytesPerSecond ?? null
-    );
-  }
-
-  if (Object.hasOwn(preferences, "torrentNetworkInterface")) {
-    await DownloadManager.applyNetworkInterface(
-      preferences.torrentNetworkInterface ?? null
-    );
-  }
-};
-
 const updateUserPreferences = async (
   _event: Electron.IpcMainInvokeEvent,
   preferences: Partial<UserPreferences>
@@ -164,8 +148,6 @@ const updateUserPreferences = async (
     "on-user-preferences-updated",
     updatedPreferences
   );
-
-  await applyDownloadManagerPreferences(preferences);
 };
 
 registerEvent("updateUserPreferences", updateUserPreferences);

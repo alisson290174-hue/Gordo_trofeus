@@ -7,7 +7,6 @@ import {
   gamesSublevel,
   levelKeys,
 } from "@main/level";
-import { clearFinishedDownload } from "@main/helpers";
 import { AchievementWatcherManager } from "@main/services/achievements/achievement-watcher-manager";
 
 const lookupCachedPlatform = async (
@@ -49,8 +48,6 @@ const addGameToLibrary = async (
     (shop === "launchbox" ? await lookupCachedPlatform(shop, objectId) : null);
 
   if (game) {
-    await clearFinishedDownload(shop, objectId);
-
     game.isDeleted = false;
     game.addedToLibraryAt ??= new Date();
     game.source = "hydra";

@@ -26,10 +26,10 @@ import type {
   ShortcutLocation,
 } from "@types";
 import { cloudSyncContext, gameDetailsContext } from "@renderer/context";
-import { DeleteGameModal } from "@renderer/pages/downloads/delete-game-modal";
+import { DeleteGameModal } from "@renderer/components/delete-game-modal/delete-game-modal";
 import {
   useAppSelector,
-  useDownload,
+  useGameRemoval,
   useGameCollections,
   useLibrary,
   useToast,
@@ -50,7 +50,6 @@ import { logger } from "@renderer/logger";
 import { GameOptionsSidebar } from "./game-options-modal/sidebar";
 import { GeneralSettingsSection } from "./game-options-modal/general-section";
 import { CompatibilitySettingsSection } from "./game-options-modal/compatibility-section";
-import { DownloadsSettingsSection } from "./game-options-modal/downloads-section";
 import { DangerZoneSection } from "./game-options-modal/danger-zone-section";
 import { HydraCloudLegacySettingsSection } from "./game-options-modal/hydra-cloud-section";
 import { HydraCloudV2SettingsSection } from "./game-options-modal/hydra-cloud-v2-section";
@@ -91,8 +90,6 @@ export function GameOptionsModal({
   const {
     updateGame,
     refreshGameDetails,
-    setShowRepacksModal,
-    repacks,
     selectGameExecutable,
     achievements,
     shopDetails,
@@ -223,12 +220,8 @@ export function GameOptionsModal({
     [game.objectId, game.shop]
   );
 
-  const {
-    removeGameInstaller,
-    removeGameFromLibrary,
-    isGameDeleting,
-    cancelDownload,
-  } = useDownload();
+  const { removeGameInstaller, removeGameFromLibrary, isGameDeleting } =
+    useGameRemoval();
   const { userDetails, hasActiveSubscription } = useUserDetails();
   const { artifacts } = useContext(cloudSyncContext);
   const { showHydraCloudModal } = useSubscription();
@@ -252,9 +245,6 @@ export function GameOptionsModal({
   const hasAchievements =
     (achievements?.filter((a) => a.unlocked).length ?? 0) > 0;
   const deleting = isGameDeleting(game.id);
-  const { lastPacket } = useDownload();
-  const isGameDownloading =
-    game.download?.status === "active" && lastPacket?.gameId === game.id;
 
   useEffect(() => {
     if (visible) {
@@ -402,7 +392,6 @@ export function GameOptionsModal({
   ).current;
 
   const handleRemoveGameFromLibrary = async () => {
-    if (isGameDownloading) await cancelDownload(game.shop, game.objectId);
     await removeGameFromLibrary(game.shop, game.objectId);
     await Promise.all([
       refreshGameDetails(),
@@ -583,8 +572,6 @@ export function GameOptionsModal({
       .catch(() => showErrorToast(t("create_shortcut_error")));
   };
 
-  const handleOpenDownloadFolder = () =>
-    globalThis.window.electron.openGameInstallerPath(game.shop, game.objectId);
   const handleDeleteGame = async () => {
     await removeGameInstaller(game.shop, game.objectId);
     updateGame();
@@ -825,7 +812,8 @@ export function GameOptionsModal({
   };
 
   const isLaunchbox = game.shop === "launchbox";
-  const showDownloadSettings = game.shop !== "custom";
+  // Opus no longer downloads games, so the per-game "Downloads" category is gone.
+  const showDownloadSettings = false;
   const shouldShowWinePrefixConfiguration =
     globalThis.window.electron.platform === "linux";
   const defaultHydraWinePrefixPath = defaultWinePrefixPath
@@ -887,15 +875,6 @@ export function GameOptionsModal({
               id: "compatibility" as const,
               label: t("settings_category_compatibility"),
               icon: <Wrench size={16} />,
-            },
-          ]
-        : []),
-      ...(showDownloadSettings
-        ? [
-            {
-              id: "downloads" as const,
-              label: t("settings_category_downloads"),
-              icon: <Icon name="download" size={16} />,
             },
           ]
         : []),
@@ -1279,23 +1258,12 @@ export function GameOptionsModal({
                   onChangeProtonVersion={handleChangeProtonVersion}
                 />
               )}
-            {selectedCategory === "downloads" && showDownloadSettings && (
-              <DownloadsSettingsSection
-                game={game}
-                deleting={deleting}
-                isGameDownloading={isGameDownloading}
-                repacksLength={repacks.length}
-                onOpenRepacks={() => setShowRepacksModal(true)}
-                onOpenDownloadFolder={handleOpenDownloadFolder}
-              />
-            )}
             {selectedCategory === "danger_zone" && (
               <DangerZoneSection
                 game={game}
                 deleting={deleting}
                 isDeletingAchievements={isDeletingAchievements}
                 hasAchievements={hasAchievements}
-                isGameDownloading={isGameDownloading}
                 userDetails={userDetails}
                 onOpenRemoveFromLibrary={() => setShowRemoveGameModal(true)}
                 onOpenResetAchievements={() =>

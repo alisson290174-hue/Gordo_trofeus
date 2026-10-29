@@ -19,10 +19,8 @@ import { AccountPrivacySettingsSection } from "./account-privacy";
 import { BigPictureSettingsSection } from "./big-picture";
 import { CompatibilitySettingsSection } from "./compatibility";
 import { ContentSettingsSection } from "./content";
-import { DownloadsSettingsSection } from "./downloads";
 import { EmulationSettingsSection } from "./emulation";
 import { GeneralSettingsSection } from "./general";
-import { IntegrationsSettingsSection } from "./integrations";
 import { SETTINGS_PAGE_REGION_ID } from "./navigation";
 import { NotificationsSettingsSection } from "./notifications";
 import { useUserDetails } from "../../hooks";
@@ -32,11 +30,8 @@ import {
   COMPATIBILITY_PROTON_OPTION_AUTO_FOCUS_ID,
   CONTENT_ITEM_FOCUS_IDS,
   BIG_PICTURE_ITEM_FOCUS_IDS,
-  DOWNLOADS_BEHAVIOR_ITEM_FOCUS_IDS,
-  DOWNLOADS_SOURCES_SECTION_REGION_ID,
   DOWNLOAD_DIRECTORIES_DEFAULT_SELECT_ID,
   EMULATION_OVERVIEW_CARD_FOCUS_IDS,
-  getIntegrationProviderCheckboxFocusId,
   NOTIFICATIONS_LIBRARY_ITEM_FOCUS_IDS,
 } from "./settings-navigation";
 
@@ -44,12 +39,10 @@ import "./page.scss";
 
 const ALL_SETTINGS_TABS = [
   { id: "general", label: "General" },
-  { id: "downloads", label: "Downloads" },
   { id: "notifications", label: "Notifications" },
   { id: "content", label: "Content" },
   { id: "big-picture", label: "Big Picture" },
   { id: "emulation", label: "Emulation" },
-  { id: "integrations", label: "Integrations" },
   { id: "compatibility", label: "Compatibility" },
   { id: "account-privacy", label: "Account and Privacy" },
 ] as const;
@@ -65,7 +58,6 @@ const SETTINGS_TAB_FADE_TRANSITION = {
 } as const;
 
 type SettingsTabId = (typeof ALL_SETTINGS_TABS)[number]["id"];
-type SettingsSectionId = "sources";
 type SettingsSectionComponentProps = {
   className?: string;
 };
@@ -78,25 +70,15 @@ function getSettingsTabFromSearch(search: string): SettingsTabId | null {
     : null;
 }
 
-function getSettingsSectionFromSearch(
-  search: string
-): SettingsSectionId | null {
-  const section = new URLSearchParams(search).get("section");
-
-  return section === "sources" ? "sources" : null;
-}
-
 const SETTINGS_TAB_CONTENT: Record<
   SettingsTabId,
   (props: SettingsSectionComponentProps) => React.JSX.Element | null
 > = {
   general: GeneralSettingsSection,
-  downloads: DownloadsSettingsSection,
   notifications: NotificationsSettingsSection,
   content: ContentSettingsSection,
   "big-picture": BigPictureSettingsSection,
   emulation: EmulationSettingsSection,
-  integrations: IntegrationsSettingsSection,
   compatibility: CompatibilitySettingsSection,
   "account-privacy": AccountPrivacySettingsSection,
 };
@@ -160,10 +142,6 @@ export default function Settings() {
   const { onButtonPressed, isActiveGamepadEvent } = useGamepad();
   const virtualKeyboardTarget = useVirtualKeyboardStore(
     (state) => state.target
-  );
-  const requestedSection = useMemo(
-    () => getSettingsSectionFromSearch(search),
-    [search]
   );
 
   const visibleTabs = useMemo(() => {
@@ -274,19 +252,6 @@ export default function Settings() {
           type: "item",
           itemId: DOWNLOAD_DIRECTORIES_DEFAULT_SELECT_ID,
         };
-      case "downloads":
-        return requestedSection === "sources"
-          ? {
-              type: "region",
-              regionId: DOWNLOADS_SOURCES_SECTION_REGION_ID,
-              entryDirection: "down",
-              preferRememberedFocus: false,
-            }
-          : {
-              type: "item",
-              itemId:
-                DOWNLOADS_BEHAVIOR_ITEM_FOCUS_IDS.seedAfterDownloadComplete,
-            };
       case "notifications":
         return {
           type: "item",
@@ -308,11 +273,6 @@ export default function Settings() {
           type: "item",
           itemId: EMULATION_OVERVIEW_CARD_FOCUS_IDS.ps1,
         };
-      case "integrations":
-        return {
-          type: "item",
-          itemId: getIntegrationProviderCheckboxFocusId("real-debrid"),
-        };
       case "compatibility":
         return {
           type: "item",
@@ -331,7 +291,7 @@ export default function Settings() {
       default:
         return null;
     }
-  }, [requestedSection, selectedTab, userDetails]);
+  }, [selectedTab, userDetails]);
 
   return (
     <VerticalFocusGroup regionId={SETTINGS_PAGE_REGION_ID} asChild>

@@ -1,4 +1,4 @@
-import type { ProcessPayload } from "./download/types";
+import type { ProcessPayload } from "./process-types";
 
 const normalizeWindowsExecutablePath = (value: string) =>
   value

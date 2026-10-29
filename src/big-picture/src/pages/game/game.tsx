@@ -31,11 +31,7 @@ import {
   Skeleton,
   EmptyState,
 } from "../../components";
-import {
-  ConfirmationModal,
-  DiscSelectionModal,
-  DownloadGameModal,
-} from "../../components/modals";
+import { ConfirmationModal, DiscSelectionModal } from "../../components/modals";
 import {
   AchievementsBox,
   ControllerSupportBox,
@@ -507,7 +503,6 @@ export default function Game() {
       .catch(() => {});
   }, [objectId, shop]);
 
-  const [isDownloadModalOpen, setIsDownloadModalOpen] = useState(false);
   const [isDiscSelectionModalOpen, setIsDiscSelectionModalOpen] =
     useState(false);
   const [isGameSettingsModalOpen, setIsGameSettingsModalOpen] = useState(false);
@@ -849,12 +844,9 @@ export default function Game() {
   );
   useHeaderTitle(resolvedGameTitle);
 
-  const handleOpenDownloadModal = useCallback(() => {
-    setIsDownloadModalOpen(true);
-  }, []);
-
-  const handleCloseDownloadModal = useCallback(() => {
-    setIsDownloadModalOpen(false);
+  // No executable yet: "Play" opens the game settings to pick one.
+  const handleOpenExecutableSettings = useCallback(() => {
+    setIsGameSettingsModalOpen(true);
   }, []);
 
   const handleAddToLibrary = useCallback(async () => {
@@ -1456,9 +1448,9 @@ export default function Game() {
             isFavorite={game?.favorite ?? false}
             toggleFavorite={toggleFavorite}
             onPlay={handlePlayGame}
-            onDownload={handleOpenDownloadModal}
+            onDownload={handleOpenExecutableSettings}
             onAddToLibrary={handleAddToLibrary}
-            onOpenDownloadOptions={handleOpenDownloadModal}
+            onOpenDownloadOptions={handleOpenExecutableSettings}
             onOpenSettings={() => setIsGameSettingsModalOpen(true)}
             onClose={closeGame}
             isAddingToLibrary={isAddingToLibrary}
@@ -1813,23 +1805,6 @@ export default function Game() {
             </VerticalFocusGroup>
           </div>
         </section>
-
-        <DownloadGameModal
-          visible={isDownloadModalOpen}
-          onClose={handleCloseDownloadModal}
-          game={{
-            objectId: objectId!,
-            shop: shop!,
-            title: resolvedGameTitle,
-            iconUrl: preferredAssets.iconUrl,
-            downloadSources:
-              preferredAssets.downloadSources || game?.downloadSources,
-            libraryHeroImageUrl: preferredAssets.heroSrc || null,
-            libraryImageUrl: preferredAssets.libraryImageUrl,
-            coverImageUrl:
-              preferredAssets.coverSrc || preferredAssets.iconSrc || null,
-          }}
-        />
 
         {game?.shop === "launchbox" ? (
           <DiscSelectionModal

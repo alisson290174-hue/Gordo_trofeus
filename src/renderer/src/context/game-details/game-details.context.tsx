@@ -1,19 +1,13 @@
 import { createContext, useCallback, useEffect, useRef, useState } from "react";
 
 import { setHeaderTitle } from "@renderer/features";
-import { levelDBService } from "@renderer/services/leveldb.service";
-import { ensureArray } from "@renderer/helpers";
-import { orderBy } from "lodash-es";
 import {
   useAppDispatch,
   useAppSelector,
-  useDownload,
   useUserDetails,
 } from "@renderer/hooks";
 
 import type {
-  DownloadSource,
-  GameRepack,
   GameShop,
   GameStats,
   LibraryGame,
@@ -27,30 +21,21 @@ import {
   GameDetailsContext,
   GameOptionsCategoryId,
 } from "./game-details.context.types";
-import {
-  applyHosterAvailability,
-  fetchHosterAvailability,
-  filterDownloadableRepacks,
-  getGameExecutableFilters,
-  SteamContentDescriptor,
-} from "@shared";
+import { getGameExecutableFilters, SteamContentDescriptor } from "@shared";
 
 export const gameDetailsContext = createContext<GameDetailsContext>({
   game: null,
   shopDetails: null,
-  repacks: [],
   shop: "steam",
   gameTitle: "",
   isGameRunning: false,
   isLoading: false,
   objectId: undefined,
-  showRepacksModal: false,
   showGameOptionsModal: false,
   gameOptionsInitialCategory: "general",
   stats: null,
   achievements: null,
   hasNSFWContentBlocked: false,
-  lastDownloadedOption: null,
   isTransferring: false,
   transferProgress: 0,
   selectGameExecutable: async () => null,
@@ -58,7 +43,6 @@ export const gameDetailsContext = createContext<GameDetailsContext>({
   refreshGameDetails: async () => {},
   setShowGameOptionsModal: () => {},
   setGameOptionsInitialCategory: () => {},
-  setShowRepacksModal: () => {},
   setHasNSFWContentBlocked: () => {},
   cancelTransfer: () => {},
 });
@@ -97,18 +81,15 @@ export function GameDetailsContextProvider({
 
   const [isLoading, setIsLoading] = useState(true);
   const [isGameRunning, setIsGameRunning] = useState(false);
-  const [showRepacksModal, setShowRepacksModal] = useState(false);
   const [showGameOptionsModal, setShowGameOptionsModal] = useState(false);
   const [gameOptionsInitialCategory, setGameOptionsInitialCategory] =
     useState<GameOptionsCategoryId>("general");
-  const [repacks, setRepacks] = useState<GameRepack[]>([]);
 
   const { t, i18n } = useTranslation("game_details");
   const location = useLocation();
 
   const dispatch = useAppDispatch();
 
-  const { lastPacket } = useDownload();
   const { userDetails } = useUserDetails();
 
   const userPreferences = useAppSelector(
@@ -222,12 +203,9 @@ export function GameDetailsContextProvider({
     await Promise.all([updateGame(), fetchGameDetails()]);
   }, [fetchGameDetails, updateGame]);
 
-  const isGameDownloading =
-    lastPacket?.gameId === game?.id && game?.download?.status === "active";
-
   useEffect(() => {
     updateGame();
-  }, [updateGame, isGameDownloading, lastPacket?.gameId]);
+  }, [updateGame]);
 
   // Listen for transfer events
   useEffect(() => {
@@ -297,19 +275,6 @@ export function GameDetailsContextProvider({
   }, [objectId, gameTitle, syncHeaderTitle, dispatch]);
 
   useEffect(() => {
-    const state =
-      (location && (location.state as Record<string, unknown>)) || {};
-    if (state.openRepacks) {
-      setShowRepacksModal(true);
-      try {
-        window.history.replaceState({}, document.title, location.pathname);
-      } catch (e) {
-        console.error(e);
-      }
-    }
-  }, [location]);
-
-  useEffect(() => {
     if (syncHeaderTitle && game?.title) {
       dispatch(setHeaderTitle(game.title));
     }
@@ -342,25 +307,6 @@ export function GameDetailsContextProvider({
       unsubscribe();
     };
   }, [refreshGameDetails]);
-
-  useEffect(() => {
-    const handler = (ev: Event) => {
-      try {
-        const detail = (ev as CustomEvent).detail || {};
-        if (detail.objectId && detail.objectId === objectId) {
-          setShowRepacksModal(true);
-        }
-      } catch (e) {
-        void e;
-      }
-    };
-
-    window.addEventListener("hydra:openRepacks", handler as EventListener);
-
-    return () => {
-      window.removeEventListener("hydra:openRepacks", handler as EventListener);
-    };
-  }, [objectId]);
 
   useEffect(() => {
     const handler = (ev: Event) => {
@@ -415,64 +361,6 @@ export function GameDetailsContextProvider({
     };
   }, [objectId, shop, userDetails]);
 
-  useEffect(() => {
-    if (shop === "custom") return;
-
-    let cancelled = false;
-
-    const fetchDownloadSources = async () => {
-      try {
-        const sourcesRaw = (await levelDBService.values(
-          "downloadSources"
-        )) as DownloadSource[];
-        const sources = orderBy(sourcesRaw, "createdAt", "desc");
-
-        const params = {
-          take: 100,
-          skip: 0,
-          downloadSourceIds: sources.map((source) => source.id),
-        };
-
-        const downloads = await window.electron.hydraApi.get<GameRepack[]>(
-          `/games/${shop}/${objectId}/download-sources`,
-          {
-            params,
-            needsAuth: false,
-          }
-        );
-
-        if (cancelled) return;
-
-        const downloadOptions = filterDownloadableRepacks(
-          ensureArray<GameRepack>(
-            downloads,
-            `/games/${shop}/${objectId}/download-sources`
-          )
-        );
-
-        setRepacks(downloadOptions);
-
-        const results = await fetchHosterAvailability(
-          downloadOptions,
-          (url, data) =>
-            window.electron.hydraApi.post(url, { data, needsAuth: false })
-        );
-
-        if (cancelled || results.length === 0) return;
-
-        setRepacks(applyHosterAvailability(downloadOptions, results));
-      } catch (error) {
-        console.error("Failed to fetch download sources:", error);
-      }
-    };
-
-    fetchDownloadSources();
-
-    return () => {
-      cancelled = true;
-    };
-  }, [shop, objectId]);
-
   const getDownloadsPath = async () => {
     if (userPreferences?.downloadsPath) return userPreferences.downloadsPath;
     return window.electron.getDefaultDownloadsPath();
@@ -517,25 +405,21 @@ export function GameDetailsContextProvider({
         game,
         shopDetails,
         shop,
-        repacks,
         gameTitle,
         isGameRunning,
         isLoading,
         objectId,
         showGameOptionsModal,
         gameOptionsInitialCategory,
-        showRepacksModal,
         stats,
         achievements,
         hasNSFWContentBlocked,
-        lastDownloadedOption: null,
         isTransferring,
         transferProgress,
         setHasNSFWContentBlocked,
         selectGameExecutable,
         updateGame,
         refreshGameDetails,
-        setShowRepacksModal,
         setShowGameOptionsModal,
         setGameOptionsInitialCategory,
         cancelTransfer,

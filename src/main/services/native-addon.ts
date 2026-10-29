@@ -4,7 +4,7 @@ import { createRequire } from "node:module";
 import { Worker } from "node:worker_threads";
 
 import { app } from "electron";
-import type { ProcessPayload } from "./download/types";
+import type { ProcessPayload } from "./process-types";
 import type {
   BuildLocalGameSnapshotPipelineInput,
   BuildSnapshotAggregateHashInput,

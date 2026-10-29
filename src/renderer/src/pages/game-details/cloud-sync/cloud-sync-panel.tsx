@@ -61,8 +61,7 @@ export function CloudSyncPanel({
     getGameArtifacts,
   } = useContext(cloudSyncContext);
 
-  const { objectId, shop, lastDownloadedOption, game } =
-    useContext(gameDetailsContext);
+  const { objectId, shop, game } = useContext(gameDetailsContext);
 
   const { showSuccessToast, showErrorToast } = useToast();
 
@@ -234,7 +233,7 @@ export function CloudSyncPanel({
 
         <Button
           type="button"
-          onClick={() => uploadSaveGame(lastDownloadedOption?.title ?? null)}
+          onClick={() => uploadSaveGame(null)}
           disabled={
             disableActions ||
             !backupPreview?.overall.totalGames ||

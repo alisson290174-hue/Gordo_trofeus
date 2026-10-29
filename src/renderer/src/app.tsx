@@ -13,17 +13,14 @@ import {
 import {
   useAppDispatch,
   useAppSelector,
-  useDownload,
   useLibrary,
   useToast,
   useUserDetails,
 } from "@renderer/hooks";
-import { useDownloadOptionsListener } from "@renderer/hooks/use-download-options-listener";
 import i18n from "i18next";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 import {
-  clearExtraction,
   closeToast,
   failClassicsScan,
   failRetroArchScan,
@@ -31,7 +28,6 @@ import {
   finishRetroArchScan,
   hydrateClassicsScan,
   hydrateRetroArchScan,
-  setExtractionProgress,
   setGameRunning,
   setProfileBackground,
   setUserDetails,
@@ -43,7 +39,6 @@ import {
 import { useTranslation } from "react-i18next";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { useSubscription } from "./hooks/use-subscription";
-import { ArchiveDeletionModal } from "./pages/downloads/archive-deletion-error-modal";
 import { CloudSubscriptionModal } from "./pages/shared-modals/hydra-cloud/cloud-subscription-modal";
 import { AddFriendModal } from "./pages/profile/profile-content/add-friend-modal";
 import { ClassicsScanModal } from "./pages/settings/emulation/classics-scan-modal";
@@ -64,12 +59,7 @@ export function App() {
   const contentRef = useRef<HTMLDivElement>(null);
   const { updateLibrary, library } = useLibrary();
 
-  // Listen for new download options updates
-  useDownloadOptionsListener();
-
   const { t } = useTranslation("app");
-
-  const { clearDownload, setLastPacket, lastPacket } = useDownload();
 
   const { fetchUserDetails, updateUserDetails, clearUserDetails } =
     useUserDetails();
@@ -91,9 +81,6 @@ export function App() {
   const { showSuccessToast, showErrorToast } = useToast();
   useDesktopGamepad();
 
-  const [showArchiveDeletionModal, setShowArchiveDeletionModal] =
-    useState(false);
-  const [archivePaths, setArchivePaths] = useState<string[]>([]);
   const [showAddFriendModal, setShowAddFriendModal] = useState(false);
 
   // Emulators that updated themselves in the background (daily check).
@@ -136,46 +123,6 @@ export function App() {
       unsubscribe();
     };
   }, [dispatch]);
-
-  useEffect(() => {
-    const unsubscribe = window.electron.onDownloadProgress(
-      (downloadProgress) => {
-        if (
-          downloadProgress?.progress === 1 &&
-          !downloadProgress.isCheckingFiles &&
-          !downloadProgress.isDownloadingMetadata
-        ) {
-          clearDownload();
-          updateLibrary();
-          return;
-        }
-
-        setLastPacket(downloadProgress);
-      }
-    );
-
-    return () => {
-      unsubscribe();
-    };
-  }, [clearDownload, setLastPacket, updateLibrary]);
-
-  useEffect(() => {
-    const unsubscribe = window.electron.onHardDelete(() => {
-      updateLibrary();
-    });
-
-    return () => unsubscribe();
-  }, [updateLibrary]);
-
-  useEffect(() => {
-    if (!lastPacket?.gameId) return;
-
-    const activeGame = library.find((game) => game.id === lastPacket.gameId);
-
-    if (!activeGame || activeGame.download?.status !== "active") {
-      clearDownload();
-    }
-  }, [clearDownload, lastPacket?.gameId, library]);
 
   // The Hydra help-center article opener (WorkWonders knowledge widget) was removed with the rest
   // of the WorkWonders SDK — this fork is independent of Hydra's hosted help center.
@@ -324,64 +271,12 @@ export function App() {
       window.electron.onLibraryBatchComplete(() => {
         updateLibrary();
       }),
-      window.electron.onDownloadsUpdated(() => {
-        updateLibrary();
-      }),
       window.electron.onSignOut(() => clearUserDetails()),
-      window.electron.onExtractionProgress((shop, objectId, progress) => {
-        dispatch(setExtractionProgress({ shop, objectId, progress }));
-      }),
-      window.electron.onExtractionComplete(() => {
-        dispatch(clearExtraction());
-        updateLibrary();
-      }),
-      window.electron.onExtractionFailed((_shop, _objectId, failure) => {
-        dispatch(clearExtraction());
-        updateLibrary();
-
-        if (failure?.reason === "unsupported-format") {
-          showErrorToast(
-            t("extraction_unsupported_format_title", { ns: "downloads" }),
-            t("extraction_unsupported_format_description", {
-              ns: "downloads",
-              format: failure.format,
-            })
-          );
-          return;
-        }
-
-        if (failure?.reason === "file-not-found") {
-          showErrorToast(
-            t("extraction_file_not_found_title", { ns: "downloads" }),
-            t("extraction_file_not_found_description", { ns: "downloads" })
-          );
-          return;
-        }
-
-        showErrorToast(
-          t("extraction_failed_title", { ns: "downloads" }),
-          t("extraction_failed_description", { ns: "downloads" })
-        );
-      }),
       window.electron.onGameExecutableNotFound(() => {
         showErrorToast(
           t("executable_not_found_title", { ns: "game_details" }),
           t("executable_not_found_description", { ns: "game_details" })
         );
-      }),
-      window.electron.onDownloadHalted((gameTitle) => {
-        updateLibrary();
-        showErrorToast(
-          t("download_halted_title", { ns: "downloads" }),
-          t("download_halted_description", {
-            ns: "downloads",
-            title: gameTitle,
-          })
-        );
-      }),
-      window.electron.onArchiveDeletionPrompt((paths) => {
-        setArchivePaths(paths);
-        setShowArchiveDeletionModal(true);
       }),
     ];
 
@@ -550,12 +445,6 @@ export function App() {
       />
 
       <CloudGiftNotificationModal />
-
-      <ArchiveDeletionModal
-        visible={showArchiveDeletionModal}
-        archivePaths={archivePaths}
-        onClose={() => setShowArchiveDeletionModal(false)}
-      />
 
       <AddFriendModal
         visible={showAddFriendModal}

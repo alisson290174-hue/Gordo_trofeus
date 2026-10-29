@@ -23,17 +23,11 @@ export function useLibrary() {
         updateLibrary();
       });
 
-    const unsubscribeDownloadsUpdated =
-      globalThis.window.electron.onDownloadsUpdated(() => {
-        updateLibrary();
-      });
-
     const handleLibraryUpdate = () => updateLibrary();
     globalThis.window.addEventListener("library-update", handleLibraryUpdate);
 
     return () => {
       unsubscribeLibraryBatch();
-      unsubscribeDownloadsUpdated();
       globalThis.window.removeEventListener(
         "library-update",
         handleLibraryUpdate

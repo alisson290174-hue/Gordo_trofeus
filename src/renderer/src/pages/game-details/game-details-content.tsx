@@ -34,12 +34,7 @@ import {
 } from "@shared";
 import { cloudSyncContext, gameDetailsContext } from "@renderer/context";
 
-import {
-  useUserDetails,
-  useLibrary,
-  useAppSelector,
-  useDownload,
-} from "@renderer/hooks";
+import { useUserDetails, useLibrary, useAppSelector } from "@renderer/hooks";
 import {
   CLASSICS_PS_PLATFORM_LABELS,
   resolveClassicsBadge,
@@ -86,8 +81,6 @@ export function GameDetailsContent() {
   const { t } = useTranslation("game_details");
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { lastPacket } = useDownload();
-  const extraction = useAppSelector((state) => state.download.extraction);
   const reviewsRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -328,13 +321,6 @@ export function GameDetailsContent() {
     return (doc.body.textContent ?? "").replace(/\s+/g, " ").trim() || null;
   }, [shopDetails?.short_description]);
 
-  const isGameDownloading =
-    game?.download?.status === "active" && lastPacket?.gameId === game?.id;
-  const showDownloadProgress =
-    (game?.download?.status === "active" && game.download.progress < 1) ||
-    game?.download?.status === "paused";
-  const isExtracting = Boolean(game) && extraction?.visibleId === game?.id;
-
   return (
     <div
       className={`game-details__wrapper ${hasNSFWContentBlocked ? "game-details__wrapper--blurred" : ""}`}
@@ -425,27 +411,6 @@ export function GameDetailsContent() {
                 </div>
               )}
             </div>
-
-            {(showDownloadProgress || isExtracting) && (
-              <div className="gd5-hero__progress">
-                <span
-                  className={
-                    game?.download?.status === "paused"
-                      ? "gd5-hero__progress-fill gd5-hero__progress-fill--paused"
-                      : "gd5-hero__progress-fill"
-                  }
-                  style={{
-                    width: `${Math.round(
-                      (isExtracting
-                        ? (extraction?.progress ?? 0)
-                        : isGameDownloading
-                          ? (lastPacket?.progress ?? 0)
-                          : (game?.download?.progress ?? 0)) * 100
-                    )}%`,
-                  }}
-                />
-              </div>
-            )}
 
             <Ps5HeroStats />
           </div>

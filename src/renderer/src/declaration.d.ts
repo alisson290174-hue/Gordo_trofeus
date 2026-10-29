@@ -8,14 +8,7 @@ import type {
 import type {
   AppUpdaterEvent,
   GameShop,
-  Steam250Game,
-  DownloadProgress,
-  SeedingStatus,
   UserPreferences,
-  StartGameDownloadPayload,
-  RealDebridUser,
-  PremiumizeUser,
-  AllDebridUser,
   UserProfile,
   UpdateProfileRequest,
   OpenCheckoutOptions,
@@ -30,7 +23,6 @@ import type {
   ComparedAchievements,
   LibraryGame,
   GameRunning,
-  TorBoxUser,
   ShortcutLocation,
   Ps2MemcardScanInput,
   Ps2MemcardScanProgress,
@@ -44,12 +36,9 @@ import type {
   Game,
   DiskUsage,
   NetworkInterface,
-  DownloadSource,
   LocalNotification,
   ProtonVersion,
   CreateSteamShortcutOptions,
-  TorrentFilesResponse,
-  DownloadLayoutState,
   EmulatorConfig,
   EmulatorConfigMap,
   EmulatorSystem,
@@ -104,7 +93,6 @@ import type {
   SteamSyncFinishedPayload,
   SteamSyncRunStatus,
   SteamConnectErrorCode,
-  ExtractionFailure,
 } from "@types";
 import type { AxiosProgressEvent } from "axios";
 
@@ -219,69 +207,12 @@ declare global {
       onProgress?: (progress: CloudSaveSyncProgressPayload) => void
     ) => Promise<SyncGameCloudSaveResult>;
     /* Torrenting */
-    startGameDownload: (
-      payload: StartGameDownloadPayload
-    ) => Promise<{ ok: boolean; error?: string }>;
-    addGameToQueue: (
-      payload: StartGameDownloadPayload
-    ) => Promise<{ ok: boolean; error?: string }>;
-    cancelGameDownload: (shop: GameShop, objectId: string) => Promise<void>;
-    pauseGameDownload: (shop: GameShop, objectId: string) => Promise<void>;
-    resumeGameDownload: (
-      shop: GameShop,
-      objectId: string,
-      strategy?: "interruptActive" | "queueIfActive"
-    ) => Promise<void>;
-    pauseGameSeed: (shop: GameShop, objectId: string) => Promise<void>;
-    resumeGameSeed: (shop: GameShop, objectId: string) => Promise<void>;
-    saveGlobalTrackers: (
-      manual: string[],
-      url: string | null,
-      appendManual: boolean,
-      appendUrl: boolean
-    ) => Promise<void>;
-    updateDownloadQueuePosition: (
-      shop: GameShop,
-      objectId: string,
-      direction: "up" | "down"
-    ) => Promise<boolean>;
-    setDownloadQueuePosition: (
-      shop: GameShop,
-      objectId: string,
-      targetIndex: number
-    ) => Promise<boolean>;
-    setPausedDownloadPosition: (
-      shop: GameShop,
-      objectId: string,
-      targetIndex: number
-    ) => Promise<boolean>;
-    moveDownloadPlacement: (
-      shop: GameShop,
-      objectId: string,
-      targetArea: "hero" | "queue" | "paused",
-      targetIndex?: number
-    ) => Promise<boolean>;
-    getDownloadLayoutState: () => Promise<DownloadLayoutState>;
-    onDownloadProgress: (
-      cb: (value: DownloadProgress | null) => void
-    ) => () => Electron.IpcRenderer;
-    onSeedingStatus: (
-      cb: (value: SeedingStatus[]) => void
-    ) => () => Electron.IpcRenderer;
-    onHardDelete: (cb: () => void) => () => Electron.IpcRenderer;
-    getTorrentFiles: (
-      magnet: string
-    ) => Promise<
-      { ok: true; data: TorrentFilesResponse } | { ok: false; error: string }
-    >;
-
     /* Catalogue */
     getGameShopDetails: (
       objectId: string,
       shop: GameShop,
       language: string
     ) => Promise<ShopDetailsWithAssets | null>;
-    getRandomGame: () => Promise<Steam250Game>;
     getGameStats: (objectId: string, shop: GameShop) => Promise<GameStats>;
     getGameAssets: (
       objectId: string,
@@ -425,10 +356,6 @@ declare global {
       objectId: string,
       collectionIds: string[]
     ) => Promise<void>;
-    clearNewDownloadOptions: (
-      shop: GameShop,
-      objectId: string
-    ) => Promise<void>;
     toggleGamePin: (
       shop: GameShop,
       objectId: string,
@@ -457,12 +384,6 @@ declare global {
     verifyExecutablePathInUse: (executablePath: string) => Promise<Game>;
     getLibrary: () => Promise<LibraryGame[]>;
     refreshLibraryAssets: () => Promise<void>;
-    openGameInstaller: (shop: GameShop, objectId: string) => Promise<boolean>;
-    getGameInstallerActionType: (
-      shop: GameShop,
-      objectId: string
-    ) => Promise<"install" | "open-folder">;
-    openGameInstallerPath: (shop: GameShop, objectId: string) => Promise<void>;
     openGameWinetricks: (shop: GameShop, objectId: string) => Promise<boolean>;
     openGameExecutablePath: (shop: GameShop, objectId: string) => Promise<void>;
     getGameSaveFolder: (
@@ -519,7 +440,6 @@ declare global {
       ) => void
     ) => () => Electron.IpcRenderer;
     onLibraryBatchComplete: (cb: () => void) => () => Electron.IpcRenderer;
-    onDownloadsUpdated: (cb: () => void) => () => Electron.IpcRenderer;
     onClassicsImportStatus: (
       cb: (importing: boolean) => void
     ) => () => Electron.IpcRenderer;
@@ -583,10 +503,6 @@ declare global {
     ) => Promise<void>;
     resetGamePlayTime: (shop: GameShop, objectId: string) => Promise<void>;
     /* User preferences */
-    authenticateRealDebrid: (apiToken: string) => Promise<RealDebridUser>;
-    authenticatePremiumize: (apiToken: string) => Promise<PremiumizeUser>;
-    authenticateAllDebrid: (apiToken: string) => Promise<AllDebridUser>;
-    authenticateTorBox: (apiToken: string) => Promise<TorBoxUser>;
     getUserPreferences: () => Promise<UserPreferences | null>;
     updateUserPreferences: (
       preferences: Partial<UserPreferences>
@@ -943,7 +859,6 @@ declare global {
       enabled: boolean;
       minimized: boolean;
     }) => Promise<void>;
-    extractGameDownload: (shop: GameShop, objectId: string) => Promise<boolean>;
     scanInstalledGames: (
       additionalDirectories?: string[],
       includeDefaultDirectories?: boolean,
@@ -975,29 +890,9 @@ declare global {
       executablePath: string;
       iconUrl: string | null;
     } | null>;
-    onExtractionComplete: (
-      cb: (shop: GameShop, objectId: string) => void
-    ) => () => Electron.IpcRenderer;
-    onExtractionProgress: (
-      cb: (shop: GameShop, objectId: string, progress: number) => void
-    ) => () => Electron.IpcRenderer;
-    onExtractionFailed: (
-      cb: (
-        shop: GameShop,
-        objectId: string,
-        failure: ExtractionFailure | null
-      ) => void
-    ) => () => Electron.IpcRenderer;
-    onDownloadHalted: (
-      cb: (gameTitle: string) => void
-    ) => () => Electron.IpcRenderer;
     onGameExecutableNotFound: (
       cb: (shop: GameShop, objectId: string) => void
     ) => () => Electron.IpcRenderer;
-    onArchiveDeletionPrompt: (
-      cb: (archivePaths: string[]) => void
-    ) => () => Electron.IpcRenderer;
-    deleteArchive: (filePath: string) => Promise<boolean>;
     getDefaultWinePrefixSelectionPath: () => Promise<string | null>;
     createSteamShortcut: (
       shop: GameShop,
@@ -1008,16 +903,6 @@ declare global {
     checkSteamShortcut: (shop: GameShop, objectId: string) => Promise<boolean>;
 
     /* Download sources */
-    addDownloadSource: (url: string) => Promise<DownloadSource>;
-    removeDownloadSource: (
-      removeAll = false,
-      downloadSourceId?: string
-    ) => Promise<void>;
-    getDownloadSources: () => Promise<DownloadSource[]>;
-    syncDownloadSources: () => Promise<void>;
-    getDownloadSourcesCheckBaseline: () => Promise<string | null>;
-    getDownloadSourcesSinceValue: () => Promise<string | null>;
-
     /* Hardware */
     getDiskFreeSpace: (path: string) => Promise<DiskUsage | null>;
     checkFolderWritePermission: (path: string) => Promise<boolean>;
@@ -1341,7 +1226,6 @@ declare global {
     syncFriendRequests: (friendRequestCount: number) => Promise<void>;
 
     /* Notifications */
-    publishNewRepacksNotification: (newRepacksCount: number) => Promise<void>;
     getLocalNotifications: () => Promise<LocalNotification[]>;
     getLocalNotificationsCount: () => Promise<number>;
     markLocalNotificationRead: (id: string) => Promise<void>;
@@ -1411,10 +1295,6 @@ declare global {
     onNavigate: (cb: (path: string) => void) => () => Electron.IpcRenderer;
 
     /* Download Options */
-    onNewDownloadOptions: (
-      cb: (gamesWithNewOptions: { gameId: string; count: number }[]) => void
-    ) => () => Electron.IpcRenderer;
-
     /* LevelDB Generic CRUD */
     leveldb: {
       get: (

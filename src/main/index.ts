@@ -19,12 +19,10 @@ import {
   WindowManager,
   Lock,
   PowerSaveBlockerManager,
-  DownloadOrchestrator,
   SSEClient,
   emulators,
 } from "@main/services";
 import resources from "@locales";
-import { TorrentService } from "./services/torrent-service";
 import { db, gamesSublevel, levelKeys } from "./level";
 import { GameShop, UserPreferences } from "@types";
 import { launchGame, openClassicsGame } from "./helpers";
@@ -207,7 +205,7 @@ const initializeApp = async () => {
       app.quit();
       return;
     }
-    // Whatever failed (offline API, torrent service…), the watchers — achievements, playtime,
+    // Whatever failed (offline API…), the watchers — achievements, playtime,
     // downloads — must still run.
     void startMainLoop();
   }
@@ -215,10 +213,6 @@ const initializeApp = async () => {
   // Suspend can outlive the 60s stall watchdog; reconnect right away instead
   powerMonitor.on("resume", () => {
     SSEClient.reconnectNow();
-    DownloadOrchestrator.onNetworkStatusChanged({
-      online: true,
-      switched: true,
-    });
   });
 
   const language = await db
@@ -413,7 +407,6 @@ app.on("before-quit", async (e) => {
     PowerSaveBlockerManager.reset();
     const results = await Promise.allSettled([
       Lock.releaseLock(),
-      TorrentService.shutdown(),
       clearGamesPlaytime(),
       emulators.stopAllEmulatorSouvenirCaptureSessions(),
     ]);

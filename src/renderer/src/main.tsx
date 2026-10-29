@@ -27,9 +27,7 @@ import { addCookieInterceptor } from "./cookies";
 import { clearStateFromPreviousSession } from "./session-state";
 import { ErrorBoundary } from "./components/error-boundary/error-boundary";
 import { levelDBService } from "./services/leveldb.service";
-import Catalogue from "./pages/catalogue/catalogue";
 import Home from "./pages/home/home";
-import Downloads from "./pages/downloads/downloads";
 import GameDetails from "./pages/game-details/game-details";
 import Settings from "./pages/settings/settings";
 import Profile from "./pages/profile/profile";
@@ -46,9 +44,7 @@ import FriendsWindow from "./pages/friends-window/friends-window";
 import AuthWindow from "./pages/auth-window/auth-window";
 import RetroAchievementsConnectionWindow from "./pages/retroachievements-connection-window/retroachievements-connection-window";
 import BigPictureApp from "../../big-picture/src/app";
-import BigPictureCatalogue from "../../big-picture/src/pages/catalogue/catalogue";
 import BigPictureComponentLab from "../../big-picture/src/pages/component-lab/component-lab";
-import BigPictureDownloads from "../../big-picture/src/pages/downloads/downloads";
 import BigPictureHome from "../../big-picture/src/pages/home/home";
 import BigPictureSettings from "../../big-picture/src/pages/settings/settings";
 import BigPictureLibrary from "../../big-picture/src/pages/library/page";
@@ -146,9 +142,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
               <Routes>
                 <Route element={<App />}>
                   <Route path="/" element={<Home />} />
-                  <Route path="/catalogue" element={<Catalogue />} />
                   <Route path="/library" element={<Library />} />
-                  <Route path="/downloads" element={<Downloads />} />
                   <Route
                     path="/game/:shop/:objectId"
                     element={<GameDetails />}
@@ -182,12 +176,10 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
 
                 <Route path="/big-picture" element={<BigPictureApp />}>
                   <Route index element={<BigPictureHome />} />
-                  <Route path="catalogue" element={<BigPictureCatalogue />} />
                   <Route
                     path="component-lab"
                     element={<BigPictureComponentLab />}
                   />
-                  <Route path="downloads" element={<BigPictureDownloads />} />
                   <Route path="settings" element={<BigPictureSettings />} />
                   <Route path="library" element={<BigPictureLibrary />} />
                   <Route path="trophies" element={<BigPictureTrophies />} />

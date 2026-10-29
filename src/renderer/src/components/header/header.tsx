@@ -11,7 +11,7 @@ import {
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
 import { Tooltip } from "react-tooltip";
-import { SidebarAddingCustomGameModal } from "@renderer/components/sidebar/sidebar-adding-custom-game-modal";
+import { SidebarAddingCustomGameModal } from "@renderer/components/add-custom-game-modal/add-custom-game-modal";
 
 import {
   useAppDispatch,
@@ -23,7 +23,7 @@ import {
 import "./header.scss";
 import { AutoUpdateSubHeader } from "./auto-update-sub-header";
 import { ScanGamesModal, type ScanResult } from "./scan-games-modal";
-import { setFilters, setLibrarySearchQuery } from "@renderer/features";
+import { setLibrarySearchQuery } from "@renderer/features";
 import cn from "classnames";
 import { SearchDropdown } from "@renderer/components";
 import { buildGameDetailsPath } from "@renderer/helpers";
@@ -43,16 +43,6 @@ const NAV_ITEMS: {
     path: "/library",
     labelKey: "sidebar:library",
     match: (p) => p.startsWith("/library"),
-  },
-  {
-    path: "/catalogue",
-    labelKey: "sidebar:catalogue",
-    match: (p) => p.startsWith("/catalogue"),
-  },
-  {
-    path: "/downloads",
-    labelKey: "sidebar:downloads",
-    match: (p) => p.startsWith("/downloads"),
   },
   {
     path: "/trophies",
@@ -81,24 +71,18 @@ export function Header() {
 
   const { draggingDisabled } = useAppSelector((state) => state.window);
 
-  const catalogueSearchValue = useAppSelector(
-    (state) => state.catalogueSearch.filters.title
-  );
-
   const librarySearchValue = useAppSelector(
     (state) => state.library.searchQuery
   );
 
   const isOnLibraryPage = location.pathname.startsWith("/library");
-  const isOnCataloguePage = location.pathname.startsWith("/catalogue");
 
   const isLibraryScanSupported =
     window.electron.platform === "win32" ||
     window.electron.platform === "linux";
 
-  const searchValue = isOnLibraryPage
-    ? librarySearchValue
-    : catalogueSearchValue;
+  // The search box always filters the library (there is no store catalogue any more).
+  const searchValue = librarySearchValue;
 
   const [localSearchValue, setLocalSearchValue] = useState(searchValue);
   const deferredSearchValue = useDeferredValue(localSearchValue);
@@ -110,14 +94,6 @@ export function Header() {
       debounce((value: string) => {
         dispatch(setLibrarySearchQuery(value));
       }, 180),
-    [dispatch]
-  );
-
-  const debouncedCatalogueSearch = useMemo(
-    () =>
-      debounce((value: string) => {
-        dispatch(setFilters({ title: value }));
-      }, 250),
     [dispatch]
   );
 
@@ -142,15 +118,12 @@ export function Header() {
 
   const { suggestions, isLoading: isLoadingSuggestions } = useSearchSuggestions(
     deferredSearchValue,
-    isOnLibraryPage,
-    isDropdownVisible && isFocused && !isOnCataloguePage,
+    true,
+    isDropdownVisible && isFocused,
     suggestionShop
   );
 
-  const historyItems = getRecentHistory(
-    isOnLibraryPage ? "library" : "catalogue",
-    3
-  );
+  const historyItems = getRecentHistory("library", 3);
 
   const isFullBleedRoute = isFullBleedPath(location.pathname);
 
@@ -172,14 +145,13 @@ export function Header() {
 
   useEffect(() => {
     setLocalSearchValue(searchValue);
-  }, [searchValue, isOnLibraryPage, isOnCataloguePage]);
+  }, [searchValue]);
 
   useEffect(() => {
     return () => {
       debouncedLibrarySearch.cancel();
-      debouncedCatalogueSearch.cancel();
     };
-  }, [debouncedCatalogueSearch, debouncedLibrarySearch]);
+  }, [debouncedLibrarySearch]);
 
   const updateDropdownPosition = () => {
     if (searchContainerRef.current) {
@@ -220,13 +192,7 @@ export function Header() {
 
   const handleSearch = (value: string) => {
     debouncedLibrarySearch.cancel();
-    debouncedCatalogueSearch.cancel();
-
-    if (isOnLibraryPage) {
-      dispatch(setLibrarySearchQuery(value.slice(0, 255)));
-    } else {
-      dispatch(setFilters({ title: value.slice(0, 255) }));
-    }
+    dispatch(setLibrarySearchQuery(value.slice(0, 255)));
     setActiveIndex(-1);
   };
 
@@ -236,25 +202,19 @@ export function Header() {
     setLocalSearchValue(normalizedValue);
     setActiveIndex(-1);
 
-    if (isOnLibraryPage) {
-      debouncedCatalogueSearch.cancel();
-      debouncedLibrarySearch(normalizedValue);
-    } else {
-      debouncedLibrarySearch.cancel();
-      debouncedCatalogueSearch(normalizedValue);
-    }
+    debouncedLibrarySearch(normalizedValue);
+    if (!isOnLibraryPage && normalizedValue.trim()) navigate("/library");
   };
 
   const executeSearch = (query: string) => {
     setLocalSearchValue(query.slice(0, 255));
-    const context = isOnLibraryPage ? "library" : "catalogue";
     if (query.trim()) {
-      addToHistory(query, context);
+      addToHistory(query, "library");
     }
     handleSearch(query);
 
-    if (!isOnLibraryPage && !location.pathname.startsWith("/catalogue")) {
-      navigate("/catalogue");
+    if (!isOnLibraryPage) {
+      navigate("/library");
     }
 
     setIsDropdownVisible(false);
@@ -277,15 +237,9 @@ export function Header() {
 
   const handleClearSearch = () => {
     debouncedLibrarySearch.cancel();
-    debouncedCatalogueSearch.cancel();
 
     setLocalSearchValue("");
-
-    if (isOnLibraryPage) {
-      dispatch(setLibrarySearchQuery(""));
-    } else {
-      dispatch(setFilters({ title: "" }));
-    }
+    dispatch(setLibrarySearchQuery(""));
     setActiveIndex(-1);
   };
 
@@ -484,9 +438,7 @@ export function Header() {
                 ref={inputRef}
                 type="text"
                 name="search"
-                placeholder={
-                  isOnLibraryPage ? t("search_library") : t("search")
-                }
+                placeholder={t("search_library")}
                 value={localSearchValue}
                 className="header__search-input"
                 onChange={(event) => handleInputChange(event.target.value)}
@@ -548,7 +500,7 @@ export function Header() {
         isLoadingSuggestions={isLoadingSuggestions}
         suggestionShop={suggestionShop}
         onSuggestionShopChange={setSuggestionShop}
-        showShopSwitch={!isOnLibraryPage}
+        showShopSwitch={false}
         onSelectHistory={handleSelectHistory}
         onSelectSuggestion={handleSelectSuggestion}
         onRemoveHistoryItem={handleRemoveHistoryItem}

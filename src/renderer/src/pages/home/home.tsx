@@ -11,7 +11,6 @@ import cn from "classnames";
 import { Icon } from "@renderer/components/icon/icon";
 import { useLibrary } from "@renderer/hooks";
 import { buildGameDetailsPath, isGameReadyToPlay } from "@renderer/helpers";
-import { pickShowcase } from "@renderer/helpers/showcase";
 import {
   fetchGameSummary,
   formatSummaryMeta,
@@ -24,14 +23,11 @@ import {
   getTrophyProgress,
   type GameSummary,
 } from "@renderer/helpers/ps5-game";
-import type { LibraryGame, ShopAssets, Steam250Game } from "@types";
+import type { LibraryGame, ShopAssets } from "@types";
 import "./home.scss";
 
 const HERO_ROTATE_MS = 8000;
 const HERO_TILE_COUNT = 8;
-const SESSION_SEED = Date.now() % 100000;
-
-type DiscoverTab = "hot" | "weekly" | "almost";
 
 interface HeroGame {
   key: string;
@@ -159,24 +155,10 @@ export default function Home() {
   const navigate = useNavigate();
   const { library } = useLibrary();
 
-  // "Em alta" / "Mais baixados" come from the bundled showcase (helpers/showcase.ts): instant,
-  // offline-proof and no broken images while the server/CDN load. New shuffle per app session.
-  const catalogue = useMemo<Record<"hot" | "weekly", ShopAssets[]>>(() => {
-    const picks = pickShowcase(24, SESSION_SEED);
-    return { hot: picks.slice(0, 12), weekly: picks.slice(12, 24) };
-  }, []);
-  const [discoverTab, setDiscoverTab] = useState<DiscoverTab>("hot");
-  const [randomGame, setRandomGame] = useState<Steam250Game | null>(null);
   const [focusIndex, setFocusIndex] = useState(0);
   const [summaries, setSummaries] = useState<
     Record<string, GameSummary | null>
   >({});
-
-  useEffect(() => {
-    window.electron.getRandomGame().then((game) => {
-      if (game) setRandomGame(game);
-    });
-  }, []);
 
   const libraryGames = useMemo(
     () => library.filter((game) => !game.isDeleted),
@@ -215,7 +197,7 @@ export default function Home() {
     return last ? getPlatformBadge(last).tone : (platforms[0]?.tone ?? null);
   }, [platform, platforms, libraryGames]);
 
-  // Hero row = most recently played games of the platform; falls back to "Em alta" for a new user.
+  // Hero row = most recently played games of the platform.
   const heroGames = useMemo<HeroGame[]>(() => {
     const played = orderBy(
       libraryGames.filter(
@@ -230,20 +212,12 @@ export default function Home() {
       ["desc", "desc"]
     ).slice(0, HERO_TILE_COUNT);
 
-    if (played.length > 0) {
-      return played.map((game) => ({
-        key: toKey(game),
-        asset: game,
-        libraryGame: game,
-      }));
-    }
-
-    return (catalogue.hot ?? []).slice(0, HERO_TILE_COUNT).map((game) => ({
+    return played.map((game) => ({
       key: toKey(game),
       asset: game,
-      libraryGame: null,
+      libraryGame: game,
     }));
-  }, [libraryGames, catalogue.hot, activePlatform]);
+  }, [libraryGames, activePlatform]);
   const coverRatio = heroGames[0] ? getCoverRatio(heroGames[0].asset) : 2 / 3;
 
   const safeFocusIndex = heroGames.length ? focusIndex % heroGames.length : 0;
@@ -285,32 +259,19 @@ export default function Home() {
     [navigate]
   );
 
-  const handleSurprise = () => {
-    if (randomGame) {
-      navigate(
-        buildGameDetailsPath(
-          { ...randomGame, shop: "steam" },
-          { fromRandomizer: "1" }
-        )
-      );
-    }
-  };
-
-  const discoverGames = useMemo(() => {
-    if (discoverTab === "almost") {
-      return orderBy(
-        // Same rule as the library's "Em andamento": started and not platinum yet.
+  // "Quase lá": started and not platinum yet (same rule as the library's "Em andamento").
+  const discoverGames = useMemo(
+    () =>
+      orderBy(
         libraryGames.filter((game) => {
           const progress = getTrophyProgress(game);
           return progress.unlocked > 0 && !progress.isPlatinum;
         }),
         [(game) => getTrophyProgress(game).percent],
         ["desc"]
-      ).slice(0, 6);
-    }
-
-    return catalogue[discoverTab]?.slice(0, 6) ?? null;
-  }, [discoverTab, libraryGames, catalogue]);
+      ).slice(0, 6),
+    [libraryGames]
+  );
 
   const focusSummary = focus ? summaries[focus.key] : null;
   const focusProgress = focus?.libraryGame
@@ -321,12 +282,6 @@ export default function Home() {
   const isFocusReady = focus?.libraryGame
     ? isGameReadyToPlay(focus.libraryGame)
     : false;
-
-  const discoverTabs: { key: DiscoverTab; icon: string; label: string }[] = [
-    { key: "hot", icon: "graph", label: t("discover_hot") },
-    { key: "weekly", icon: "star", label: t("discover_weekly") },
-    { key: "almost", icon: "trophy", label: t("discover_almost") },
-  ];
 
   return (
     <div className="home">
@@ -478,67 +433,36 @@ export default function Home() {
 
       <section className="home-discover">
         <div className="home-discover__header">
-          {discoverTabs.map((tab) => (
-            <button
-              key={tab.key}
-              type="button"
-              className={cn("home-discover__tab", {
-                "home-discover__tab--active": discoverTab === tab.key,
-              })}
-              onClick={() => setDiscoverTab(tab.key)}
-            >
-              <Icon name={tab.icon} size={18} />
-              <span>{tab.label}</span>
-            </button>
-          ))}
-
-          <div className="home-discover__grow" />
-
-          <button
-            type="button"
-            className="home-discover__surprise"
-            onClick={handleSurprise}
-            disabled={!randomGame}
-          >
-            <Icon name="sync" size={16} />
-            <span>{t("surprise_me")}</span>
-          </button>
+          <span className="home-discover__tab home-discover__tab--active">
+            <Icon name="trophy" size={18} />
+            <span>{t("discover_almost")}</span>
+          </span>
         </div>
 
         <div className="home-discover__grid">
-          {discoverGames === null
-            ? Array.from({ length: 6 }).map((_, index) => (
-                <div key={index} className="home-discover__skeleton">
-                  <div className="home-discover__art ps5-shimmer" />
-                  <div className="home-discover__skeleton-line ps5-shimmer" />
-                </div>
-              ))
-            : discoverGames.map((game) => {
-                const progress =
-                  discoverTab === "almost" ? getTrophyProgress(game) : null;
+          {discoverGames.map((game) => {
+            const progress = getTrophyProgress(game);
 
-                return (
-                  <DiscoverCard
-                    key={toKey(game)}
-                    game={game}
-                    sub={
-                      progress
-                        ? t("almost_platinum_sub", {
-                            percent: progress.percent,
-                            count: progress.total - progress.unlocked,
-                          })
-                        : null
-                    }
-                    onOpen={() => openGame(game)}
-                  />
-                );
-              })}
+            return (
+              <DiscoverCard
+                key={toKey(game)}
+                game={game}
+                sub={
+                  progress
+                    ? t("almost_platinum_sub", {
+                        percent: progress.percent,
+                        count: progress.total - progress.unlocked,
+                      })
+                    : null
+                }
+                onOpen={() => openGame(game)}
+              />
+            );
+          })}
         </div>
 
-        {discoverGames !== null && discoverGames.length === 0 && (
-          <p className="home-discover__empty">
-            {discoverTab === "almost" ? t("almost_empty") : t("discover_empty")}
-          </p>
+        {discoverGames.length === 0 && (
+          <p className="home-discover__empty">{t("almost_empty")}</p>
         )}
       </section>
     </div>

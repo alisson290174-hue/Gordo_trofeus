@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from "react";
 import { useTranslation } from "react-i18next";
 import {
-  useDownload,
   useGameCollections,
+  useGameRemoval,
   useLibrary,
   useToast,
 } from "@renderer/hooks";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import {
   buildGameDetailsPath,
   handleClassicsLaunchError,
@@ -22,15 +22,9 @@ export function useGameActions(game: GameContextMenuGame) {
   const { library, updateLibrary } = useLibrary();
   const { loadCollections } = useGameCollections();
   const navigate = useNavigate();
-  const location = useLocation();
   const { openGameOptionsModal } = useGameOptionsModal();
-  const {
-    removeGameInstaller,
-    removeGameFromLibrary,
-    isGameDeleting,
-    lastPacket,
-    cancelDownload,
-  } = useDownload();
+  const { removeGameInstaller, removeGameFromLibrary, isGameDeleting } =
+    useGameRemoval();
 
   const [creatingSteamShortcut, setCreatingSteamShortcut] = useState(false);
   const [creatingShortcut, setCreatingShortcut] = useState(false);
@@ -44,9 +38,6 @@ export function useGameActions(game: GameContextMenuGame) {
   const canPlay =
     Boolean(game.executablePath) || (isClassics && hasClassicsDiscs);
   const isDeleting = isGameDeleting(game.id ?? "");
-  const isGameDownloading =
-    game.download?.status === "active" && lastPacket?.gameId === game.id;
-  const hasRepacks = true;
   useEffect(() => {
     const unsubscribe = window.electron.onGamesRunning((gamesIds) => {
       const updatedIsGameRunning =
@@ -102,15 +93,9 @@ export function useGameActions(game: GameContextMenuGame) {
       objectId: game.objectId,
     });
 
+    // No executable yet: open the game options so one can be picked.
     if (!canPlay) {
-      if (location.pathname !== detailsPath) {
-        navigate(detailsPath, { state: { openRepacks: true } });
-      }
-      globalThis.dispatchEvent(
-        new CustomEvent("hydra:openRepacks", {
-          detail: { objectId: game.objectId },
-        })
-      );
+      handleOpenGameOptions();
       return;
     }
 
@@ -240,24 +225,6 @@ export function useGameActions(game: GameContextMenuGame) {
     }
   };
 
-  const handleOpenDownloadOptions = () => {
-    const path = buildGameDetailsPath({
-      ...game,
-      objectId: game.objectId,
-    });
-    navigate(path, { state: { openRepacks: true } });
-
-    try {
-      window.dispatchEvent(
-        new CustomEvent("hydra:openRepacks", {
-          detail: { objectId: game.objectId },
-        })
-      );
-    } catch (e) {
-      void e;
-    }
-  };
-
   const handleOpenGameOptions = (initialCategory?: GameSettingsCategoryId) => {
     const libraryGame = library.find(
       (item) => item.objectId === game.objectId && item.shop === game.shop
@@ -311,21 +278,8 @@ export function useGameActions(game: GameContextMenuGame) {
     }
   };
 
-  const handleOpenDownloadLocation = async () => {
-    try {
-      await window.electron.openGameInstallerPath(game.shop, game.objectId);
-    } catch (error) {
-      showErrorToast("Failed to open download location");
-      logger.error("Failed to open download location", error);
-    }
-  };
-
   const handleRemoveFromLibrary = async () => {
     try {
-      if (isGameDownloading) {
-        await cancelDownload(game.shop, game.objectId);
-      }
-
       await removeGameFromLibrary(game.shop, game.objectId);
       await Promise.all([updateLibrary(), loadCollections()]);
       showSuccessToast(t("game_removed_from_library"));
@@ -367,9 +321,7 @@ export function useGameActions(game: GameContextMenuGame) {
   return {
     canPlay,
     isDeleting,
-    isGameDownloading,
     isGameRunning,
-    hasRepacks,
     creatingShortcut,
     creatingSteamShortcut,
     rpcs3ConfirmPending,
@@ -379,8 +331,6 @@ export function useGameActions(game: GameContextMenuGame) {
     handleCreateShortcut,
     handleCreateSteamShortcut,
     handleOpenFolder,
-    handleOpenDownloadOptions,
-    handleOpenDownloadLocation,
     handleTogglePin,
     handleRemoveFromLibrary,
     handleRemoveFiles,

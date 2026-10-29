@@ -1,14 +1,12 @@
 import {
   BookOpenIcon,
   ClockCountdownIcon,
-  DownloadSimpleIcon,
   GearIcon,
   HouseIcon,
   MagnifyingGlassIcon,
   PlayIcon,
   PuzzlePieceIcon,
   SignOutIcon,
-  SquaresFourIcon,
   StarIcon,
 } from "@phosphor-icons/react";
 import { AuthPage, getDisplayedPlayTimeInMilliseconds } from "@shared";
@@ -46,11 +44,7 @@ import {
   getItemFocusTarget,
   getBigPictureGameAchievementsPath,
 } from "../../helpers";
-import {
-  initializeBigPictureDownloadsStore,
-  useBigPictureDownloadsStore,
-} from "../../stores/downloads.store";
-import type { DownloadProgress, LibraryGame } from "@types";
+import type { LibraryGame } from "@types";
 import type { FocusNode, FocusOverrides, FocusRegion } from "../../services";
 import { useNavigationSnapshot, useVirtualKeyboardStore } from "../../stores";
 import {
@@ -81,7 +75,7 @@ import {
   useLibraryLaunchGame,
   useLibraryPendingAction,
 } from "../../components/pages/library";
-import { ConfirmationModal, DownloadGameModal } from "../../components/modals";
+import { ConfirmationModal } from "../../components/modals";
 import { SidebarNotificationsDropdown } from "./notifications-dropdown";
 import "./styles.scss";
 
@@ -227,56 +221,8 @@ function compareGamesByPlaytime(a: LibraryGame, b: LibraryGame) {
   return compareGamesByTitle(a, b);
 }
 
-function formatSidebarProgress(progress?: number | null) {
-  if (!progress || !Number.isFinite(progress)) return "0%";
-
-  const percentage = Math.round(Math.min(Math.max(progress, 0), 1) * 100);
-
-  return `${percentage}%`;
-}
-
-function getSidebarGameStatus(
-  game: LibraryGame,
-  runningGameIds: Set<string>,
-  lastDownloadPacket: DownloadProgress | null,
-  extractionProgressByGameId: Record<string, number>
-) {
-  if (runningGameIds.has(game.id)) {
-    return "Playing now";
-  }
-
-  const download = game.download;
-  if (!download) return null;
-
-  if (download.extracting || download.status === "extracting") {
-    const progress =
-      extractionProgressByGameId[game.id] ?? download.extractionProgress;
-
-    return `Extracting - ${formatSidebarProgress(progress)}`;
-  }
-
-  if (download.status === "active") {
-    const progress =
-      lastDownloadPacket?.gameId === game.id
-        ? lastDownloadPacket.progress
-        : download.progress;
-
-    return `Downloading - ${formatSidebarProgress(progress)}`;
-  }
-
-  if (download.status === "seeding") {
-    return "Seeding";
-  }
-
-  if (download.queued) {
-    return "Download Queued";
-  }
-
-  if (download.status === "paused") {
-    return "Download Paused";
-  }
-
-  return null;
+function getSidebarGameStatus(game: LibraryGame, runningGameIds: Set<string>) {
+  return runningGameIds.has(game.id) ? "Playing now" : null;
 }
 
 function getSidebarLibraryFilterIcon(filter: SidebarLibraryFilter) {
@@ -349,22 +295,10 @@ function SidebarRouter() {
         icon: HouseIcon,
       },
       {
-        key: "catalogue",
-        label: "Catalogue",
-        path: `${basePath}/catalogue`,
-        icon: SquaresFourIcon,
-      },
-      {
         key: "library",
         label: "Library",
         path: `${basePath}/library`,
         icon: BookOpenIcon,
-      },
-      {
-        key: "downloads",
-        label: "Download",
-        path: `${basePath}/downloads`,
-        icon: DownloadSimpleIcon,
       },
       {
         key: "settings",
@@ -476,12 +410,6 @@ function SidebarLibrary({
   onOpenContextMenu,
 }: Readonly<SidebarLibraryProps>) {
   const { pathname } = useLocation();
-  const lastDownloadPacket = useBigPictureDownloadsStore(
-    (state) => state.lastPacket
-  );
-  const extractionProgressByGameId = useBigPictureDownloadsStore(
-    (state) => state.extractionProgressByGameId
-  );
   const runningGameIds = useMemo(
     () => new Set(Object.keys(runningGamesById)),
     [runningGamesById]
@@ -503,12 +431,6 @@ function SidebarLibrary({
       return;
     }
   }, [selectedLibraryFilter]);
-
-  useEffect(() => {
-    if (!IS_DESKTOP) return;
-
-    initializeBigPictureDownloadsStore();
-  }, []);
 
   const sidebarLibrary = useMemo(() => {
     return filterSidebarLibraryGames(library, selectedLibraryFilter);
@@ -657,12 +579,7 @@ function SidebarLibrary({
                     normalizedPathname === desktopPath ||
                     (activeGameRoute?.shop === game.shop &&
                       activeGameRoute.objectId === game.objectId);
-                  const status = getSidebarGameStatus(
-                    game,
-                    runningGameIds,
-                    lastDownloadPacket,
-                    extractionProgressByGameId
-                  );
+                  const status = getSidebarGameStatus(game, runningGameIds);
 
                   const openContextMenuFromRect = (
                     rect: DOMRect,
@@ -1052,19 +969,6 @@ function Sidebar() {
     [navigate]
   );
 
-  const [downloadModalGame, setDownloadModalGame] =
-    useState<LibraryGame | null>(null);
-
-  const handleCloseDownloadModal = useCallback(() => {
-    setDownloadModalGame(null);
-  }, []);
-
-  const handleLaunchOrDownload = useLibraryLaunchGame(
-    useCallback((game: LibraryGame) => {
-      setDownloadModalGame(game);
-    }, [])
-  );
-
   const [settingsModalGame, setSettingsModalGame] =
     useState<LibraryGame | null>(null);
 
@@ -1075,6 +979,9 @@ function Sidebar() {
   const handleCloseGameSettingsModal = useCallback(() => {
     setSettingsModalGame(null);
   }, []);
+
+  // No executable yet: open the game settings to pick one.
+  const handleLaunchOrDownload = useLibraryLaunchGame(handleOpenGameSettings);
 
   return (
     <>
@@ -1117,15 +1024,6 @@ function Sidebar() {
         onUninstall={requestRemoveFiles}
         onRemoveFromLibrary={requestRemoveFromLibrary}
       />
-
-      {downloadModalGame ? (
-        <DownloadGameModal
-          key={downloadModalGame.id}
-          visible
-          onClose={handleCloseDownloadModal}
-          game={downloadModalGame}
-        />
-      ) : null}
 
       {settingsModalGame ? (
         <LibraryGameSettingsModal

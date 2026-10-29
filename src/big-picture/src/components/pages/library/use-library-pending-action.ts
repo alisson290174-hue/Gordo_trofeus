@@ -34,30 +34,6 @@ function restoreFocus(id: string, setFocus?: (id: string) => void) {
   });
 }
 
-function isDownloadCancellationRequired(game: LibraryGame) {
-  return (
-    game.download?.status === "active" ||
-    game.download?.status === "extracting" ||
-    game.download?.extracting
-  );
-}
-
-async function stopGameActivity(action: PendingAction) {
-  const { game, type } = action;
-
-  if (isDownloadCancellationRequired(game)) {
-    await globalThis.window.electron.cancelGameDownload(
-      game.shop,
-      game.objectId
-    );
-    return;
-  }
-
-  if (type === "remove-files" && game.download?.status === "seeding") {
-    await globalThis.window.electron.pauseGameSeed(game.shop, game.objectId);
-  }
-}
-
 async function executePendingAction(action: PendingAction) {
   const { game, type } = action;
 
@@ -158,7 +134,6 @@ export function useLibraryPendingAction({
     setIsSubmittingAction(true);
 
     try {
-      await stopGameActivity(currentAction);
       await executePendingAction(currentAction);
 
       await onDataRefresh();
