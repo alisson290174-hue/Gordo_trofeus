@@ -80,10 +80,13 @@ export const mergePersistedAchievementTotals = (
     unlockedAchievementCount?: number | null;
   }
 ) => ({
+  // Same for the total: the server's list, when it has one, over an old number saved here.
   achievementCount: resolveAchievementCount(
     shop,
     objectId,
-    Math.max(local.achievementCount ?? 0, remote.achievementCount ?? 0)
+    (remote.achievementCount ?? 0) > 0
+      ? remote.achievementCount
+      : Math.max(local.achievementCount ?? 0, remote.achievementCount ?? 0)
   ),
   // When the server knows the game (it has its trophy list), its count is the reference, plus
   // anything the live list in memory holds that wasn't uploaded yet. The count saved on this PC
