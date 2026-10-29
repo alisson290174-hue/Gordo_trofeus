@@ -126,3 +126,21 @@ describe("AchievementMemoryStore", () => {
     );
   });
 });
+
+describe("mergePersistedAchievementTotals with a stale local count", () => {
+  it("follows the server when it knows the game (old wrong count saved locally)", () => {
+    AchievementMemoryStore.set("steam", "1174180", {
+      achievements: [],
+      unlockedAchievements: [],
+    } as never);
+    assert.deepEqual(
+      mergePersistedAchievementTotals(
+        "steam",
+        "1174180",
+        { achievementCount: 34, unlockedAchievementCount: 34 },
+        { achievementCount: 34, unlockedAchievementCount: 27 }
+      ),
+      { achievementCount: 34, unlockedAchievementCount: 27 }
+    );
+  });
+});

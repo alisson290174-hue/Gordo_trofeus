@@ -66,6 +66,11 @@ export const mergeLocalAndRemotePlayTime = (
       local.playTimeInMilliseconds ?? 0,
       hydraMs
     ),
-    steamPlayTimeInMilliseconds: steamMs,
+    // Steam's own count only grows. Opus's server doesn't store it (it comes from the Steam
+    // account sync), so its 0 must not wipe the 39 h the sync just wrote.
+    steamPlayTimeInMilliseconds: Math.max(
+      local.steamPlayTimeInMilliseconds ?? 0,
+      steamMs
+    ),
   };
 };

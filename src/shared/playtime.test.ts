@@ -42,6 +42,16 @@ describe("getPlayTimeHoursAndMinutes", () => {
 });
 
 describe("mergeLocalAndRemotePlayTime", () => {
+  it("keeps the Steam hours from the account sync when the server sends none", () => {
+    assert.deepEqual(
+      mergeLocalAndRemotePlayTime(
+        { playTimeInMilliseconds: 0, steamPlayTimeInMilliseconds: 140_760_000 },
+        { playTimeInMilliseconds: 0 }
+      ),
+      { playTimeInMilliseconds: 0, steamPlayTimeInMilliseconds: 140_760_000 }
+    );
+  });
+
   it("keeps local Hydra hours and adds Steam from runtimeByPlatform", () => {
     assert.deepEqual(
       mergeLocalAndRemotePlayTime(

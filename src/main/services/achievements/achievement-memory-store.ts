@@ -85,12 +85,18 @@ export const mergePersistedAchievementTotals = (
     objectId,
     Math.max(local.achievementCount ?? 0, remote.achievementCount ?? 0)
   ),
+  // When the server knows the game (it has its trophy list), its count is the reference, plus
+  // anything the live list in memory holds that wasn't uploaded yet. The count saved on this PC
+  // is left out then: a wrong old value (RDR2 counted its online trophies: "34 of 34" with 27
+  // real) would otherwise win the max forever.
   unlockedAchievementCount: resolveUnlockedAchievementCount(
     shop,
     objectId,
-    Math.max(
-      local.unlockedAchievementCount ?? 0,
-      remote.unlockedAchievementCount ?? 0
-    )
+    (remote.achievementCount ?? 0) > 0
+      ? (remote.unlockedAchievementCount ?? 0)
+      : Math.max(
+          local.unlockedAchievementCount ?? 0,
+          remote.unlockedAchievementCount ?? 0
+        )
   ),
 });
