@@ -103,3 +103,12 @@ describe("searchTermsFor", () => {
     assert.deepEqual(searchTermsFor("Firewatch"), ["Firewatch"]);
   });
 });
+
+describe("isConfidentTitleMatch — sequels", () => {
+  it("never takes a numbered sequel for the original", () => {
+    assert.ok(!isConfidentTitleMatch("The Outer Worlds", "The Outer Worlds 2"));
+    assert.ok(!isConfidentTitleMatch("Hades", "Hades II"));
+    assert.ok(isConfidentTitleMatch("Hades II", "Hades II"));
+    assert.ok(isConfidentTitleMatch("DOOM 64", "DOOM 64"));
+  });
+});

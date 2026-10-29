@@ -139,6 +139,12 @@ export const loadState = async () => {
     // Epic account (if connected): refresh owned games and installed state. Local only.
     void getEpicStatus()
       .then((status) => (status.connected ? syncEpicLibrary() : 0))
+      // Epic games whose only "tall" art is near-square get Steam's vertical case instead.
+      .then(() =>
+        import("./services/epic/epic-cover-backfill").then(
+          ({ backfillEpicCovers }) => backfillEpicCovers()
+        )
+      )
       .catch((error) => logger.error("[epic] boot sync failed", error));
     // Steam account games (list from our server, installed state from Steam's files).
     void syncSteamOwnedLibrary().catch((error) =>

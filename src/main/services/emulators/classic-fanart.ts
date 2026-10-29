@@ -69,7 +69,7 @@ const loadSizes = () => {
   return sizes!;
 };
 
-const saveSizes = () => {
+export const saveSizes = () => {
   try {
     fs.writeFileSync(sizesFile(), JSON.stringify(sizes ?? {}));
   } catch (error) {
@@ -80,7 +80,7 @@ const saveSizes = () => {
 const FIRST_BYTES = 128 * 1024;
 
 /** Reads only the start of the picture (where its dimensions are). null = could not tell. */
-const measure = async (url: string): Promise<Size | null> => {
+export const measure = async (url: string): Promise<Size | null> => {
   const known = loadSizes()[url];
   if (known) return known[0] ? { width: known[0], height: known[1] } : null;
   // Aborting (instead of cancelling the stream, which could hang) stops the download once the

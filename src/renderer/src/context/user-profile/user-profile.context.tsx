@@ -1,3 +1,4 @@
+import { toLocalUrl } from "@shared";
 import {
   appendProfileLibraryFilterParams,
   darkenColor,
@@ -161,7 +162,7 @@ export function UserProfileContextProvider({
 
   const getBackgroundImageUrl = () => {
     if (selectedBackgroundImage && isMe)
-      return `local:${selectedBackgroundImage}`;
+      return toLocalUrl(selectedBackgroundImage);
     if (userProfile?.backgroundImageUrl) return userProfile.backgroundImageUrl;
 
     return "";

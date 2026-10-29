@@ -1,3 +1,4 @@
+import { toLocalUrl } from "@shared";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -112,7 +113,7 @@ const artFile = (dir: string, name: string) => {
   for (const ext of IMAGE_EXTS) {
     const file = path.join(dir, name + ext);
     // Forward slashes: these URLs also go into CSS url(), where "\E" would be an escape.
-    if (fs.existsSync(file)) return `local:${file.replaceAll("\\", "/")}`;
+    if (fs.existsSync(file)) return toLocalUrl(file.replaceAll("\\", "/"));
   }
   return null;
 };

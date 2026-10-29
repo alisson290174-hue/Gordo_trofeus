@@ -1,3 +1,4 @@
+import { normalizeLocalUrl, toLocalUrl } from "@shared";
 import { LibraryGame } from "@types";
 import { Icon } from "@renderer/components/icon/icon";
 import { getDisplayedPlayTimeInMilliseconds } from "@shared";
@@ -94,15 +95,12 @@ export const LibraryGameCard = memo(function LibraryGameCard({
     }
 
     if (trimmedImageUrl.startsWith("local:")) {
-      const normalizedLocalPath = trimmedImageUrl
-        .slice("local:".length)
-        .replaceAll("\\", "/");
-      return `local:${normalizedLocalPath}`;
+      return normalizeLocalUrl(trimmedImageUrl);
     }
 
     const normalizedPath = trimmedImageUrl.replaceAll("\\", "/");
     if (/^[A-Za-z]:\//.test(normalizedPath) || normalizedPath.startsWith("/")) {
-      return `local:${normalizedPath}`;
+      return toLocalUrl(normalizedPath);
     }
 
     return normalizedPath;

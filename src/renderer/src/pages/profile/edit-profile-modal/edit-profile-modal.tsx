@@ -1,3 +1,4 @@
+import { toLocalUrl } from "@shared";
 import { useContext, useEffect, useState } from "react";
 import { Icon } from "@renderer/components/icon/icon";
 import { Controller, useForm } from "react-hook-form";
@@ -139,7 +140,7 @@ export function EditProfileModal(
               };
 
               const getImageUrl = () => {
-                if (value) return `local:${value}`;
+                if (value) return toLocalUrl(value);
                 if (userDetails?.profileImageUrl)
                   return userDetails.profileImageUrl;
 

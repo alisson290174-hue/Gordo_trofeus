@@ -1,3 +1,4 @@
+import { toLocalUrl } from "@shared";
 import { Icon } from "@renderer/components/icon/icon";
 import {
   useCallback,
@@ -153,7 +154,7 @@ const getCustomAssetUrl = (
   currentUrl: string | null | undefined
 ) => {
   if (removed) return null;
-  if (assetPath) return `local:${assetPath}`;
+  if (assetPath) return toLocalUrl(assetPath);
 
   return currentUrl;
 };
@@ -996,7 +997,7 @@ export function GameAssetsSettings({
     const customAssetUrl = getGameCustomAssetUrl(game, assetType);
 
     if (assetPath) {
-      return `local:${assetPath}`;
+      return toLocalUrl(assetPath);
     }
 
     if (!removedAssets[assetType] && customAssetUrl) {

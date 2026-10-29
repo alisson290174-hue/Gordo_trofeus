@@ -1,3 +1,4 @@
+import { toLocalUrl } from "@shared";
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
@@ -153,7 +154,7 @@ const buildCoverPoster = async (url: string): Promise<string | null> => {
   );
 
   if (fs.existsSync(posterPath)) {
-    return `local:${posterPath}`;
+    return toLocalUrl(posterPath);
   }
 
   const source = await loadAnimatedSource(url).catch(() => null);
@@ -177,7 +178,7 @@ const buildCoverPoster = async (url: string): Promise<string | null> => {
 
   await fs.promises.writeFile(posterPath, poster);
 
-  return `local:${posterPath}`;
+  return toLocalUrl(posterPath);
 };
 
 export const getCoverPoster = async (url: string): Promise<string | null> => {

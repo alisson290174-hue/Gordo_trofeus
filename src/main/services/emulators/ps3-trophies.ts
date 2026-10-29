@@ -1,3 +1,4 @@
+import { toLocalUrl } from "@shared";
 import fs from "node:fs";
 import path from "node:path";
 
@@ -89,8 +90,8 @@ export const syncPs3Trophies = async (
         name: trophy.id,
         displayName: trophy.displayName,
         description: trophy.description,
-        icon: `local:${icon}`,
-        icongray: `local:${icon}`,
+        icon: toLocalUrl(icon),
+        icongray: toLocalUrl(icon),
         hidden: trophy.hidden,
         globalUnlockPercent: PS3_GRADE_PERCENT[trophy.grade],
       };

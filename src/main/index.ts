@@ -28,6 +28,7 @@ import { GameShop, UserPreferences } from "@types";
 import { launchGame, openClassicsGame } from "./helpers";
 import { refreshPortableShortcutLauncher } from "./helpers/shortcut-launch";
 import { DEEP_LINK_SCHEME, isDeepLink } from "./helpers/deep-link";
+import { fromLocalUrl } from "@shared";
 import { lookupCachedPlatform } from "./events/library/get-library";
 import { loadState } from "./main";
 import {
@@ -120,8 +121,8 @@ const initializeApp = async () => {
   // compromised page can't use it to read arbitrary files from the user's disk.
   const LOCAL_MEDIA = /\.(png|jpe?g|webp|gif|bmp|ico|avif|apng|mp4|webm)$/i;
   protocol.handle("local", (request) => {
-    const filePath = decodeURI(request.url.slice("local:".length));
-    if (!LOCAL_MEDIA.test(filePath.split(/[?#]/)[0])) {
+    const filePath = fromLocalUrl(request.url);
+    if (!LOCAL_MEDIA.test(filePath)) {
       return new Response("Forbidden", { status: 403 });
     }
     return net.fetch(url.pathToFileURL(filePath).toString());

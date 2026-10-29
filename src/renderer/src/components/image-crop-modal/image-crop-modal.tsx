@@ -1,3 +1,4 @@
+import { toLocalUrl } from "@shared";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   Grid2x2Icon,
@@ -254,7 +255,7 @@ export function ImageCropModal({
     let objectUrl: string | null = null;
     let isMounted = true;
 
-    fetch(`local:${imagePath}`)
+    fetch(toLocalUrl(imagePath))
       .then((response) => response.blob())
       .then((blob) => {
         if (!isMounted) return;
@@ -263,7 +264,7 @@ export function ImageCropModal({
         setPreviewUrl(objectUrl);
       })
       .catch(() => {
-        if (isMounted) setPreviewUrl(`local:${imagePath}`);
+        if (isMounted) setPreviewUrl(toLocalUrl(imagePath));
       });
 
     return () => {

@@ -1,3 +1,4 @@
+import { toLocalUrl } from "@shared";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
@@ -112,7 +113,7 @@ const processAndCacheImage = async (
   const outputBase = path.join(cacheDir, cacheKey);
   const cachedImage = await findCachedImage(outputBase);
 
-  if (cachedImage) return `local:${cachedImage}`;
+  if (cachedImage) return toLocalUrl(cachedImage);
 
   const tempBase = path.join(
     cacheDir,
@@ -136,7 +137,7 @@ const processAndCacheImage = async (
 
     await fs.promises.rename(processedImage.imagePath, finalPath);
 
-    return `local:${finalPath}`;
+    return toLocalUrl(finalPath);
   } finally {
     await Promise.allSettled([
       fs.promises.unlink(downloadPath),

@@ -1,3 +1,4 @@
+import { normalizeLocalUrl } from "@shared";
 import type { GameShop, LibraryGame } from "@types";
 import { resolveImageSource } from "@renderer/helpers";
 import { getShowcaseArt } from "./showcase";
@@ -120,7 +121,7 @@ export const getTileArt = (game: GameArt): TileArt | null => {
   const cover = getCoverArt(game);
   // Square art made for the strip (local art backup): the whole box or key art + logo, uncropped.
   if (game.tileImageUrl?.startsWith("local:"))
-    return { url: game.tileImageUrl, fallback: cover };
+    return { url: normalizeLocalUrl(game.tileImageUrl), fallback: cover };
   if (game.shop === "launchbox" && cover) {
     const tone = getPlatformBadge(game).tone;
     // PS3 games without a box scan only have the disc's landscape ICON0: no frame for that.

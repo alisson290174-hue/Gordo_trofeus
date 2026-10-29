@@ -1,3 +1,4 @@
+import { toLocalUrl } from "@shared";
 import { registerEvent } from "../register-event";
 import fs from "node:fs";
 import path from "node:path";
@@ -30,7 +31,7 @@ const copyCustomGameAsset = async (
 
   await fs.promises.copyFile(sourcePath, destinationPath);
 
-  return `local:${destinationPath}`;
+  return toLocalUrl(destinationPath);
 };
 
 registerEvent("copyCustomGameAsset", copyCustomGameAsset);

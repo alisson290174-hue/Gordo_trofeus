@@ -1,3 +1,4 @@
+import { normalizeLocalUrl, toLocalUrl } from "@shared";
 import type {
   EmulationCloudSave,
   EmulatorBinary,
@@ -557,15 +558,12 @@ export const resolveImageSource = (
   }
 
   if (trimmedImageUrl.startsWith("local:")) {
-    const normalizedLocalPath = trimmedImageUrl
-      .slice("local:".length)
-      .replaceAll("\\", "/");
-    return `local:${normalizedLocalPath}`;
+    return normalizeLocalUrl(trimmedImageUrl);
   }
 
   const normalizedPath = trimmedImageUrl.replaceAll("\\", "/");
   if (/^[A-Za-z]:\//.test(normalizedPath) || normalizedPath.startsWith("/")) {
-    return `local:${normalizedPath}`;
+    return toLocalUrl(normalizedPath);
   }
 
   return normalizedPath;

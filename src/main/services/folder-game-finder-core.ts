@@ -42,7 +42,13 @@ const words = (value: string) =>
     .replace(/[̀-ͯ]/g, "")
     .toLowerCase()
     .split(/[^a-z0-9]+/)
-    .filter((word) => word.length > 1 && word !== "the" && word !== "of");
+    // Numbers always count ("The Outer Worlds" is not "The Outer Worlds 2").
+    .filter(
+      (word) =>
+        (word.length > 1 || /^\d$/.test(word)) &&
+        word !== "the" &&
+        word !== "of"
+    );
 
 /** Share of `wanted`'s words found in `have`; `wanted`'s last word may be cut short (a prefix). */
 const coverage = (wanted: string[], have: string[], lastMayBeCut: boolean) => {

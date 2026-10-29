@@ -1,3 +1,4 @@
+import { toLocalUrl } from "@shared";
 import fs from "node:fs";
 import path from "node:path";
 import { randomUUID } from "node:crypto";
@@ -113,7 +114,7 @@ async function downloadToAssets(
 
     const finalPath = `${base}.${extension}`;
     await fs.promises.rename(partial, finalPath);
-    return `local:${finalPath}`;
+    return toLocalUrl(finalPath);
   } catch (error) {
     await fs.promises.unlink(partial).catch(() => {});
     logger.warn(
