@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   pickNeighbor,
@@ -13,7 +13,7 @@ import {
  * The mouse takes over again as soon as it moves.
  */
 
-const SECTIONS = ["/", "/library", "/catalogue", "/downloads", "/trophies"];
+const SECTIONS = ["/", "/library", "/trophies"];
 
 const FOCUSABLE =
   'button:not([disabled]), a[href], input:not([disabled]):not([type="hidden"]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"]), [role="button"]';
@@ -91,12 +91,19 @@ const moveFocus = (direction: Direction) => {
   const active = document.activeElement as HTMLElement | null;
   const from = active && candidates.includes(active) ? active : null;
   if (!from) {
-    candidates.sort(
+    // First press: start in the page content (the games), not on the title bar above it.
+    const content = document.getElementById("scrollableDiv");
+    const inContent =
+      scope === document && content
+        ? candidates.filter((candidate) => content.contains(candidate))
+        : [];
+    const pool = inContent.length > 0 ? inContent : candidates;
+    pool.sort(
       (a, b) =>
         a.getBoundingClientRect().top - b.getBoundingClientRect().top ||
         a.getBoundingClientRect().left - b.getBoundingClientRect().left
     );
-    candidates[0].focus();
+    pool[0].focus();
     return;
   }
   const others = candidates.filter((candidate) => candidate !== from);
@@ -128,6 +135,13 @@ const moveFocus = (direction: Direction) => {
 export function useDesktopGamepad() {
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  // Read through a ref: re-creating the polling loop on every page change made a held RB look
+  // like a new press to the fresh loop, so one press ran through several sections.
+  const pathnameRef = useRef(pathname);
+  pathnameRef.current = pathname;
+  // Same for navigate: React Router hands out a new function on every page change.
+  const navigateRef = useRef(navigate);
+  navigateRef.current = navigate;
 
   useEffect(() => {
     let frame = 0;
@@ -156,7 +170,7 @@ export function useDesktopGamepad() {
             (document.activeElement as HTMLElement | null)?.dispatchEvent(
               new KeyboardEvent("keydown", { key: "Escape", bubbles: true })
             );
-          } else if (pathname !== "/") navigate(-1);
+          } else if (pathnameRef.current !== "/") navigateRef.current(-1);
           break;
         }
         case BUTTON.lb:
@@ -164,11 +178,13 @@ export function useDesktopGamepad() {
           const current = Math.max(
             0,
             SECTIONS.findIndex((path) =>
-              path === "/" ? pathname === "/" : pathname.startsWith(path)
+              path === "/"
+                ? pathnameRef.current === "/"
+                : pathnameRef.current.startsWith(path)
             )
           );
           const step = button === BUTTON.rb ? 1 : -1;
-          navigate(
+          navigateRef.current(
             SECTIONS[(current + step + SECTIONS.length) % SECTIONS.length]
           );
           break;
@@ -252,5 +268,5 @@ export function useDesktopGamepad() {
       cancelAnimationFrame(frame);
       window.removeEventListener("mousemove", onMouse);
     };
-  }, [navigate, pathname]);
+  }, []);
 }

@@ -28,4 +28,11 @@ describe("spatial navigation", () => {
     assert.equal(pickNeighbor(cards[2], cards, "right"), -1);
     assert.equal(pickNeighbor(cards[0], cards, "up"), -1);
   });
+
+  it("never leaves the row sideways (end of a row stays put)", () => {
+    // Last card of a lower row; a shelf card sits further right but higher up the page.
+    const layout = [box(0, 300), box(120, 300), box(400, 0, 150, 80)];
+    assert.equal(pickNeighbor(layout[1], layout, "right"), -1);
+    assert.equal(pickNeighbor(layout[0], layout, "right"), 1);
+  });
 });

@@ -23,6 +23,10 @@ export const pickNeighbor = (
   direction: Direction
 ): number => {
   const origin = center(from);
+  // Left/right stay on the same row: at the end of a row nothing happens, instead of the focus
+  // jumping to whatever sits further right higher up the page.
+  const sharesRow = (box: Box) =>
+    box.top < from.top + from.height && box.top + box.height > from.top;
   let best = -1;
   let bestScore = Number.POSITIVE_INFINITY;
   candidates.forEach((box, index) => {
@@ -33,11 +37,13 @@ export const pickNeighbor = (
     let across: number;
     switch (direction) {
       case "right":
+        if (!sharesRow(box)) return;
         if (box.left < from.left + from.width - 1 && dx <= 1) return;
         along = dx;
         across = Math.abs(dy);
         break;
       case "left":
+        if (!sharesRow(box)) return;
         if (box.left + box.width > from.left + 1 && dx >= -1) return;
         along = -dx;
         across = Math.abs(dy);

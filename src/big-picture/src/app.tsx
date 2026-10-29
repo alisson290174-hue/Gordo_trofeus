@@ -14,8 +14,6 @@ import {
   ButtonHints,
   ConsoleOverlays,
   FriendsPanel,
-  Header,
-  normalizeBigPicturePathname,
   QuickMenu,
   TopNav,
 } from "./layout";
@@ -59,8 +57,6 @@ export default function App() {
   const [pendingRouteFocusPathname, setPendingRouteFocusPathname] = useState<
     string | null
   >(pathname);
-  const isCataloguePage =
-    normalizeBigPicturePathname(pathname).startsWith("/catalogue");
 
   useEffect(() => {
     if (!IS_DESKTOP) {
@@ -189,8 +185,6 @@ export default function App() {
                     asChild
                   >
                     <div className="big-picture__body">
-                      {isCataloguePage && <Header />}
-
                       <article className="big-picture__content">
                         <Outlet />
                       </article>
