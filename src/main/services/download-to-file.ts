@@ -18,7 +18,7 @@ export const downloadToFile = async (
 
   const response = await axios.get(url, {
     responseType: "stream",
-    headers: { "User-Agent": "HydraLauncher" },
+    headers: { "User-Agent": "OpusLauncher" },
   });
 
   const lengthHeader = Number(response.headers["content-length"]);

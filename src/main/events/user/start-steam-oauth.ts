@@ -1,9 +1,10 @@
 import { HydraApi, logger } from "@main/services";
 import { openSteamOpenIdWindow } from "@main/services/steam-integration/steam-store-session";
+import { STEAM_CONNECTED_DEEP_LINK } from "@main/services/steam-integration/steam-openid-return";
 import { steamSyncOrchestrator } from "@main/services/steam-integration/steam-sync-orchestrator";
 import { registerEvent } from "../register-event";
 
-const STEAM_OAUTH_RETURN_TO = "hydralauncher://steam-connected";
+const STEAM_OAUTH_RETURN_TO = STEAM_CONNECTED_DEEP_LINK;
 
 const getErrorMessage = (error: unknown): string | null => {
   if (typeof error === "object" && error !== null) {

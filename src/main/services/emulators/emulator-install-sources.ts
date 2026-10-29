@@ -411,7 +411,7 @@ const resolveDolphinOptions = async (
       {
         headers: {
           Accept: "application/vnd.github+json",
-          "User-Agent": "HydraLauncher",
+          "User-Agent": "OpusLauncher",
         },
         timeout: GITHUB_API_TIMEOUT_MS,
       }
@@ -505,7 +505,7 @@ const fetchRelease = async (
   const config = {
     headers: {
       Accept: "application/vnd.github+json",
-      "User-Agent": "HydraLauncher",
+      "User-Agent": "OpusLauncher",
     },
     timeout: GITHUB_API_TIMEOUT_MS,
   };
@@ -619,7 +619,7 @@ const resolveForgejoOption = async (
     const { data } = await axios.get<ForgejoRelease[]>(
       `${entry.apiRepo}/releases?limit=10`,
       {
-        headers: { Accept: "application/json", "User-Agent": "HydraLauncher" },
+        headers: { Accept: "application/json", "User-Agent": "OpusLauncher" },
         timeout: GITHUB_API_TIMEOUT_MS,
       }
     );

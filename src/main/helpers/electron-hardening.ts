@@ -1,6 +1,7 @@
 import { app, type Session, type WebContents } from "electron";
 import { logger } from "@main/services/logger";
 import { openExternalSafe } from "./open-external-safe";
+import { isDeepLink } from "./deep-link";
 
 /**
  * App-wide Electron hardening, applied to every session and web contents as they are created:
@@ -46,8 +47,8 @@ function hardenContents(contents: WebContents) {
     const current = contents.getURL();
     // Only guard app pages; sign-in windows navigate across remote pages by design.
     if (!current || !isAppUrl(current) || isAppUrl(targetUrl)) return;
-    // Custom-protocol callbacks (hydralauncher://) are handled by their own listeners.
-    if (targetUrl.startsWith("hydralauncher://")) return;
+    // Opus deep links (opuslauncher://, legacy hydralauncher://) are handled by their own listeners.
+    if (isDeepLink(targetUrl)) return;
     event.preventDefault();
     void openExternalSafe(targetUrl);
   });

@@ -38,6 +38,7 @@ import path from "node:path";
 import UserAgent from "user-agents";
 import { HydraApi } from "./hydra-api";
 import { logger } from "./logger";
+import { isDeepLink } from "@main/helpers/deep-link";
 import {
   addSteamGridDbCacheControl,
   isSteamGridDbArtworkRequest,
@@ -624,14 +625,14 @@ export class WindowManager {
     closeWindow: () => void
   ) {
     contents.on("will-navigate", (_event, url) => {
-      if (url.startsWith("hydralauncher://auth")) {
+      if (isDeepLink(url, "auth")) {
         closeWindow();
 
         HydraApi.handleExternalAuth(url);
         return;
       }
 
-      if (url.startsWith("hydralauncher://update-account")) {
+      if (isDeepLink(url, "update-account")) {
         closeWindow();
 
         WindowManager.sendToAppWindows("on-account-updated");

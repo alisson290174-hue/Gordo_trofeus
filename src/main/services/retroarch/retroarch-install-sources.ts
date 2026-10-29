@@ -47,7 +47,7 @@ const fetchLatestStableVersion = async (): Promise<string | null> => {
     const { data } = await axios.get<string>(`${BUILDBOT_BASE}/stable/`, {
       timeout: BUILDBOT_TIMEOUT_MS,
       responseType: "text",
-      headers: { "User-Agent": "HydraLauncher" },
+      headers: { "User-Agent": "OpusLauncher" },
     });
 
     const versions = Array.from(

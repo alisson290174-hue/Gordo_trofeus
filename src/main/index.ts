@@ -27,6 +27,7 @@ import { db, gamesSublevel, levelKeys } from "./level";
 import { GameShop, UserPreferences } from "@types";
 import { launchGame, openClassicsGame } from "./helpers";
 import { refreshPortableShortcutLauncher } from "./helpers/shortcut-launch";
+import { DEEP_LINK_SCHEME, isDeepLink } from "./helpers/deep-link";
 import { lookupCachedPlatform } from "./events/library/get-library";
 import { loadState } from "./main";
 import {
@@ -79,7 +80,7 @@ i18n.init({
   },
 });
 
-const PROTOCOL = "hydralauncher";
+const PROTOCOL = DEEP_LINK_SCHEME;
 
 // Register the custom schemes as privileged so the renderer can fetch them
 // (supportFetchAPI) and use the results on a canvas without tainting it
@@ -224,11 +225,9 @@ const initializeApp = async () => {
   if (language) i18n.changeLanguage(language);
 
   // Check if starting from a "run" deep link - don't show main window in that case
-  const deepLinkArg = process.argv.find((arg) =>
-    arg.startsWith("hydralauncher://")
-  );
+  const deepLinkArg = process.argv.find((arg) => isDeepLink(arg));
   const forceBigPicture = process.argv.includes("--big-picture");
-  const isRunDeepLink = deepLinkArg?.startsWith("hydralauncher://run");
+  const isRunDeepLink = isDeepLink(deepLinkArg, "run");
 
   if (!process.argv.includes("--hidden") && !isRunDeepLink) {
     WindowManager.createMainWindow({ forceBigPicture });
@@ -360,13 +359,11 @@ const handleDeepLinkPath = (uri?: string) => {
 };
 
 app.on("second-instance", (_event, commandLine) => {
-  const deepLink = commandLine.find((arg) =>
-    arg.startsWith("hydralauncher://")
-  );
+  const deepLink = commandLine.find((arg) => isDeepLink(arg));
   const forceBigPicture = commandLine.includes("--big-picture");
 
   // Check if this is a "run" deep link - don't show main window in that case
-  const isRunDeepLink = deepLink?.startsWith("hydralauncher://run");
+  const isRunDeepLink = isDeepLink(deepLink, "run");
 
   if (!isRunDeepLink) {
     if (WindowManager.mainWindow) {
