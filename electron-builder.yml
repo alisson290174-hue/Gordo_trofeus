@@ -5,7 +5,6 @@ directories:
 extraResources:
   - ludusavi
   - hydra-native
-  - seeds
   - from: node_modules/create-desktop-shortcuts/src/windows.vbs
   - from: resources/achievement.wav
   - from: resources/classic-fanart-index.json
@@ -14,7 +13,6 @@ files:
   - "!.cache/**"
   - "!.claude/**"
   - "!server/**"
-  - "!native/torrent-bridge/**"
   - "!**/.vscode/*"
   - "!src/*"
   - "!native/hydra-native/target"

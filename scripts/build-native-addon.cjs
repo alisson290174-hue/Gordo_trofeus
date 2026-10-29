@@ -2,7 +2,6 @@ const fs = require("node:fs");
 const path = require("node:path");
 const util = require("node:util");
 const childProcess = require("node:child_process");
-const { buildTorrentBridge } = require("./build-torrent-bridge.cjs");
 
 const execFile = util.promisify(childProcess.execFile);
 const MAX_COMMAND_OUTPUT_BYTES = 10 * 1024 * 1024;
@@ -110,8 +109,6 @@ const build = async () => {
   }
 
   console.log("Building hydra-native Rust addon...");
-  const torrentLibraryDir = buildTorrentBridge();
-
   const cargoArgs = [
     "build",
     "--release",
@@ -122,9 +119,7 @@ const build = async () => {
     cargoTargetDir,
   ];
 
-  await run("cargo", cargoArgs, {
-    env: { ...process.env, HYDRA_TORRENT_LIB_DIR: torrentLibraryDir },
-  });
+  await run("cargo", cargoArgs);
 
   const sourceLibraryPath = path.join(
     cargoTargetDir,

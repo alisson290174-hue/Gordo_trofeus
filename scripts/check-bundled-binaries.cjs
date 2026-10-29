@@ -16,7 +16,6 @@ const root = path.join(__dirname, "..");
 
 const REQUIRED = [
   { file: "hydra-native/hydra-native.node", hint: "node scripts/build-native-addon.cjs" },
-  { file: "hydra-native/hydra_torrent_bridge.dll", hint: "node scripts/build-native-addon.cjs" },
   { file: "hydra-native/vcruntime140.dll", hint: "node scripts/build-native-addon.cjs" },
   {
     file: "ludusavi/ludusavi.exe",
@@ -48,7 +47,7 @@ exports.default = async function checkBundledBinaries(context) {
   if (problems.length) {
     throw new Error(`Bundled binaries check failed:\n  - ${problems.join("\n  - ")}`);
   }
-  console.log("  • bundled binaries OK (native addon, torrent bridge, Ludusavi, Legendary)");
+  console.log("  • bundled binaries OK (native addon, Ludusavi, Legendary)");
 };
 
 if (require.main === module) {
