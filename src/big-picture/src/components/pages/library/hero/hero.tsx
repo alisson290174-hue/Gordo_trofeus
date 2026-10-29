@@ -1,7 +1,7 @@
 import type { LibraryGame } from "@types";
 import {
   ClockIcon,
-  DownloadSimpleIcon,
+  FolderOpenIcon,
   GearIcon,
   HeartIcon,
   PlayIcon,
@@ -214,14 +214,14 @@ export function LibraryHero({
               ) : (
                 <Button
                   variant="primary"
-                  icon={<DownloadSimpleIcon size={24} />}
+                  icon={<FolderOpenIcon size={24} />}
                   color={dominantColor ?? undefined}
                   focusId={LIBRARY_HERO_LAUNCH_BUTTON_ID}
                   focusNavigationOverrides={launchNavigationOverrides}
                   disabled={!featuredGame}
                   onClick={handlePlayOrDownloadClick}
                 >
-                  Download Game
+                  Choose Executable
                 </Button>
               )}
 

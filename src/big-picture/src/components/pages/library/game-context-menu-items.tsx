@@ -1,7 +1,7 @@
 import type { LibraryGame, ShopAssets } from "@types";
 import {
   BookmarkSimpleIcon,
-  DownloadSimpleIcon,
+  FolderOpenIcon,
   ExportIcon,
   GearIcon,
   HeartIcon,
@@ -44,11 +44,11 @@ export function buildLibraryGameContextMenuItems(
   const nextItems: ContextMenuItem[] = [
     {
       id: "launch-or-download",
-      label: isPlayable ? "Launch Game" : "Download Game",
+      label: isPlayable ? "Launch Game" : "Choose Executable",
       icon: isPlayable ? (
         <PlayIcon size={18} weight="fill" />
       ) : (
-        <DownloadSimpleIcon size={18} />
+        <FolderOpenIcon size={18} />
       ),
       onSelect: () => onLaunchOrDownload(game),
     },
@@ -130,7 +130,6 @@ export function buildCatalogGameContextMenuItems(
   const {
     canAddToLibrary,
     isAddingToLibrary,
-    onOpenDownloadOptions,
     onAddToLibrary,
     onViewAchievements,
     onShare,
@@ -139,14 +138,6 @@ export function buildCatalogGameContextMenuItems(
   const nextItems: ContextMenuItem[] = [];
 
   if (canAddToLibrary) {
-    nextItems.push({
-      id: "download-options",
-      label: "Download Options",
-      icon: <DownloadSimpleIcon aria-hidden size={18} weight="regular" />,
-      restoreFocusOnClose: false,
-      onSelect: onOpenDownloadOptions,
-    });
-
     nextItems.push({
       id: "add-to-library",
       label: "Add to Library",

@@ -2,6 +2,7 @@ import { GameEyebrow, GameFacts } from "./opus-facts";
 import { sanitizeRichHtml } from "@shared";
 import {
   DownloadSimpleIcon,
+  FolderOpenIcon,
   GearIcon,
   HeartIcon,
   PlayIcon,
@@ -31,7 +32,6 @@ import {
 } from "../../../common";
 import {
   GAME_HERO_ACTIONS_REGION_ID,
-  GAME_HERO_DOWNLOAD_OPTIONS_ID,
   GAME_HERO_OPEN_CLOUD_SAVE_ID,
   GAME_HERO_OPEN_SETTINGS_ID,
   GAME_HERO_PRIMARY_ACTION_ID,
@@ -62,22 +62,15 @@ export interface HeroProps {
 function getFavoriteLeftTargetId(
   shouldShowCloudSaveButton: boolean,
   shouldShowFavoriteButton: boolean,
-  shouldShowCatalogActions: boolean,
   hasPrimaryAction: boolean
 ): string {
   if (shouldShowCloudSaveButton) return GAME_HERO_OPEN_CLOUD_SAVE_ID;
   if (shouldShowFavoriteButton) return GAME_HERO_OPEN_SETTINGS_ID;
-  if (shouldShowCatalogActions && hasPrimaryAction)
-    return GAME_HERO_DOWNLOAD_OPTIONS_ID;
   if (hasPrimaryAction) return GAME_HERO_PRIMARY_ACTION_ID;
   return BIG_PICTURE_SIDEBAR_ITEM_IDS.home;
 }
 
-function getSettingsLeftTargetId(
-  shouldShowCatalogActions: boolean,
-  hasPrimaryAction: boolean
-): string {
-  if (shouldShowCatalogActions) return GAME_HERO_DOWNLOAD_OPTIONS_ID;
+function getSettingsLeftTargetId(hasPrimaryAction: boolean): string {
   if (hasPrimaryAction) return GAME_HERO_PRIMARY_ACTION_ID;
   return BIG_PICTURE_SIDEBAR_ITEM_IDS.home;
 }
@@ -147,7 +140,6 @@ export function Hero({
   const favoriteLeftTargetId = getFavoriteLeftTargetId(
     shouldShowCloudSaveButton,
     shouldShowFavoriteButton,
-    shouldShowCatalogActions,
     hasPrimaryAction
   );
 
@@ -175,17 +167,12 @@ export function Hero({
 
   const { primaryActionButton, downloadOptionsButton, settingsButton } =
     useMemo(() => {
-      const primaryActionRightTarget = shouldShowCatalogActions
+      const primaryActionRightTarget = shouldShowFavoriteButton
         ? {
             type: "item" as const,
-            itemId: GAME_HERO_DOWNLOAD_OPTIONS_ID,
+            itemId: GAME_HERO_OPEN_SETTINGS_ID,
           }
-        : shouldShowFavoriteButton
-          ? {
-              type: "item" as const,
-              itemId: GAME_HERO_OPEN_SETTINGS_ID,
-            }
-          : lastActionRightTarget;
+        : lastActionRightTarget;
       const primaryActionNavigationOverrides: FocusOverrides = {
         left: {
           type: "item",
@@ -194,23 +181,7 @@ export function Hero({
         right: primaryActionRightTarget,
         down: heroDownNavigationTarget,
       };
-      const downloadOptionsNavigationOverrides: FocusOverrides = {
-        left: {
-          type: "item",
-          itemId: GAME_HERO_PRIMARY_ACTION_ID,
-        },
-        right: shouldShowFavoriteButton
-          ? {
-              type: "item",
-              itemId: GAME_HERO_OPEN_SETTINGS_ID,
-            }
-          : lastActionRightTarget,
-        down: heroDownNavigationTarget,
-      };
-      const settingsLeftTargetId = getSettingsLeftTargetId(
-        shouldShowCatalogActions,
-        hasPrimaryAction
-      );
+      const settingsLeftTargetId = getSettingsLeftTargetId(hasPrimaryAction);
       const settingsNavigationOverrides: FocusOverrides = {
         left: {
           type: "item",
@@ -291,6 +262,10 @@ export function Hero({
       }
 
       if (game) {
+        // A Steam-account game not installed yet installs through Steam; anything else in the
+        // library without an executable gets one picked (onDownload opens the game settings).
+        const installOnSteam =
+          game.shop === "steam" && Boolean(game.hasActiveSteamImport);
         return {
           primaryActionButton: (
             <Button
@@ -298,10 +273,23 @@ export function Hero({
               focusNavigationOverrides={primaryActionNavigationOverrides}
               variant="primary"
               color={dominantColor ?? undefined}
-              icon={<DownloadSimpleIcon size={24} />}
-              onClick={onDownload}
+              icon={
+                installOnSteam ? (
+                  <DownloadSimpleIcon size={24} />
+                ) : (
+                  <FolderOpenIcon size={24} />
+                )
+              }
+              onClick={
+                installOnSteam
+                  ? () =>
+                      void globalThis.window.electron.installThroughSteam(
+                        game.objectId
+                      )
+                  : onDownload
+              }
             >
-              Download Game
+              {installOnSteam ? "Install on Steam" : "Choose Executable"}
             </Button>
           ),
           downloadOptionsButton: null,
@@ -342,17 +330,7 @@ export function Hero({
             Add to Library
           </Button>
         ),
-        downloadOptionsButton: (
-          <Button
-            focusId={GAME_HERO_DOWNLOAD_OPTIONS_ID}
-            focusNavigationOverrides={downloadOptionsNavigationOverrides}
-            variant="secondary"
-            icon={<DownloadSimpleIcon size={24} />}
-            onClick={onOpenDownloadOptions}
-          >
-            Download Game
-          </Button>
-        ),
+        downloadOptionsButton: null,
         settingsButton: null,
       };
     }, [

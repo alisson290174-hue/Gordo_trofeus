@@ -735,7 +735,9 @@
     "Recent games": "Jogos recentes",
     "Filter by console": "Filtrar por console",
     "Game menu": "Menu do jogo",
-    "Compare with friend": "Comparar com amigo"
+    "Compare with friend": "Comparar com amigo",
+    "Choose Executable": "Escolher executável",
+    "Install on Steam": "Instalar pela Steam"
   },
   "format": {
     "playtime_hours_one": "{{count}} hora",

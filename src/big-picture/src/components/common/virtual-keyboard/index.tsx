@@ -703,7 +703,10 @@ export function VirtualKeyboardProvider() {
   const closeKeyboard = useCallback(
     (restoreFocus = true) => {
       const currentTarget = target;
-      shouldRestoreNavigationFocusOnUnmountRef.current = restoreFocus;
+      // The controller focus always goes back to where the keyboard came from (closing with B left
+      // nothing focused and the pad stuck); restoreFocus only decides whether the text field gets
+      // the caret back.
+      shouldRestoreNavigationFocusOnUnmountRef.current = true;
 
       if (focusOutFrameRef.current !== null) {
         globalThis.cancelAnimationFrame(focusOutFrameRef.current);
@@ -857,7 +860,14 @@ export function VirtualKeyboardProvider() {
     toggleLayer();
   }, [pulseKey, toggleLayer]);
 
+  // Y opens the library search: releasing that same Y must not type a space into it.
+  const openedAtRef = useRef(0);
+  useEffect(() => {
+    if (isOpen) openedAtRef.current = performance.now();
+  }, [isOpen]);
+
   const hotkeySpace = useCallback(() => {
+    if (performance.now() - openedAtRef.current < 400) return;
     pulseKey(getKeyId({ type: "space", label: "Space" }));
     insertText(" ");
   }, [insertText, pulseKey]);
