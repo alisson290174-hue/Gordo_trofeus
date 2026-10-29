@@ -1,4 +1,5 @@
 import { app, ipcMain } from "electron";
+import { logger } from "@main/services/logger";
 
 /**
  * Automated UI tests of the dev build (a fake controller pressing A) must never start a game, an
@@ -27,9 +28,19 @@ export const registerEvent = (
       console.log(`[test] blocked ${name}`, JSON.stringify(args).slice(0, 120));
       return null;
     }
-    return Promise.resolve(listener(event, ...args)).then((result) => {
-      if (!result) return result;
-      return JSON.parse(JSON.stringify(result));
-    });
+    return Promise.resolve()
+      .then(() => listener(event, ...args))
+      .then(
+        (result) => {
+          if (!result) return result;
+          return JSON.parse(JSON.stringify(result));
+        },
+        (error) => {
+          // The renderer only gets the message; the stack goes to error.txt so a failing
+          // screen can be traced.
+          logger.error(`[ipc] ${name} failed`, error);
+          throw error;
+        }
+      );
   });
 };

@@ -81,9 +81,11 @@ export const getUnlockedAchievements = async (
         }
       );
 
-      const icongray = achievementData.icongray.endsWith("/")
-        ? achievementData.icon
-        : achievementData.icongray;
+      // RPCS3 (PS3) trophies have no grey icon: fall back to the colour one.
+      const icongray =
+        !achievementData.icongray || achievementData.icongray.endsWith("/")
+          ? achievementData.icon
+          : achievementData.icongray;
 
       if (unlockedAchievementData) {
         return {
