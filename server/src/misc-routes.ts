@@ -17,6 +17,10 @@ export function registerMiscRoutes(app: FastifyInstance) {
   app.get("/profile/notifications/count", async (_request, reply) =>
     reply.send({ count: 0 })
   );
+  // The inbox is always empty here (the app keeps its own local notifications), but "mark all
+  // as read" / "clear all" still call these and showed an error when they 404'd.
+  app.patch("/profile/notifications/:id/read", async (_request, reply) => reply.send({}));
+  app.delete("/profile/notifications/:id", async (_request, reply) => reply.send({}));
 
   app.get("/profile/integrations/steam", async (_request, reply) =>
     reply.send({ connected: false, snapshotPreserved: false })

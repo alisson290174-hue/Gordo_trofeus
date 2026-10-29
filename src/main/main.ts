@@ -2,6 +2,7 @@ import { downloadsSublevel } from "./level/sublevels/downloads";
 import { orderBy } from "lodash-es";
 import { Downloader } from "@shared";
 import { levelKeys, db } from "./level";
+import { openDatabase } from "./level/level";
 import { refreshGlobalTrackersUrlCache } from "@main/helpers";
 import { type Download, type UserPreferences } from "../types";
 import path from "node:path";
@@ -69,6 +70,7 @@ const hasMissingSeedFiles = async (download: Download): Promise<boolean> => {
 };
 
 export const loadState = async () => {
+  await openDatabase();
   await Lock.acquireLock();
   await clearLegacyAchievementPersistence();
   await migrateCloudSaveAutomaticSyncDefaults();
@@ -165,22 +167,28 @@ export const loadState = async () => {
           );
           const folders = await ps4FoldersWithNewGames().catch(() => []);
           if (folders.length) {
-            const { runLaunchboxImport } = await import(
-              "./events/emulators/import-launchbox-roms"
+            const { runLaunchboxImport } =
+              await import("./events/emulators/import-launchbox-roms");
+            logger.info(
+              `[emulators] ps4: new games in ${folders.length} folder(s)`
             );
-            logger.info(`[emulators] ps4: new games in ${folders.length} folder(s)`);
             await runLaunchboxImport(
               "ps4",
-              folders.map((f) => ({ path: f.path, scanSubfolders: f.scanSubfolders })),
+              folders.map((f) => ({
+                path: f.path,
+                scanSubfolders: f.scanSubfolders,
+              })),
               "pt",
               { cancelled: false }
-            ).catch((error) => logger.error("[emulators] ps4 import failed", error));
+            ).catch((error) =>
+              logger.error("[emulators] ps4 import failed", error)
+            );
           }
-          const { backfillPs4Covers } = await import(
-            "./services/emulators/repair-emulators"
-          );
+          const { backfillPs4Covers } =
+            await import("./services/emulators/repair-emulators");
           const covers = await backfillPs4Covers().catch(() => 0);
-          if (covers) WindowManager.sendToAppWindows("on-library-batch-complete");
+          if (covers)
+            WindowManager.sendToAppWindows("on-library-batch-complete");
           const { importPcPorts } = await import("./services/pc-ports");
           await importPcPorts().catch((error) =>
             logger.error("[ports] Import failed", error)

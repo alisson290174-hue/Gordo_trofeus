@@ -39,7 +39,10 @@ const IMAGE_EXTS = [".png", ".jpg", ".jpeg", ".webp"];
 const findArtesDir = async (): Promise<string | null> => {
   const base = await getEmulatorsBaseDir().catch(() => null);
   if (!base) return null;
-  for (const dir of [path.join(base, "Artes"), path.join(base, "..", "Artes")]) {
+  for (const dir of [
+    path.join(base, "Artes"),
+    path.join(base, "..", "Artes"),
+  ]) {
     if (fs.existsSync(path.join(dir, "_relatorio.csv"))) return dir;
   }
   return null;

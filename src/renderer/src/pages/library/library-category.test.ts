@@ -83,16 +83,14 @@ describe("PC ports tab", () => {
   ];
 
   it("lists ports under their own console tab, not under downloads", () => {
-    assert.deepEqual(
-      filterLibraryGamesByCategory(games, "console:port"),
-      [games[0]]
-    );
+    assert.deepEqual(filterLibraryGamesByCategory(games, "console:port"), [
+      games[0],
+    ]);
     assert.deepEqual(filterLibraryGamesByCategory(games, "torrent"), [
       games[1],
     ]);
-    assert.deepEqual(
-      filterLibraryGamesByCategory(games, "console:ps4"),
-      [games[2]]
-    );
+    assert.deepEqual(filterLibraryGamesByCategory(games, "console:ps4"), [
+      games[2],
+    ]);
   });
 });

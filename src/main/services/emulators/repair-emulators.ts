@@ -7,24 +7,31 @@ import { gamesShopAssetsSublevel, gamesSublevel, levelKeys } from "@main/level";
 import { logger } from "../logger";
 import { KNOWN_BINARIES } from "./known-binaries";
 import { detectEmulatorWithDownloads } from "./detect-emulator-with-downloads";
-import { getEmulatorConfig, updateEmulatorConfig } from "./emulators-repository";
+import {
+  getEmulatorConfig,
+  updateEmulatorConfig,
+} from "./emulators-repository";
 
 /**
  * An emulator whose saved executable no longer exists (folder moved, renamed or swapped for a
  * fork, e.g. D:\EMULADORES\shadPS4 → D:\EMULADORES\shadPS4-eltutz-GOW3) is found again in the
  * emulators folder, so its games keep opening without a trip to the settings.
  */
-export const repairMissingEmulatorPaths = async (): Promise<EmulatorSystem[]> => {
+export const repairMissingEmulatorPaths = async (): Promise<
+  EmulatorSystem[]
+> => {
   const repaired: EmulatorSystem[] = [];
   for (const system of EMULATOR_SYSTEMS as EmulatorSystem[]) {
     const config = await getEmulatorConfig(system).catch(() => null);
     const current = config?.executablePath;
     if (!current || fs.existsSync(current)) continue;
-    const found = await detectEmulatorWithDownloads(KNOWN_BINARIES[system]).catch(
-      () => null
-    );
+    const found = await detectEmulatorWithDownloads(
+      KNOWN_BINARIES[system]
+    ).catch(() => null);
     if (!found || !fs.existsSync(found.executablePath)) {
-      logger.warn(`[emulators] ${system}: ${current} is gone and no other copy was found`);
+      logger.warn(
+        `[emulators] ${system}: ${current} is gone and no other copy was found`
+      );
       continue;
     }
     await updateEmulatorConfig(system, (previous) => ({
@@ -34,7 +41,9 @@ export const repairMissingEmulatorPaths = async (): Promise<EmulatorSystem[]> =>
       detectedAt: Date.now(),
     }));
     repaired.push(system);
-    logger.info(`[emulators] ${system}: ${current} is gone, now ${found.executablePath}`);
+    logger.info(
+      `[emulators] ${system}: ${current} is gone, now ${found.executablePath}`
+    );
   }
   return repaired;
 };
@@ -49,7 +58,9 @@ const ps4GameDirs = (root: string, deep: boolean): string[] => {
     } catch {
       return;
     }
-    if (entries.some((e) => e.isDirectory() && e.name.toLowerCase() === "sce_sys")) {
+    if (
+      entries.some((e) => e.isDirectory() && e.name.toLowerCase() === "sce_sys")
+    ) {
       if (!/-(update|patch)$/i.test(path.basename(dir))) found.push(dir);
       return;
     }
@@ -69,7 +80,8 @@ const ps4GameDirs = (root: string, deep: boolean): string[] => {
  */
 export const ps4FoldersWithNewGames = async () => {
   const config = await getEmulatorConfig("ps4").catch(() => null);
-  if (!config?.executablePath || !fs.existsSync(config.executablePath)) return [];
+  if (!config?.executablePath || !fs.existsSync(config.executablePath))
+    return [];
   const known = new Set<string>();
   for await (const [, game] of gamesSublevel.iterator()) {
     if (game.shop !== "launchbox" || game.isDeleted) continue;
@@ -89,8 +101,9 @@ export const backfillPs4Covers = async () => {
   const isIcon = (url?: string | null) => !url || /icon0\.png$/i.test(url);
   const pending: [string, Game, string][] = [];
   for await (const [key, game] of gamesSublevel.iterator()) {
-    if (game.shop !== "launchbox" || game.isDeleted || game.customCoverImageUrl) continue;
-    if (!/playstation\s*4|ps4/i.test(game.platform ?? "")) continue;
+    if (game.shop !== "launchbox" || game.isDeleted || game.customCoverImageUrl)
+      continue;
+    if (!/playstation\s*4|\bps4\b/i.test(game.platform ?? "")) continue;
     if (!isIcon(game.coverImageUrl)) continue;
     const box = findClassicBox("ps4", game.title)[0];
     if (box) pending.push([key, game, box]);
@@ -99,9 +112,14 @@ export const backfillPs4Covers = async () => {
     await gamesSublevel.put(key, { ...game, coverImageUrl: box });
     // The library prefers the cached shop art, which still points at the icon.
     const assetsKey = levelKeys.game("launchbox", game.objectId);
-    const assets = await gamesShopAssetsSublevel.get(assetsKey).catch(() => null);
+    const assets = await gamesShopAssetsSublevel
+      .get(assetsKey)
+      .catch(() => null);
     if (assets && isIcon(assets.libraryImageUrl))
-      await gamesShopAssetsSublevel.put(assetsKey, { ...assets, libraryImageUrl: box });
+      await gamesShopAssetsSublevel.put(assetsKey, {
+        ...assets,
+        libraryImageUrl: box,
+      });
     logger.info(`[emulators] ps4: box art for ${game.title}`);
   }
   return pending.length;

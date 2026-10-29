@@ -111,8 +111,7 @@ const setCfg = (content: string, key: string, value: string) => {
 };
 
 const cfgValue = (content: string, key: string) =>
-  new RegExp(`^${key}\\s*=\\s*"?([^"\\r\\n]*)"?`, "m").exec(content)?.[1] ??
-  "";
+  new RegExp(`^${key}\\s*=\\s*"?([^"\\r\\n]*)"?`, "m").exec(content)?.[1] ?? "";
 
 interface EmulatorFiles {
   retroArchCfg: string | null;
@@ -256,10 +255,10 @@ const lacksSession = (files: EmulatorFiles) => {
     (retroArchCfg &&
       fs.existsSync(retroArchCfg) &&
       !cfgValue(fs.readFileSync(retroArchCfg, "utf8"), "cheevos_token")) ||
-      (duckstationIni && !iniValue(duckstationIni, "Cheevos", "Token")) ||
-      (pcsx2Ini && !iniValue(pcsx2Ini, "Achievements", "Token")) ||
-      (dolphinIni && !iniValue(dolphinIni, "Achievements", "ApiToken")) ||
-      (ppssppIni && !fs.existsSync(ppssppTokenFile(ppssppIni)))
+    (duckstationIni && !iniValue(duckstationIni, "Cheevos", "Token")) ||
+    (pcsx2Ini && !iniValue(pcsx2Ini, "Achievements", "Token")) ||
+    (dolphinIni && !iniValue(dolphinIni, "Achievements", "ApiToken")) ||
+    (ppssppIni && !fs.existsSync(ppssppTokenFile(ppssppIni)))
   );
 };
 

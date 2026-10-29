@@ -23,11 +23,11 @@ export const CHANGELOG: ChangelogEntry[] = [
     version: "1.0.69",
     date: "16/10/2026",
     items: [
-      "Biblioteca nova: cada plataforma ganhou um cartão com a cor do console, o nome completo e as capas; ao escolher uma, aparece a faixa da seção (com Steam, Epic e Torrent dentro de PC e o atalho para configurar o emulador). Em \"Todos\", os jogos vêm separados por console, cada grupo com o seu título.",
+      'Biblioteca nova: cada plataforma ganhou um cartão com a cor do console, o nome completo e as capas; ao escolher uma, aparece a faixa da seção (com Steam, Epic e Torrent dentro de PC e o atalho para configurar o emulador). Em "Todos", os jogos vêm separados por console, cada grupo com o seu título.',
       "Big Picture: os consoles viraram pílulas coloridas com nome e quantidade de jogos.",
       "Capas sem cortes: caixas deitadas (Super Nintendo, Nintendo 64) aparecem inteiras na biblioteca, e a fileira do Início usa uma arte quadrada própria (arte do jogo + logo) guardada no backup de artes do HD dos emuladores.",
       "RetroAchievements: o login dos emuladores fica guardado com segurança e volta sozinho se um emulador for reinstalado; o PPSSPP (PSP) entrou na lista. Sem login, os emuladores param de pedir para conectar a cada jogo.",
-      "Os emuladores não abrem mais a própria janela de \"nova versão\" ao iniciar um jogo (o Opus já os atualiza sozinho) — nada de pegar o mouse no Big Picture.",
+      'Os emuladores não abrem mais a própria janela de "nova versão" ao iniciar um jogo (o Opus já os atualiza sozinho) — nada de pegar o mouse no Big Picture.',
       "Bloodborne (port de PC): o Opus agora sabe quando ele está aberto — conta horas jogadas e o Select + Start fecha o jogo.",
     ],
   },

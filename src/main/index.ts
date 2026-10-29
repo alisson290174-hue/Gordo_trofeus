@@ -2,6 +2,7 @@ import {
   app,
   BrowserWindow,
   crashReporter,
+  dialog,
   net,
   powerMonitor,
   protocol,
@@ -196,6 +197,16 @@ const initializeApp = async () => {
     await loadState();
   } catch (error) {
     logger.error("Failed to load app state during startup", error);
+    // Without the database nothing works (no IPC handlers get registered); say so and quit
+    // instead of showing a window where every button is dead.
+    if (db.status !== "open") {
+      dialog.showErrorBox(
+        "Opus Launcher",
+        "Não foi possível abrir os dados do Opus. Outra cópia do Opus (ou a versão de teste) ainda está aberta: feche-a e abra o Opus de novo."
+      );
+      app.quit();
+      return;
+    }
     // Whatever failed (offline API, torrent service…), the watchers — achievements, playtime,
     // downloads — must still run.
     void startMainLoop();

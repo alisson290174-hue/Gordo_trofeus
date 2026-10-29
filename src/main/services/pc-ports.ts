@@ -9,10 +9,7 @@ import { logger } from "./logger";
 import { WindowManager } from "./window-manager";
 import { getEmulatorConfig } from "./emulators/emulators-repository";
 import { getEmulatorsBaseDir } from "./emulators/emulators-base-dir";
-import {
-  findClassicBox,
-  findClassicFanart,
-} from "./emulators/classic-fanart";
+import { findClassicBox, findClassicFanart } from "./emulators/classic-fanart";
 
 /**
  * Native PC ports of console games ("<emulators folder>\Ports\<game>": Bloodborne's port, Ship of
@@ -56,7 +53,8 @@ const PORT_FOLDER_NAMES = ["Ports", "Port"];
 const findPortRoots = async () => {
   const bases = new Set<string>([await getEmulatorsBaseDir()]);
   for (const system of EMULATOR_SYSTEMS as EmulatorSystem[]) {
-    const exe = (await getEmulatorConfig(system).catch(() => null))?.executablePath;
+    const exe = (await getEmulatorConfig(system).catch(() => null))
+      ?.executablePath;
     let dir = exe ? path.dirname(exe) : null;
     while (dir && path.dirname(dir) !== dir) {
       bases.add(dir);
@@ -68,7 +66,8 @@ const findPortRoots = async () => {
     for (const name of PORT_FOLDER_NAMES) {
       const candidate = path.join(base, name);
       try {
-        if (fs.statSync(candidate).isDirectory()) roots.add(path.normalize(candidate));
+        if (fs.statSync(candidate).isDirectory())
+          roots.add(path.normalize(candidate));
       } catch {
         // Not there.
       }
@@ -91,7 +90,9 @@ const findLauncher = (dir: string, known?: KnownPort) => {
   }
   const play = files.find((f) => /^jogar.*\.(bat|cmd)$/i.test(f));
   if (play) return path.join(dir, play);
-  const exes = files.filter((f) => /\.exe$/i.test(f) && !/unins|setup|crash|update/i.test(f));
+  const exes = files.filter(
+    (f) => /\.exe$/i.test(f) && !/unins|setup|crash|update/i.test(f)
+  );
   return exes.length === 1 ? path.join(dir, exes[0]) : null;
 };
 
@@ -118,7 +119,9 @@ const withArt = (
   platform: "port",
   // A PC case from the art backup (boxArtImageUrl) beats the console original's box.
   customCoverImageUrl:
-    game.customCoverImageUrl ?? (game.boxArtImageUrl ? null : art.cover) ?? null,
+    game.customCoverImageUrl ??
+    (game.boxArtImageUrl ? null : art.cover) ??
+    null,
   customHeroImageUrl: game.customHeroImageUrl ?? art.hero ?? null,
   trackingExecutablePaths: game.trackingExecutablePaths?.length
     ? game.trackingExecutablePaths

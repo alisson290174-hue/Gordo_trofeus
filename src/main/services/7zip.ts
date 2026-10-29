@@ -162,10 +162,13 @@ export class SevenZip {
             return;
           }
 
-          logger.error(`Extraction error for ${filePath}:`, err);
-
           const shouldTryNextPassword =
             index < passwords.length - 1 && this.isPasswordRelatedError(err);
+
+          // A wrong guess from the password list is expected, not an error worth logging as one.
+          if (!shouldTryNextPassword) {
+            logger.error(`Extraction error for ${filePath}:`, err);
+          }
 
           if (shouldTryNextPassword) {
             logger.info(
