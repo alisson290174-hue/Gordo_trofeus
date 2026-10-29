@@ -108,7 +108,17 @@ test("small box scans, square covers and 500px Nintendo pictures are weak heroes
     true
   );
   assert.equal(isWeakHero("https://cover/x.jpg", "https://cover/x.jpg"), true);
-  assert.equal(isWeakHero("https://api.nlib.cc/nx/0100/banner"), false);
+  // eShop banners: promo bands ("Demo Available") baked into the picture.
+  assert.equal(
+    isWeakHero("https://api.nlib.cc/nx/010019401051C000/banner"),
+    true
+  );
+  assert.equal(
+    isWeakHero("https://images.launchbox-app.com/b38bcf20-54e7.jpg"),
+    false
+  );
+  // Banners are sharp, but may carry promo bands: LaunchBox fanart wins when there is one (a game
+  // without fanart keeps its banner — isWeakHero only lets the backfill replace it).
 });
 
 test("a hero is sharp from 1280px wide and wider than 3:2", () => {

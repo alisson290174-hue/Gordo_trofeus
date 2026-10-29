@@ -1,6 +1,6 @@
 import { WindowManager } from "@main/services";
-import { ipcMain } from "electron";
+import { registerEvent } from "../register-event";
 
-ipcMain.handle("openBigPictureWindow", () => {
+registerEvent("openBigPictureWindow", () => {
   WindowManager.openBigPictureWindow();
 });

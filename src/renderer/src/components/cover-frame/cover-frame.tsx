@@ -38,18 +38,29 @@ export const useImageRatio = (url: string | null) => {
  * scan of that shape fills it; anything else (a cover from another region, a custom picture) is
  * shown whole over a blurred copy of itself — never cut.
  */
+/** Art-backup scans on disk are up to 4000 px wide; covers ask for a copy sized for the screen. */
+const sizedLocal = (url: string, width: number) =>
+  url.startsWith("local:") && !url.includes("?") ? `${url}?w=${width}` : url;
+
 export function CoverFrame({
-  url,
+  url: originalUrl,
   ratio,
   alt = "",
   onError,
+  eager = false,
+  width = 600,
 }: Readonly<{
   url: string;
   /** The frame's width ÷ height. */
   ratio: number;
   alt?: string;
   onError?: () => void;
+  /** Load right away (a strip that scrolls: lazy covers left grey tiles behind). */
+  eager?: boolean;
+  /** Pixel width asked for local covers. */
+  width?: number;
 }>) {
+  const url = sizedLocal(originalUrl, width);
   const measured = useImageRatio(url);
   const fits =
     measured === null ||
@@ -62,7 +73,7 @@ export function CoverFrame({
           className="cover-frame__fill"
           src={url}
           alt={alt}
-          loading="lazy"
+          loading={eager ? "eager" : "lazy"}
           decoding="async"
           draggable={false}
           onError={onError}
@@ -82,7 +93,7 @@ export function CoverFrame({
         className="cover-frame__whole"
         src={url}
         alt={alt}
-        loading="lazy"
+        loading={eager ? "eager" : "lazy"}
         decoding="async"
         draggable={false}
         onError={onError}

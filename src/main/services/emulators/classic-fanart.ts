@@ -166,7 +166,12 @@ const bestHero = async (game: Game): Promise<string | null> => {
   const currentSize =
     current && !current.startsWith("local:") ? await measure(current) : null;
   if (current?.startsWith("local:")) return null;
-  if (currentSize && isSharpHeroSize(currentSize)) return null;
+  // eShop banners are sharp but may carry promo bands ("Demo Available"): a sharp LaunchBox
+  // background replaces them; a weaker one doesn't.
+  const isEshopBanner =
+    !!current && /api\.nlib\.cc\/nx\/[0-9a-f]+\/banner/i.test(current);
+  if (currentSize && isSharpHeroSize(currentSize) && !isEshopBanner)
+    return null;
 
   const candidates = findFanart(
     loadIndex(),
@@ -182,6 +187,7 @@ const bestHero = async (game: Game): Promise<string | null> => {
     if (size.width / size.height >= 1.3 && (!best || area > best.area))
       best = { url, area };
   }
+  if (isEshopBanner) return null;
   const currentArea = currentSize ? currentSize.width * currentSize.height : 0;
   return best && best.area > currentArea ? best.url : null;
 };

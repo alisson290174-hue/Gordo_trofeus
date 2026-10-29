@@ -109,7 +109,8 @@ export const isWeakHero = (
 ) =>
   !hero ||
   hero === cover ||
-  /thumbnails\.libretro\.com|xlenore\/(ps2|psx)-covers|nintendo\.com\/eu\/media\/images\/(10_share|11_square)/i.test(
+  // eShop banners (api.nlib.cc) often carry promo bands baked in ("Demo Available").
+  /thumbnails\.libretro\.com|xlenore\/(ps2|psx)-covers|nintendo\.com\/eu\/media\/images\/(10_share|11_square)|api\.nlib\.cc\/nx\/[0-9a-f]+\/banner/i.test(
     hero
   );
 

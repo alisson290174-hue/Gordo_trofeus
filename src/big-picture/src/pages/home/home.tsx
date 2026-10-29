@@ -149,6 +149,10 @@ export default function Home() {
     (tone: string) => {
       setConsoleFilter(tone);
       setSelectedKey(null);
+      // The new strip starts at its first cover, not at the previous console's scroll.
+      globalThis.document
+        .querySelector<HTMLElement>(".opus-home__tiles")
+        ?.scrollTo({ left: 0 });
       const first = sortRecent(
         visible.filter((game) => getPlatformBadge(game).tone === tone)
       )[0];
@@ -338,7 +342,7 @@ export default function Home() {
                 aria-label={game.title}
                 onClick={() => void launch(game)}
               >
-                {cover && <CoverFrame url={cover} ratio={coverRatio} />}
+                {cover && <CoverFrame url={cover} ratio={coverRatio} eager />}
                 {!cover && (
                   <span className="opus-home__tile-name">{game.title}</span>
                 )}

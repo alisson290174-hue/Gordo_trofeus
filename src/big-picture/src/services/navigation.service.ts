@@ -79,6 +79,7 @@ interface SetFocusRegionOptions {
 }
 
 const NAVIGATION_DEBUG_STORAGE_KEY = "hydra:big-picture:navigation-debug";
+const PENDING_FOCUS_TIMEOUT_MS = 1500;
 
 function isNavigationDebugEnabled() {
   const env = import.meta.env as unknown as Record<
@@ -149,6 +150,8 @@ export class NavigationService {
     PendingInitialFocusRequest
   >();
   private pendingRequestedFocusId: string | null = null;
+  // When the pending request was made: it waits for its node a little, never forever.
+  private pendingRequestedFocusAt = 0;
 
   public constructor() {
     this.layers.set(ROOT_NAVIGATION_LAYER_ID, {
@@ -679,6 +682,7 @@ export class NavigationService {
     }
 
     this.pendingRequestedFocusId = id;
+    this.pendingRequestedFocusAt = Date.now();
     return null;
   }
 
@@ -1088,7 +1092,15 @@ export class NavigationService {
     if (!pendingFocusId) return false;
 
     if (!this.nodes.has(pendingFocusId)) {
-      this.pendingRequestedFocusId = null;
+      // Other nodes of the new screen often register before the requested one (switching
+      // console: the "Jogar" button before the first cover). Keep waiting for it a moment
+      // instead of giving up at the first unrelated node.
+      if (
+        Date.now() - this.pendingRequestedFocusAt >
+        PENDING_FOCUS_TIMEOUT_MS
+      ) {
+        this.pendingRequestedFocusId = null;
+      }
       return false;
     }
 

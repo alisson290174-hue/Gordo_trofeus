@@ -29,6 +29,10 @@ import { launchGame, openClassicsGame } from "./helpers";
 import { refreshPortableShortcutLauncher } from "./helpers/shortcut-launch";
 import { DEEP_LINK_SCHEME, isDeepLink } from "./helpers/deep-link";
 import { fromLocalUrl } from "@shared";
+import {
+  getLocalThumbnail,
+  pickThumbnailWidth,
+} from "./services/local-thumbnails";
 import { lookupCachedPlatform } from "./events/library/get-library";
 import { loadState } from "./main";
 import {
@@ -83,6 +87,14 @@ i18n.init({
 
 const PROTOCOL = DEEP_LINK_SCHEME;
 
+// Automated UI tests drive the dev build while it sits behind other windows: keep it rendering
+// (a hidden window pauses requestAnimationFrame, and with it the controller polling).
+if (!app.isPackaged && process.env.OPUS_TEST_BLOCK_LAUNCH === "1") {
+  app.commandLine.appendSwitch("disable-backgrounding-occluded-windows");
+  app.commandLine.appendSwitch("disable-renderer-backgrounding");
+  app.commandLine.appendSwitch("disable-background-timer-throttling");
+}
+
 // Register the custom schemes as privileged so the renderer can fetch them
 // (supportFetchAPI) and use the results on a canvas without tainting it
 // (corsEnabled). Must run before the app is ready.
@@ -120,10 +132,21 @@ const initializeApp = async () => {
   // local: shows on-disk images (custom covers, souvenirs, game icons) — only media files, so a
   // compromised page can't use it to read arbitrary files from the user's disk.
   const LOCAL_MEDIA = /\.(png|jpe?g|webp|gif|bmp|ico|avif|apng|mp4|webm)$/i;
-  protocol.handle("local", (request) => {
+  protocol.handle("local", async (request) => {
     const filePath = fromLocalUrl(request.url);
     if (!LOCAL_MEDIA.test(filePath)) {
       return new Response("Forbidden", { status: 403 });
+    }
+    // "?w=600": a downsized copy for covers shown small (art backup scans are huge).
+    const requestedWidth = Number(
+      /[?&]w=(\d+)/.exec(request.url.slice(request.url.lastIndexOf("?")))?.[1]
+    );
+    if (requestedWidth > 0) {
+      const thumbnail = await getLocalThumbnail(
+        filePath,
+        pickThumbnailWidth(requestedWidth)
+      );
+      if (thumbnail) return net.fetch(url.pathToFileURL(thumbnail).toString());
     }
     return net.fetch(url.pathToFileURL(filePath).toString());
   });
