@@ -1,3 +1,4 @@
+import { tr } from "../../helpers/opus-text";
 import { getHeroArt } from "@renderer/helpers/ps5-game";
 import "./profile.scss";
 
@@ -80,7 +81,7 @@ import {
   useUserPreferences,
 } from "../../hooks";
 import { BIG_PICTURE_SIDEBAR_PROFILE_ID } from "../../layout";
-import type { FocusOverrides } from "../../services";
+import { NavigationService, type FocusOverrides } from "../../services";
 import { useNavigationIsFocused } from "../../stores";
 import {
   PROFILE_HERO_ACTIONS_REGION_ID,
@@ -2683,6 +2684,7 @@ function ProfileContent({ userId }: Readonly<ProfileContentProps>) {
     [externalProfile, userDetails, userId]
   );
 
+  const [isSignOutConfirmVisible, setIsSignOutConfirmVisible] = useState(false);
   const handleSignOut = useCallback(async () => {
     await signOut();
     navigate(getBasePath() || "/");
@@ -3210,6 +3212,17 @@ function ProfileContent({ userId }: Readonly<ProfileContentProps>) {
     canFocusRecentAchievements,
     souvenirSyncStatus,
   });
+
+  // The profile opens on its content, never on "Sign out" (the first button on the page).
+  useEffect(() => {
+    if (!firstContentFocusId) return;
+    const frame = globalThis.requestAnimationFrame(() => {
+      const navigation = NavigationService.getInstance();
+      if (navigation.getCurrentFocusId() === PROFILE_HERO_SIGN_OUT_BUTTON_ID)
+        navigation.setFocus(firstContentFocusId);
+    });
+    return () => globalThis.cancelAnimationFrame(frame);
+  }, [firstContentFocusId]);
   const showFriendsViewAll = totalFriends > friends.length;
   const externalProfileActions = useMemo<ProfileHeroAction[]>(() => {
     if (!profileUser || profileUser.isOwnProfile || !externalProfile) return [];
@@ -3231,9 +3244,8 @@ function ProfileContent({ userId }: Readonly<ProfileContentProps>) {
           isPerformingAction={isPerformingProfileAction}
           isLoading={isLoading}
           firstContentFocusId={firstContentFocusId}
-          onSignOut={() => {
-            handleSignOut().catch(() => {});
-          }}
+          // Signing out is asked first: a stray A on the profile must not log the account out.
+          onSignOut={() => setIsSignOutConfirmVisible(true)}
         />
 
         {profileUser ? (
@@ -3371,6 +3383,29 @@ function ProfileContent({ userId }: Readonly<ProfileContentProps>) {
             }
           }}
           onConfirm={() => void handleSouvenirSyncCleanup()}
+        />
+
+        <ConfirmationModal
+          visible={isSignOutConfirmVisible}
+          title={tr("Sign out?", "Sair da conta?")}
+          description={tr(
+            "Your library stays on this PC; trophies and friends need you signed in.",
+            "Sua biblioteca continua neste PC; troféus e amigos precisam da conta conectada."
+          )}
+          confirmLabel={tr("Sign out", "Sair")}
+          cancelLabel={tr("Cancel", "Cancelar")}
+          onClose={() => {
+            setIsSignOutConfirmVisible(false);
+            globalThis.requestAnimationFrame(() =>
+              NavigationService.getInstance().setFocus(
+                PROFILE_HERO_SIGN_OUT_BUTTON_ID
+              )
+            );
+          }}
+          onConfirm={() => {
+            setIsSignOutConfirmVisible(false);
+            handleSignOut().catch(() => {});
+          }}
         />
 
         <ConfirmationModal
