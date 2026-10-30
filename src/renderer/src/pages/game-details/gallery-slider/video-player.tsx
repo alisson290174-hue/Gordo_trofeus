@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { Icon } from "@renderer/components/icon/icon";
 import { useTranslation } from "react-i18next";
 
-import { useHlsVideo } from "@shared";
+import { useHlsVideo } from "@renderer/hooks/use-hls-video";
 
 const PLAY_ICON_SIZE = 24;
 

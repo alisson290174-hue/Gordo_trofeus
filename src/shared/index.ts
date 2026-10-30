@@ -43,7 +43,6 @@ export * from "./artwork-resolver";
 export * from "./download-directories";
 export * from "./html-sanitizer";
 export * from "./language-flags";
-export * from "./use-hls-video";
 export * from "./use-souvenir-content-warning";
 export * from "./retroarch-platform";
 export * from "./tracker-list";

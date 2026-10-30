@@ -9,21 +9,16 @@ extraResources:
   - from: resources/achievement.wav
   - from: resources/classic-fanart-index.json
   - from: resources/classic-box-index.json
+# Only what the app runs: the built code, its resources and package.json (electron-builder adds
+# the production node_modules itself). Source, native sources, binaries (shipped through
+# extraResources), docs, scripts, prompts and build caches stay out of the installer.
+# Renderer source maps are dropped; the main process keeps its maps for readable stack traces.
 files:
-  - "!.cache/**"
-  - "!.claude/**"
-  - "!server/**"
-  - "!**/.vscode/*"
-  - "!src/*"
-  - "!native/hydra-native/target"
-  - "!native/hydra-native/target/**"
-  - "!electron.vite.config.{js,ts,mjs,cjs}"
-  - "!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}"
-  - "!**/.env"
-  - "!**/.env.*"
-  - "!{.npmrc,pnpm-lock.yaml}"
-  - "!{tsconfig.json,tsconfig.node.json,tsconfig.web.json,tsconfig.test.json}"
-  - "!scripts/register-ts-node.mjs"
+  - out/**
+  - resources/**
+  - package.json
+  - LICENSE
+  - "!out/renderer/**/*.map"
 asarUnpack:
   - resources/**
   - node_modules/sharp/**

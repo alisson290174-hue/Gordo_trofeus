@@ -1,4 +1,4 @@
-import { useHlsVideo } from "@shared";
+import { useHlsVideo } from "@renderer/hooks/use-hls-video";
 import { useRef } from "react";
 
 interface VideoPlayerProps {
