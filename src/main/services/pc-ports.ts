@@ -35,9 +35,31 @@ const KNOWN_PORTS: KnownPort[] = [
   {
     match: /bloodborne/i,
     title: "Bloodborne",
-    launchers: ["Jogar_Bloodborne.bat", "launch_gui.bat", "run.bat"],
+    // The packaged Windows port (its "Play" exe starts the game with the launcher's saved
+    // settings) first, then the old source checkout's scripts.
+    launchers: [
+      "bbport-windows/Play Bloodborne.exe",
+      "Play Bloodborne.exe",
+      "Jogar_Bloodborne.bat",
+      "launch_gui.bat",
+      "run.bat",
+    ],
     art: { platform: "ps4", title: "Bloodborne" },
-    processes: ["out/bbport.exe"],
+    processes: [
+      "bbport-windows/bin/bb-probe.exe",
+      "bin/bb-probe.exe",
+      "out/bbport.exe",
+    ],
+  },
+  {
+    match: /god of war (iii|3)/i,
+    title: "God of War III Remastered",
+    launchers: [
+      "gow3-windows/Play God of War III.exe",
+      "Play God of War III.exe",
+    ],
+    art: { platform: "ps4", title: "God of War III Remastered" },
+    processes: ["gow3-windows/bin/gow3-probe.exe", "bin/gow3-probe.exe"],
   },
   {
     match: /harkinian/i,
@@ -85,6 +107,12 @@ const findLauncher = (dir: string, known?: KnownPort) => {
   }
   const byLower = new Map(files.map((f) => [f.toLowerCase(), f]));
   for (const name of known?.launchers ?? []) {
+    // "gow3-windows/Play God of War III.exe": packaged ports keep their launcher in a subfolder.
+    if (name.includes("/")) {
+      const nested = path.join(dir, ...name.split("/"));
+      if (fs.existsSync(nested)) return nested;
+      continue;
+    }
     const hit = byLower.get(name.toLowerCase());
     if (hit) return path.join(dir, hit);
   }
@@ -139,6 +167,7 @@ export const importPcPorts = async () => {
     title: string;
     known?: KnownPort;
     tracking: string[];
+    rank: number;
   }[] = [];
   for (const root of roots) {
     for (const entry of fs.readdirSync(root, { withFileTypes: true })) {
@@ -149,12 +178,24 @@ export const importPcPorts = async () => {
       const tracking = (known?.processes ?? [])
         .map((file) => path.join(root, entry.name, file))
         .filter((file) => fs.existsSync(file));
-      found.push({
-        launcher,
-        title: portTitle(entry.name, known),
-        known,
-        tracking,
-      });
+      const title = portTitle(entry.name, known);
+      const rank = known
+        ? known.launchers.findIndex((name) =>
+            launcher
+              .toLowerCase()
+              .endsWith(name.replace("/", path.sep).toLowerCase())
+          )
+        : 0;
+      // Two folders of the same port (an old source checkout next to the packaged one): only
+      // the better launcher is kept.
+      const twin = found.findIndex(
+        (port) => port.known && port.known === known
+      );
+      if (twin >= 0) {
+        if (found[twin].rank <= rank) continue;
+        found.splice(twin, 1);
+      }
+      found.push({ launcher, title, known, tracking, rank });
     }
   }
   if (found.length === 0) return 0;
@@ -167,7 +208,31 @@ export const importPcPorts = async () => {
       ([, game]) =>
         game.executablePath?.toLowerCase() === port.launcher.toLowerCase()
     );
+    // The same port already in the library with another launcher (moved to a newer package):
+    // it now opens the new one, keeping its playtime and trophies.
+    const moved = existing
+      ? null
+      : library.find(
+          ([, game]) =>
+            game.shop === "custom" &&
+            game.platform === "port" &&
+            !game.isDeleted &&
+            game.title === port.title
+        );
     try {
+      if (moved) {
+        const [key, game] = moved;
+        await gamesSublevel.put(key, {
+          ...withArt(game, art, port.tracking),
+          executablePath: port.launcher,
+          trackingExecutablePaths: port.tracking.length ? port.tracking : null,
+        });
+        changed++;
+        logger.info(
+          `[ports] ${game.title}: ${game.executablePath} → ${port.launcher}`
+        );
+        continue;
+      }
       // A port the user removed stays removed.
       if (existing?.[1].isDeleted) continue;
       if (existing) {

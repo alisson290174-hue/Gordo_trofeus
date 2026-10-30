@@ -166,7 +166,9 @@ const hideConsoleCopiesOfPorts = (games: LibraryGame[]) => {
   const portTitles = new Set(
     games
       .filter((game) => game.platform === "port")
-      .map((game) => normaliseFanartTitle(game.title.replace(/(.*?)/g, "")))
+      .map((game) =>
+        normaliseFanartTitle(game.title.replace(/\s*\([^)]*\)/g, ""))
+      )
   );
   if (portTitles.size === 0) return games;
   return games.filter(
