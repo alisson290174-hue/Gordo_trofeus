@@ -17,11 +17,9 @@ import {
   sl,
 } from "date-fns/locale";
 
-import { isArchiveOrgFileUri } from "./archive-org";
 import { charMap } from "./char-map";
-import { Downloader } from "./constants";
 import { format } from "date-fns";
-import { AchievementNotificationInfo, GameRepack } from "@types";
+import { AchievementNotificationInfo } from "@types";
 import { getAchievementTier } from "./achievement-tier";
 
 export * from "./archive-org";
@@ -159,144 +157,6 @@ export const formatName = pipe<string>(
   removeDuplicateSpaces,
   (str) => str.trim()
 );
-
-const realDebridHosts = ["https://1fichier.com", "https://mediafire.com"];
-
-export const getDownloadersForUri = (uri: string) => {
-  if (uri.startsWith("https://gofile.io")) return [Downloader.Gofile];
-
-  if (uri.startsWith("https://pixeldrain.com")) return [Downloader.PixelDrain];
-  if (uri.startsWith("https://datanodes.to")) return [Downloader.Datanodes];
-  if (uri.startsWith("https://www.mediafire.com"))
-    return [Downloader.Mediafire];
-  if (uri.startsWith("https://fuckingfast.co")) {
-    return [Downloader.FuckingFast];
-  }
-  if (
-    uri.startsWith("https://vikingfile.com") ||
-    uri.startsWith("https://vik1ngfile.site")
-  ) {
-    return [Downloader.VikingFile];
-  }
-  if (uri.startsWith("https://www.rootz.so")) {
-    return [Downloader.Rootz];
-  }
-  if (isArchiveOrgFileUri(uri)) {
-    return [Downloader.ArchiveOrg];
-  }
-
-  if (realDebridHosts.some((host) => uri.startsWith(host)))
-    return [Downloader.RealDebrid];
-
-  if (uri.startsWith("magnet:")) {
-    return [
-      Downloader.Torrent,
-      Downloader.Hydra,
-      Downloader.TorBox,
-      Downloader.RealDebrid,
-      Downloader.Premiumize,
-      Downloader.AllDebrid,
-    ];
-  }
-
-  return [];
-};
-
-export const getDownloadersForUris = (uris: string[]) => {
-  const downloadersSet = uris.reduce<Set<Downloader>>((prev, next) => {
-    const downloaders = getDownloadersForUri(next);
-    downloaders.forEach((downloader) => prev.add(downloader));
-
-    return prev;
-  }, new Set());
-
-  return Array.from(downloadersSet);
-};
-
-export const filterDownloadableRepacks = <T extends Pick<GameRepack, "uris">>(
-  repacks: T[]
-) =>
-  repacks.filter(
-    (repack) =>
-      Array.isArray(repack.uris) &&
-      getDownloadersForUris(repack.uris).length > 0
-  );
-
-const AVAILABILITY_CHECK_DOWNLOADERS = new Set<Downloader>([
-  Downloader.VikingFile,
-]);
-
-export const HOSTER_AVAILABILITY_MAX_URLS = 50;
-
-export interface HosterAvailabilityResult {
-  url: string;
-  available: boolean;
-}
-
-export const supportsHosterAvailabilityCheck = (uri: string) =>
-  getDownloadersForUri(uri).some((downloader) =>
-    AVAILABILITY_CHECK_DOWNLOADERS.has(downloader)
-  );
-
-export const collectHosterAvailabilityUris = (
-  repacks: Pick<GameRepack, "uris">[]
-) => {
-  const uris = new Set<string>();
-
-  for (const repack of repacks) {
-    for (const uri of repack.uris) {
-      if (supportsHosterAvailabilityCheck(uri)) uris.add(uri);
-    }
-  }
-
-  return Array.from(uris).slice(0, HOSTER_AVAILABILITY_MAX_URLS);
-};
-
-export const fetchHosterAvailability = async (
-  repacks: Pick<GameRepack, "uris">[],
-  post: <T>(url: string, data: unknown) => Promise<T>
-): Promise<HosterAvailabilityResult[]> => {
-  const urls = collectHosterAvailabilityUris(repacks);
-
-  if (urls.length === 0) return [];
-
-  try {
-    const response = await post<{ results?: HosterAvailabilityResult[] }>(
-      "/hosters/availability",
-      { urls }
-    );
-
-    return Array.isArray(response?.results) ? response.results : [];
-  } catch {
-    return [];
-  }
-};
-
-export const applyHosterAvailability = <
-  T extends Pick<GameRepack, "uris" | "unavailableUris">,
->(
-  repacks: T[],
-  results: HosterAvailabilityResult[]
-): T[] => {
-  const unavailable = new Set(
-    results.filter((result) => !result.available).map((result) => result.url)
-  );
-
-  if (unavailable.size === 0) return repacks;
-
-  return repacks.map((repack) => {
-    const extra = repack.uris.filter(
-      (uri) => unavailable.has(uri) && !repack.unavailableUris?.includes(uri)
-    );
-
-    if (extra.length === 0) return repack;
-
-    return {
-      ...repack,
-      unavailableUris: [...(repack.unavailableUris ?? []), ...extra],
-    };
-  });
-};
 
 export const getDateLocale = (language: string) => {
   if (language.startsWith("pt")) return ptBR;
