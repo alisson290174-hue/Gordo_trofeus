@@ -449,8 +449,9 @@ const shadps4Entries = (
         repo: "shadps4-emu/shadPS4",
         channel: "latest",
         channelLabel: null,
-        // "shadps4-win64-sdl-0.19.0.zip": the emulator itself (games open straight from Opus).
-        assetPattern: /^shadps4-win64-sdl-[\d.]+\.zip$/i,
+        // "shadps4-win64-sdl-0.19.0.zip", since 0.20 "shadps4-win64-sdl-2026-0.20.0.zip": the
+        // emulator itself (games open straight from Opus).
+        assetPattern: /^shadps4-win64-sdl-[\d.-]+\.zip$/i,
         kind: "windows-archive",
       },
     ];
