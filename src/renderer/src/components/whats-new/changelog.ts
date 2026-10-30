@@ -10,6 +10,18 @@ export interface ChangelogEntry {
 
 export const CHANGELOG: ChangelogEntry[] = [
   {
+    version: "1.0.72",
+    date: "30/10/2026",
+    items: [
+      "Jogo excluído fica excluído: os jogos da sua conta Steam e Epic voltavam para a biblioteca a cada abertura. Os que já tinham voltado precisam ser excluídos uma última vez.",
+      "God of War III Remastered e Bloodborne como ports de PC: aparecem em \"Port para PC\" com capa, abrem direto no jogo, contam as horas e o Bloodborne mantém as horas que já tinha. As cópias de PS4 ficam escondidas.",
+      "Emulação no Big Picture: a aba Emulação voltou nas Configurações, com cada console, emulador, pastas de jogos e memory cards, tudo no controle. As versões dos emuladores aparecem certas e as datas em português (\"há 25 dias\").",
+      "Capas que não somem: as capas dos jogos de PS2 e de outros jogos sem arte no servidor eram apagadas e refeitas a cada abertura. Agora ficam.",
+      "\"Baixar tradução\" diz o motivo quando não dá certo (outra região, programa dentro do arquivo, sem internet). A instalação do emulador de PS4 voltou a funcionar, e a busca por atualizações dos emuladores não esbarra mais no limite do GitHub.",
+      "Opus menor e mais seguro: o instalador caiu de 221 MB para 168 MB, e o app não deixa mais que um arquivo temporário seja gravado ou apagado fora do lugar, nem que \"abrir pasta\" execute um programa.",
+    ],
+  },
+  {
     version: "1.0.71",
     date: "29/10/2026",
     items: [
