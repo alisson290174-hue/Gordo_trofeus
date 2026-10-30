@@ -2,6 +2,8 @@ import type { EmulatorSystem } from "@types";
 
 import { EMULATOR_ICONS } from "@renderer/pages/settings/emulation/emulator-icons";
 import { KNOWN_BINARY_LABELS } from "@renderer/pages/settings/emulation/known-binary-labels";
+import { formatRelativeShort } from "@renderer/pages/settings/emulation/relative-time";
+import { resolveBigPictureLanguage } from "../../../i18n";
 import ps1Art from "@renderer/assets/emulation/ps1.png";
 import ps2Art from "@renderer/assets/emulation/ps2.png";
 import ps3Art from "@renderer/assets/emulation/ps3.png";
@@ -68,14 +70,9 @@ export function formatRelative(ts: number | null): string {
   const diff = Date.now() - ts;
   const minutes = Math.floor(diff / 60_000);
 
+  // "Just now" / "Never" are translated by the page's text pass; the rest in the app language.
   if (minutes < 1) return "Just now";
-  if (minutes < 60) return `${minutes}m ago`;
-
-  const hours = Math.floor(minutes / 60);
-  if (hours < 24) return `${hours}h ago`;
-
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
+  return formatRelativeShort(ts, resolveBigPictureLanguage());
 }
 
 export function formatDateTime(iso: string | null): string {

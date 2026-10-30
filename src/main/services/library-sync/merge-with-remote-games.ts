@@ -332,6 +332,8 @@ const mergeRemoteGame = async (
     await syncArtworkSelectionWithRemote(gameKey, localGame, remoteGame);
   }
 
+  // The server has no art for games it can't look up (emulated, custom): keep what was found
+  // locally instead of blanking it on every sync.
   const localGameShopAsset = await gamesShopAssetsSublevel.get(gameKey);
   await gamesShopAssetsSublevel.put(gameKey, {
     updatedAt: Date.now(),
@@ -339,12 +341,21 @@ const mergeRemoteGame = async (
     shop: remoteGame.shop,
     objectId: remoteGame.objectId,
     title: localGame?.title || remoteGame.title,
-    coverImageUrl: getRemoteCoverImageUrl(remoteGame),
-    libraryHeroImageUrl: remoteGame.libraryHeroImageUrl,
-    libraryImageUrl: remoteGame.libraryImageUrl,
-    logoImageUrl: remoteGame.logoImageUrl,
-    iconUrl: remoteGame.iconUrl,
-    logoPosition: remoteGame.logoPosition,
+    coverImageUrl:
+      getRemoteCoverImageUrl(remoteGame) ??
+      localGameShopAsset?.coverImageUrl ??
+      null,
+    libraryHeroImageUrl:
+      remoteGame.libraryHeroImageUrl ??
+      localGameShopAsset?.libraryHeroImageUrl ??
+      null,
+    libraryImageUrl:
+      remoteGame.libraryImageUrl ?? localGameShopAsset?.libraryImageUrl ?? null,
+    logoImageUrl:
+      remoteGame.logoImageUrl ?? localGameShopAsset?.logoImageUrl ?? null,
+    iconUrl: remoteGame.iconUrl ?? localGameShopAsset?.iconUrl ?? null,
+    logoPosition:
+      remoteGame.logoPosition ?? localGameShopAsset?.logoPosition ?? null,
     downloadSources: remoteGame.downloadSources,
   });
 };

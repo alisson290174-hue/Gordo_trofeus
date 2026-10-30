@@ -94,10 +94,16 @@ export const loadState = async () => {
     setTimeout(
       () =>
         void (async () => {
-          const { repairMissingEmulatorPaths, ps4FoldersWithNewGames } =
-            await import("./services/emulators/repair-emulators");
+          const {
+            repairMissingEmulatorPaths,
+            refreshEmulatorVersions,
+            ps4FoldersWithNewGames,
+          } = await import("./services/emulators/repair-emulators");
           await repairMissingEmulatorPaths().catch((error) =>
             logger.error("[emulators] path repair failed", error)
+          );
+          await refreshEmulatorVersions().catch((error) =>
+            logger.error("[emulators] version refresh failed", error)
           );
           const folders = await ps4FoldersWithNewGames().catch(() => []);
           if (folders.length) {

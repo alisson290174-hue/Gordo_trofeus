@@ -17,6 +17,7 @@ import {
   type InstallArch,
   type InstallOs,
 } from "./dolphin-install-source";
+import { githubGet } from "./github-api-cache";
 import { isKnownEmulatorBinary } from "./known-binaries";
 
 type ReleaseChannel = "rolling" | "latest" | "release" | "prerelease";
@@ -406,15 +407,8 @@ const resolveDolphinOptions = async (
   }
 
   try {
-    const { data } = await axios.get<GithubTag[]>(
-      `${GITHUB_API}/repos/${DOLPHIN_REPO}/tags?per_page=30`,
-      {
-        headers: {
-          Accept: "application/vnd.github+json",
-          "User-Agent": "OpusLauncher",
-        },
-        timeout: GITHUB_API_TIMEOUT_MS,
-      }
+    const data = await githubGet<GithubTag[]>(
+      `/repos/${DOLPHIN_REPO}/tags?per_page=30`
     );
     const version = pickLatestDolphinReleaseTag(data.map((tag) => tag.name));
     const option = version
@@ -494,7 +488,6 @@ interface GithubRelease {
   assets: GithubAsset[];
 }
 
-const GITHUB_API = "https://api.github.com";
 const GITHUB_API_TIMEOUT_MS = 15_000;
 const GITHUB_RELEASES_PAGE_SIZE = 20;
 
@@ -502,34 +495,19 @@ const fetchRelease = async (
   repo: string,
   channel: ReleaseChannel
 ): Promise<GithubRelease | null> => {
-  const config = {
-    headers: {
-      Accept: "application/vnd.github+json",
-      "User-Agent": "OpusLauncher",
-    },
-    timeout: GITHUB_API_TIMEOUT_MS,
-  };
-
   try {
     if (channel === "rolling") {
-      const { data } = await axios.get<GithubRelease>(
-        `${GITHUB_API}/repos/${repo}/releases/tags/latest`,
-        config
+      return await githubGet<GithubRelease>(
+        `/repos/${repo}/releases/tags/latest`
       );
-      return data;
     }
 
     if (channel === "release" || channel === "latest") {
-      const { data } = await axios.get<GithubRelease>(
-        `${GITHUB_API}/repos/${repo}/releases/latest`,
-        config
-      );
-      return data;
+      return await githubGet<GithubRelease>(`/repos/${repo}/releases/latest`);
     }
 
-    const { data } = await axios.get<GithubRelease[]>(
-      `${GITHUB_API}/repos/${repo}/releases?per_page=${GITHUB_RELEASES_PAGE_SIZE}`,
-      config
+    const data = await githubGet<GithubRelease[]>(
+      `/repos/${repo}/releases?per_page=${GITHUB_RELEASES_PAGE_SIZE}`
     );
     return data.find((release) => release.prerelease && !release.draft) ?? null;
   } catch (error) {

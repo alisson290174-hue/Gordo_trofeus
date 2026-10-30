@@ -7,6 +7,8 @@ import { gamesShopAssetsSublevel, gamesSublevel, levelKeys } from "@main/level";
 import { logger } from "../logger";
 import { KNOWN_BINARIES } from "./known-binaries";
 import { detectEmulatorWithDownloads } from "./detect-emulator-with-downloads";
+import { emulatorInstallDirectory } from "./emulator-installer";
+import { getEmulatorVersion } from "./get-emulator-version";
 import {
   getEmulatorConfig,
   updateEmulatorConfig,
@@ -37,8 +39,10 @@ export const repairMissingEmulatorPaths = async (): Promise<
     await updateEmulatorConfig(system, (previous) => ({
       ...previous,
       executablePath: found.executablePath,
-      detectedVersion: found.detectedVersion ?? previous.detectedVersion,
+      detectedVersion: found.detectedVersion ?? null,
       detectedAt: Date.now(),
+      // The release tag described the old copy, not the fork found now.
+      releaseTag: null,
     }));
     repaired.push(system);
     logger.info(
@@ -46,6 +50,56 @@ export const repairMissingEmulatorPaths = async (): Promise<
     );
   }
   return repaired;
+};
+
+const isInside = (child: string, parent: string) => {
+  const relative = path.relative(parent, child);
+  return (
+    relative !== "" && !relative.startsWith("..") && !path.isAbsolute(relative)
+  );
+};
+
+/**
+ * Emulators update themselves (DuckStation, RPCS3) or get swapped by hand, so the version
+ * saved at detection goes stale: it is read again when the executable is newer than that
+ * reading. A release tag is only kept for copies inside the folder Opus manages; anywhere else
+ * it is a leftover that would show the official version for a fork.
+ */
+export const refreshEmulatorVersions = async () => {
+  for (const system of EMULATOR_SYSTEMS as EmulatorSystem[]) {
+    const config = await getEmulatorConfig(system).catch(() => null);
+    const executablePath = config?.executablePath;
+    if (!config || !executablePath) continue;
+    const modifiedAt = await fs.promises
+      .stat(executablePath)
+      .then((stat) => stat.mtimeMs)
+      .catch(() => null);
+    if (modifiedAt === null) continue;
+
+    const binary = KNOWN_BINARIES[system];
+    const managed = isInside(
+      executablePath,
+      await emulatorInstallDirectory(binary.binary)
+    );
+    const staleTag = Boolean(config.releaseTag) && !managed;
+    const staleVersion =
+      !config.detectedVersion || modifiedAt > (config.detectedAt ?? 0);
+    if (!staleTag && !staleVersion) continue;
+
+    const version = staleVersion
+      ? (getEmulatorVersion(executablePath, binary) ?? config.detectedVersion)
+      : config.detectedVersion;
+    await updateEmulatorConfig(system, (previous) => ({
+      ...previous,
+      detectedVersion: version,
+      detectedAt: Date.now(),
+      releaseTag: managed ? previous.releaseTag : null,
+    }));
+    if (version !== config.detectedVersion)
+      logger.info(
+        `[emulators] ${system}: version ${config.detectedVersion} → ${version}`
+      );
+  }
 };
 
 /** PS4 game folders (with sce_sys, not "-UPDATE"/"addcont") in the linked folders. */
