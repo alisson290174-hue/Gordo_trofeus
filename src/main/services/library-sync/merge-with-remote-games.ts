@@ -238,12 +238,14 @@ const mergeExistingGame = (
   hasActiveSteamImport:
     remoteGame.hasActiveSteamImport === true ||
     localGame.hasActiveSteamImport === true,
-  isDeleted: resolveLibraryIsDeleted(
-    localGame.isDeleted,
-    remoteGame.source,
-    remoteGame.hasActiveSteamImport === true ||
-      localGame.hasActiveSteamImport === true
-  ),
+  isDeleted:
+    localGame.removedByUser === true ||
+    resolveLibraryIsDeleted(
+      localGame.isDeleted,
+      remoteGame.source,
+      remoteGame.hasActiveSteamImport === true ||
+        localGame.hasActiveSteamImport === true
+    ),
   ...(canReconcileCustomArtwork
     ? {
         customIconUrl: reconcileCustomAsset(

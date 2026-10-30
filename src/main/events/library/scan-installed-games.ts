@@ -780,6 +780,7 @@ export const addGameOutsideLibrary = async (
       shop: DISCOVERED_GAMES_SHOP,
       remoteId: existingGame?.remoteId ?? null,
       isDeleted: false,
+      removedByUser: false,
       playTimeInMilliseconds: existingGame?.playTimeInMilliseconds ?? 0,
       lastTimePlayed: existingGame?.lastTimePlayed ?? null,
       addedToLibraryAt: existingGame?.addedToLibraryAt ?? new Date(),

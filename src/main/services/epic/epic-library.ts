@@ -59,7 +59,7 @@ export function syncEpicLibrary(): Promise<number> {
         coverImageUrl: epicGame.coverUrl ?? existing?.coverImageUrl ?? null,
         logoImageUrl: existing?.logoImageUrl ?? null,
         remoteId: null,
-        isDeleted: false,
+        isDeleted: existing?.removedByUser === true,
         playTimeInMilliseconds: existing?.playTimeInMilliseconds ?? 0,
         lastTimePlayed: existing?.lastTimePlayed ?? null,
         addedToLibraryAt: existing?.addedToLibraryAt ?? new Date(),

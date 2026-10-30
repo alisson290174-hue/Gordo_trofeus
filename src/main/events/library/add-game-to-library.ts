@@ -49,6 +49,7 @@ const addGameToLibrary = async (
 
   if (game) {
     game.isDeleted = false;
+    game.removedByUser = false;
     game.addedToLibraryAt ??= new Date();
     game.source = "hydra";
     if (resolvedPlatform && !game.platform) game.platform = resolvedPlatform;

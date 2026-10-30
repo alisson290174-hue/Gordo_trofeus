@@ -257,6 +257,7 @@ export const persistEntryLocally = async (
   if (existing?.isDeleted && keepRemovedGames) return;
   if (existing) {
     existing.isDeleted = false;
+    existing.removedByUser = false;
     existing.addedToLibraryAt ??= new Date();
     if (platform && !existing.platform) {
       existing.platform = platform;
@@ -1087,6 +1088,7 @@ const persistUnmatchedGame = async (
   if (existing?.isDeleted && keepRemovedGames) return;
   if (existing) {
     existing.isDeleted = false;
+    existing.removedByUser = false;
     existing.addedToLibraryAt ??= new Date();
     if (isFileNameTitle(existing.title, sourceFileName)) existing.title = title;
     if (platform && !existing.platform) existing.platform = platform;

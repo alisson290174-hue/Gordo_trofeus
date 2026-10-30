@@ -80,6 +80,8 @@ export interface Game {
   source?: "hydra" | "steam";
   collectionIds?: string[];
   isDeleted: boolean;
+  /** Removed by the owner: account syncs (Steam, Epic, server) must not bring it back. */
+  removedByUser?: boolean;
   winePrefixPath?: string | null;
   protonPath?: string | null;
   executablePath?: string | null;

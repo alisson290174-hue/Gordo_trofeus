@@ -44,6 +44,7 @@ const updateGameAsDeleted = async (
   const updatedGame = {
     ...updateGameExecutablePath(game, null),
     isDeleted: true,
+    removedByUser: true,
     ...(!isLocalOnlyShop(game.shop) && {
       customIconUrl: null,
       customLogoImageUrl: null,
