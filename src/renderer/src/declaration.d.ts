@@ -604,7 +604,12 @@ declare global {
       shop: GameShop,
       objectId: string
     ) => Promise<
-      "installed" | "already_installed" | "not_found" | "unsupported" | "failed"
+      | "installed"
+      | "already_installed"
+      | "not_found"
+      | "unsupported"
+      | "failed"
+      | `failed:${string}`
     >;
     installGameTranslation: (
       shop: GameShop,

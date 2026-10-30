@@ -358,8 +358,15 @@ export function GameContextMenu({
           showSuccessToast(t("download_translation_installed"));
         else if (result === "already_installed")
           showSuccessToast(t("download_translation_already"));
+        else if (result.startsWith("failed:"))
+          // Same messages as "Instalar tradução" (wrong region, a patcher .exe inside…).
+          showErrorToast(
+            t(`install_translation_error_${result.slice("failed:".length)}`, {
+              defaultValue: t("download_translation_failed"),
+            })
+          );
         else if (result === "failed")
-          showErrorToast(t("download_translation_failed"));
+          showErrorToast(t("download_translation_unreadable"));
         else showErrorToast(t("download_translation_unavailable"));
       },
     },

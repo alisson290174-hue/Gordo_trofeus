@@ -233,6 +233,7 @@
     "download_translation_installed": "Tradução PT-BR instalada",
     "download_translation_already": "Este jogo já está traduzido",
     "download_translation_failed": "Achamos a tradução, mas ela não serve para esta versão do jogo",
+    "download_translation_unreadable": "Não foi possível baixar a tradução agora. Verifique a internet e tente de novo",
     "download_translation_unavailable": "Tradução indisponível para este jogo",
     "install_translation_filter": "Tradução (zip, 7z, rar, bps, xdelta)",
     "install_translation_success": "Tradução instalada. Nos jogos de cartucho e disco aparece uma cópia \"PT-BR\" na biblioteca.",

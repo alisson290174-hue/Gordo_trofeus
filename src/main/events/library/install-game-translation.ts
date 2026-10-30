@@ -80,8 +80,14 @@ const installGameTranslation = async (
 
 registerEvent("installGameTranslation", installGameTranslation);
 
+/** "failed:wrong_rom", "failed:executable_inside"…: the screen names the cause. */
 export type DownloadGameTranslationResult =
-  "installed" | "already_installed" | "not_found" | "unsupported" | "failed";
+  | "installed"
+  | "already_installed"
+  | "not_found"
+  | "unsupported"
+  | "failed"
+  | `failed:${string}`;
 
 /**
  * "Baixar tradução": searches the online PT-BR repositories for this one game and installs what it
@@ -106,6 +112,11 @@ const downloadGameTranslation = async (
     });
     if (outcome.status === "installed")
       void reimportAfterManualPatch(game.platform);
+    if (outcome.status === "failed")
+      // Download errors carry a message, not a code: those stay a plain "failed".
+      return /^[a-z_]+$/.test(outcome.reason)
+        ? `failed:${outcome.reason}`
+        : "failed";
     return outcome.status === "already" ? "already_installed" : outcome.status;
   }
 
